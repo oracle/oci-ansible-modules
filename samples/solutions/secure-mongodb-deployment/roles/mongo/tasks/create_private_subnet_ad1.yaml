@@ -1,0 +1,25 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+#Task for creating private subnet for ad1
+
+- name: Create private subnet for AD1
+  oci_subnet:
+    display_name: '{{ private_subnet_ad1_name }}'
+    availability_domain: "{{ availability_domain_1 }}"
+    cidr_block: "{{ cidr_block_private_ad1 }}"
+    compartment_id: "{{ compartment_id }}"
+    prohibit_public_ip_on_vnic: true
+    vcn_id: "{{ demo_vcn_ocid }}"
+    dns_label: "{{ dns_label_ad1 }}"
+    security_list_ids: ["{{ private_sec_list_ad1_id }}"]
+    route_table_id: "{{ private_subnet_ad1_rt_id }}"
+  register: result
+
+- set_fact:
+   private_subnet_ad1_id: "{{ result.subnet.id }}"
+   private_subnet_ad1_dns_label: "{{ result.subnet.dns_label }}"

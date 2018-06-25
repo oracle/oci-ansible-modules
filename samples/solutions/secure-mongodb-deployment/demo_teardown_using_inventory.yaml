@@ -1,0 +1,92 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+- name: Teardown MongoDB demo setup using dynamic inventory
+  hosts: localhost
+  tasks:
+  - name: Get all the instances in demo tag group in dynamic inventory json
+    set_fact:
+      instances: "{{ groups['tag_infra=' + infra_name] }}"
+    ignore_errors: yes
+
+  - name: Terminate all the instances in parallel. Don't wait for the terminate action to complete.
+    oci_instance:
+      id: "{{ hostvars[item]['id'] }}"
+      state: absent
+      wait: no
+    with_items: "{{ instances }}"
+    when: instances is defined
+    ignore_errors: yes
+
+  - name: Now wait for all instances to get terminated
+    oci_instance_facts:
+      compartment_id: "{{ demo_compartment_ocid }}"
+      instance_id: "{{ item }}"
+    register: result
+    with_items: "{{ instances }}"
+    until: result.instances[0].lifecycle_state == "TERMINATED"
+    when: instances is defined
+    retries: 5
+    # 10 seconds delays between retries
+    delay: 10
+
+  - oci_vcn_facts:
+      compartment_id: "{{ demo_compartment_ocid }}"
+    register: result
+  - set_fact:
+      vcn: "{{ item }}"
+    with_items: "{{ result.vcns }}"
+    when: item.display_name.find(demo_var_prefix) != -1
+
+  - oci_subnet_facts:
+      compartment_id: "{{ demo_compartment_ocid }}"
+      vcn_id: "{{ vcn['id'] }}"
+    register: result
+
+  - pause:
+      seconds: 30
+
+  - oci_subnet:
+      subnet_id: "{{ item['id'] }}"
+      state: absent
+    with_items: "{{ result.subnets }}"
+
+  - oci_security_list_facts:
+      compartment_id: "{{ demo_compartment_ocid }}"
+      vcn_id: "{{ vcn['id'] }}"
+    register: result
+
+  - oci_security_list:
+      security_list_id: "{{ item['id'] }}"
+      state: absent
+    with_items: "{{ result.security_lists }}"
+    ignore_errors: yes
+
+  - oci_route_table_facts:
+      compartment_id: "{{ demo_compartment_ocid }}"
+      vcn_id: "{{ vcn['id'] }}"
+    register: result
+
+  - oci_route_table:
+      rt_id: "{{ item['id'] }}"
+      state: absent
+    with_items: "{{ result.route_tables }}"
+    ignore_errors: yes
+
+  - oci_internet_gateway_facts:
+      compartment_id: "{{ demo_compartment_ocid }}"
+      vcn_id: "{{ vcn['id'] }}"
+    register: result
+
+  - oci_internet_gateway:
+      id: "{{ item['id'] }}"
+      state: absent
+    with_items: "{{ result.internet_gateways }}"
+
+  - oci_vcn:
+      id: "{{ vcn.id }}"
+      state: absent

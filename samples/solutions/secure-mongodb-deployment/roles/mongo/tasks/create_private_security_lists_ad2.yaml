@@ -1,0 +1,44 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+#Task for creating  security list for private subnet in ad2
+
+# Use a jinja2 template of the ingress and egress security rules to generate
+# a templated version of the final rules.
+- name: create ingress rules yaml body
+  template: src=templates/ingress_security_list_ad2.yaml.j2 dest=/tmp/ingress_security_list_ad2.yaml
+- name: create egress yaml body
+  template: src=templates/egress_security_list_ad2.yaml.j2 dest=/tmp/egress_security_list_ad2.yaml
+
+# Load the variables defined in the generated files
+- name: load the variables defined in the ingress rules yaml body
+  include_vars: 
+    file: /tmp/ingress_security_list_ad2.yaml
+    name: loaded_ingress
+- name: print loaded_ingress
+  debug:
+    msg: "loaded ingress is {{loaded_ingress}}"
+- name: load the variables defined in the egress rules yaml body
+  include_vars: 
+    file: /tmp/egress_security_list_ad2.yaml
+    name: loaded_egress
+- name: print loaded_egress
+  debug:
+    msg: "loaded egress is {{loaded_egress}}"
+
+- name: Create a security list for private subnet in availability domain 2
+  oci_security_list:
+    name: "{{ private_subnet_sec_list_ad2_name }}"
+    compartment_id: "{{ compartment_id }}"
+    vcn_id: "{{ demo_vcn_ocid }}"
+    state: 'present'
+    ingress_security_rules: "{{ loaded_ingress.ad2_ingress_security_rules }}"
+    egress_security_rules: "{{ loaded_egress.ad2_egress_security_rules }}"
+  register: result
+
+- set_fact:
+    private_sec_list_ad2_id: "{{result.security_list.id}}"

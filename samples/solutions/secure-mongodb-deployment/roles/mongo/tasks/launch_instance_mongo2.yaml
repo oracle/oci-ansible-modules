@@ -1,0 +1,30 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+#Task for launching an instance for mongo db instance in ad2
+
+- name: Launch Second instance of MongoDB
+  oci_instance:
+     name: "{{ mongodb2_name }}"
+     availability_domain: "{{ availability_domain_2 }}"
+     compartment_id: "{{ compartment_id }}"
+     image_id: "{{ mongodb_image_id }}"
+     shape: "{{ shape }}"
+     metadata:
+        user_data: "{{ lookup('file', mongodb_script)| b64encode}}"
+        ssh_authorized_keys: "{{ lookup('file', demo_ssh_public_key)}}"
+     vnic:
+        hostname_label: "{{ mongodb2_hostname }}"
+        subnet_id: "{{ private_subnet_ad2_id }}"
+     freeform_tags:
+         infra: "{{ infra_name }}"
+         type: "mongodb_instance_{{ availability_domain_2 }}"
+  register: result
+
+- set_fact:
+   mongodb2_id: "{{ result.instance.id }}"
+   mongodb2_dns_label: "{{ mongodb2_hostname }}"

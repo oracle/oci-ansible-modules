@@ -1,0 +1,23 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+
+- name: Create a bastion subnet
+  oci_subnet:
+    availability_domain: "{{ bastion_availability_domain }}"
+    cidr_block: "{{ bastion_subnet_cidr_block }}"
+    compartment_id: "{{ demo_compartment_ocid }}"
+    display_name: "{{ demo_bastion_subnet_name }}"
+    prohibit_public_ip_on_vnic: false
+    security_list_ids: [ "{{ bastion_security_list_ocid }}" ]
+    vcn_id: '{{ demo_vcn_ocid }}'
+    dns_label: "{{ demo_bastion_subnet_dns_label }}"
+    route_table_id: "{{ demo_core_rt_ocid }}"
+  register: result
+
+- set_fact:
+    bastion_subnet_ocid: "{{ result.subnet.id }}"

@@ -1,0 +1,106 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+# Use a jinja2 template of the ingress and egress security rules to generate
+# a templated version of the final rules.
+- name: create ingress rules yaml body
+  template: src=templates/demo_public_subnet_ingress_security_rules.yaml.j2 dest=/tmp/demo_public_subnet_ingress_security_rules.yaml
+- name: create egress yaml body
+  template: src=templates/demo_public_subnet_egress_security_rules.yaml.j2 dest=/tmp/demo_public_subnet_egress_security_rules.yaml
+
+# Load the variables defined in the generated files
+- name: load the variables defined in the ingress rules yaml body
+  include_vars:
+    file: /tmp/demo_public_subnet_ingress_security_rules.yaml
+    name: loaded_ingress
+- name: print loaded_ingress
+  debug:
+    msg: "loaded ingress is {{loaded_ingress}}"
+- name: load the variables defined in the egress rules yaml body
+  include_vars:
+    file: /tmp/demo_public_subnet_egress_security_rules.yaml
+    name: loaded_egress
+- name: print loaded_egress
+  debug:
+    msg: "loaded egress is {{loaded_egress}}"
+
+- name: Create Public Subnet's security list
+  oci_security_list:
+    name: "{{ demo_public_subnet_security_list_name }}"
+    compartment_id: "{{ demo_compartment_ocid }}"
+    vcn_id: "{{ demo_vcn_ocid }}"
+    ingress_security_rules: "{{ loaded_ingress.demo_public_subnet_ingress_security_rules }}"
+    egress_security_rules: "{{ loaded_egress.demo_public_subnet_egress_security_rules }}"
+    state: 'present'
+  register: demopublicsubnetseclist
+- set_fact:
+    demo_public_subnet_seclist_ocid: "{{ demopublicsubnetseclist.security_list.id}}"
+
+- debug:
+    msg: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"
+
+- debug:
+    msg: "{{ ad1_name }}"
+
+
+- name: Create a Public Subnet to host the app-server and NAT instance
+  oci_subnet:
+    availability_domain: "{{ ad1_name }}"
+    cidr_block: "{{ demo_public_subnet_ad1_cidr }}"
+    compartment_id: "{{ demo_compartment_ocid }}"
+    prohibit_public_ip_on_vnic: false
+    vcn_id: '{{ demo_vcn_ocid }}'
+    display_name: "{{ demo_public_subnet_name }}"
+    route_table_id: "{{ demo_core_rt_ocid }}"
+    security_list_ids: "{{ demo_public_subnet_seclist_ocid }}"
+    dns_label: "{{ demo_public_subnet_dns_label }}"
+  register: demopublicsubnet
+- set_fact:
+    demo_public_subnet_ocid: "{{ demopublicsubnet.subnet.id }}"
+
+- name: Launch an instance in the public subnet to act as the NAT instance
+  oci_instance:
+    availability_domain: "{{ ad1_name }}"
+    compartment_id: "{{ demo_compartment_ocid }}"
+    name: "{{ nat_instance_name }}"
+    image_id: "{{ nat_instance_image_ocid }}"
+    shape: "{{ nat_instance_shape }}"
+    vnic:
+        assign_public_ip: True
+        subnet_id: "{{ demo_public_subnet_ocid }}"
+        skip_source_dest_check: True
+    freeform_tags:
+            infra: "{{ infra_name }}"
+    metadata:
+        # Provide a cloud-init script. This script configures the server firewall
+        # and the kernel to provide NAT and routing service for other hosts on the
+        # network
+        user_data: "{{ lookup('file',  'templates/user_data.tpl' ) | b64encode }}"
+  register: result
+
+- name: Print instance details
+  debug:
+    msg: "Launched a new NAT instance in the public subnet {{ result }}"
+- set_fact:
+    nat_instance_id: "{{result.instance.id }}"
+
+- name: Get VNIC attachment of the launched NAT instance
+  oci_vnic_attachment_facts:
+    compartment_id: "{{demo_compartment_ocid }}"
+    instance_id: '{{ nat_instance_id }}'
+  register: vnic_info
+
+- name: List private IPs in the subnet
+  oci_private_ip_facts:
+    subnet_id: "{{ demo_public_subnet_ocid }}"
+  register: result
+
+- name: Get OCID of primary private IP of the instance
+  set_fact:
+    private_ip_id_of_nat_instance: "{{ item.id }}"
+  with_items: "{{ result.private_ips }}"
+  when: item.vnic_id == vnic_info.vnic_attachments[0].vnic_id

@@ -1,0 +1,48 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+- name: Get Public and Private IP of the DB System
+  hosts: localhost
+  connection: local
+  vars:
+    host_name: 'ansibledbsystem'
+    #########################################
+    # Tenancy specific configuration
+    # *Note* - Override the following variables based on your tenancy
+    # or set a valid value for the corresponding environment variable
+    #########################################
+    compartment_id: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
+    db_system_id: "{{ lookup('env', 'SAMPLE_DBSYSTEM_OCID') }}"
+
+  tasks:
+    - name: Check pre-requisites
+      fail:
+        msg: "Environment variable {{item}} not set. Please declare an environment variable with an appropriate value for the sample to work."
+      when: item not in ansible_env
+      with_items:
+        - "SAMPLE_COMPARTMENT_OCID"
+        - "SAMPLE_DBSYSTEM_OCID"
+
+    - name: Get DB Node information of the DB System
+      oci_db_node_facts:
+        compartment_id: '{{ compartment_id }}'
+        db_system_id: '{{ db_system_id }}'
+      register: result
+
+    #Get the Vnic Id of DB Node filtered by hostname. hostname is same for DB System, which one can collect from oci_db_system_facts module
+    - set_fact:
+         db_node_vnic_id: "{{ item.vnic_id }}"
+      with_items: "{{ result.db_nodes }}"
+      when: item.hostname == host_name
+
+    - name: Get Vnic Details for DB Node of DB System
+      oci_vnic_facts:
+        id: '{{ db_node_vnic_id }}'
+      register: result
+    #Printing Public and Private Ip. It could be used by storing in variables.
+    - debug:
+        msg: "DB Node Public Ip {{ result.vnic.public_ip }} and Private Ip {{ result.vnic.private_ip }}"

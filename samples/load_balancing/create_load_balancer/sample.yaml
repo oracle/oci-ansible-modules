@@ -1,0 +1,170 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+- name: Create a public load balancer instance and print the details
+  hosts: localhost
+  connection: local
+  vars:
+    vcn_name: "sample_load_balancer_vcn"
+    cidr_block: "10.1.0.0/16"
+    dns_label: "samplelbvcn"
+    ig_name: "sample_ig"
+    rt_name: "sample_rt"
+    sec_list_name: "sample_sec_list"
+
+    sample_subnet_ad1: 'subnetad1'
+    sample_subnet_ad2: 'subnetad2'
+    subnet_cidr_block_ad1: "10.1.20.0/24"
+    subnet_cidr_block_ad2: "10.1.21.0/24"
+    all_cidr_block: '0.0.0.0/0'
+    all_protocol: 'all'
+    tcp_protocol: '6'
+
+    sample_app_server_instance_one_name: 'AS-1'
+    sample_app_server_instance_two_name: 'AS-2'
+    sample_app_server_shape: 'VM.Standard1.2'
+
+    lb_name: "sample_load_balancer"
+    sample_shape: "100Mbps"
+    sample_backend_set_name: 'sample_backend_set'
+    sample_backend_set_policy: 'ROUND_ROBIN'
+
+    # Initialize values for certificates
+    sample_ca_certificate: "{{cert_path}}/ca_cert.pem"
+    sample_private_key: "{{cert_path}}/private_key.pem"
+    sample_public_certificate: "{{cert_path}}/cert.pem"
+    sample_certificate_name: "sample_certs"
+
+    # Initialize values for listeners
+    http_listener_name: 'http_listener'
+    https_listener_name: 'https_listener'
+    http_port: 80
+    https_port: 443
+
+    #########################################
+    # Tenancy specific configuration
+    # *Note* - Override the following variables based on your tenancy
+    # or set a valid value for the corresponding environment variable
+    #########################################
+    compartment_id: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
+    # This image must be of type Oracle Linux in order for this example to work
+    sample_app_server_image_id: "{{ lookup('env', 'SAMPLE_IMAGE_OCID') }}"
+
+# Create a public load balancer with the variables initialized in the beginning
+  tasks:
+    - include_tasks: setup.yaml
+    - name: Create Public Load Balancer
+      oci_load_balancer:
+        compartment_id: "{{ compartment_id }}"
+        name: "{{ lb_name }}"
+        shape_name: "{{ sample_shape }}"
+        #A public load balancer is regional in scope and requires two subnets, each
+        #in a separate availability domain. One subnet hosts the primary load balancer
+        #and the other hosts a standby load balancer to ensure accessibility even during
+        #an availability domain outage.
+        subnet_ids:
+          - "{{ sample_subnet_id_ad1 }}"
+          - "{{ sample_subnet_id_ad2 }}"
+        state: 'present'
+      register: result
+    - debug:
+       msg: "Load balancer details: {{ result.load_balancer}}"
+    - set_fact:
+        public_load_balancer_id: "{{ result.load_balancer.id }}"
+        public_load_balancer_ip_addresses: "{{ result.load_balancer.ip_addresses }}"
+#==========================================================================================
+    - name: Create Backend Set
+      oci_load_balancer_backend_set:
+         load_balancer_id: "{{ public_load_balancer_id }}"
+         name: '{{ sample_backend_set_name }}'
+         policy: '{{ sample_backend_set_policy }}'
+         health_checker:
+            interval_in_millis: 30000
+            port: '{{ http_port }}'
+            protocol: "HTTP"
+            response_body_regex: ".*"
+            retries: 3
+            timeout_in_millis: 10000
+            return_code: 200
+            url_path: "/"
+         state: 'present'
+#==========================================================================================
+    - name: Create Certificate for Listener
+      oci_load_balancer_certificate:
+         load_balancer_id: "{{ public_load_balancer_id }}"
+         name: '{{ sample_certificate_name }}'
+         ca_certificate: '{{ sample_ca_certificate }}'
+         private_key: '{{ sample_private_key }}'
+         public_certificate: '{{ sample_public_certificate }}'
+         state: 'present'
+ #==========================================================================================
+    - name: Create Listener for HTTP traffic
+      oci_load_balancer_listener:
+         load_balancer_id: "{{ public_load_balancer_id }}"
+         name: '{{ http_listener_name }}'
+         default_backend_set_name: '{{ sample_backend_set_name }}'
+         port: '{{ http_port }}'
+         protocol: "HTTP"
+         connection_configuration:
+              idle_timeout: 300
+         state: 'present'
+#==========================================================================================
+    - name: Create Listener for HTTPS traffic
+      oci_load_balancer_listener:
+         load_balancer_id: "{{ public_load_balancer_id }}"
+         name: '{{ https_listener_name }}'
+         default_backend_set_name: '{{ sample_backend_set_name }}'
+         port: '{{ https_port }}'
+         protocol: "HTTP"
+         ssl_configuration:
+            certificate_name: '{{ sample_certificate_name }}'
+            verify_peer_certificate: False
+         state: 'present'
+#==========================================================================================
+    - name: Create First Backend
+      oci_load_balancer_backend:
+           load_balancer_id: "{{ public_load_balancer_id }}"
+           backend_set_name: "{{ sample_backend_set_name }}"
+           ip_address: "{{ sample_app_server_instance_one_private_ip }}"
+           port: '{{ http_port }}'
+           backup: False
+           drain: False
+           offline: False
+           weight: 1
+           state: 'present'
+#==========================================================================================
+    - name: Create Second Backend
+      oci_load_balancer_backend:
+           load_balancer_id: "{{ public_load_balancer_id }}"
+           backend_set_name: "{{ sample_backend_set_name }}"
+           ip_address: "{{ sample_app_server_instance_two_private_ip }}"
+           port: '{{ http_port }}'
+           backup: False
+           drain: False
+           offline: False
+           weight: 1
+           state: 'present'
+#==========================================================================================
+    - name: Check whether the Load Balancer able to access Backends
+      uri:
+         url: 'http://{{public_load_balancer_ip_addresses[0].ip_address}}/'
+         body_format: json
+         timeout: 300
+      register: result
+      retries: 5
+      delay: 60
+      until: result['status']|default(0) == 200
+    - debug:
+        msg: "{{ result.status }} "
+    - assert:
+        that:  "200 == {{ result.status }}"
+#==========================================================================================
+    - debug:
+        msg: "Load balancer Ip addresses details : {{ public_load_balancer_ip_addresses }}"
+
+#==========================================================================================
+    - include_tasks: teardown.yaml

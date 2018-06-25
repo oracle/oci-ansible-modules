@@ -1,0 +1,54 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+
+- name: Create bastion server
+  oci_instance:
+    availability_domain: "{{ bastion_availability_domain }}"
+    compartment_id: "{{ demo_compartment_ocid }}"
+    name: "{{ demo_bastion_instance_name }}"
+    image_id: "{{ bastion_image_ocid }}"
+    shape: "{{ bastion_shape }}"
+    vnic:
+        assign_public_ip: True
+        hostname_label: "{{ demo_bastion_host_name }}"
+        subnet_id: "{{ bastion_subnet_ocid }}"
+    metadata:
+      ssh_authorized_keys: "{{ lookup('file', demo_ssh_public_key)}}"
+    freeform_tags:
+      infra: "{{ infra_name }}"
+      type: bastion
+  register: result
+
+- set_fact:
+    bastion_instance_ocid: "{{ result.instance.id }}"
+
+# Generate the list of OCIDs corresponding to the various artifacts
+# created by this playbook and write to a file so that check_secure_mongodb_deployment.yaml
+# can use it to test the deployment.
+- copy:
+    content: |
+          compartment_id: "{{ compartment_id }}"
+          vcn_id: "{{ demo_vcn_ocid }}"
+          demo_ig_ocid: "{{ demo_ig_ocid }}"
+          demo_core_rt_ocid: "{{ demo_core_rt_ocid }}"
+          private_subnet_ad1_rt_id: "{{ private_subnet_ad1_rt_id }}"
+          private_subnet_ad2_rt_id: "{{ private_subnet_ad2_rt_id }}"
+          demo_appserver_1_ocid: "{{ demo_appserver_1_ocid }}"
+          demo_public_subnet_ocid: "{{ demo_public_subnet_ocid }}"
+          demo_public_subnet_seclist_ocid: "{{ demo_public_subnet_seclist_ocid }}"
+          private_sec_list_ad1_id: "{{ private_sec_list_ad1_id }}"
+          private_sec_list_ad2_id: "{{ private_sec_list_ad2_id }}"
+          private_subnet_ad1_id: "{{ private_subnet_ad1_id }}"
+          private_subnet_ad2_id: "{{ private_subnet_ad2_id }}"
+          mongodb1_id: "{{ mongodb1_id }}"
+          mongodb2_id: "{{ mongodb2_id }}"
+          bastion_security_list_ocid: "{{ bastion_security_list_ocid }}"
+          bastion_subnet_ocid: "{{ bastion_subnet_ocid }}"
+          bastion_instance_ocid: "{{ bastion_instance_ocid }}"
+          nat_instance_ocid: "{{ nat_instance_id }}"
+    dest: ./demo_artifacts_info.yaml

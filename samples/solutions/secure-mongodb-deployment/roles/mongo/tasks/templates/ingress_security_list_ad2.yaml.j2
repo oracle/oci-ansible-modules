@@ -1,0 +1,22 @@
+ad2_ingress_security_rules:
+  # Allow inbound Mongo connections from AS
+  - source: "{{ demo_public_subnet_ad1_cidr }}"
+    protocol: "{{ tcp_protocol }}"
+    tcp_options:
+        destination_port_range:
+            min: {{ mongodb_port }}
+            max: {{ mongodb_port }}
+  # Allow inbound Mongo connections from AD1 (for replication)
+  - source: "{{ cidr_block_private_ad1 }}"
+    protocol: "{{ tcp_protocol }}"
+    tcp_options:
+        destination_port_range:
+            min: {{ SSH_port }}
+            max: {{ SSH_port }}
+  # Allow ssh access *only* from bastion subnet.
+  - source: "{{ bastion_subnet_cidr_block }}"
+    protocol: "{{ tcp_protocol }}"
+    tcp_options:
+        destination_port_range:
+            min: {{ SSH_port }}
+            max: {{ SSH_port }}

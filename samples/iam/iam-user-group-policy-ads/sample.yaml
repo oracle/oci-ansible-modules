@@ -1,0 +1,102 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+- name: Showcase IAM scenarios
+  hosts: localhost
+  vars:
+    object_readers_group_name: "object_readers"
+    object_writers_group_name: "object_writers"
+
+    alice_name: "Alice"
+    alice_user_api_key_passphrase: "alicepassphrase"
+    alice_user_api_key_private_key_path: "{{ temp_certificates_path }}/alice_private_key.pem"
+    alice_user_api_key_pub_key_path: "{{ temp_certificates_path }}/alice_public_key.pem"
+
+    bob_name: "Bob"
+    bob_user_api_key_passphrase: "bobpassphrase"
+    bob_user_api_key_private_key_path: "{{ temp_certificates_path }}/bob_private_key.pem"
+    bob_user_api_key_pub_key_path: "{{ temp_certificates_path }}/bob_public_key.pem"
+
+    sample_bucket_name: "acme-sample-bucket"
+    sample_object_1_name: "sample_object_1"
+    sample_object_2_name: "sample_object_2"
+
+    object_readers_policy_name: "object_readers_policy"
+    object_writers_policy_name: "object_writers_policy"
+    # define Alice and Bob's user details
+    alice_user_details: &alice
+        api_user: "{{ alice_user_ocid }}"
+        api_user_fingerprint: "{{ alice_api_signing_key_fingerprint }}"
+        api_user_key_file: "{{ alice_user_api_key_private_key_path }}"
+        api_user_key_pass_phrase: "{{ alice_user_api_key_passphrase }}"
+
+    bob_user_details: &bob
+        api_user: "{{ bob_user_ocid }}"
+        api_user_fingerprint: "{{ bob_api_signing_key_fingerprint }}"
+        api_user_key_file: "{{ bob_user_api_key_private_key_path }}"
+        api_user_key_pass_phrase: "{{ bob_user_api_key_passphrase }}"
+
+    #########################################
+    # Tenancy specific configuration
+    # *Note* - Override the following variables based on your tenancy
+    # or set a valid value for the corresponding environment variable
+    #########################################
+    sample_compartment_ocid: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
+    sample_object_namespace_name: "{{ lookup('env', 'SAMPLE_OBJECT_NS_NAME') }}"
+    tenancy_ocid: "{{ lookup('env', 'SAMPLE_TENANCY_OCID') }}"
+
+  tasks:
+    - import_tasks: setup.yaml
+
+    - name : Create new bucket in OCI as Alice
+      oci_bucket:
+        namespace_name: "{{ sample_object_namespace_name }}"
+        compartment_id: "{{ sample_compartment_ocid }}"
+        name: "{{ sample_bucket_name }}"
+        public_access_type: 'NoPublicAccess'
+        <<: *alice
+      register: result
+    - debug: msg="Bucket details - {{ result }}"
+
+    - name : Add an object in the bucket as Alice
+      oci_object:
+        namespace: "{{ sample_object_namespace_name }}"
+        bucket: "{{ sample_bucket_name }}"
+        object: "{{ sample_object_1_name }}"
+        src: "{{ sample_object_1_name }}.txt"
+        metadata: {'language': 'english'}
+        <<: *alice
+      register: result
+    - debug: msg="Added new object - {{ result }}"
+
+    - name : List objects in the test bucket as Bob
+      oci_object_facts:
+        namespace: "{{ sample_object_namespace_name }}"
+        bucket: "{{ sample_bucket_name }}"
+        <<: *bob
+      register: result
+    - debug: msg="Object details - {{ result }}"
+
+    - name: Get the home region of a tenancy
+      oci_region_subscription_facts:
+        id: "{{ tenancy_ocid }}"
+      register: oci_region_subscriptions
+    - set_fact:
+        tenancy_home_region_key: "{{ item.region_key }}"
+      when: (item.is_home_region)
+      with_items: "{{ oci_region_subscriptions.region_subscriptions }}"
+    - debug: msg="The Home region key for the tenancy {{ tenancy_ocid }} is {{ tenancy_home_region_key }}"
+
+    - name: Get the first AD of the current tenancy
+      oci_ad_facts:
+        id: "{{ tenancy_ocid }}"
+      register: oci_ads
+    - set_fact:
+        first_availability_domain: "{{ oci_ads.availability_domains[0].name }}"
+    - debug: msg="First AD of the tenancy {{ first_availability_domain }}"
+
+    - import_tasks: teardown.yaml

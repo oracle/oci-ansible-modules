@@ -1,0 +1,14 @@
+demo_public_subnet_egress_security_rules:
+  # Allow app-servers to access MongoDB
+  - destination: "{{ demo_private_subnet_mongo_ad1_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ MONGODB_port }}
+        max: {{ MONGODB_port }}
+  - destination: "{{ demo_private_subnet_mongo_ad2_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ MONGODB_port }}
+        max: {{ MONGODB_port }}

@@ -1,0 +1,20 @@
+#cloud-config
+package_update: true
+
+runcmd:
+    - yum -y install python-pip
+    - yum -y install git
+    - export LC_ALL=C
+    - pip install -v -U pip
+    - pip install -v -U flask
+    - pip install -v -U flask_pymongo
+    - git clone https://github.com/rohitChaware/MongoApp.git
+    - MONGO_HOSTS="{{ mongodb1_dns_label }}.{{ private_subnet_ad1_dns_label }}.{{ demo_vcn_dns_label }}.oraclevcn.com"
+    - MONGO_PORT="27017"
+    - export MONGO_URL="$MONGO_HOSTS:$MONGO_PORT"
+    - echo "Mongo URL for web app is set to $MONGO_URL"
+    - firewall-offline-cmd --zone=public --add-port=80/tcp
+    - systemctl restart firewalld
+    - python MongoApp/mongo_app.py
+
+output: { all: "| tee -a /var/log/cloud-init-output.log" }

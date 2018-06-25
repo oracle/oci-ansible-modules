@@ -1,0 +1,17 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+ad1_name: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"
+
+demo_public_subnet_name: "{{ demo_var_prefix }}_public_subnet_ad1"
+# no special chars, 1-15 chars only, start with alpha
+demo_public_subnet_dns_label: "demo{{ random_suffix }}subnet"
+demo_public_subnet_security_list_name: "{{ demo_var_prefix }}_public_subnet"
+
+nat_instance_name: "{{ demo_var_prefix }}_nat_instance_for_mongodb_setup"
+nat_instance_image_ocid: "{{ lookup('env', 'SAMPLE_OEL_IMAGE_OCID') }}"
+nat_instance_shape: "VM.Standard1.1"

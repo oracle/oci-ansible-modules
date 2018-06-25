@@ -1,0 +1,138 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+# XXX: investigate why this is failing
+- name: Check pre-requisites
+  fail:
+    msg: "Environment variable {{item}} not set. Please declare an environment variable with an appropriate value for the sample to work."
+  when: item not in ansible_env
+  with_items:
+    - "SAMPLE_COMPARTMENT_OCID"
+    - "SAMPLE_TENANCY_OCID"
+    - "SAMPLE_OBJECT_NS_NAME"
+
+# Create groups
+- name : Create a group for Object readers
+  oci_group:
+    name: "{{ object_readers_group_name }}"
+    description: "A group that are allows to inspect, get objects in buckets in compartment {{ sample_compartment_ocid }}"
+  register: result
+
+- set_fact:
+    object_readers_group_ocid: "{{ result.group.id }}"
+
+- name: Assign a policy statement for this group
+  oci_policy:
+    name: "{{object_readers_policy_name}}"
+    compartment_id: "{{ sample_compartment_ocid }}"
+    description: "Allowed to read buckets and objects in compartment"
+    statements: ["Allow group {{ object_readers_group_name }} to inspect buckets in compartment id {{ sample_compartment_ocid }}",
+                 "Allow group {{ object_readers_group_name }} to inspect objects in compartment id {{ sample_compartment_ocid }}"]
+  register: result
+
+- set_fact:
+    object_readers_policy_ocid: "{{ result.policy.id }}"
+
+- name : Create a group for Object writers
+  oci_group:
+    name: "{{ object_writers_group_name }}"
+    description: "A group that are allows to create, upload, list objects and buckets in compartment {{ sample_compartment_ocid }}"
+  register: result
+
+- set_fact:
+    object_writers_group_ocid: "{{ result.group.id }}"
+
+- name: Assign a policy statement for this group
+  oci_policy:
+    name: "{{object_writers_policy_name}}"
+    compartment_id: "{{ sample_compartment_ocid }}"
+    description: "Allowed to manage buckets and objects in compartment. This allows the ability to do all things with Object Storage buckets and objects in this compartment."
+    statements: ["Allow group {{ object_writers_group_name }} to manage buckets in compartment id {{ sample_compartment_ocid }}",
+                 "Allow group {{ object_writers_group_name }} to manage objects in compartment id {{ sample_compartment_ocid }}"]
+  register: result
+
+- set_fact:
+    object_writers_policy_ocid: "{{ result.policy.id }}"
+
+- name: Create a temporary directory to house temporary SSH keypairs that we will later use for Alice and Bob
+  tempfile:
+    state: directory
+    suffix: cert
+  register: result
+- set_fact:
+    temp_certificates_path: "{{ result.path }}"
+
+# Create Alice and add to object_writers_group
+- name: Create the user "Alice"
+  oci_user:
+    name: "{{alice_name}}"
+    description: 'Ansible Test User - Alice'
+    user_groups: "{{ object_writers_group_name }}"
+  register: result
+- set_fact:
+    alice_user_ocid: "{{ result.user['id'] }}"
+- debug:
+    msg: "Created alice {{ alice_user_ocid }}"
+
+- name: Create a private key for Alice
+  openssl_privatekey:
+    path:  "{{ alice_user_api_key_private_key_path }}"
+    size: 2048
+    cipher: aes128
+    passphrase: "{{ alice_user_api_key_passphrase }}"
+- name: Create a public key from that temp private key
+  openssl_publickey:
+    path: "{{ alice_user_api_key_pub_key_path }}"
+    privatekey_path: "{{ alice_user_api_key_private_key_path }}"
+    privatekey_passphrase: "{{ alice_user_api_key_passphrase }}"
+    force: True
+  register: result
+
+- name: Upload an API Signing Key for Alice
+  oci_api_key:
+    user_id: "{{ alice_user_ocid }}"
+    api_signing_key: "{{ lookup('file', alice_user_api_key_pub_key_path) }}"
+  register: result
+- set_fact:
+    alice_api_signing_key_ocid: "{{ result.api_key.key_id }}"
+    alice_api_signing_key_fingerprint: "{{ result.api_key.fingerprint }}"
+
+
+# Create Bob and assign to object_readers_group
+- name: Create the user "Bob"
+  oci_user:
+    name: "{{bob_name}}"
+    description: 'Ansible Test User - Bob'
+    user_groups: "{{ object_readers_group_name }}"
+  register: result
+- set_fact:
+    bob_user_ocid: "{{ result.user['id'] }}"
+- debug:
+    msg: "Created bob {{ bob_user_ocid }}"
+
+- name: Create a private key for Bob
+  openssl_privatekey:
+    path:  "{{ bob_user_api_key_private_key_path }}"
+    size: 2048
+    cipher: aes128
+    passphrase: "{{ bob_user_api_key_passphrase }}"
+- name: Create a public key from that temp private key
+  openssl_publickey:
+    path: "{{ bob_user_api_key_pub_key_path }}"
+    privatekey_path: "{{ bob_user_api_key_private_key_path }}"
+    privatekey_passphrase: "{{ bob_user_api_key_passphrase }}"
+    force: True
+  register: result
+
+- name: Upload an API Signing Key for Bob
+  oci_api_key:
+    user_id: "{{ bob_user_ocid }}"
+    api_signing_key: "{{ lookup('file', bob_user_api_key_pub_key_path) }}"
+  register: result
+- set_fact:
+     bob_api_signing_key_ocid: "{{ result.api_key.key_id }}"
+     bob_api_signing_key_fingerprint: "{{ result.api_key.fingerprint }}"

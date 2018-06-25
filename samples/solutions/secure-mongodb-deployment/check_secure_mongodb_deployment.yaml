@@ -1,0 +1,35 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Load ocids of all mongodb related entities in the setup
+      include_vars: demo_artifacts_info.yaml
+
+    - name: Get the VNIC attachment details of application server
+      oci_vnic_attachment_facts:
+        compartment_id: "{{ compartment_id }}"
+        instance_id: "{{ demo_appserver_1_ocid }}"
+      register: result
+
+    - name: Get details of the VNIC
+      oci_vnic_facts:
+        id: "{{ result.vnic_attachments[0].vnic_id }}"
+      register: result
+
+    - name: Check whether the appserver is reachable and and mongodb is reachable from the appserver tier
+      uri:
+         url: http://{{result.vnic.public_ip}}/test
+         body_format: json
+         timeout: 300
+      register: result
+      retries: 5
+      delay: 10
+      until: result['status']|default(0) == 200
+    - assert:
+        that: "1.0 == {{ result.json.MongoDB_ping_status.ok }}"

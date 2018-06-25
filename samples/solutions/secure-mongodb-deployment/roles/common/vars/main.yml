@@ -1,0 +1,23 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+# Here we assign variables that are applicable to the common tasks for all roles
+
+demo_vcn_name: "{{ demo_var_prefix }}_vcn"
+# no special chars, 1-15 chars only, start with alpha
+demo_vcn_dns_label: "demo{{ random_suffix }}vcn"
+
+demo_ig_display_name: "{{ demo_var_prefix }}_internet_gateway"
+
+demo_core_route_table_name: "{{ demo_var_prefix }}_route_table"
+# route all access to our Internet Gateway
+demo_core_route_table_rules:
+    - cidr_block: "{{ quad_zero_route }}"
+      network_entity_id: "{{ demo_ig_ocid }}"
+
+# The SSH public key to use for SSH key auth to the bastion instance.
+demo_ssh_public_key: "./defaults/public_key.pem"

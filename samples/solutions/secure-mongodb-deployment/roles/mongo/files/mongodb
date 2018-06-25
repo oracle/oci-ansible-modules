@@ -1,0 +1,14 @@
+#cloud-config
+package_update: true
+
+runcmd:
+    - printf "[mongodb]\nname=MongoDB repo\nbaseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/\ngpgcheck=0\nenabled=1\n" > /etc/yum.repos.d/mongodb.repo
+    - yum -y install mongodb-org
+    - firewall-offline-cmd --zone=public --add-port=27017/tcp
+    - systemctl restart firewalld
+    - sed -i '/bind_ip=/c\bind_ip=0.0.0.0' /etc/mongod.conf
+    - chkconfig mongod on
+    - service mongod start
+    - service mongod status
+
+output: { all: "| tee -a /var/log/cloud-init-output.log" }

@@ -1,0 +1,138 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+# Public subnet/app-server tier
+- debug: msg="Inside appserver role"
+
+- name: Template the appserver bootstrap to fill in mongo urls
+  template: 
+    src: "{{ role_path }}/files/appserver_bootstrap.j2"
+    dest: "{{ role_path }}/files/appserver_bootstrap"
+    backup: no
+
+- name: Slurp cloud-init content from the template-applied result for AS1
+  slurp: 
+    src: "{{ role_path }}/files/appserver_bootstrap"
+  register: demo_appserver_1_cloud_init
+
+- name: Launch AS1 in Public Subnet
+  oci_instance:
+        name: "{{ demo_appserver_1_name }}"
+        image_id: "{{ demo_appserver_image_ocid }}"
+        shape: "{{ demo_appserver_shape }}"
+        compartment_id: "{{ demo_compartment_ocid }}"
+        availability_domain: "{{ demo_appserver_availability_domain }}"
+        metadata:
+            ssh_authorized_keys: "{{ lookup('file', demo_ssh_public_key)}}"
+            user_data: "{{ demo_appserver_1_cloud_init['content'] }}"
+        vnic:
+            hostname_label: "{{ demo_appserver_1_host_name }}"
+            assign_pubic_ip: True
+            subnet_id: "{{ demo_public_subnet_ocid }}"
+        freeform_tags:
+            infra: "{{ infra_name }}"
+            type: appserver
+  register: demoas1
+- name: Set AS1 Instance OCID
+  set_fact: 
+    demo_appserver_1_ocid: "{{ demoas1.instance.id }}"
+    demo_appserver_1_dns_label: "{{ demo_appserver_1_host_name }}"
+- debug: msg="AS1 OCID {{ demo_appserver_1_ocid }}"
+
+- name: Get the VNIC attachment details of application server
+  oci_vnic_attachment_facts:
+    compartment_id: "{{ compartment_id }}"
+    instance_id: "{{ demo_appserver_1_ocid }}"
+  register: result
+
+- name: Get details of the VNIC
+  oci_vnic_facts:
+    id: "{{ result.vnic_attachments[0].vnic_id }}"
+  register: result
+
+- set_fact:
+    appserver_public_ip: "{{ result.vnic.public_ip }}"
+
+# Wait for sometime for the app server cloud init commands to complete.
+- pause:
+    seconds: 300
+
+# This is to block traffic going out to internet through NAT instance from private subnet in AD1 and AD2.
+- name: Create egress yaml body for private subnet in AD1
+  template: src=templates/egress_security_list_ad1.yaml.j2 dest=/tmp/egress_security_list_ad1.yaml
+
+- name: Load the variables defined in the egress rules yaml body
+  include_vars:
+    file: /tmp/egress_security_list_ad1.yaml
+    name: pvt_subnet_ad1_loaded_egress
+
+- name: Print loaded_egress
+  debug:
+    msg: "loaded egress is {{pvt_subnet_ad1_loaded_egress}}"
+
+- name: Update security list of private subnet in AD1 to block traffic going out to internet now that provisioning of MongoDB is complete
+  oci_security_list:
+    id: "{{ private_sec_list_ad1_id }}"
+    purge_security_rules: yes
+    egress_security_rules: "{{ pvt_subnet_ad1_loaded_egress.secured_ad1_egress_security_rules }}"
+
+
+- name: Create egress yaml body for private subnet in AD2
+  template: src=templates/egress_security_list_ad2.yaml.j2 dest=/tmp/egress_security_list_ad2.yaml
+
+- name: Load the variables defined in the egress rules yaml body
+  include_vars:
+    file: /tmp/egress_security_list_ad2.yaml
+    name: pvt_subnet_ad2_loaded_egress
+
+- name: Print loaded_egress
+  debug:
+    msg: "loaded egress is {{pvt_subnet_ad2_loaded_egress}}"
+
+- name: Update security list of private subnet in AD2 to block traffic going out to internet now that provisioning of MongoDB is complete
+  oci_security_list:
+    id: "{{ private_sec_list_ad2_id }}"
+    purge_security_rules: yes
+    egress_security_rules: "{{ pvt_subnet_ad2_loaded_egress.secured_ad2_egress_security_rules }}"
+
+
+- name: Drop the route table in AD1 private subnet
+  oci_route_table:
+    id: "{{ private_subnet_ad1_rt_id }}"
+    purge_route_rules: yes
+    route_rules:
+
+- name: Drop the route table in AD2 private subnet
+  oci_route_table:
+    id: "{{ private_subnet_ad2_rt_id }}"
+    purge_route_rules: yes
+    route_rules:
+
+- name: Terminate the NAT instance
+  oci_instance:
+    id: "{{ nat_instance_id }}"
+    state: absent
+
+
+# This is to block traffic going out to internet from public subnet.
+- name: Create egress yaml body for public subnet
+  template: src=templates/updated_public_subnet_egress_security_rules.yaml.j2 dest=/tmp/demo_public_subnet_egress_security_rules.yaml
+
+- name: Load the variables defined in the egress rules yaml body
+  include_vars:
+    file: /tmp/demo_public_subnet_egress_security_rules.yaml
+    name: public_subnet_loaded_egress
+
+- name: Print loaded_egress
+  debug:
+    msg: "loaded egress is {{public_subnet_loaded_egress}}"
+
+- name: Update security list of public subnet to block traffic going out to internet.
+  oci_security_list:
+    id: "{{ demo_public_subnet_seclist_ocid }}"
+    purge_security_rules: yes
+    egress_security_rules: "{{ public_subnet_loaded_egress.demo_public_subnet_egress_security_rules }}"

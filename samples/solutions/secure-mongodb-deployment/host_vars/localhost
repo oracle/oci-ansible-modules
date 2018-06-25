@@ -1,0 +1,30 @@
+---
+# Here we assign variables that are applicable to all groups
+
+# A random suffix to append to names so that we can run parallel demo environments.
+random_suffix: "{{ 250 | random(seed=ansible_nodename, step=10) }}"
+
+# Tag for the infrastructure
+infra_name: "mongodb-demo-setup-{{ random_suffix }}"
+
+# A prefix we add to all the display_names of demo artifacts that we
+# create in this demo
+demo_var_prefix: "demo-20171214-{{ random_suffix }}"
+
+# networking common vars
+quad_zero_route: "0.0.0.0/0"
+TCP_protocol: "6"
+HTTP_port: "80"
+HTTPS_port: "443"
+MONGODB_port: "27017"
+SSH_port: "22"
+
+# CIDR ranges for the various subnets in this demo
+demo_vcn_cidr_block: "10.0.0.0/26"
+demo_public_subnet_ad1_cidr: "10.0.0.0/28"
+demo_private_subnet_mongo_ad1_cidr: "10.0.0.16/28"
+demo_private_subnet_mongo_ad2_cidr: "10.0.0.32/28"
+demo_bastion_ad1_cidr: "10.0.0.48/28"
+
+# Compartment to use for the demo
+demo_compartment_ocid: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"

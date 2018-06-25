@@ -1,0 +1,10 @@
+instance_ingress_security_rules:
+  # Allow incoming SSH connections
+  - source: "{{ public_subnet_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ SSH_port }}
+        max: {{ SSH_port }}
+    
+

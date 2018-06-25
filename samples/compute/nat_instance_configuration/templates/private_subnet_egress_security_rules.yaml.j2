@@ -1,0 +1,5 @@
+instance_egress_security_rules:
+  # Allow ssh connections outside
+  - destination: "{{ quad_zero_route }}"
+    protocol: "all"
+

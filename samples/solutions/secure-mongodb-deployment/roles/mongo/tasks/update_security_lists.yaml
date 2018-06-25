@@ -1,0 +1,61 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+- name: Create egress yaml body for private subnet in AD1
+  template: src=templates/egress_security_list_ad1.yaml.j2 dest=/tmp/egress_security_list_ad1.yaml
+
+- name: Load the variables defined in the egress rules yaml body
+  include_vars:
+    file: /tmp/egress_security_list_ad1.yaml
+    name: pvt_subnet_ad1_loaded_egress
+
+- name: Print loaded_egress
+  debug:
+    msg: "loaded egress is {{pvt_subnet_ad1_loaded_egress}}"
+
+- name: Update security list of private subnet in AD1 to block traffic going out to internet now that provisioning of MongoDB is complete
+  oci_security_list:
+    id: "{{ private_sec_list_ad1_id }}"
+    purge_security_rules: yes
+    egress_security_rules: "{{ pvt_subnet_ad1_loaded_egress.secured_ad1_egress_security_rules }}"
+
+
+- name: Create egress yaml body for private subnet in AD2
+  template: src=templates/egress_security_list_ad2.yaml.j2 dest=/tmp/egress_security_list_ad2.yaml
+
+- name: Load the variables defined in the egress rules yaml body
+  include_vars:
+    file: /tmp/egress_security_list_ad2.yaml
+    name: pvt_subnet_ad2_loaded_egress
+
+- name: Print loaded_egress
+  debug:
+    msg: "loaded egress is {{pvt_subnet_ad2_loaded_egress}}"
+
+- name: Update security list of private subnet in AD2 to block traffic going out to internet now that provisioning of MongoDB is complete
+  oci_security_list:
+    id: "{{ private_sec_list_ad2_id }}"
+    purge_security_rules: yes
+    egress_security_rules: "{{ pvt_subnet_ad2_loaded_egress.secured_ad2_egress_security_rules }}"
+
+
+- name: Drop the route table in AD1 private subnet
+  oci_route_table:
+    id: "{{ private_subnet_ad1_rt_id }}"
+    purge_route_rules: yes
+    route_rules:
+
+- name: Drop the route table in AD2 private subnet
+  oci_route_table:
+    id: "{{ private_subnet_ad2_rt_id }}"
+    purge_route_rules: yes
+    route_rules:
+
+- name: Terminate the NAT instance
+  oci_instance:
+    id: "{{ nat_instance_id }}"
+    state: absent

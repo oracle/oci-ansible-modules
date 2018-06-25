@@ -1,0 +1,20 @@
+bastion_egress_security_rules:
+  - destination: "{{ demo_public_subnet_ad1_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ SSH_port }}
+        max: {{ SSH_port }}
+  - destination: "{{ demo_private_subnet_mongo_ad1_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ SSH_port }}
+        max: {{ SSH_port }}
+  - destination: "{{ demo_private_subnet_mongo_ad2_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ SSH_port }}
+        max: {{ SSH_port }}
+

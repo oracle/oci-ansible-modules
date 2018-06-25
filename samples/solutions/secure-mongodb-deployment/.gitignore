@@ -1,0 +1,6 @@
+*.retry
+ansible_run.log
+
+# generated artifacts
+roles/appserver/files/appserver_bootstrap
+demo_artifacts_info.yaml

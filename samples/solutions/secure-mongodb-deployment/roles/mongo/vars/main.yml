@@ -1,0 +1,52 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+compartment_id: "{{ demo_compartment_ocid }}"
+
+mongodb_image_id: "{{ lookup('env', 'SAMPLE_OEL_IMAGE_OCID') }}"
+
+availability_domain_1: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"
+availability_domain_2: "{{ lookup('env', 'SAMPLE_AD2_NAME') }}"
+
+shape: 'VM.Standard1.1'
+
+mongodb_script: './files/mongodb'
+
+private_subnet_ad1_id: "{{ private_subnet_ad1_id }}"
+private_subnet_ad2_id: "{{ private_subnet_ad2_id }}"
+private_subnet_ad1_name: "{{ demo_var_prefix }}_private_subnet_1"
+private_subnet_ad2_name: "{{ demo_var_prefix }}_private_subnet_2"
+
+cidr_block_private_ad1: "{{ demo_private_subnet_mongo_ad1_cidr }}"
+cidr_block_private_ad2: "{{ demo_private_subnet_mongo_ad2_cidr }}"
+cidr_block_public: "{{ demo_public_subnet_ad1_cidr }}"
+
+
+private_sec_list_ad1_id: "{{ private_sec_list_ad1_id }}"
+private_sec_list_ad2_id: "{{ private_sec_list_ad2_id }}"
+private_subnet_sec_list_ad1_name: "{{ demo_var_prefix }}_private_sec_list_ad1"
+private_subnet_sec_list_ad2_name: "{{ demo_var_prefix }}_private_sec_list_ad2"
+public_sec_list: "{{public_sec_list_id}}"
+
+dns_label_public: 'publicsubnet1'
+dns_label_ad1: 'prvsubnetad1'
+dns_label_ad2: 'prvsubnetad2'
+
+tcp_protocol: '6'
+mongodb_port: '27017'
+
+mongodb1_hostname: "mongdb1"
+mongodb2_hostname: "mongdb2"
+mongodb1_name: "{{ demo_var_prefix }}_mongo_db1"
+mongodb2_name: "{{ demo_var_prefix }}_mongo_db2"
+
+private_subnet_ad1_route_table_name: "{{private_subnet_ad1_name}}_route_table"
+private_subnet_ad2_route_table_name: "{{private_subnet_ad2_name}}_route_table"
+# route all internet access from the private subnet to the Private IP of the NAT instance
+private_subnet_route_table_rules:
+  - cidr_block: "{{ quad_zero_route }}"
+    network_entity_id: "{{ private_ip_id_of_nat_instance }}"
