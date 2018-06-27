@@ -17,7 +17,7 @@ The OCI Ansible modules are built using the [Oracle Cloud Infrastructure Python 
 
 ## Installation
 
-See the getting started guide (XXX) for instructions on using the installer script to install the Oracle Cloud Infrastructure Ansible Modules and its prerequisites in your host/Ansible controller node.
+See the [getting started guide](https://docs.cloud.oracle.com/iaas/Content/API/SDKDocs/ansiblegetstarted.htm) for instructions on using the installer script to install the Oracle Cloud Infrastructure Ansible Modules and its prerequisites in your host/Ansible controller node.
 
 ## Samples
 
@@ -33,11 +33,11 @@ Begin by reviewing the Readme.md file that you will find in each sample's root d
 
 ## Documentation
 
-Full documentation, including prerequisites, installation and configuration instructions, can be found here (XXX).
+Full documentation, including prerequisites, installation and configuration instructions, can be found [here](https://docs.cloud.oracle.com/iaas/Content/API/SDKDocs/ansible.htm).
 
 ## Help
 
-See the “Questions or Feedback” section here (XXX).
+See the ["Questions or Feedback”](https://docs.cloud.oracle.com/iaas/Content/API/SDKDocs/ansible.htm) section.
 
 ## Changes
 
@@ -51,8 +51,7 @@ Oracle gratefully acknowledges the contributions to `oci-ansible-modules` that h
 
 ## Known Issues
 
-You can find information on any known issues with the OCI ansible modules [here](https://docs.us-phoenix-1.oraclecloud.com/Content/knownissues.htm) and under the “Issues” tab of this
-project's [GitHub repository](https://github.com/oracle/oci-ansible-modules).
+You can find information on any known issues with OCI [here](https://docs.us-phoenix-1.oraclecloud.com/Content/knownissues.htm) and known issues with the OCI Ansible Modules under the “Issues” tab of this project's [GitHub repository](https://github.com/oracle/oci-ansible-modules).
 
 ## License
 

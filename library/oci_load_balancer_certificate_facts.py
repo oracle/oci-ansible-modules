@@ -39,12 +39,12 @@ EXAMPLES = '''
 #Fetch details of all certificates of a load balancer
 - name: List all Load Balancer certificates
   oci_load_balancer_certificate_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
 
 #Fetch details of a specific certificate of a load balancer
 - name: List a specific certificate
   oci_load_balancer_certificate_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
       name: 'ansible_certificate'
 '''
 

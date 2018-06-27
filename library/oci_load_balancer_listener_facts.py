@@ -39,12 +39,12 @@ EXAMPLES = '''
 #Fetch details of all listener of a load balancer
 - name: List all Listeners
   oci_load_balancer_listener_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
 
 #Fetch details of a specific listener in a load balancer
 - name: List a specific Listener
   oci_load_balancer_listener_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
       name: 'ansible_listener'
 '''
 

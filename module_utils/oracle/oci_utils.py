@@ -24,7 +24,7 @@ from oci.util import to_dict, Sentinel
 
 from ansible.module_utils.basic import _load_params
 
-__version__ = '0.15.0-dev'
+__version__ = '0.15.0'
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -33,7 +33,7 @@ DEAD_STATES = ["TERMINATING", "TERMINATED", "FAULTY", "FAILED", "DELETING", "DEL
                "DETACHING", "DETACHED"]
 
 # If a resource is in one of these states it would be considered available
-DEFAULT_READY_STATES = ["AVAILABLE", "ACTIVE", "RUNNING", "PROVISIONED", "ATTACHED"]
+DEFAULT_READY_STATES = ["AVAILABLE", "ACTIVE", "RUNNING", "PROVISIONED", "ATTACHED", "ASSIGNED"]
 
 # If a resource is in one of these states, it would be considered deleted
 DEFAULT_TERMINATED_STATES = ["TERMINATED", "DETACHED", "DELETED"]
@@ -364,7 +364,13 @@ def check_and_create_resource(resource_type, create_fn, kwargs_create, list_fn, 
     except ValueError:
         # list_fn doesn't support sort_by, so remove the sort_by key in kwargs_list and retry
         kwargs_list.pop("sort_by", None)
-        existing_resources = list_all_resources(list_fn, **kwargs_list)
+        try:
+            existing_resources = list_all_resources(list_fn, **kwargs_list)
+        # Handle errors like 404 due to bad arguments to the list_all_resources call.
+        except ServiceError as ex:
+            module.fail_json(msg=ex.message)
+    except ServiceError as ex:
+        module.fail_json(msg=ex.message)
 
     result = dict()
 
@@ -909,6 +915,9 @@ def generic_hash(obj):
         if isinstance(field_value, list):
             for value in field_value:
                 sum = sum + hash(value)
+        elif isinstance(field_value, dict):
+            for k, v in field_value.items():
+                sum = sum + hash(hash(k) + hash(":") + hash(v))
         else:
             sum = sum + hash(getattr(obj, field))
     return sum
@@ -938,7 +947,16 @@ def create_hashed_instance(class_type):
     return hashed_class()
 
 
-def get_hashed_object(class_type, object_with_value):
+def get_hashed_object_list(class_type, object_with_values, attributes_class_type=None):
+    if object_with_values is None:
+        return None
+    hashed_class_instances = []
+    for object_with_value in object_with_values:
+        hashed_class_instances.append(get_hashed_object(class_type, object_with_value, attributes_class_type))
+    return hashed_class_instances
+
+
+def get_hashed_object(class_type, object_with_value, attributes_class_type=None):
     """
     Convert any class instance into hashable so that the
     instances are eligible for various comparison
@@ -953,7 +971,12 @@ def get_hashed_object(class_type, object_with_value):
     HashedClass = generate_subclass(class_type)
     hashed_class_instance = HashedClass()
     for attribute in hashed_class_instance.attribute_map:
-        hashed_class_instance.__setattr__(attribute, getattr(object_with_value, attribute))
+        attribute_value = getattr(object_with_value, attribute)
+        if attributes_class_type:
+            for attribute_class_type in attributes_class_type:
+                if isinstance(attribute_value, attribute_class_type):
+                    attribute_value = get_hashed_object(attribute_class_type, attribute_value)
+        hashed_class_instance.__setattr__(attribute, attribute_value)
     return hashed_class_instance
 
 

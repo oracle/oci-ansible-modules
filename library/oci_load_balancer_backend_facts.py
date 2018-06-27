@@ -45,13 +45,13 @@ EXAMPLES = '''
 #Fetch details of all load balancer backends of a load balancer
 - name: List all Load Balancer Backends
   oci_load_balancer_backend_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
       backend_set_name: 'backend1'
 
 #Fetch details of a specific load balancer backend in a load balancer
 - name: List a specific Load Balancer Backend
   oci_load_balancer_backend_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
       backend_set_name: 'backend1'
       ip_address: '10.159.121.55'
       port: '8181'

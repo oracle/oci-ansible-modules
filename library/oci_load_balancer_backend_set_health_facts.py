@@ -38,7 +38,7 @@ EXAMPLES = '''
 #Fetch details of the backend set health of a load balancer
 - name: List a specific Load Balancer Backend Set's Health
   oci_load_balancer_backend_set_health_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
       backend_set_name: 'ansible_backend_set'
 '''
 

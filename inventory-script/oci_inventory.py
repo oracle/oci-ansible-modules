@@ -125,7 +125,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = '0.14.0'
+__version__ = '0.15.0'
 
 
 def _get_retry_strategy():
@@ -540,5 +540,5 @@ class OCIInventory(object):
 
 if __name__ == '__main__':
     if not HAS_OCI_PY_SDK:
-        print('oci python sdk required for this module.')
+        sys.exit('OCI Python SDK is not installed. Try `pip install oci` to install OCI Python SDK.')
     OCIInventory()

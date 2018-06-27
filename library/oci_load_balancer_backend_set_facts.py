@@ -39,14 +39,14 @@ EXAMPLES = '''
 #Fetch Load Balancer Backend Set
 - name: List all backend sets that are associated with a load balancer
   oci_load_balancer_backend_facts:
-      load_balancer_id: 'ocid1.loadbalancer.aaaa'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
 
 
 #Fetch specific Load Balancer Backend Set
 - name: List a specific Load Balancer Backend Set
   oci_load_balancer_backend_set_facts:
        name: 'ansible_backend_set'
-       load_balancer_id: 'ocid1.loadbalancer..xcds'
+       load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
 '''
 
 RETURN = '''

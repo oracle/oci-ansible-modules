@@ -165,6 +165,28 @@ options:
                             for receive operations. A receive operation does not reset the timer for send operations.]
                required: false
         required: false
+    path_route_sets:
+        description: The configuration details for a load balancer's path route sets
+        required: false
+        suboptions:
+            path_routes:
+               description: A list of configurations related to Path Routes that are part of a path route set.
+                            Each Path Route's configuration should be a dict/hash that consist of the following keys
+                            ['backend_set_name' option specifies The name of the target backend set for requests where
+                            the incoming URI matches the specified path.required - true],['path' option specifies the
+                            path string to match against the incoming URI path. required - true], ['path_match_type'
+                            describes the type of matching to apply to incoming URIs.The value of this attribute is another
+                            dict/hash with 'match_type' is key and value is one of EXACT_MATCH, FORCE_LONGEST_PREFIX_MATCH,
+                            PREFIX_MATCH, SUFFIX_MATCH. required - true]
+    hostnames:
+        description: The details of a hostname resource associated with a load balancer.
+        suboptions:
+            hostname:
+               description: A virtual hostname.
+               required: true
+            name:
+               description: The name of the hostname resource.
+               required: true
     shape_name:
         description: A template that determines the total pre-provisioned bandwidth (ingress plus egress).
         required: true
@@ -213,17 +235,26 @@ EXAMPLES = '''
             private_key: "privkey.pem"
             public_certificate: "ca_cert.pem"
             certificate_name: "certs1"
+    path_routes:
+          - backend_set_name: "backend1"
+            path: "/admin"
+            path_match_type:
+                 match_type: 'EXACT_MATCH'
+    hostnames:
+       ansible_hostname:
+           name: 'ansible_hostname'
+           hostname: 'myapp.example.com'
     state: 'present'
 # Update Load Balancer
 - name: Update Load Balancer
   oci_load_balancer:
-    load_balancer_id: "ocid1.loadbalancer.cdfs"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_lb_updated"
     state: 'present'
 # Deleted Load Balancer
 - name: Update Load Balancer
   oci_load_balancer:
-    load_balancer_id: "ocid1.loadbalancer.cdfs"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     state: 'absent'
 '''
 
@@ -249,7 +280,7 @@ RETURN = '''
                 description: Identifier of the Load Balancer
                 returned: always
                 type: string
-                sample: ocid1.loadbalancer.oc1.axdf
+                sample: ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx
             lifecycle_state:
                 description: The current state of the Load Balancer
                 returned: always
@@ -288,11 +319,38 @@ RETURN = '''
                 type: dict
                 sample: {"listerner1": {"default_backend_set_name": "backend1", "name": "listerner1",
                          "port": 80, "protocol": "HTTP", "ssl_configuration": null, "connection_configuration":{"idle_timeout": 1200}}}
+            path_route_sets:
+                description: The path route sets configuration details.
+                returned: always
+                type: dict
+            sample: {
+                      "ansible_path_route_set":{
+                      "path_routes":[
+                                     {
+                                       "backend_set_name":"ansible_backend_set",
+                                       "path":"/example/user",
+                                       "path_match_type":{
+                                             "match_type":"EXACT_MATCH"
+                                     }
+                                   }
+                                  ]
+                                 }
+                    }
             shape_name:
                 description: A template that determines the total pre-provisioned bandwidth (ingress plus egress).
                 returned: always
                 type: string
                 sample: 100Mbps
+            hostnames:
+                description: The details of a hostname resource associated with a load balancer.
+                returned: always
+                type: dict
+                sample: {
+                         "ansible_hostname": {
+                             "name": "ansible_hostname",
+                             "hostname": "app.example.com"
+                           }
+                         }
             subnet_ids:
                 description: An array of subnet OCIDs.
                 returned: always
@@ -338,6 +396,19 @@ RETURN = '''
                               ----END CERTIFICATE-----"
       }
    },
+   "path_route_sets":{
+                      "ansible_path_route_set":{
+                      "path_routes":[
+                                     {
+                                       "backend_set_name":"ansible_backend_set",
+                                       "path":"/example/user",
+                                       "path_match_type":{
+                                             "match_type":"EXACT_MATCH"
+                                     }
+                                   }
+                                  ]
+                                 }
+                    },
    "compartment_id":"ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
    "display_name":"ansible_lb955",
    "id":"ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx",
@@ -360,6 +431,12 @@ RETURN = '''
              "idle_timeout": 1200
           }
       }
+   },
+   "hostnames":{
+       "ansible_hostname": {
+                             "name": "ansible_hostname",
+                             "hostname": "app.example.com"
+                           }
    },
    "shape_name":"100Mbps",
    "subnet_ids":[
@@ -443,14 +520,16 @@ def create_load_balancer(lb_client, module):
     backend_sets = oci_lb_utils.create_backend_sets(module.params.get('backend_sets', None))
     certificates = oci_lb_utils.create_certificates(module.params.get('certificates', None))
     listeners = oci_lb_utils.create_listeners(module.params.get('listeners', None))
+    path_route_sets = oci_lb_utils.create_path_route_sets(module.params.get('path_route_sets', None))
+    hostnames = oci_lb_utils.create_hostnames(module.params.get('hostnames', None))
     subnet_ids = module.params['subnet_ids']
     shape_name = module.params['shape_name']
     is_private = module.params.get('is_private', False)
     create_load_balancer_details = CreateLoadBalancerDetails()
     atributes_to_value_dict = dict({'compartment_id': compartment_id, 'display_name': name, 'is_private': is_private,
-                                    'certificates': certificates, 'listeners': listeners, 'backend_sets': backend_sets,
-                                    'shape_name': shape_name,
-                                    'subnet_ids': subnet_ids})
+                                    'certificates': certificates, 'listeners': listeners,
+                                    'backend_sets': backend_sets, 'path_route_sets': path_route_sets,
+                                    'hostnames': hostnames, 'shape_name': shape_name, 'subnet_ids': subnet_ids})
     for key, value in six.iteritems(atributes_to_value_dict):
         create_load_balancer_details.__setattr__(key, value)
     response = oci_utils.call_with_backoff(lb_client.create_load_balancer,
@@ -543,10 +622,12 @@ def main():
         backend_sets=dict(type=dict, required=False),
         certificates=dict(type=dict, required=False),
         listeners=dict(type=dict, required=False),
+        hostnames=dict(type=dict, required=False),
         shape_name=dict(
             type='str', required=False),
         subnet_ids=dict(
             type=list, required=False),
+        path_route_sets=dict(type=dict, required=False),
         state=dict(type='str', required=False, default='present',
                    choices=['present', 'absent']),
         is_private=dict(type=bool, required=False,

@@ -14,7 +14,6 @@ galaxy_info:
   # this branch. If Travis integration is configured, only notifications for this
   # branch will be accepted. Otherwise, in all cases, the repo's default branch
   # (usually master) will be used.
-  # XXX: replace with final project name in OGHO
   github_branch: https://github.com/oracle/oci-ansible-modules
 
   galaxy_tags:

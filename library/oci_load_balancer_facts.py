@@ -41,12 +41,12 @@ EXAMPLES = '''
 #Fetch Load Balancer
 - name: List Load Balancer
   oci_load_balancer_facts:
-      compartment_id: 'ocid1.compartment..xcds'
+      compartment_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
 
 #Fetch specific Load Balancer
 - name: List a specific Load Balancer
   oci_load_balancer_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
 '''
 
 RETURN = '''
@@ -59,7 +59,7 @@ RETURN = '''
                 description: The identifier of the compartment containing the Load Balancer
                 returned: always
                 type: string
-                sample: ocid1.compartment.oc1.xzvf..oifds
+                sample: ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx
             display_name:
                 description: Name assigned to the Load Balancer during creation
                 returned: always
@@ -69,7 +69,7 @@ RETURN = '''
                 description: Identifier of the Load Balancer
                 returned: always
                 type: string
-                sample: ocid1.loadbalancer.oc1.axdf
+                sample: ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx
             lifecycle_state:
                 description: The current state of the Load Balancer
                 returned: always
@@ -108,6 +108,23 @@ RETURN = '''
                 type: dict
                 sample: {"listerner1": {"default_backend_set_name": "backend1", "name": "listerner1",
                          "port": 80, "protocol": "HTTP", "ssl_configuration": null, "connection_configuration":{"idle_timeout": 1200}}}
+            path_route_sets:
+                description: The path route sets configuration details.
+                returned: always
+                type: dict
+                sample: {
+                      "ansible_path_route_set":{
+                      "path_routes":[
+                                     {
+                                       "backend_set_name":"ansible_backend_set",
+                                       "path":"/example/user",
+                                       "path_match_type":{
+                                             "match_type":"EXACT_MATCH"
+                                     }
+                                   }
+                                  ]
+                                 }
+                        }
             shape_name:
                 description: A template that determines the total pre-provisioned bandwidth (ingress plus egress).
                 returned: always
@@ -157,6 +174,19 @@ RETURN = '''
                               ----END CERTIFICATE-----"
       }
    },
+   "path_route_sets":{
+                      "ansible_path_route_set":{
+                      "path_routes":[
+                                     {
+                                       "backend_set_name":"ansible_backend_set",
+                                       "path":"/example/user",
+                                       "path_match_type":{
+                                             "match_type":"EXACT_MATCH"
+                                     }
+                                   }
+                                  ]
+                                 }
+                    },
    "compartment_id":"ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
    "display_name":"ansible_lb955",
    "id":"ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx",

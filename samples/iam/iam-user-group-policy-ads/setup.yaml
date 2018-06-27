@@ -5,7 +5,6 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-# XXX: investigate why this is failing
 - name: Check pre-requisites
   fail:
     msg: "Environment variable {{item}} not set. Please declare an environment variable with an appropriate value for the sample to work."

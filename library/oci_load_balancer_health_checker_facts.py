@@ -38,13 +38,13 @@ EXAMPLES = '''
 #Fetch details of all health checker details of load balancer backends of a load balancer
 - name: List a specific Health Checker Details of a Backend Set
   oci_load_balancer_health_checker_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
       backend_set_name: 'backend_set'
 
 #Fetch details of all health checkers  in a load balancer
 - name: List all Health Checker Details
   oci_load_balancer_health_checker_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
 '''
 
 RETURN = '''

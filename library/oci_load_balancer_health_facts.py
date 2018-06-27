@@ -35,7 +35,7 @@ EXAMPLES = '''
 #Fetch details of health of a load balancer
 - name: List a specific Load Balancer Health
   oci_load_balancer_health_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
 '''
 
 RETURN = '''

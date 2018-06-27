@@ -14,9 +14,10 @@ try:
     from oci.load_balancer.models import BackendDetails, BackendSetDetails, \
         HealthCheckerDetails, SessionPersistenceConfigurationDetails, \
         SSLConfigurationDetails, CertificateDetails, ListenerDetails, \
-        ConnectionConfiguration
+        ConnectionConfiguration, PathRouteSetDetails, PathRoute, PathMatchType, \
+        HostnameDetails
     from oci.util import to_dict
-    from oci.exceptions import ServiceError, ClientError
+    from oci.exceptions import ServiceError, ClientError, MaximumWaitTimeExceeded
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -24,6 +25,8 @@ except ImportError:
 DEFAULT_COMPLETED_STATES = ['SUCCEEDED', 'FAILED']
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
+
+logger = oci_utils.get_logger('oci_lb_utils')
 
 
 def verify_work_request(lb_client, response):
@@ -40,25 +43,63 @@ def verify_work_request(lb_client, response):
 
 def create_or_update_lb_resources_and_wait(lb_client, resource_type, function, kwargs_function, module,
                                            get_fn, get_param=None, states=None, wait_applicable=True, kwargs_get=None):
-    result = dict(resource_type='')
-    response = oci_utils.call_with_backoff(function, **kwargs_function)
-    work_request_id = response.headers.get('opc-work-request-id')
-    if wait_applicable and module.params.get('wait', None):
-        if states is None:
-            states = module.params.get('wait_until') or DEFAULT_COMPLETED_STATES
-        work_request_response = oci_utils.call_with_backoff(lb_client.get_work_request, work_request_id=work_request_id)
-        response = oci.wait_until(lb_client, work_request_response,
-                                  evaluate_response=lambda r: r.data.lifecycle_state in states,
-                                  max_wait_seconds=module.params.get('wait_timeout', MAX_WAIT_TIMEOUT_IN_SECONDS))
-        if response.data.lifecycle_state == 'FAILED':
-            raise ClientError(Exception(response.data.error_details))
-        if kwargs_get:
-            result[resource_type] = to_dict(oci_utils.call_with_backoff(get_fn, **kwargs_get).data)
-        else:
-            result[resource_type] = to_dict(oci_utils.call_with_backoff(
-                get_fn, **{get_param: response.data[get_param]}).data)
-    result['changed'] = True
+    result = dict()
+    result[resource_type] = ''
+    try:
+        response = oci_utils.call_with_backoff(function, **kwargs_function)
+        work_request_id = response.headers.get('opc-work-request-id')
+        if wait_applicable and module.params.get('wait', None):
+            if states is None:
+                states = module.params.get('wait_until') or DEFAULT_COMPLETED_STATES
+            response = get_work_request_response(lb_client, work_request_id, states, module)
+            if response.data.lifecycle_state == 'FAILED':
+                module.fail_json(msg=response.data.error_details)
+            if kwargs_get:
+                result[resource_type] = to_dict(oci_utils.call_with_backoff(get_fn, **kwargs_get).data)
+            else:
+                result[resource_type] = to_dict(oci_utils.call_with_backoff(
+                    get_fn, **{get_param: response.data[get_param]}).data)
+        result['changed'] = True
+    except ServiceError as ex:
+        logger.error("Unable to create/update %s due to: %s", resource_type, ex.message)
+        module.fail_json(msg=ex.message)
+    except MaximumWaitTimeExceeded as ex:
+        logger.error("Unable to create/update %s due to: %s", resource_type, str(ex))
+        module.fail_json(msg=str(ex))
     return result
+
+
+def delete_lb_resources_and_wait(lb_client, resource_type, function, kwargs_function, module,
+                                 get_fn, get_param=None, states=None, wait_applicable=True, kwargs_get=None):
+    result = dict(changed=False)
+    try:
+        resource = to_dict(oci_utils.call_with_backoff(get_fn, **kwargs_get).data)
+        if resource:
+            result[resource_type] = resource
+            response = oci_utils.call_with_backoff(function, **kwargs_function)
+            work_request_id = response.headers.get('opc-work-request-id')
+            if wait_applicable and module.params.get('wait', None):
+                if states is None:
+                    states = module.params.get('wait_until') or DEFAULT_COMPLETED_STATES
+            response = get_work_request_response(lb_client, work_request_id, states, module)
+            if response.data.lifecycle_state == 'FAILED':
+                module.fail_json(msg=response.data.error_details)
+            result['changed'] = True
+    except MaximumWaitTimeExceeded as ex:
+        module.fail_json(msg=str(ex))
+    except ServiceError as ex:
+        if ex.status != 404:
+            module.fail_json(msg=ex.message)
+        result[resource_type] = ''
+    return result
+
+
+def get_work_request_response(lb_client, work_request_id, states, module):
+    work_request_response = oci_utils.call_with_backoff(lb_client.get_work_request, work_request_id=work_request_id)
+    response = oci.wait_until(lb_client, work_request_response,
+                              evaluate_response=lambda r: r.data.lifecycle_state in states,
+                              max_wait_seconds=module.params.get('wait_timeout', MAX_WAIT_TIMEOUT_IN_SECONDS))
+    return response
 
 
 def get_existing_load_balancer(lb_client, module, load_balancer_id):
@@ -236,6 +277,86 @@ def create_connection_configuration(connection_configuration_details):
             "idle_timeout is mandatory attributes for connection_configuration and can not be empty."))
     result_connection_configuration.idle_timeout = idle_timeout
     return result_connection_configuration
+
+
+def create_path_route_sets(path_route_sets_dicts):
+    if path_route_sets_dicts is None:
+        return None
+    result_path_route_sets = dict()
+    for key, value in six.iteritems(path_route_sets_dicts):
+        path_route_sets_details = PathRouteSetDetails()
+        path_route_sets_details.path_routes = create_path_routes(value.get('path_routes', None))
+        result_path_route_sets.update({key: path_route_sets_details})
+    return result_path_route_sets
+
+
+def create_path_routes(path_routes_list):
+    if path_routes_list is None:
+        raise ClientError('path_routes is mandatory attribute for path_route_set and can not be empty.')
+    HashedPathMatchType = oci_utils.generate_subclass(PathMatchType)
+    path_match_type = dict(EXACT_MATCH=HashedPathMatchType(match_type=PathMatchType.MATCH_TYPE_EXACT_MATCH),
+                           FORCE_LONGEST_PREFIX_MATCH=HashedPathMatchType(
+                               match_type=PathMatchType.MATCH_TYPE_FORCE_LONGEST_PREFIX_MATCH),
+                           PREFIX_MATCH=HashedPathMatchType(match_type=PathMatchType.MATCH_TYPE_PREFIX_MATCH),
+                           SUFFIX_MATCH=HashedPathMatchType(match_type=PathMatchType.MATCH_TYPE_SUFFIX_MATCH))
+    result_path_routes = list()
+    HashedPathRoute = oci_utils.generate_subclass(PathRoute)
+    for path_route_entry in path_routes_list:
+        path_route = HashedPathRoute()
+        backend_set_name = path_route_entry.get('backend_set_name', None)
+        path = path_route_entry.get('path', None)
+        path_match_type = path_match_type.get(path_route_entry.get('path_match_type', None).get('match_type', None))
+        if backend_set_name is None or path is None or path_match_type is None:
+            raise ClientError(Exception("backend_set_name, path and path_match_type are mandatory attributes for back_ends and" +
+                                        "can not be empty."))
+        path_route.backend_set_name = backend_set_name
+        path_route.path = path
+        path_route.path_match_type = path_match_type
+        result_path_routes.append(path_route)
+    return result_path_routes
+
+
+def check_and_return_component_list_difference(input_component_list, existing_componets, purge_components):
+    if input_component_list:
+        existing_componets, changed = get_component_list_difference(
+            input_component_list, existing_componets, purge_components)
+    else:
+        existing_componets = []
+        changed = True
+    return existing_componets, changed
+
+
+def get_component_list_difference(input_component_list, existing_componets, purge_components):
+    if existing_componets is None:
+        return input_component_list, True
+    if purge_components:
+        components_differences = set(
+            input_component_list).symmetric_difference(set(existing_componets))
+
+        if components_differences:
+            return input_component_list, True
+    components_differences = set(input_component_list).difference(
+        set(existing_componets))
+    if components_differences:
+        return list(components_differences) + existing_componets, True
+    return None, False
+
+
+def create_hostnames(hostnames_dicts):
+    if hostnames_dicts is None:
+        return None
+    result_hostnames = dict()
+    for key, value in six.iteritems(hostnames_dicts):
+        hostname_details = HostnameDetails()
+        name = value.get('name', None)
+        hostname = value.get('hostname', None)
+        if name is None or hostname is None:
+            raise ClientError(Exception(
+                "name and hostname are mandatory attributes for hostnames and can not be empty."))
+        hostname_details.name = name
+        hostname_details.hostname = hostname
+        result_hostnames.update({key: hostname_details})
+    return result_hostnames
 
 
 def generic_hash(obj):

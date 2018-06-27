@@ -49,7 +49,7 @@ RETURN = '''
                              associated with.
                 returned: always
                 type: string
-                sample: ocid1.compartment.aaaa
+                sample: ocid1.loadbalancer.aaaa
           status:
                 description: The overall health status of the load balancer.
                              Allowed values -
@@ -61,7 +61,7 @@ RETURN = '''
                 type: string
                 sample: OK
         sample: [{
-                    "load_balancer_id":"ocid1.loadbalancer.aaaa",
+                    "load_balancer_id":"ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx",
                     "status":"WARNING"
                 }]
 

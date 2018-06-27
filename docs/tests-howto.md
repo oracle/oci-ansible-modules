@@ -1,9 +1,9 @@
-# How to run OCI Ansible Cloud Module Tests
+# How to run OCI Ansible Module Tests
 
 ## Unit Tests
 
 In a virtual environment, install all pre-requisites listed in the
-"OCI Ansible Cloud Modules Getting started" document (XXX).
+[OCI Ansible Modules Getting Started](https://docs.cloud.oracle.com/iaas/Content/API/SDKDocs/ansiblegetstarted.htm) documentation page.
 
 To run unit tests as a developer, follow these steps:
 

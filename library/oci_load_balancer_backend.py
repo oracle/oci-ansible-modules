@@ -77,7 +77,7 @@ EXAMPLES = '''
 # Create Load Balancer Backend
 - name: Create Load Balancer Backend
   oci_load_balancer_backend:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     backend_set_name: "backend1"
     ip_address: "10.50.121.69"
     port: 8080
@@ -89,7 +89,7 @@ EXAMPLES = '''
 # Update a Backend server by enabling drain
 - name: Drain a backend server by updating the Backend and setting the 'drain' option
   oci_load_balancer_backend:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     backend_set_name: "backend1"
     ip_address: "10.50.121.69"
     port: 8080
@@ -98,7 +98,7 @@ EXAMPLES = '''
 # Update a Backend server to make it offline
 - name: Make a backend server offline
   oci_load_balancer_backend:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     backend_set_name: "backend1"
     ip_address: "10.50.121.69"
     port: 8080
@@ -107,7 +107,7 @@ EXAMPLES = '''
 # Update a Backend server to backup state
 - name: Change a backend server state as backup
   oci_load_balancer_backend:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     backend_set_name: "backend1"
     ip_address: "10.50.121.69"
     port: 8080
@@ -116,7 +116,7 @@ EXAMPLES = '''
 # Update Load Balancer Backend
 - name: Update Load Balancer Backend
   oci_load_balancer_backend:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     backend_set_name: "backend1"
     ip_address: "10.50.121.69"
     port: 8080
@@ -125,7 +125,7 @@ EXAMPLES = '''
 # Delete Load Balancer Backend
 - name: Update Load Balancer Backend
   oci_load_balancer_backend:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     backend_set_name: "backend1"
     ip_address: "10.50.121.69"
     port: 8080

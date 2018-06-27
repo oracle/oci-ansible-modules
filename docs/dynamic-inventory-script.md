@@ -98,7 +98,7 @@ $ ANSIBLE_HOSTS=<path-to-inventory-file>/oci_inventory.py ansible-playbook <your
 
 If you are running the dynamic inventory in a standalone manner, you can use "--refresh"/"-r" to ignore the cached inventory and fetch the latest inventory from OCI:
 ```sh
-$ \<path-to-inventory-file\>/oci_inventory.py --refresh
+$ <path-to-inventory-file>/oci_inventory.py --refresh
 ```
 
 If you are using the inventory script during an ansible-playbook invocation, set the `OCI_CACHE_MAX_AGE` environment variable to "0"(zero) to ignore the cache, and fetch the latest inventory from OCI: 

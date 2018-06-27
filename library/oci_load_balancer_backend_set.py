@@ -167,7 +167,7 @@ EXAMPLES = '''
 - name: Create Load Balancer Backend Set
   oci_load_balancer_backend_set:
     name: "ansible_backend_set"
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     backends:
           - ip_address: "10.159.34.21"
             port: 8080
@@ -193,7 +193,7 @@ EXAMPLES = '''
 # Update Load Balancer Backend Set
 - name: Update Load Balancer Backend Set
   oci_load_balancer_backend_set:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_backend_set"
     backends:
           - ip_address: "10.159.34.25"
@@ -203,7 +203,7 @@ EXAMPLES = '''
 # Deleted Load Balancer Backend Set
 - name: Update Load Balancer Backend Set
   oci_load_balancer_backend_set:
-    load_balancer_id: "ocid1.loadbalancer.cdfs"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_backend_set"
     state: 'absent'
 '''

@@ -85,7 +85,7 @@ EXAMPLES = '''
 # Create Listener
 - name: Create Listener
   oci_load_balancer_listener:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_listener"
     default_backend_set_name: "ansible_backend_set"
     protocol: "HTTP"
@@ -100,7 +100,7 @@ EXAMPLES = '''
 # Update Listener
 - name: Update Listener Port
   oci_load_balancer_listener:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_listener"
     default_backend_set_name: "ansible_backend_set"
     protocol: "HTTP"
@@ -109,7 +109,7 @@ EXAMPLES = '''
 
 - name: Update Listener SSL Configuration
   oci_load_balancer_listener:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_listener"
     default_backend_set_name: "ansible_backend_set"
     protocol: "HTTP"
@@ -122,7 +122,7 @@ EXAMPLES = '''
 
 - name: Update Listener Connection Configuration
   oci_load_balancer_listener:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_listener"
     default_backend_set_name: "ansible_backend_set"
     protocol: "HTTP"
@@ -134,7 +134,7 @@ EXAMPLES = '''
 # Delete listener
 - name: Delete Listener
   oci_load_balancer_listener:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_listener"
     state: 'absent'
 '''

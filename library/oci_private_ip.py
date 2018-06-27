@@ -188,6 +188,8 @@ def main():
         if private_ip_id is not None:
             result = update_private_ip(virtual_network_client, module)
         else:
+            # Exclude ip_address & display_name when matching private_ips if they are not explicitly specified by user.
+            exclude_attributes = {'display_name': True, 'ip_address': True}
             subnet_id = oci_utils.call_with_backoff(virtual_network_client.get_vnic,
                                                     vnic_id=module.params['vnic_id']).data.subnet_id
             result = oci_utils.check_and_create_resource(resource_type='private_ip',
@@ -199,7 +201,8 @@ def main():
                                                          kwargs_list={"vnic_id": module.params['vnic_id'],
                                                                       "subnet_id": subnet_id},
                                                          module=module,
-                                                         model=CreatePrivateIpDetails()
+                                                         model=CreatePrivateIpDetails(),
+                                                         exclude_attributes=exclude_attributes
                                                          )
 
     module.exit_json(**result)

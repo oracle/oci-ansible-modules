@@ -44,7 +44,7 @@ EXAMPLES = '''
 #Fetch details of the backend health of a backend set
 - name: List a specific Load Balancer Backend's Health
   oci_load_balancer_backend_health_facts:
-      load_balancer_id: 'ocid1.loadbalancer..xcds'
+      load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
       backend_set_name: 'ansible_backend_set'
       ip_address: '10.159.121.55'
       port: '8181'

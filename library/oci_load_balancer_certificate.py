@@ -65,7 +65,7 @@ EXAMPLES = '''
 # Add a certificate bundle (without passphrase) to a loadbalancer
 - name: Add a certificate bundle (without passphrase) to a loadbalancer
   oci_load_balancer_certificate:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_certtificate"
     ca_certificate: "certificate_src/ca_cert.pem"
     private_key: "certificate_src/private_key.pem"
@@ -75,7 +75,7 @@ EXAMPLES = '''
 - name: Create certificate with Passphrase
   oci_load_balancer_certificate:
     name: "ansible_cert_with_passphrase"
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     ca_certificate: "certificate_src/ca_cert.pem"
     passphrase: "ansible"
     private_key: "certificate_src/private_key_with_passphrase.pem"
@@ -84,7 +84,7 @@ EXAMPLES = '''
 # Delete a SSL Certificate from a load balancer
 - name: Delete a SSL certificate
   oci_load_balancer_certificate:
-    load_balancer_id: "ocid1.loadbalancer.aaaa"
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_certtificate"
     state: 'absent'
 '''

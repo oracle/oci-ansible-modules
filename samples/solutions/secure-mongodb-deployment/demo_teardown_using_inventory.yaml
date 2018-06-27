@@ -42,13 +42,13 @@
     with_items: "{{ result.vcns }}"
     when: item.display_name.find(demo_var_prefix) != -1
 
+  - pause:
+      seconds: 120
+
   - oci_subnet_facts:
       compartment_id: "{{ demo_compartment_ocid }}"
       vcn_id: "{{ vcn['id'] }}"
     register: result
-
-  - pause:
-      seconds: 30
 
   - oci_subnet:
       subnet_id: "{{ item['id'] }}"
