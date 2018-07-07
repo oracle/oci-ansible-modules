@@ -23,7 +23,7 @@ short_description: Create a secondary VNIC and attach it to a compute instance, 
 description:
     - This module allows the user to create a secondary VNIC and attach it to a compute instance, detach a secondary
       VNIC attachment from a compute instance, and delete the secondary VNIC.
-version_added: "2.5"
+version_added: "2.x"
 options:
     instance_id:
         description: The OCID of the instance to which the secondary VNIC must be attached. Required when a secondary

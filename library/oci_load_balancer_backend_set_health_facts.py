@@ -20,7 +20,7 @@ module: oci_load_balancer_backend_set_health_facts
 short_description: Fetch details of a Backend Set's health in a load balancer
 description:
     - Fetch details of Backend Set's health in a load balancer.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer to which the Backends belongs.

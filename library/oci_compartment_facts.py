@@ -22,7 +22,7 @@ short_description: Retrieve details of a compartment or all the compartments in 
 description:
     - This module allows the user to retrieve details of a specific compartment in a tenancy or all the compartments in
       a tenancy in OCI.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: OCID of a compartment. Use OCID of a tenancy to get details of all the compartments in the

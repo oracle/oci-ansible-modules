@@ -22,7 +22,7 @@ description:
     - Creates OCI Load Balancers
     - Update OCI Load Balancers, if present, with a new display name
     - Delete OCI Load Balancers, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment under which this
@@ -134,6 +134,7 @@ options:
     is_private:
         description: Defines whether the load balancer has a VCN-local (private) IP address.
         required: false
+        type: bool
     listeners:
         description: The listener configuration details.
         suboptions:
@@ -418,7 +419,7 @@ RETURN = '''
          "is_public":true
       }
    ],
-   "is_private":false,
+   "is_private": false,
    "lifecycle_state":"ACTIVE",
    "listeners":{
       "listerner1":{
@@ -630,8 +631,7 @@ def main():
         path_route_sets=dict(type=dict, required=False),
         state=dict(type='str', required=False, default='present',
                    choices=['present', 'absent']),
-        is_private=dict(type=bool, required=False,
-                        default=False, choices=[True, False])
+        is_private=dict(type='bool', required=False, default=False)
     ))
 
     module = AnsibleModule(

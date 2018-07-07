@@ -125,7 +125,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = '0.15.0'
+__version__ = '1.0.0'
 
 
 def _get_retry_strategy():

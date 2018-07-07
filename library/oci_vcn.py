@@ -21,7 +21,7 @@ module: oci_vcn
 short_description: Manage Virtual Cloud Networks(VCN) in OCI
 description:
     - This module allows the user to create, delete and update virtual cloud networks(VCNs) in OCI.
-version_added: "2.5"
+version_added: "2.x"
 options:
     cidr_block:
         description: The CIDR IP address block of the VCN. Required when creating a VCN with I(state=present).

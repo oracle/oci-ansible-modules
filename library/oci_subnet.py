@@ -21,7 +21,7 @@ module: oci_subnet
 short_description: Manage subnets in a VCN in OCI
 description:
     - This module allows the user to create, delete and update subnets in a VCN in OCI.
-version_added: "2.5"
+version_added: "2.x"
 options:
     availability_domain:
         description: The Availability Domain to contain the subnet. Required when creating a subnet with

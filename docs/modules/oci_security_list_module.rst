@@ -4,7 +4,7 @@
 oci_security_list - Create,update and delete OCI Security List
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -94,7 +94,7 @@ Options
     <td></td>
     <td></td>
     <td>
-        <div>Identifier of the compartment under which this Security List would be created. Mandatory for create operation.Optional for delete and update. Mutually exclusive with security_list_id.</div>
+        <div>Identifier of the compartment under which this security List would be created. Mandatory for create operation.Optional for delete and update. Mutually exclusive with <em>security_list_id</em>.</div>
     </td>
     </tr>
 
@@ -111,7 +111,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -350,7 +350,7 @@ Options
     <tr>
     <td>purge_security_rules<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td>no</td>
+    <td>yes</td>
     <td><ul><li>yes</li><li>no</li></ul></td>
     <td>
         <div>Purge security rules  from security list which are not present in the provided group security list. If <em>purge_security_rules=no</em>, provided security rules would be appended to existing security rules.</div>
@@ -404,7 +404,7 @@ Options
     <td></td>
     <td></td>
     <td>
-        <div>Identifier of the Virtual Cloud Network to which the Security List should be attached. Mandatory for create operation. Optional for delete and update. Mutually exclusive with security_list_id.</div>
+        <div>Identifier of the Virtual Cloud Network to which the security List should be attached. Mandatory for create operation. Optional for delete and update. Mutually exclusive with <em>security_list_id</em>.</div>
     </td>
     </tr>
 

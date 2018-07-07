@@ -20,11 +20,10 @@ module: oci_db_home_facts
 short_description: Fetches details of one or more OCI DB Homes
 description:
     - Fetches details of the OCI DB Home.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
-        description: Identifier of the compartment in which the specified
-                     DB System exists
+        description: Identifier of the compartment in which the specified DB System exists
         required: false
     db_system_id:
         description: Identifier of the DB System under which the DB Home is available.
@@ -32,6 +31,7 @@ options:
     db_home_id:
         description: Identifier of the DB Home whose details needs to be fetched.
         required: false
+        aliases: ['id']
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle

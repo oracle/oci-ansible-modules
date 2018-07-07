@@ -20,7 +20,7 @@ module: oci_load_balancer_protocol_facts
 short_description: Fetches details of all the traffic protocols supported in the OCI Load Balancer Service.
 description:
     - Fetches details of all the traffic protocols supported in the OCI Load Balancer Service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the Compartment containing all Load Balancer

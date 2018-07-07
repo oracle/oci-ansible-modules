@@ -20,7 +20,7 @@ module: oci_tag_namespace_facts
 short_description: Retrieve details of tag namespaces for a specified compartment or tenancy in OCI
 description:
     - This module retrieves details of tag namespaces of a specified tenancy or compartment in OCI.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment whose tag namespaces must be retrieved. To get the tag namespaces of

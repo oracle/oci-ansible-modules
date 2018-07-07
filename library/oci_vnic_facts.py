@@ -20,9 +20,9 @@ module: oci_vnic_facts
 short_description: Retrieve details about a specific VNIC
 description:
     - This module retrieves details about a specific VNIC.
-version_added: "2.5"
+version_added: "2.x"
 options:
-   vnic_id:
+    vnic_id:
         description: The OCID of the VNIC. Required for retrieving information about a specific VNIC attachment.
         required: false
         aliases: ['id']
@@ -144,9 +144,6 @@ except ImportError:
 def main():
     module_args = oci_utils.get_common_arg_spec()
     module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        availability_domain=dict(type='str', required=False),
-        instance_id=dict(type='str', required=False),
         vnic_id=dict(type='str', required=False, aliases=['id'])
     ))
 

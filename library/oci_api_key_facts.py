@@ -22,7 +22,7 @@ description:
     - This module retrieves details of api signing keys of a specified user. Note that this is not the SSH key for
       accessing compute instances. This is the credential for securing requests to the Oracle Cloud Infrastructure
       REST API.
-version_added: "2.5"
+version_added: "2.x"
 options:
     user_id:
         description: The OCID of the user whose API signing keys must be retrieved

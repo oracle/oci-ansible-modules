@@ -22,7 +22,7 @@ short_description: Retrieve facts of volume backups in OCI Block Volume service
 description:
     - This module retrieves information of a specified volume backup or all the volume backups in a compartment in OCI
       Block Volume service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment.

@@ -22,7 +22,7 @@ short_description: Create, import, update and delete OCI Compute images
 description:
     - This module allows the user to create an image, import an exported image, update an image and delete OCI Compute
       Images.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment containing the instance that needs to be used as the basis for the
@@ -82,6 +82,8 @@ options:
         description: The state of the image that must be asserted to. When I(state=present), and the
                      image doesn't exist, the image is created with the specified details. When I(state=absent),
                      the image is deleted.
+                     Creation of an image may take longer than the default value of I(wait_timeout). So if I(wait=true),
+                     during creation of an image, it is recommended to set a longer timeout value of I(wait_timeout).
         required: false
         default: "present"
         choices: ['present', 'absent']
@@ -262,9 +264,6 @@ def main():
         image_id=dict(type='str', required=False, aliases=['id']),
         instance_id=dict(type='str', required=False),
         image_source_details=dict(type='dict', required=False),
-        # creating an image using ImageSourceDetails takes longer than oci_utils.MAX_WAIT_TIMEOUT_IN_SECONDS
-        # so setting a custom wait_timeout "default" value of 1 hour
-        wait_timeout=dict(type='int', required=False, default=60 * 60),
         state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
     ))
 

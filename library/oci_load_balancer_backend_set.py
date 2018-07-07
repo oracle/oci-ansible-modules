@@ -22,7 +22,7 @@ description:
     - Create an OCI Load Balancer Backend Set
     - Update OCI Load Balancers Backend Set, if present.
     - Delete OCI Load Balancers Backend Set, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer. Mandatory for create,delete and update.
@@ -155,7 +155,7 @@ options:
                      If I(purge_backends=no), provided backends would be appended to existing backends.
         required: false
         default: 'yes'
-        choices: ['yes','no']
+        type: bool
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
@@ -613,10 +613,8 @@ def main():
         policy=dict(type='str', required=False),
         session_persistence_configuration=dict(type=dict, required=False),
         ssl_configuration=dict(type=dict, required=False),
-        purge_backends=dict(type='bool', required=False, default=True,
-                            choices=[True, False]),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent'])
+        purge_backends=dict(type='bool', required=False, default=True),
+        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
     ))
 
     module = AnsibleModule(

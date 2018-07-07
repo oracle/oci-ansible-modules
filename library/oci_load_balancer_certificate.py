@@ -22,7 +22,7 @@ short_description: Add or remove a SSL certificate from a load balancer in
 description:
     - Add a SSL certificate to OCI Load Balancer
     - Delete a SSL certificate, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer in which the certificate belongs

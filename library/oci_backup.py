@@ -22,12 +22,13 @@ description:
     - Create and Delete a Database Backup in OCI Database Cloud Service.
     - Since all the operations of this module takes a long time, it is recommended to set the C(wait) parameter to
       False. Use M(oci_backup_facts) to check the status of the operation as a separate task.
-version_added: "2.5"
+version_added: "2.x"
 options:
     database_id:
         description: Identifier of the  Database whose backup has to be created.
                      Mandatory for create.
         required: false
+        aliases: ['id']
     display_name:
         description: The user-friendly name for the Database Backup. It does not have to be unique.
                      Mandatory for create.

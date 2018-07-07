@@ -22,7 +22,7 @@ short_description: Retrieve facts of volume attachments in OCI
 description:
     - This module retrieves information of a specified volume attachment or all the volume attachments in a specified
       compartment.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment. Required to get information of all the volume attachments in a

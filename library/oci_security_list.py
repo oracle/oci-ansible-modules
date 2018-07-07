@@ -24,32 +24,28 @@ description:
     - Update OCI Security List, if present, with a new display name
     - Update OCI Security List, if present, with ingress/egress security rules
     - Delete OCI Security List, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
-        description: Identifier of the compartment under which this
-                     Security List would be created. Mandatory for create
-                     operation.Optional for delete and update. Mutually exclusive
-                     with security_list_id.
+        description: Identifier of the compartment under which this security List would be created. Mandatory for create
+                     operation.Optional for delete and update. Mutually exclusive with I(security_list_id).
         required: false
     vcn_id:
-        description: Identifier of the Virtual Cloud Network to which the
-                     Security List should be attached. Mandatory for create
-                     operation. Optional for delete and update. Mutually exclusive
-                     with security_list_id.
+        description: Identifier of the Virtual Cloud Network to which the security List should be attached. Mandatory
+                     for create operation. Optional for delete and update. Mutually exclusive with I(security_list_id).
         required: false
     security_list_id:
         description: Identifier of the Security List. Mandatory for delete and update.
         required: false
         aliases: ['id']
     display_name:
-        description: Name of the Security List. A user friendly name. Does not have to be unique,
-                     and could be changed. If not specified, a default name would be provided.
+        description: Name of the Security List. A user friendly name. Does not have to be unique, and could be changed.
+                     If not specified, a default name would be provided.
         required: false
         aliases: ['name']
     state:
-        description: Create,update or delete Security List. For I(state=present), if it
-                     does not exists, it gets created. If exists, it gets updated.
+        description: Create,update or delete Security List. For I(state=present), if it does not exists, it gets
+                     created. If exists, it gets updated.
         required: false
         default: 'present'
         choices: ['present','absent']
@@ -58,13 +54,11 @@ options:
         required: false
         suboptions:
             source:
-                description: The source CIDR block for the ingress rule.
-                             This is the range of IP addresses that a packet
+                description: The source CIDR block for the ingress rule. This is the range of IP addresses that a packet
                              coming into the instance can come from.
                 required: true
             icmp_options:
-                description: Valid only for ICMP. Use to specify a particular
-                             ICMP type and code as defined in
+                description: Valid only for ICMP. Use to specify a particular ICMP type and code as defined in
                              U(u'https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml').
                              If you specify ICMP as the protocol but omit this object, then all ICMP types
                              and codes are allowed. If you do provide this object, the type is
@@ -107,8 +101,7 @@ options:
                              that a packet originating from the instance can go to.
                 required: true
             icmp_options:
-                description: Valid only for ICMP. Use to specify a particular
-                             ICMP type and code as defined in
+                description: Valid only for ICMP. Use to specify a particular ICMP type and code as defined in
                              U(u'https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml').
                              If you specify ICMP as the protocol but omit this object, then all ICMP types
                              and codes are allowed. If you do provide this object, the type is
@@ -145,10 +138,11 @@ options:
                 required: no
     purge_security_rules:
         description: Purge security rules  from security list which are not present in the provided group security list.
-                     If I(purge_security_rules=no), provided security rules would be appended to existing security rules.
+                     If I(purge_security_rules=no), provided security rules would be appended to existing security
+                     rules.
         required: false
-        default: 'no'
-        choices: ['yes','no']
+        default: 'yes'
+        type: bool
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
@@ -489,6 +483,7 @@ def get_security_rules_difference(
 
 
 def get_hashed_security_rules(security_rules_type, security_rules):
+    supported_security_rule_simple_attributes = ['source', 'destination', 'is_stateless', 'protocol']
     hashed_security_rules = []
     for security_rule in security_rules:
         if security_rules_type == 'ingress_security_rules':
@@ -520,8 +515,9 @@ def get_hashed_security_rules(security_rules_type, security_rules):
                     set_port_range(source_udp_options, value)
                 setattr(hashed_security_rule, field, value)
             else:
-                value = getattr(security_rule, field)
-                setattr(hashed_security_rule, field, value)
+                if field in supported_security_rule_simple_attributes:
+                    value = getattr(security_rule, field)
+                    setattr(hashed_security_rule, field, value)
         hashed_security_rules.append(hashed_security_rule)
 
     return hashed_security_rules
@@ -614,19 +610,13 @@ def delete_security_list(virtual_network_client, module):
 def main():
     module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
     module_args.update(dict(compartment_id=dict(type='str', required=False),
-                            display_name=dict(
-                                type='str', required=False, aliases=['name']),
+                            display_name=dict(type='str', required=False, aliases=['name']),
                             vcn_id=dict(type='str', required=False),
-                            security_list_id=dict(type='str', required=False,
-                                                  aliases=['id']),
-                            state=dict(type='str', required=False, default='present',
-                                       choices=['present', 'absent']),
-                            ingress_security_rules=dict(
-                                type=list, required=False),
-                            egress_security_rules=dict(
-                                type=list, required=False),
-                            purge_security_rules=dict(type='bool', required=False, default=True,
-                                                      choices=[True, False])))
+                            security_list_id=dict(type='str', required=False, aliases=['id']),
+                            state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
+                            ingress_security_rules=dict(type=list, required=False),
+                            egress_security_rules=dict(type=list, required=False),
+                            purge_security_rules=dict(type='bool', required=False, default=True)))
 
     module = AnsibleModule(argument_spec=module_args)
 

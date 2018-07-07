@@ -4,7 +4,7 @@
 oci_data_guard_association - Create a Data Guard Association and, perform various Database role transitions of Databases associated with a Data Guard Association in OCI Database Cloud Service.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -102,7 +102,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -126,6 +126,7 @@ Options
     <td></td>
     <td>
         <div>The identifier of the Data Guard Association. Mandatory for role transition of the Databases associated with a specified Data Guard Association.</div>
+        </br><div style="font-size: small;">aliases: id</div>
     </td>
     </tr>
 
@@ -146,6 +147,36 @@ Options
     <td></td>
     <td>
         <div>Identifier of the Database to which the Data Guard should be Associated.</div>
+    </td>
+    </tr>
+
+    <tr>
+    <td>force_create<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+    <td><ul><li>yes</li><li>no</li></ul></td>
+    <td>
+        <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn't create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
+    </td>
+    </tr>
+
+    <tr>
+    <td>key_by<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td>
+        <div>The list of comma-separated attributes of this resource which should be used to uniquely identify an instance of the resource. By default, all the attributes of a resource except <em>freeform_tags</em> are used to uniquely identify a resource.</div>
+    </td>
+    </tr>
+
+    <tr>
+    <td>peer_db_system_id<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td>
+        <div>The OCID of the DB System to create the standby database on.</div>
     </td>
     </tr>
 

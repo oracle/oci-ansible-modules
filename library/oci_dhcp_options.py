@@ -26,7 +26,7 @@ description:
     - Update OCI Dhcp Options, if present, by purging existing options and replacing them with
       specified ones
     - Delete OCI Dhcp Options, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment under which this
@@ -79,7 +79,7 @@ options:
                      appended to existing options.
         required: false
         default: 'yes'
-        choices: ['yes','no']
+        type: bool
     state:
         description: Create,update or delete Dhcp Options. For I(state=present), if it
                      does not exist, it gets created. If it exists, it gets updated.
@@ -411,17 +411,12 @@ def delete_dhcp_options(virtual_network_client, module):
 def main():
     module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
     module_args.update(dict(compartment_id=dict(type='str', required=False),
-                            display_name=dict(
-                                type='str', required=False, aliases=['name']),
+                            display_name=dict(type='str', required=False, aliases=['name']),
                             vcn_id=dict(type='str', required=False),
-                            dhcp_id=dict(type='str', required=False,
-                                         aliases=['id']),
-                            state=dict(type='str', required=False, default='present',
-                                       choices=['present', 'absent']),
+                            dhcp_id=dict(type='str', required=False, aliases=['id']),
+                            state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
                             options=dict(type=list, required=False),
-                            purge_dhcp_options=dict(type='bool', required=False,
-                                                    default=True,
-                                                    choices=[True, False])
+                            purge_dhcp_options=dict(type='bool', required=False, default=True)
                             ))
     module = AnsibleModule(argument_spec=module_args)
 

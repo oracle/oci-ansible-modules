@@ -27,7 +27,7 @@ description:
     - Perform a reinstate on a disabled standby Database associated in a Data Guard Association
     - Since all operations of this module takes a long time, it is recommended to set the C(wait) to False. Use
       M(oci_data_guard_association_facts) to check the status of the operation as a separate task.
-version_added: "2.5"
+version_added: "2.x"
 options:
     database_id:
         description: Identifier of the Database to which the Data Guard should be Associated.
@@ -36,6 +36,7 @@ options:
         description: The identifier of the Data Guard Association. Mandatory for role transition
                      of the Databases associated with a specified Data Guard Association.
         required: false
+        aliases: ['id']
     creation_type:
         description: Specifies where to create the associated database ExistingDbSystem is the
                      only supported  value.
@@ -46,6 +47,9 @@ options:
         description: A strong password for SYS, SYSTEM, and PDB Admin. The password
                      must be at least nine characters and contain at least two
                      uppercase,two lowercase, two numbers, and two special characters.
+        required: false
+    peer_db_system_id:
+        description: The OCID of the DB System to create the standby database on.
         required: false
     protection_mode:
         description: The protection mode to set up between the primary and standby databases.
@@ -70,7 +74,7 @@ options:
         choices: ['present', 'switchover', 'failover', 'reinstate']
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: [ oracle, oracle_wait_options ]
+extends_documentation_fragment: [ oracle, oracle_wait_options, oracle_creatable_resource ]
 '''
 
 EXAMPLES = '''
@@ -233,15 +237,11 @@ state_to_object_details_dict = dict({'switchover': SwitchoverDataGuardAssociatio
 
 
 def create_data_guard_association(db_client, module):
-    result = dict(
-        changed=False,
-        data_guard_association=''
-    )
+    result = dict(changed=False, data_guard_association='')
     database_id = module.params.get('database_id')
 
     try:
-        create_data_guard_assoc_details = get_create_data_guard_association_from_creation_type(
-            module)
+        create_data_guard_assoc_details = get_create_data_guard_association_from_creation_type(module)
 
         result = oci_utils.create_and_wait(resource_type='data_guard_association',
                                            create_fn=db_client.create_data_guard_association,
@@ -370,27 +370,22 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_data_guard_association")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec(
-        supports_create=True, supports_wait=True)
+    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
     module_args.update(dict(
         database_id=dict(type='str', required=True),
         data_guard_association_id=dict(
             type='str', required=False, aliases=['id']),
-        creation_type=dict(type='str', required=False,
-                           default='ExistingDbSystem', choices=['ExistingDbSystem']),
+        creation_type=dict(type='str', required=False, default='ExistingDbSystem', choices=['ExistingDbSystem']),
         database_admin_password=dict(type='str', required=False, no_log=True),
         protection_mode=dict(type='str', required=False, choices=[
             'MAXIMUM_AVAILABILITY', 'MAXIMUM_PERFORMANCE', 'MAXIMUM_PROTECTION']),
-        transport_type=dict(type='str', required=False, choices=[
-            'SYNC', 'ASYNC', 'FASTSYNC']),
+        transport_type=dict(type='str', required=False, choices=['SYNC', 'ASYNC', 'FASTSYNC']),
         peer_db_system_id=dict(type='str', required=False),
         state=dict(type='str', required=False, default='present',
                    choices=['present', 'switchover', 'failover', 'reinstate'])
     ))
 
-    module = AnsibleModule(
-        argument_spec=module_args
-    )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')

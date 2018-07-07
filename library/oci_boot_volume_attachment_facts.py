@@ -22,7 +22,7 @@ short_description: Retrieve facts of boot volume attachments in OCI
 description:
     - This module retrieves information of a specified boot volume attachment or all the boot volume attachments in the
       specified compartment and availability domain.
-version_added: "2.5"
+version_added: "2.x"
 options:
     availability_domain:
         description: The name of the Availability Domain. Required to get information of all the boot volume attachments

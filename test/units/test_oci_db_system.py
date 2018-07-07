@@ -134,9 +134,10 @@ def test_launch_db_system(db_client, create_and_wait_patch):
     assert result['db_system']['display_name'] is db_system.display_name
 
 
-def test_update_db_systems_with_cpu_core_count(db_client, update_and_wait_patch):
+def test_update_db_systems_with_cpu_core_count(db_client, get_existing_resource_patch, update_and_wait_patch):
     db_system = get_db_system()
     db_system.cpu_core_count = 4
+    get_existing_resource_patch.return_value = db_system
     module = get_module(dict())
     update_and_wait_patch.return_value = {'db_system': to_dict(db_system), 'changed': True}
     result = oci_db_system.update_db_system(
@@ -174,8 +175,9 @@ def test_update_db_systems_ssh_public_keys_changed_no_purge(db_client):
     assert result['changed'] is True
 
 
-def test_update_db_systems_freeform_tags(db_client):
+def test_update_db_systems_freeform_tags(db_client, get_existing_resource_patch, update_and_wait_patch):
     db_system = get_db_system()
+    get_existing_resource_patch.return_value = db_system
     module = get_module(dict(freeform_tags=dict(system_type='oracledb')))
     update_and_wait_patch.return_value = {'db_system': to_dict(db_system), 'changed': True}
     result = oci_db_system.update_db_system(
@@ -183,8 +185,9 @@ def test_update_db_systems_freeform_tags(db_client):
     assert result['changed'] is True
 
 
-def test_update_db_systems_defined_tags(db_client):
+def test_update_db_systems_defined_tags(db_client, get_existing_resource_patch, update_and_wait_patch):
     db_system = get_db_system()
+    get_existing_resource_patch.return_value = db_system
     module = get_module(dict(defined_tags=dict(system_strength=dict(shape='medium'))))
     update_and_wait_patch.return_value = {'db_system': to_dict(db_system), 'changed': True}
     result=oci_db_system.update_db_system(db_client, module, 'ocid.dbsystem.ocid1')

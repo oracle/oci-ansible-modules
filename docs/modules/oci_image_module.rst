@@ -4,7 +4,7 @@
 oci_image - Create, import, update and delete OCI Compute images
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -108,7 +108,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -282,7 +282,7 @@ Options
     <td>present</td>
     <td><ul><li>present</li><li>absent</li></ul></td>
     <td>
-        <div>The state of the image that must be asserted to. When <em>state=present</em>, and the image doesn't exist, the image is created with the specified details. When <em>state=absent</em>, the image is deleted.</div>
+        <div>The state of the image that must be asserted to. When <em>state=present</em>, and the image doesn't exist, the image is created with the specified details. When <em>state=absent</em>, the image is deleted. Creation of an image may take longer than the default value of <em>wait_timeout</em>. So if <em>wait=true</em>, during creation of an image, it is recommended to set a longer timeout value of <em>wait_timeout</em>.</div>
     </td>
     </tr>
 

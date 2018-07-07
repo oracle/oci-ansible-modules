@@ -24,7 +24,7 @@ description:
     - Delete an OCI DB Home, if present.
     - Since all operations of this module takes a long time, it is recommended to set the C(wait) to False. Use
       M(oci_db_home_facts) to check the status of the operation as a separate task.
-version_added: "2.5"
+version_added: "2.x"
 options:
     db_system_id:
         description: Identifier of the  DB System under which the DB Home should exist.
@@ -33,6 +33,7 @@ options:
     db_home_id:
         description: The identifier of the db home. Mandatory for update and delete.
         required: false
+        aliases: ['id']
     source:
         description: Source of database. I(source=NONE) for creating a new database
                      I(source=DB_BACKUP) for creating a new database by restoring a

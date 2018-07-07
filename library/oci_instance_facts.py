@@ -21,7 +21,7 @@ short_description: Retrieve details about one or more Compute instances in OCI C
 description:
     - This module retrieves details about a specific Compute instance, or all Compute instances in a specified
       Compartment in a specified Availability Domain in OCI Compute Service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment (either the tenancy or another compartment in the tenancy). Required

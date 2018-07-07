@@ -23,7 +23,7 @@ description:
     - Create an OCI Load Balancer Hostname
     - Update OCI Load Balancers Hostname, if present.
     - Delete OCI Load Balancers Hostname, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer. Mandatory for create,delete and update.
@@ -44,7 +44,7 @@ options:
         choices: ['present','absent']
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [oracle, oracle_wait_options]
 '''
 
 EXAMPLES = '''

@@ -4,7 +4,7 @@
 oci_user - Create,update and delete OCI user with specified group associations
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -116,7 +116,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -126,7 +126,7 @@ Options
     <tr>
     <td>create_or_reset_ui_password<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td>no</td>
+    <td></td>
     <td><ul><li>yes</li><li>no</li></ul></td>
     <td>
         <div>Create UI password for an user who has no UI password or reset password of an user having UI password.</div>
@@ -149,14 +149,14 @@ Options
     <td></td>
     <td></td>
     <td>
-        <div>Description of the user. The value could be an empty string. If not provided explicitly while creating an user, the value degfaults to an empty string. Not required for <em>state=absent</em></div>
+        <div>Description of the user. The value could be an empty string. If not provided explicitly while creating an user, the value defaults to an empty string. Not required for <em>state=absent</em></div>
     </td>
     </tr>
 
     <tr>
     <td>force<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td>no</td>
+    <td></td>
     <td><ul><li>yes</li><li>no</li></ul></td>
     <td>
         <div>If <em>force='no'</em> and if the user is part of a group, user will not be deleted. To delete a user associated with group(s), use <em>state=yes</em>.</div>
@@ -186,10 +186,10 @@ Options
     <tr>
     <td>purge_group_memberships<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td>no</td>
+    <td></td>
     <td><ul><li>yes</li><li>no</li></ul></td>
     <td>
-        <div>Purge groups from existing memberships which are not present in provided group meberships. If <em>purge_group_memberships=no</em>, provided groups would be appended to existing group memberships.</div>
+        <div>Purge groups from existing memberships which are not present in provided group memberships. If <em>purge_group_memberships=False</em>, provided groups would be appended to existing group memberships.</div>
     </td>
     </tr>
 
@@ -296,20 +296,20 @@ Examples
           defined_tags:
               department:
                   division: 'engineering'
-          create_or_reset_ui_password: 'on_create'
+          create_or_reset_ui_password: True
           state: 'present'
 
     - name: Create user without group memberships
       oci_user:
           name: 'ansible_user'
           description: 'Ansible  User'
-          create_or_reset_ui_password: 'yes'
+          create_or_reset_ui_password: True
           state: 'present'
 
     - name: Reset ui password of an existing user
       oci_user:
           id: 'ocid1.user..abuwd'
-          create_or_reset_ui_password: 'always'
+          create_or_reset_ui_password: True
           state: 'present'
 
     - name: Unblock User
@@ -331,9 +331,9 @@ Examples
       oci_user:
           user_id: "ocid1.user..abuwd"
           description: 'Ansible User'
-          purge_group_memberships: 'yes'
+          purge_group_memberships: True
           user_groups: ['ansible_group_B']
-          create_or_reset_ui_password: 'yes'
+          create_or_reset_ui_password: True
           state: 'present'
 
 
@@ -446,7 +446,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
         <td>
             <div>The ui password of the user</div>
         </td>
-        <td align=center>when I(create_or_reset_ui_password='on_create') and a new user created and when I(create_or_reset_ui_password='always') and new user created or existing user updated</td>
+        <td align=center>when I(create_or_reset_ui_password=True) and a new user created and when I(create_or_reset_ui_password=True) and new user created or an existing user is updated</td>
         <td align=center>string</td>
         <td align=center>_09erf4</td>
         </tr>

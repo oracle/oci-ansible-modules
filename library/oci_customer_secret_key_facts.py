@@ -22,7 +22,7 @@ description:
     - This module retrieves details of customer secret keys of a specified user. The returned object contains the
       customer secret key's OCID, but not the password itself. The actual password is returned only upon creation
       of a customer secret key using the M(oci_customer_secret_key) module.
-version_added: "2.5"
+version_added: "2.x"
 options:
     user_id:
         description: The OCID of the user

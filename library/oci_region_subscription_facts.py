@@ -26,7 +26,7 @@ options:
         description: The OCID of the tenancy for which region subscriptions needs to be retrieved
         required: true
         aliases: [ 'id' ]
-version_added: "2.5"
+version_added: "2.x"
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
 '''

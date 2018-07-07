@@ -18,14 +18,15 @@ DOCUMENTATION = '''
 ---
 module: oci_data_guard_association_facts
 short_description: Fetches details of an OCI Data Guard Association
-description: Fetches details of an OCI Data Guard Association
-version_added: "2.5"
+description:
+    - Fetches details of an OCI Data Guard Association
+version_added: "2.x"
 options:
     database_id:
         description: Identifier of the database whose Data Guard Association
                      details needs to be fetched
         required: false
-    data_guard_association_id::
+    data_guard_association_id:
         description: Identifier of the Data Guard Association whose details needs to be fetched.
         required: false
         aliases: ['id']

@@ -21,7 +21,7 @@ short_description: Manage objects in OCI Object Storage Service
 description:
     - Create, read, update or delete an object in OCI. This module allows the user to store a file as an object in OCI
       or download an object from OCI to a local file.
-version_added: "2.5"
+version_added: "2.x"
 options:
     bucket_name:
         description: Name of the bucket in which the object exists.
@@ -42,7 +42,7 @@ options:
     content_type:
         description: The content type of the object to be uploaded.
         required: false
-        default: application/octet-stream
+        default: "application/octet-stream"
     dest:
         description: The destination file path when downloading an object. Use with I(state=present) to download an
                      object. This option is mutually exclusive with I(src).
@@ -304,7 +304,7 @@ def main():
             content_length=dict(type='str', required=False),
             opc_client_request_id=dict(type='str', required=False),
             content_md5=dict(type='str', required=False),
-            content_type=dict(type='str', required=False),
+            content_type=dict(type='str', required=False, default="application/octet-stream"),
             content_language=dict(type='str', required=False),
             content_encoding=dict(type='str', required=False),
             opc_meta=dict(type=dict, required=False, aliases=['metadata'])

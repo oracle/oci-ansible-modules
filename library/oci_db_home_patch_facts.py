@@ -20,7 +20,7 @@ module: oci_db_home_patch_facts
 short_description: Fetches details of one or more  DB Home Patches
 description:
     - Fetches details of one or more  DB Home Patches.
-version_added: "2.5"
+version_added: "2.x"
 options:
     db_home_id:
         description: Identifier of the  DB Home for which the Patches are

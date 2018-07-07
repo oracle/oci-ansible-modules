@@ -24,11 +24,12 @@ description:
     - Update a Database.
     - Since all operations of this module takes a long time, it is recommended to set the C(wait) to False. Use
       M(oci_database_facts) to check the status of the operation as a separate task.
-version_added: "2.5"
+version_added: "2.x"
 options:
     database_id:
         description: Identifier of the  Database that is required to be restored or updated.
         required: true
+        aliases: ['id']
     database_scn:
         description: System Change Number of the backup which should be used to
                      restore the Database.
@@ -50,6 +51,7 @@ options:
     state:
         description: Desired action to be performed on Database
         required: true
+        default: 'update'
         choices: ['restore', 'update']
 author:
     - "Debayan Gupta(@debayan_gupta)"
@@ -289,8 +291,7 @@ def main():
         latest=dict(type=bool, required=False),
         timestamp=dict(type='str', required=False),
         db_backup_config=dict(type=dict, required=False),
-        state=dict(type='str', required=False, default='update',
-                   choices=['restore', 'update'])
+        state=dict(type='str', required=False, default='update', choices=['restore', 'update'])
     ))
 
     module = AnsibleModule(

@@ -20,7 +20,7 @@ module: oci_compartment
 short_description: Manage compartments in OCI
 description:
     - This module allows the user to create and update a compartment in OCI.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the tenancy in which the compartment has to be created or the OCID of the compartment

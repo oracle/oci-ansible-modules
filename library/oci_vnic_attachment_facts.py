@@ -21,7 +21,7 @@ short_description: Retrieve details about one or more VNIC attachments in the sp
 description:
     - This module retrieves details about a VNIC attachment, or all VNIC attachments in a specified Compartment in OCI
       Compute Service. A VNIC attachment resides in the same compartment as the attached instance.
-version_added: "2.5"
+version_added: "2.x"
 options:
     availability_domain:
         description: The name of the Availability Domain.

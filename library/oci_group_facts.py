@@ -22,7 +22,7 @@ short_description: Fetches details of all the OCI groups of a tenancy and the us
                    associated
 description:
     - Fetches details of all the OCI groups of a tenancy and the users associated with them.
-version_added: "2.5"
+version_added: "2.x"
 options:
     group_id:
         description: Identifier of the group whose details should be fetched

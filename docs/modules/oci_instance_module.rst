@@ -4,7 +4,7 @@
 oci_instance - Launch, terminate and control the lifecycle of OCI Compute instances
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -167,7 +167,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -177,7 +177,7 @@ Options
     <tr>
     <td>count_tag<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td>None</td>
+    <td></td>
     <td></td>
     <td>
         <div>Used with <em>exact_count</em> to determine how many compute instances matching the specific tag criteria <code>count_tag</code> must be running. Only <em>defined_tags</em> associated with an instance are considered for matching against <code>count_tag</code>.</div>
@@ -300,7 +300,7 @@ Options
     <td>preserve_boot_volume<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
-    <td></td>
+    <td><ul><li>yes</li><li>no</li></ul></td>
     <td>
         <div>Whether to preserve the boot volume when terminating an instance with <em>state=absent</em>.</div>
     </td>

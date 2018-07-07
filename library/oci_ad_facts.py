@@ -20,7 +20,7 @@ module: oci_ad_facts
 short_description: Retrieve details of availability domains in your tenancy
 description:
     - This module retrieves details of all availability domains in your tenancy.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment (either the tenancy or another compartment in the tenancy).

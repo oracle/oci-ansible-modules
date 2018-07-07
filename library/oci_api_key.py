@@ -28,7 +28,7 @@ description:
       Each user can have a maximum of three API signing keys.
       For more information about user credentials, see
       U(https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm).
-version_added: "2.5"
+version_added: "2.x"
 options:
     user_id:
         description: The OCID of the user whose API signing key needs to be created or deleted.

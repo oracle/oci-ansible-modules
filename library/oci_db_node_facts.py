@@ -20,7 +20,7 @@ module: oci_db_node_facts
 short_description: Fetches details of one or more OCI DB Nodes
 description:
     - Fetches details of the OCI DB Home.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment in which the
@@ -32,6 +32,7 @@ options:
     db_node_id:
         description: Identifier of the DB Node whose details needs to be fetched.
         required: false
+        aliases: ['id']
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle

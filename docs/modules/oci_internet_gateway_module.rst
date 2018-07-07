@@ -4,7 +4,7 @@
 oci_internet_gateway - Create,update and delete OCI Internet Gateway
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -94,7 +94,7 @@ Options
     <td></td>
     <td></td>
     <td>
-        <div>Identifier of the compartment under which this Internet Gateway would be created. Mandatory for create operation.Optional for delete and update. Mutually exclusive with ig_id.</div>
+        <div>Identifier of the compartment under which this Internet Gateway would be created. Mandatory for create operation.Optional for delete and update. Mutually exclusive with <em>ig_id</em>.</div>
     </td>
     </tr>
 
@@ -111,7 +111,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -176,7 +176,7 @@ Options
     <td></td>
     <td><ul><li>yes</li><li>no</li></ul></td>
     <td>
-        <div>This option is mandatory for create operation.If <em>is_enabled=yes</em>, the gateway would be enabled.If <em>is_enabled=no</em>, traffic is not routed to/from the Internet, regardless of route rules.</div>
+        <div>This option is mandatory for create operation.If <em>is_enabled=yes</em>, the gateway would be enabled. If <em>is_enabled=no</em>, traffic is not routed to/from the Internet, regardless of route rules.</div>
         </br><div style="font-size: small;">aliases: enabled</div>
     </td>
     </tr>
@@ -227,7 +227,7 @@ Options
     <td></td>
     <td></td>
     <td>
-        <div>Identifier of the Virtual Cloud Network to which the Internet Gateway should be attached. Mandatory for create operation. Optional for delete and update. Mutually exclusive with ig_id.</div>
+        <div>Identifier of the Virtual Cloud Network to which the Internet Gateway should be attached. Mandatory for create operation. Optional for delete and update. Mutually exclusive with <em>ig_id</em>.</div>
     </td>
     </tr>
 

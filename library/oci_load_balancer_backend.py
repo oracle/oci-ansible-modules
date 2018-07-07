@@ -23,7 +23,7 @@ description:
     - Add a Backend server to OCI Load Balancer
     - Update a Backend server in a Load Balancer, if present, with any changed attribute
     - Delete a Backend server from OCI Load Balancer Backends, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer in which the Backend belongs.
@@ -39,22 +39,24 @@ options:
         description: The communication port for the backend server.
         required: true
     backup:
-        description: Whether the load balancer should treat this server as a
-                     backup unit. If true, the load balancer forwards no ingress
-                     traffic to this backend server unless all other backend
-                     servers not marked as "backup" fail the health check policy.
+        description: Whether the load balancer should treat this server as a backup unit. If true, the load balancer
+                     forwards no ingress traffic to this backend server unless all other backend servers not marked as
+                     "backup" fail the health check policy.
         required: false
         default: False
+        type: bool
     drain:
-        description: Whether the load balancer should drain this server. Servers
-                     marked "drain" receive no new incoming traffic.
+        description: Whether the load balancer should drain this server. Servers marked "drain" receive no new incoming
+                     traffic.
         required: false
         default: False
+        type: bool
     offline:
-        description: Whether the load balancer should treat this server as offline.
-                     Offline servers receive no incoming traffic.
+        description: Whether the load balancer should treat this server as offline. Offline servers receive no incoming
+                     traffic.
         required: false
         default: False
+        type: bool
     state:
         description: Create,update or delete Load Balancer Backend. For I(state=present),
                      if it does not exists, it gets added. If exists, it gets updated.
@@ -69,7 +71,7 @@ options:
         required: false
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [oracle, oracle_wait_options]
 '''
 
 EXAMPLES = '''
@@ -379,14 +381,13 @@ def main():
     module_args.update(dict(
         load_balancer_id=dict(type='str', required=True, aliases=['id']),
         backend_set_name=dict(type='str', required=True),
-        backup=dict(type=bool, required=False, choices=[True, False]),
+        backup=dict(type='bool', required=False),
         ip_address=dict(type='str', required=True),
-        drain=dict(type=bool, required=False, choices=[True, False]),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent']),
-        offline=dict(type=bool, required=False, choices=[True, False]),
-        port=dict(type=int, required=True),
-        weight=dict(type=int, required=False)
+        drain=dict(type='bool', required=False),
+        state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
+        offline=dict(type='bool', required=False),
+        port=dict(type='int', required=True),
+        weight=dict(type='int', required=False)
     ))
 
     module = AnsibleModule(

@@ -4,7 +4,7 @@
 oci_db_home - Create,update and delete a DB Home in OCI Database Cloud Service.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -101,7 +101,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -234,6 +234,7 @@ Options
     <td></td>
     <td>
         <div>The identifier of the db home. Mandatory for update and delete.</div>
+        </br><div style="font-size: small;">aliases: id</div>
     </td>
     </tr>
 

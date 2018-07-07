@@ -26,7 +26,7 @@ description:
     - Update OCI Route Table, if present, by purging existing Route Rules and replacing them with
       specified ones
     - Delete OCI Route Table, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment under which this
@@ -71,7 +71,7 @@ options:
                      appended to existing route rules.
         required: false
         default: 'yes'
-        choices: ['yes','no']
+        type: bool
     state:
         description: Create,update or delete Route Table. For I(state=present), if it
                      does not exist, it gets created. If it exists, it gets updated.
@@ -197,6 +197,7 @@ RETURN = '''
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
+
 try:
     from oci.core import VirtualNetworkClient
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded, ClientError
@@ -265,8 +266,8 @@ def get_route_rules(input_route_rules):
     route_rules = []
     for route_rule_dict in input_route_rules:
         route_rule = RouteRule()
-        route_rule.cidr_block = route_rule_dict['cidr_block']
-        route_rule.network_entity_id = route_rule_dict['network_entity_id']
+        for attribute in route_rule.attribute_map:
+            route_rule.__setattr__(attribute, route_rule_dict.get(attribute))
         route_rules.append(route_rule)
     return route_rules
 
@@ -338,8 +339,10 @@ def get_route_rules_difference(
 
 def get_hashed_route_rules(route_rules):
     route_rules_reprs = []
+    supported_route_rule_attributes = ['cidr_block', 'network_entity_id']
     for route_rule in route_rules:
-        hashed_route_rule = oci_utils.get_hashed_object(RouteRule, route_rule)
+        hashed_route_rule = oci_utils.get_hashed_object(
+            RouteRule, route_rule, supported_attributes=supported_route_rule_attributes)
         route_rules_reprs.append(hashed_route_rule)
     return route_rules_reprs
 
@@ -364,12 +367,9 @@ def main():
                            type='str', required=False, aliases=['name']),
                        vcn_id=dict(type='str', required=False),
                        rt_id=dict(type='str', required=False, aliases=['id']),
-                       state=dict(type='str', required=False, default='present',
-                                  choices=['present', 'absent']),
+                       state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
                        route_rules=dict(type=list, required=False),
-                       purge_route_rules=dict(type='bool', required=False,
-                                              default=True,
-                                              choices=[True, False])
+                       purge_route_rules=dict(type='bool', required=False, default=True)
                        )
     module = AnsibleModule(argument_spec=module_args)
 

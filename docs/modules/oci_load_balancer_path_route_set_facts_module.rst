@@ -4,7 +4,7 @@
 oci_load_balancer_path_route_set_facts - Fetches details of path route set(s) that are associated with a load balancer
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -98,7 +98,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -117,12 +117,13 @@ Options
     </tr>
 
     <tr>
-    <td>name<br/><div style="font-size: small;"></div></td>
+    <td>path_route_set_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
     <td></td>
     <td>
         <div>Name of the Path Route Set</div>
+        </br><div style="font-size: small;">aliases: name</div>
     </td>
     </tr>
 

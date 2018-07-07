@@ -22,7 +22,7 @@ description:
     - Create an OCI Load Balancer Path Route Set
     - Update OCI Load Balancers Path Route Set, if present.
     - Delete OCI Load Balancers Path Route Set, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer. Mandatory for create,delete and update.
@@ -32,8 +32,8 @@ options:
         description: The name for this set of path route rules. It must be unique and it can not be changed.
         required: false
     state:
-        description: Create,update or delete Load Balancer Path Route Set. For I(state=present), if it
-                     does not exists, it gets created. If exists, it gets updated.
+        description: Create,update or delete Load Balancer Path Route Set. For I(state=present), if it does not exists,
+                     it gets created. If exists, it gets updated.
         required: false
         default: 'present'
         choices: ['present','absent']
@@ -63,7 +63,7 @@ options:
                      path_routes would be appended to existing path_routes.
         required: false
         default: 'yes'
-        choices: ['yes','no']
+        type: bool
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
@@ -313,11 +313,9 @@ def main():
     module_args.update(dict(
         name=dict(type='str', required=True),
         load_balancer_id=dict(type='str', required=True, aliases=['id']),
-        path_routes=dict(type=list, required=False),
-        purge_path_routes=dict(type='bool', required=False, default=True,
-                               choices=[True, False]),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent'])
+        path_routes=dict(type='list', required=False),
+        purge_path_routes=dict(type='bool', required=False, default=True),
+        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
     ))
 
     module = AnsibleModule(

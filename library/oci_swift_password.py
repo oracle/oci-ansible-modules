@@ -25,7 +25,7 @@ description:
       Infrastructure Object Storage Service. This password is associated with the user's Console login. Swift passwords
       never expire. A user can have up to two Swift passwords at a time. Note: The password is always an
       Oracle-generated string; you can't change it to a string of your choice."
-version_added: "2.5"
+version_added: "2.x"
 options:
     user_id:
         description: The OCID of the user.
@@ -49,7 +49,7 @@ options:
         choices: ['present', 'absent']
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
+extends_documentation_fragment: [ oracle, oracle_creatable_resource ]
 '''
 
 EXAMPLES = '''

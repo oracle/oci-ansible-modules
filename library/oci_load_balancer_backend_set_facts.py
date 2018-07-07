@@ -21,7 +21,7 @@ module: oci_load_balancer_backend_set_facts
 short_description: Fetches details of backend set(s) that are associated with a load balancer
 description:
     - Fetches details of all backend sets, or a specific backend set, that are associated with a load balancer.
-version_added: "2.5"
+version_added: "2.x"
 options:
     name:
         description: Name of the Backend Set

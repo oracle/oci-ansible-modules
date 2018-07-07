@@ -20,7 +20,7 @@ module: oci_db_system_patch_facts
 short_description: Fetches details of one or more DB System Patches
 description:
     - Fetches details of one or more  DB System Patches.
-version_added: "2.5"
+version_added: "2.x"
 options:
     db_system_id:
         description: Identifier of the  DB System for which the Patches are

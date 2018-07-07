@@ -29,7 +29,7 @@ description:
     - Update OCI user, if present, and reset the ui password of the user
     - Unblock a blocked user
     - Delete OCI user, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     name:
         description: Name of the user. Must be unique for a tenancy.
@@ -39,17 +39,15 @@ options:
         required: false
         aliases: ['id']
     description:
-        description: Description of the user. The value could be an empty string.
-                     If not provided explicitly while creating an user, the value
-                     degfaults to an empty string. Not required for I(state=absent)
+        description: Description of the user. The value could be an empty string. If not provided explicitly while
+                     creating an user, the value defaults to an empty string. Not required for I(state=absent)
         required: false
     user_groups:
-        description: List of groups to which the user should be associated  with.The
-                     specified groups must exist while running this task. If a specified
-                     group does not exist, this task would fail.If a user already exists,
-                     and their current group associations are different from the specified
-                     group associations, the task would change the user to ensure that the
-                     group associations of the user reflect the specified group associations.
+        description: List of groups to which the user should be associated  with.The specified groups must exist while
+                     running this task. If a specified group does not exist, this task would fail.If a user already
+                     exists, and their current group associations are different from the specified group associations,
+                     the task would change the user to ensure that the group associations of the user reflect the
+                     specified group associations.
         required: false
     state:
         description: Create,update or delete user. For I(state=present), if the user does not exists,
@@ -61,29 +59,26 @@ options:
         description: If I(force='no') and if the user is part of a group, user will not be deleted.
                      To delete a user associated with group(s), use I(state=yes).
         required: false
-        default: 'no'
-        choices: ['yes','no']
+        default: False
+        type: bool
     create_or_reset_ui_password:
-        description: Create UI password for an user who has no UI password
-                     or reset password of an user having UI password.
+        description: Create UI password for an user who has no UI password or reset password of an user having UI
+                     password.
         required: false
-        default: 'no'
-        choices: ['yes','no']
+        default: False
+        type: bool
     purge_group_memberships:
-        description: Purge groups from existing memberships which are not present in
-                     provided group meberships. If I(purge_group_memberships=no), provided groups
-                     would be appended to existing group memberships.
+        description: Purge groups from existing memberships which are not present in provided group memberships. If
+                     I(purge_group_memberships=False), provided groups would be appended to existing group memberships.
         required: false
-        default: 'no'
-        choices: ['yes','no']
+        default: False
+        type: bool
     blocked:
-        description: Change the state of an blocked user to unblocked.Only applied on existing blocked user.
-                     If the user is already unblocked, then I(blocked=no) will not change the state.
-                     I(blocked=yes) is not supported in this version.If the value is not specified explicitly,
-                     no action should be taken.
-
+        description: Change the state of an blocked user to unblocked.Only applied on existing blocked user. If the
+                     user is already unblocked, then I(blocked=no) will not change the state. I(blocked=yes) is not
+                     supported in this version.If the value is not specified explicitly, no action should be taken.
         required: false
-        choices: ['yes', 'no']
+        choices: ["yes", "no"]
 
 author:
     - "Debayan Gupta(@debayan_gupta)"
@@ -104,20 +99,20 @@ EXAMPLES = '''
       defined_tags:
           department:
               division: 'engineering'
-      create_or_reset_ui_password: 'on_create'
+      create_or_reset_ui_password: True
       state: 'present'
 
 - name: Create user without group memberships
   oci_user:
       name: 'ansible_user'
       description: 'Ansible  User'
-      create_or_reset_ui_password: 'yes'
+      create_or_reset_ui_password: True
       state: 'present'
 
 - name: Reset ui password of an existing user
   oci_user:
       id: 'ocid1.user..abuwd'
-      create_or_reset_ui_password: 'always'
+      create_or_reset_ui_password: True
       state: 'present'
 
 - name: Unblock User
@@ -139,9 +134,9 @@ EXAMPLES = '''
   oci_user:
       user_id: "ocid1.user..abuwd"
       description: 'Ansible User'
-      purge_group_memberships: 'yes'
+      purge_group_memberships: True
       user_groups: ['ansible_group_B']
-      create_or_reset_ui_password: 'yes'
+      create_or_reset_ui_password: True
       state: 'present'
 
 
@@ -204,9 +199,8 @@ user:
             sample: 2016-08-25T21:10:29.600Z
         password:
             description: The ui password of the user
-            returned: when I(create_or_reset_ui_password='on_create') and a new user created
-                      and when I(create_or_reset_ui_password='always') and new user created
-                      or existing user updated
+            returned: when I(create_or_reset_ui_password=True) and a new user created and when
+                      I(create_or_reset_ui_password=True) and new user created or an existing user is updated
             type: string
             sample: _09erf4
     sample: {
@@ -328,13 +322,11 @@ def update_user(identity_client, existing_user, module):
     blocked = module.params['blocked']
     ui_password = None
 
-    group_changed = modify_group_memberships(
-        identity_client, groups, existing_user, module)
-    existing_user, state_changed = unblock_user(identity_client, blocked,
-                                                existing_user)
-    ui_password, password_changed = reset_ui_password(
-        identity_client, existing_user, reset_password)
+    group_changed = modify_group_memberships(identity_client, groups, existing_user, module)
+    existing_user, state_changed = unblock_user(identity_client, blocked, existing_user)
+    ui_password, password_changed = reset_ui_password(identity_client, existing_user, reset_password)
     existing_user, description_tags_changed = update_user_description_and_tags(identity_client, existing_user, module)
+
     if not description_tags_changed:
         existing_user = to_dict(existing_user)
     if password_changed:
@@ -361,8 +353,7 @@ def reset_ui_password(identity_client, existing_user, reset_ui_password):
     password_changed = False
     ui_password = None
     if reset_ui_password:
-        ui_password = create_or_reset_password(
-            identity_client, existing_user.id)
+        ui_password = create_or_reset_password(identity_client, existing_user.id)
         password_changed = True
     return ui_password, password_changed
 
@@ -388,8 +379,8 @@ def update_group_memberships(identity_client, compartment_id, group_names,
                              existing_memberships_group_ids, user_id, module):
     group_membership_changed = False
     purge_group_memberships = module.params.get('purge_group_memberships')
-    group_ids = get_group_ids_from_group_names(
-        identity_client, group_names, module)
+    group_ids = get_group_ids_from_group_names(identity_client, group_names, module)
+
     if purge_group_memberships:
         if set(group_ids) ^ (set(existing_memberships_group_ids)):
             delete_all_group_memberships(
@@ -528,20 +519,13 @@ def main():
     module_args.update(dict(
         name=dict(type='str', required=False),
         user_id=dict(type='str', required=False, aliases=['id']),
-        description=dict(
-            type='str', required=False, default=''),
+        description=dict(type='str', required=False, default=''),
         user_groups=dict(type='list', required=False),
-        blocked=dict(type='str', required=False,
-                     choices=['yes', 'no']),
-        create_or_reset_ui_password=dict(type='bool', required=False, default=False,
-                                         choices=[True, False]),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent']),
-        purge_group_memberships=dict(type=bool, required=False,
-                                     default=False,
-                                     choices=[True, False]),
-        force=dict(type=bool, required=False,
-                   default=False, choices=[True, False])
+        blocked=dict(type='str', required=False, choices=['yes', 'no']),
+        create_or_reset_ui_password=dict(type='bool', required=False, default=False),
+        state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
+        purge_group_memberships=dict(type='bool', required=False, default=False),
+        force=dict(type='bool', required=False, default=False)
     ))
     module = AnsibleModule(
         argument_spec=module_args

@@ -21,7 +21,7 @@ module: oci_private_ip_facts
 short_description: Retrieve facts of private IPs
 description:
     - This module retrieves information of a specified private IP or lists all the private IPs in a subnet.
-version_added: "2.5"
+version_added: "2.x"
 options:
     private_ip_id:
         description: The OCID of the private IP. I(private_ip_id) is required to get a specific private IP's

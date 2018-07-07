@@ -21,7 +21,7 @@ module: oci_volume
 short_description: Manage volumes in OCI Block Volume service
 description:
     - This module allows the user to perform create, delete & update operations on volumes in OCI Block Volume service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     availability_domain:
         description: The availability domain of the volume. Required when creating a volume with I(state=present).

@@ -4,7 +4,7 @@
 oci_bucket - Create,update and delete oci buckets
 +++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -110,7 +110,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -183,7 +183,7 @@ Options
     <td>present</td>
     <td><ul><li>present</li><li>absent</li></ul></td>
     <td>
-        <div>Decides whether to create,update or delete bucket. For <em>state=present</em>, if the bucket does not exists, it gets created. If it exists, it gets updated. For <em>state=absent</em>, bucket gets deleted.</div>
+        <div>Decides whether to create,update or delete bucket. For <em>state=present</em>, if the bucket does not exist, it gets created. If it exists, it gets updated. For <em>state=absent</em>, the bucket gets deleted.</div>
     </td>
     </tr>
 

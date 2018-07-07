@@ -22,7 +22,7 @@ short_description: Retrieve facts of subnets
 description:
     - This module allows the user to retrieve information of the specified subnet or all the subnets in the specified
       VCN and the specified compartment.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment. I(compartment_id) is required to retrieve all the subnets in the

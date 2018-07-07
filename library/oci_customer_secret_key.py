@@ -24,7 +24,7 @@ description:
       Oracle-provided key for using the Object Storage Service's Amazon S3 compatible API. A user can have up to two
       secret keys at a time.
       Note: The secret key is always an Oracle-generated string; you can't change it to a string of your choice."
-version_added: "2.5"
+version_added: "2.x"
 options:
     user_id:
         description: The OCID of the user.
@@ -49,7 +49,7 @@ options:
         choices: ['present', 'absent']
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
+extends_documentation_fragment: [ oracle, oracle_creatable_resource ]
 '''
 
 EXAMPLES = '''

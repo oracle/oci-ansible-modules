@@ -26,7 +26,7 @@ description:
     - Update OCI group, if present, with new user(s) associations
     - Update OCI group, if present, removing all user associations
     - Delete OCI group, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     name:
         description: Name of the group. Must be unique within a tenancy.
@@ -54,15 +54,13 @@ options:
                      users memberships. If I(purge_user_memberships=no), provided users would be
                      appended to existing user memberships.
         required: false
-        default: 'no'
-        choices: ['yes','no']
+        default: False
+        type: bool
     force:
-        description: If I(force='no') and group has any user assigned,
-                     then in the case of I(state=absent), group will not be deleted.
-                     To delete a group which has user associations, I(force='yes') should be specified.
+        description: If I(force='no') and group has any user assigned, then in the case of I(state=absent), group will
+                     not be deleted. To delete a group which has user associations, I(force='yes') should be specified.
         required: false
         default: 'no'
-        choices: ['yes','no']
 
 author:
     - "Debayan Gupta(@debayan_gupta)"
@@ -89,7 +87,7 @@ EXAMPLES = '''
   oci_group:
             id: ocid1.group.oc1..xxxxxEXAMPLExxxxx
             description: 'Group for Testing Ansible Module'
-            purge_user_memberships: 'yes'
+            purge_user_memberships: True
             users: ['user1','user3']
             state: 'present'
 
@@ -414,10 +412,8 @@ def main():
             group_id=dict(type='str', required=False, aliases=['id']),
             description=dict(type='str', required=False, default=''),
             users=dict(type='list', required=False),
-            purge_user_memberships=dict(
-                type=bool, required=False, default=False, choices=[True, False]),
-            state=dict(type='str', required=False, default='present',
-                       choices=['present', 'absent']),
+            purge_user_memberships=dict(type='bool', required=False, default=False),
+            state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
             force=dict(type='str', required=False, default='no')
         )
     )

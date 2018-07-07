@@ -22,7 +22,7 @@ short_description: Attach or detach a boot volume in OCI Block Volume service
 description:
     - This module allows the user to attach a boot volume to an instance or detach a boot volume from an instance in
       OCI.
-version_added: "2.5"
+version_added: "2.x"
 options:
     instance_id:
         description: The OCID of the instance. Required to attach a boot volume to an instance with I(state=present).
@@ -47,7 +47,7 @@ options:
         required: false
         aliases: [ 'name' ]
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_wait_options ]
 '''
 
 EXAMPLES = '''
@@ -153,7 +153,7 @@ def main():
         state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
         boot_volume_id=dict(type='str', required=False),
         boot_volume_attachment_id=dict(type='str', required=False, aliases=['id']),
-        display_name=dict(type='str', required=False, choices=['name'])
+        display_name=dict(type='str', required=False, aliases=['name'])
     ))
 
     module = AnsibleModule(

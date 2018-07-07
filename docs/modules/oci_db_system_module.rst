@@ -4,7 +4,7 @@
 oci_db_system - Launch,update and terminate a DB System in OCI Database Cloud Service.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -141,7 +141,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -254,6 +254,7 @@ Options
     <td></td>
     <td>
         <div>Identifier of the existing DB System which required to be updated or terminated. Mandatory for terminate and update.</div>
+        </br><div style="font-size: small;">aliases: id</div>
     </td>
     </tr>
 
@@ -371,7 +372,7 @@ Options
     <td>purge_ssh_public_keys<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>True</td>
-    <td></td>
+    <td><ul><li>True</li><li>False</li></ul></td>
     <td>
         <div>Purge ssh public keys  from DB System which are not present in the provided ssh public keys. If <em>purge_ssh_public_keys=no</em>, provided ssh public keys would be appended to existing ssh public keys.</div>
     </td>
@@ -394,6 +395,16 @@ Options
     <td></td>
     <td>
         <div>The shape of the DB System. The shape determines resources allocated to the DB System - CPU cores and memory for VM shapes; CPU cores, memory and storage for non-VM (or bare metal) shapes.</div>
+    </td>
+    </tr>
+
+    <tr>
+    <td>ssh_public_keys<br/><div style="font-size: small;"></div></td>
+    <td>yes</td>
+    <td></td>
+    <td></td>
+    <td>
+        <div>The public key portion of the key pair to use for SSH access to the DB System. Multiple public keys can be provided. The length of the combined keys cannot exceed 10,000 characters.</div>
     </td>
     </tr>
 

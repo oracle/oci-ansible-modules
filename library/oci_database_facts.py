@@ -20,11 +20,10 @@ module: oci_database_facts
 short_description: Fetches details of one or more Databases
 description:
     - Fetches details of one or more OCI Databases.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
-        description: Identifier of the compartment in which the
-                     specified Database exists
+        description: Identifier of the compartment in which the specified Database exists
         required: false
     db_home_id:
         description: Identifier of the DB Home under which the Database is available.
@@ -32,6 +31,7 @@ options:
     database_id:
         description: Identifier of the Database whose details needs to be fetched.
         required: false
+        aliases: ['id']
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
@@ -60,22 +60,19 @@ RETURN = '''
                 type: string
                 sample: AL32UTF8
             compartment_id:
-                description: The identifier of the compartment containing the
-                             DB System where the Database resides.
+                description: The identifier of the compartment containing the DB System where the Database resides.
                 returned: always
                 type: string
                 sample: ocid1.compartment.oc1.xzvf..oifds
             db_backup_config:
-                description: Determines whether to configure automatic backup
-                             of the Database.
+                description: Determines whether to configure automatic backup of the Database.
                 returned: always
                 type: string
                 sample: db_backup_config:{
                             auto_backup_enabled:false
                         }
             db_home_id:
-                description: The identifier of the DB Home containing the
-                             Database.
+                description: The identifier of the DB Home containing the Database.
                 returned: always
                 type: string
                 sample: ocid1.dbhome.oc1.iad.xxxxxEXAMPLExxxxx
@@ -85,10 +82,8 @@ RETURN = '''
                 type: string
                 sample: ansibledb
             db_unique_name:
-                description: A system-generated name for the database to
-                             ensure uniqueness within an Oracle Data Guard group
-                             (a primary database and its standby databases). The
-                             unique name cannot be changed.
+                description: A system-generated name for the database to ensure uniqueness within an Oracle Data Guard
+                             group (a primary database and its standby databases). The unique name cannot be changed.
                 returned: always
                 type: string
                 sample: ansibledb_iad7b
@@ -103,15 +98,13 @@ RETURN = '''
                 type: string
                 sample: ocid1.database.oc1.iad.xxxxxEXAMPLExxxxx
             time_created:
-                description: Date and time when the DB Node was created, in
-                             the format defined by RFC3339
+                description: Date and time when the DB Node was created, in the format defined by RFC3339
                 returned: always
                 type: datetime
                 sample: 2016-08-25T21:10:29.600Z
             software_storage_size_in_gb:
-                description: Storage size, in GBs, of the software volume that
-                             is allocated to the DB system. This is applicable
-                             only for VM-based DBs.
+                description: Storage size, in GBs, of the software volume that is allocated to the DB system. This is
+                             applicable only for VM-based DBs.
                 returned: always
                 type: string
                 sample: 1024
@@ -121,11 +114,9 @@ RETURN = '''
                 type: string
                 sample: AL16UTF16
             pdb_name:
-                description: Pluggable database name. It must begin with an
-                             alphabetic character and can contain a maximum
-                             of eight alphanumeric characters. Special characters
-                             are not permitted. Pluggable database should not be
-                             same as database name.
+                description: Pluggable database name. It must begin with an alphabetic character and can contain a
+                             maximum of eight alphanumeric characters. Special characters are not permitted. Pluggable
+                             database should not be same as database name.
                 returned: always
                 type: string
                 sample: ocid1.vnic.oc1.iad.xxxxxEXAMPLExxxxx
@@ -135,8 +126,7 @@ RETURN = '''
                 type: string
                 sample: AVAILABLE
             lifecycle_details:
-                description: Additional information about the current lifecycle_state
-                             of the Database.
+                description: Additional information about the current lifecycle_state of the Database.
                 returned: always
                 type: string
                 sample: AVAILABLE

@@ -22,14 +22,14 @@ description:
     - Creates OCI bucket if not present.
     - Update OCI bucket, if present.
     - Delete OCI bucket, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     namespace_name:
         description: Name of the namespace in which the bucket is available or should be available
         required: true
     compartment_id:
-        description: Identifier of the compartment in which the bucket is available or should be available.
-                     Mandatory for I(state=present). Not required for I(state=absent)
+        description: Identifier of the compartment in which the bucket is available or should be available. Mandatory
+                     for I(state=present). Not required for I(state=absent)
         required: false
     name:
         description: Name of the bucket. Bucket name must be unique within a namespace.
@@ -42,20 +42,21 @@ options:
         description: The type of public access  of the bucket. By default, no public access is allowed on the bucket.
                      If I(public_access_type=ObjectRead), user can perform read operation on the bucket.
         required: false
-        default: NoPublicAccess
+        default: "NoPublicAccess"
         choices: ["ObjectRead","NoPublicAccess"]
     state:
-        description: Decides whether to create,update or delete bucket. For I(state=present), if the bucket does not exists, it gets created.
-                     If it exists, it gets updated. For I(state=absent), bucket gets deleted.
+        description: Decides whether to create,update or delete bucket. For I(state=present), if the bucket does not
+                     exist, it gets created. If it exists, it gets updated. For I(state=absent), the bucket gets
+                     deleted.
         required: true
         default: 'present'
         choices: ['present','absent']
     force:
-        description: If I(force='no') and the bucket contains objects, bucket will not be deleted.
-                     To delete a bucket which has objects, I(force='yes') should be specified.
+        description: If I(force='no') and the bucket contains objects, bucket will not be deleted. To delete a bucket
+                     which has objects, I(force='yes') should be specified.
         required: false
         default: 'no'
-        choices: ['yes','no']
+        type: bool
 
 author:
     - "Debayan Gupta(@debayan_gupta)"
@@ -264,13 +265,12 @@ def main():
         namespace_name=dict(type='str', required=True),
         compartment_id=dict(type='str', required=False),
         name=dict(type='str', required=True),
-        public_access_type=dict(
-            type='str', required=False, default='NoPublicAccess', choices=['NoPublicAccess', 'ObjectRead']),
+        public_access_type=dict(type='str', required=False, default='NoPublicAccess',
+                                choices=['NoPublicAccess', 'ObjectRead']),
         metadata=dict(type='dict', default={}),
         state=dict(type='str', required=False, default='present',
                    choices=['present', 'absent']),
-        force=dict(type=bool, required=False,
-                   default=False, choices=[True, False])
+        force=dict(type='bool', required=False, default=False)
     ))
 
     module = AnsibleModule(

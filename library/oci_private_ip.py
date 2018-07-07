@@ -21,7 +21,7 @@ module: oci_private_ip
 short_description: Manage private IPs in OCI
 description:
     - This module allows the user to create, delete and update private IPs in OCI.
-version_added: "2.5"
+version_added: "2.x"
 options:
     display_name:
         description: A user-friendly name. Does not have to be unique, and it's changeable. Avoid entering confidential

@@ -22,7 +22,7 @@ short_description: Fetches details of the OCI Internet Gateway under a Virtual
                    Cloud Network
 description:
     - Fetches details of the OCI Internet Gateway under a Virtual Cloud Network.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment in which this

@@ -20,7 +20,7 @@ module: oci_region_facts
 short_description: Retrieve details about all Regions offered by Oracle Cloud Infrastructure
 description:
     - This module retrieves details about all Regions offered by Oracle Cloud Infrastructure.
-version_added: "2.5"
+version_added: "2.x"
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
 '''

@@ -22,7 +22,7 @@ short_description: Fetches details of a specific Dhcp Options or a list of Dhcp 
                    compartment
 description:
     - Fetches details of a specific Dhcp Options or a list of Dhcp Optionss in the specified VCN and compartment.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment details about

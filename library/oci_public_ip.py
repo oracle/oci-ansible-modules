@@ -21,7 +21,7 @@ module: oci_public_ip
 short_description: Manage public IPs in OCI
 description:
     - This module allows the user to create, delete and update public IPs in OCI.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment to contain the public IP. For ephemeral public IPs, you must set this

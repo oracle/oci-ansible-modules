@@ -21,7 +21,7 @@ short_description: Retrieve details about one or more Compute images in OCI Comp
 description:
     - This module retrieves details about a specific image, or all images in a specified Compartment in OCI Compute
       Service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment (either the tenancy or another compartment in the tenancy). Required
@@ -128,7 +128,6 @@ def main():
     module_args = oci_utils.get_common_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
-        availability_domain=dict(type='str', required=False),
         image_id=dict(type='str', required=False, aliases=['id'])
     ))
 

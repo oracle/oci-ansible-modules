@@ -22,7 +22,7 @@ short_description: Retrieve details of an object or all the objects in a specifi
 description:
     - This module retrieves details of an object or all the objects present in a specified namespace and bucket in OCI \
       Object Storage Service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     namespace_name:
         description: Name of the namespace from which facts of objects need to be fetched.

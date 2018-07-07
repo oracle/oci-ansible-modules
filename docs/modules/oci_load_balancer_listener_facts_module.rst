@@ -4,7 +4,7 @@
 oci_load_balancer_listener_facts - Fetch details of all listeners of a load balancer
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -98,7 +98,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -191,7 +191,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
     </td>
     <td align=center>success</td>
     <td align=center>complex</td>
-    <td align=center>[{'ssl_configuration': {'certificate_name': 'certs1', 'verify_depth': 1, 'verify_peer_certificate': True}, 'protocol': 'HTTP', 'name': 'ansible_listener', 'default_backend_set_name': 'ansible_backend', 'connection_configuration': {'idle_timeout': 1200}, 'port': 87}]</td>
+    <td align=center>[{'path_route_set_name': 'path_route_set_001', 'protocol': 'HTTP', 'name': 'ansible_listener', 'connection_configuration': {'idle_timeout': 1200}, 'ssl_configuration': {'certificate_name': 'certs1', 'verify_depth': 1, 'verify_peer_certificate': True}, 'hostname_names': ['hostname_001'], 'default_backend_set_name': 'ansible_backend', 'port': 87}]</td>
     </tr>
 
     <tr>
@@ -208,13 +208,13 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
         </tr>
 
         <tr>
-        <td>ssl_configuration</td>
+        <td>path_route_set_name</td>
         <td>
-            <div>The load balancer SSL handling configuration details</div>
+            <div>The name of the set of path-based routing rules, PathRouteSet, applied to this listener's traffic.</div>
         </td>
         <td align=center>always</td>
-        <td align=center>dict</td>
-        <td align=center>{'certificate_name': 'certs1', 'verify_depth': 1, 'verify_peer_certificate': True}</td>
+        <td align=center>string</td>
+        <td align=center>path_route_set_001</td>
         </tr>
 
         <tr>
@@ -238,16 +238,6 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
         </tr>
 
         <tr>
-        <td>default_backend_set_name</td>
-        <td>
-            <div>The name of the associated backend set</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ansible_backend_set</td>
-        </tr>
-
-        <tr>
         <td>connection_configuration</td>
         <td>
             <div>Configuration details for the connection between the client and backend servers.</div>
@@ -255,6 +245,36 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
         <td align=center>always</td>
         <td align=center>dict</td>
         <td align=center>{'idle_timeout': 1200}</td>
+        </tr>
+
+        <tr>
+        <td>ssl_configuration</td>
+        <td>
+            <div>The load balancer SSL handling configuration details</div>
+        </td>
+        <td align=center>always</td>
+        <td align=center>dict</td>
+        <td align=center>{'certificate_name': 'certs1', 'verify_depth': 1, 'verify_peer_certificate': True}</td>
+        </tr>
+
+        <tr>
+        <td>hostname_names</td>
+        <td>
+            <div>An array of hostname resource names.</div>
+        </td>
+        <td align=center>always</td>
+        <td align=center>list</td>
+        <td align=center>['hostname_001']</td>
+        </tr>
+
+        <tr>
+        <td>default_backend_set_name</td>
+        <td>
+            <div>The name of the associated backend set</div>
+        </td>
+        <td align=center>always</td>
+        <td align=center>string</td>
+        <td align=center>ansible_backend_set</td>
         </tr>
 
         <tr>

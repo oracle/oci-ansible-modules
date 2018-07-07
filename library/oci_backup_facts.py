@@ -20,7 +20,7 @@ module: oci_backup_facts
 short_description: Fetches details of one or more Database Backups
 description:
     - Fetches details of the Database Backups.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment from which the
@@ -29,6 +29,7 @@ options:
     database_id:
         description: Identifier of the Database whose Backups should be fetched.
         required: false
+        aliases: ['id']
     backup_id:
         description: Identifier of the Database Backup whose details needs to be fetched.
         required: false

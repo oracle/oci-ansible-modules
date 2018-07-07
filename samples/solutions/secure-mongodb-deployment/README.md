@@ -37,4 +37,6 @@ various OCI Services and resources used in this sample is shown below
 - Access the web-server in the AS tier
 > `http://\<as1-ip\>`
 - To teardown the whole setup using dynamic inventory, use
-> $ OCI_HOSTNAME_FORMAT="private_ip" OCI_CACHE_MAX_AGE=0 ansible-playbook -i ../../../ansible/contrib/inventory/oci_inventory.py demo_teardown_using_inventory.yaml
+```sh
+$ OCI_HOSTNAME_FORMAT="private_ip" OCI_CACHE_MAX_AGE=0 ansible-playbook -i <path-to-inventory-file>/oci_inventory.py demo_teardown_using_inventory.yaml
+```

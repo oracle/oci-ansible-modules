@@ -9,6 +9,7 @@ import logging.config
 import os
 import tempfile
 from datetime import datetime
+from operator import eq
 
 import oci
 import yaml
@@ -24,7 +25,7 @@ from oci.util import to_dict, Sentinel
 
 from ansible.module_utils.basic import _load_params
 
-__version__ = '0.15.0'
+__version__ = '1.0.0'
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -59,7 +60,7 @@ def get_common_arg_spec(supports_create=False, supports_wait=False):
 
     if supports_create:
         common_args.update(key_by=dict(type='list', required=False),
-                           force_create=dict(type='bool', required=False, default='no'))
+                           force_create=dict(type='bool', required=False, default=False))
 
     if supports_wait:
         common_args.update(wait=dict(type='bool', required=False, default=True),
@@ -218,7 +219,17 @@ def setup_logging(default_config_file='/etc/ansible/oci_logging.yaml', default_l
 
 
 def check_and_update_attributes(target_instance, attr_name, input_value, existing_value, changed):
-    if input_value is not None and input_value != existing_value:
+    """
+    This function checks the difference between two resource attributes of literal types and sets the attrbute
+    value in the target instance type holding the attribute.
+    :param target_instance: The instance which contains the attribute whose values to be compared
+    :param attr_name: Name of the attribute whose value required to be compared
+    :param input_value: The value of the attribute provided by user
+    :param existing_value: The value of the attribute in the existing resource
+    :param changed: Flag to indicate whether there is any difference between the values
+    :return: Returns a boolean value indicating whether there is any difference between the values
+    """
+    if input_value is not None and not eq(input_value, existing_value):
         changed = True
         target_instance.__setattr__(attr_name, input_value)
     else:
@@ -357,6 +368,8 @@ def check_and_create_resource(resource_type, create_fn, kwargs_create, list_fn, 
     # in case of multiple resource matches.
     if exclude_attributes is None:
         exclude_attributes = {}
+    if default_attribute_values is None:
+        default_attribute_values = {}
     try:
         if existing_resources is None:
             kwargs_list["sort_by"] = "TIMECREATED"
@@ -375,6 +388,8 @@ def check_and_create_resource(resource_type, create_fn, kwargs_create, list_fn, 
     result = dict()
 
     attributes_to_consider = _get_attributes_to_consider(exclude_attributes, model, module)
+    if "defined_tags" not in default_attribute_values:
+        default_attribute_values["defined_tags"] = {}
     resource_matched = None
     for resource in existing_resources:
         if _is_resource_active(resource, dead_states):
@@ -411,10 +426,6 @@ def _get_attributes_to_consider(exclude_attributes, model, module):
     if 'key_by' in module.params and module.params['key_by'] is not None:
         attributes_to_consider = module.params['key_by']
     else:
-        # ToDo: Drop the code for adding defined_tags to exclude_list once tagging is supported in all the modules.
-        if "defined_tags" not in exclude_attributes:
-            exclude_attributes.update({'defined_tags': True})
-
         # Consider all attributes except freeform_tags as freeform tags do not distinguish a resource.
         attributes_to_consider = list(model.attribute_map)
         if "freeform_tags" in attributes_to_consider:
@@ -442,6 +453,10 @@ def is_attr_assigned_default(default_attribute_values, attr, assigned_value):
     if attr in default_attribute_values:
         default_val_for_attr = default_attribute_values.get(attr, None)
         if isinstance(default_val_for_attr, dict):
+            # When default value for a resource's attribute is empty dictionary, check if the corresponding value of the
+            # existing resource's attribute is also empty.
+            if not default_val_for_attr:
+                return not assigned_value
             # only compare keys that are in default_attribute_values[attr]
             # this is to ensure forward compatibility when the API returns new keys that are not known during
             # the time when the module author provided default values for the attribute
@@ -534,7 +549,6 @@ def does_existing_resource_match_user_inputs(existing_resource, module, attribut
                 # If the user has not explicitly provided the value for attr and attr is in exclude_list, we can
                 # consider this as a 'pass'. For example, if an attribute 'display_name' is not specified by user and
                 # that attribute is in the 'exclude_list' according to the module author(Not User), then exclude
-
                 if exclude_attributes.get(attr) is None and resources_value_for_attr is not None:
                     if module.argument_spec.get(attr):
                         attribute_with_default_metadata = module.argument_spec.get(attr)
@@ -547,6 +561,7 @@ def does_existing_resource_match_user_inputs(existing_resource, module, attribut
                         # value that is not the default, then it must be considered a mismatch and false returned.
                         elif not is_attr_assigned_default(default_attribute_values, attr, existing_resource[attr]):
                             return False
+
         else:
             _debug("Attribute {} is in the create model of resource {}"
                    "but doesn't exist in the get model of the resource".format(attr, existing_resource.__class__))
@@ -956,7 +971,7 @@ def get_hashed_object_list(class_type, object_with_values, attributes_class_type
     return hashed_class_instances
 
 
-def get_hashed_object(class_type, object_with_value, attributes_class_type=None):
+def get_hashed_object(class_type, object_with_value, attributes_class_type=None, supported_attributes=None):
     """
     Convert any class instance into hashable so that the
     instances are eligible for various comparison
@@ -964,19 +979,31 @@ def get_hashed_object(class_type, object_with_value, attributes_class_type=None)
     :param class_type: Any class type whose instances needs to be hashable
     :param object_with_value: Instance of the class type with values which
      would be set in the resulting isinstance
+    :param attributes_class_type: A list of class types of attributes, if attribute is a custom class instance
+    :param supported_attributes: A list of attributes which should be considered while populating the instance
+     with the values in the object. This helps in avoiding new attributes of the class_type which are still not
+     supported by the current implementation.
     :return: A hashable instance with same state of the provided object_with_value
     """
     if object_with_value is None:
         return None
+
     HashedClass = generate_subclass(class_type)
     hashed_class_instance = HashedClass()
-    for attribute in hashed_class_instance.attribute_map:
+
+    if supported_attributes:
+        class_attributes = list(set(hashed_class_instance.attribute_map) & set(supported_attributes))
+    else:
+        class_attributes = hashed_class_instance.attribute_map
+
+    for attribute in class_attributes:
         attribute_value = getattr(object_with_value, attribute)
         if attributes_class_type:
             for attribute_class_type in attributes_class_type:
                 if isinstance(attribute_value, attribute_class_type):
                     attribute_value = get_hashed_object(attribute_class_type, attribute_value)
         hashed_class_instance.__setattr__(attribute, attribute_value)
+
     return hashed_class_instance
 
 

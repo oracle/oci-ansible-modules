@@ -23,12 +23,12 @@ short_description: Fetches details of all the OCI users of a tenancy and
                    their group memberships
 description:
     - Fetches details of all the OCI users of a tenancy and the group memberships.
-version_added: "2.5"
+version_added: "2.x"
 options:
     user_id:
         description: Identifier of the user id whose details should be fetched
         required: false
-        aliases: ['user_id']
+        aliases: ['id']
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle

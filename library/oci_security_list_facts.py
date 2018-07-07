@@ -23,7 +23,7 @@ short_description: Fetches details of a specific Security List or a
                    compartment
 description:
     - Fetches details of a specific Security List or a list of Security Lists in the specified VCN and compartment.oc
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment details about

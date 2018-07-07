@@ -20,7 +20,7 @@ module: oci_policy
 short_description: Manage policies in OCI Identity and Access Management
 description:
     - This module allows the user to create, delete and update policies in OCI Identity and Access Management service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment containing the policy (either the tenancy or another compartment).

@@ -25,9 +25,10 @@ $ ./install.py
 
 **2. How do I get web-documentation for the OCI Ansible Cloud Modules?**
 
-> _Please stay tuned. This is work-in-progress._
+> Web-documentation for OCI Ansible modules is available at
+[https://oracle-cloud-infrastructure-ansible-modules.readthedocs.io](https://oracle-cloud-infrastructure-ansible-modules.readthedocs.io)
 
-Until this is available, to obtain access to detailed information about using Ansible modules  in the CLI, including documentation of a module's configurable options, samples, return values, and so forth, use the ansible-doc command on the module's name. For example, to get the documentation for the oci_bucket_facts module, execute the following command:
+To obtain access to detailed information about using Ansible modules in the CLI, including documentation of a module's configurable options, samples, return values, and so forth, use the ansible-doc command on the module's name. For example, to get the documentation for the oci_bucket_facts module, execute the following command:
 
 ```sh
 $ ansible-doc oci_bucket_facts

@@ -22,7 +22,7 @@ short_description: Retrieve details about a policy or policies attached to a com
 description:
     - This module retrieves a specific policy or all the policies attached to a specified compartment in OCI Identity
       and Access Management service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment (remember that the tenancy is simply the root compartment). Required to

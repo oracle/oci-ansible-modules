@@ -24,7 +24,7 @@ description:
       the schema of a tag and includes a namespace, tag key, and tag value type. Currently the only tag value type
       supported is "string", and hence is not specified during creation. Defined tag keys are case insensitive. However
       note that defined tag values are case sensitive.
-version_added: "2.5"
+version_added: "2.x"
 options:
     tag_namespace_id:
         description: The OCID of the tag namespace that will contain this tag key definition.
@@ -44,8 +44,8 @@ options:
     reactivate:
         description: Whether a retired tag definition needs to be reactivated
         required: false
-        default: "no"
-        choices: ["yes", "no"]
+        default: False
+        type: bool
     state:
         description: The state of the tag key definition that must be asserted to. When I(state=present), and the
                      tag definition doesn't exist, the tag definition is created. When I(state=absent), the tag

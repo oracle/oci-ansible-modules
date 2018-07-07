@@ -4,7 +4,7 @@
 oci_load_balancer_backend - Add, modify and remove a backend from a load balancer in OCI Load Balancing Service
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -101,7 +101,7 @@ Options
     <td>backup<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
-    <td></td>
+    <td><ul><li>yes</li><li>no</li></ul></td>
     <td>
         <div>Whether the load balancer should treat this server as a backup unit. If true, the load balancer forwards no ingress traffic to this backend server unless all other backend servers not marked as &quot;backup&quot; fail the health check policy.</div>
     </td>
@@ -120,7 +120,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -131,7 +131,7 @@ Options
     <td>drain<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
-    <td></td>
+    <td><ul><li>yes</li><li>no</li></ul></td>
     <td>
         <div>Whether the load balancer should drain this server. Servers marked &quot;drain&quot; receive no new incoming traffic.</div>
     </td>
@@ -162,7 +162,7 @@ Options
     <td>offline<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
-    <td></td>
+    <td><ul><li>yes</li><li>no</li></ul></td>
     <td>
         <div>Whether the load balancer should treat this server as offline. Offline servers receive no incoming traffic.</div>
     </td>
@@ -205,6 +205,36 @@ Options
     <td></td>
     <td>
         <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
+    </td>
+    </tr>
+
+    <tr>
+    <td>wait<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td>True</td>
+    <td><ul><li>yes</li><li>no</li></ul></td>
+    <td>
+        <div>Whether to wait for create or delete operation to complete.</div>
+    </td>
+    </tr>
+
+    <tr>
+    <td>wait_timeout<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td>1200</td>
+    <td></td>
+    <td>
+        <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
+    </td>
+    </tr>
+
+    <tr>
+    <td>wait_until<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td>
+        <div>The lifecycle state to wait for the resource to transition into when <em>wait=yes</em>. By default, when <em>wait=yes</em>, we wait for the resource to get into ACTIVE/ATTACHED/AVAILABLE/PROVISIONED/ RUNNING applicable lifecycle state during create operation &amp; to get into DELETED/DETACHED/ TERMINATED lifecycle state during delete operation.</div>
     </td>
     </tr>
 

@@ -21,7 +21,7 @@ module: oci_public_ip_facts
 short_description: Retrieve facts of public IPs
 description:
     - This module retrieves information of the specified public IP or all public IPs in the specified compartment.
-version_added: "2.5"
+version_added: "2.x"
 options:
     public_ip_id:
         description: OCID of the public IP. Use I(public_ip_id) to retrieve a specific public IP's information using its
@@ -187,7 +187,7 @@ def main():
         public_ip_id=dict(type='str', required=False, aliases=['id']),
         private_ip_id=dict(type='str', required=False),
         ip_address=dict(type='str', required=False),
-        scope=dict(type='str', required=False),
+        scope=dict(type='str', required=False, choices=["REGION", "AVAILABILITY_DOMAIN"]),
         compartment_id=dict(type='str', required=False),
         availability_domain=dict(type='str', required=False)
     ))

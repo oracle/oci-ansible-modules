@@ -21,7 +21,7 @@ module: oci_load_balancer_listener_facts
 short_description: Fetch details of all listeners of a load balancer
 description:
     - Fetch details of all listeners of a load balancer.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer to which the listeners belongs.
@@ -90,11 +90,27 @@ RETURN = '''
                 sample: {
                             "idle_timeout": 1200
                         }
+            hostname_names:
+                description: An array of hostname resource names.
+                returned: always
+                type: list
+                sample: [
+                            "hostname_001"
+                        ]
+            path_route_set_name:
+                description: The name of the set of path-based routing rules, PathRouteSet, applied to this listener's traffic.
+                returned: always
+                type: string
+                sample: "path_route_set_001"
         sample: [{
                     "default_backend_set_name": "ansible_backend",
                     "name": "ansible_listener",
                     "port": 87,
                     "protocol": "HTTP",
+                    "hostname_names": [
+                                        "hostname_001"
+                                      ],
+                    "path_route_set_name": "path_route_set_001",
                     "ssl_configuration": {
                         "certificate_name": "certs1",
                         "verify_depth": 1,
@@ -127,12 +143,11 @@ def list_load_balancer_listeners(lb_client, module):
     load_balancer_id = module.params.get('load_balancer_id')
     name = module.params.get('name')
     try:
-        existing_load_balancer = to_dict(oci_lb_utils.get_existing_load_balancer(
-            lb_client, module, load_balancer_id))
+        existing_load_balancer = to_dict(oci_lb_utils.get_existing_load_balancer(lb_client, module, load_balancer_id))
         if name:
             get_logger().info("Listing all attributes of  listener %s in load balancer %s",
                               name, load_balancer_id)
-            if name in existing_load_balancer['listeners']:
+            if name in existing_load_balancer.get('listeners'):
                 listeners = [existing_load_balancer['listeners'][name]]
             else:
                 listeners = []

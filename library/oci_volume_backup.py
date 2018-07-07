@@ -22,7 +22,7 @@ short_description: Manage volume backups in OCI Block Volume service
 description:
     - This module allows the user to perform create, delete & update operations on volume backups in OCI Block Volume
       service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     display_name:
         description: A user-friendly name for the volume backup. Does not have to be unique and it's changeable. Avoid

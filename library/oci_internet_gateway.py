@@ -24,27 +24,23 @@ description:
     - Update OCI Internet Gateway, if present, with a new display name
     - Update OCI Internet Gateway, if present, with enable/disable state
     - Delete OCI Internet Gateway, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
-        description: Identifier of the compartment under which this
-                     Internet Gateway would be created. Mandatory for create
-                     operation.Optional for delete and update. Mutually exclusive
-                     with ig_id.
+        description: Identifier of the compartment under which this Internet Gateway would be created. Mandatory for
+                     create operation.Optional for delete and update. Mutually exclusive with I(ig_id).
         required: false
     vcn_id:
-        description: Identifier of the Virtual Cloud Network to which the
-                     Internet Gateway should be attached. Mandatory for create
-                     operation. Optional for delete and update. Mutually exclusive
-                     with ig_id.
+        description: Identifier of the Virtual Cloud Network to which the Internet Gateway should be attached. Mandatory
+                     for create operation. Optional for delete and update. Mutually exclusive with I(ig_id).
         required: false
     ig_id:
         description: Identifier of the Internet Gateway. Mandatory for delete and update.
         required: false
         aliases: ['id']
     display_name:
-        description: Name of the Internet Gateway. A user friendly name. Does not have to be unique,
-                     and could be changed. If not specified, a default name would be provided.
+        description: Name of the Internet Gateway. A user friendly name. Does not have to be unique, and could be
+                     changed. If not specified, a default name would be provided.
         required: false
         aliases: ['name']
     state:
@@ -54,14 +50,11 @@ options:
         default: 'present'
         choices: ['present','absent']
     is_enabled:
-        description: This option is mandatory for create operation.If I(is_enabled=yes),
-                     the gateway would be enabled.If I(is_enabled=no),
-                     traffic is not routed to/from the Internet, regardless
-                     of route rules.
+        description: This option is mandatory for create operation.If I(is_enabled=yes), the gateway would be enabled.
+                     If I(is_enabled=no), traffic is not routed to/from the Internet, regardless of route rules.
         required: false
         aliases: ['enabled']
-        choices: ['yes','no']
-
+        type: bool
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]

@@ -21,7 +21,7 @@ short_description: Update health checker details of a backend set in a load bala
                    OCI Load Balancing Service
 description:
     - Update health checker details of a backend set in a load balancer in OCI Load Balancing Service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer in which the backend set

@@ -24,22 +24,21 @@ description:
     - Soft-reset a DB Node
     - All operations of this module returns after triggering the lifecycle operation. Use M(oci_db_node_facts)
       to check the status of the operation.
-version_added: "2.5"
+version_added: "2.x"
 options:
     db_node_id:
-        description: Identifier of the DB Node whose lifecycle state is to be
-                     controlled.
+        description: Identifier of the DB Node whose lifecycle state is to be controlled.
         required: true
+        aliases: ['id']
     state:
-        description: The state of the DB Node that must be asserted to. When I(state=stop),
-                     specified DB Node is powered off. When I(state=start), the specified
-                     DB Node is powered on. When I(state=softreset), an ACPI shutdown is
-                     initiated and specified DB Node is powered on. When I(state=reset),
-                     specified DB Node is powered off and then powered on.
-                     Note that I(state=softreset) and I(state=reset) states are not idempotent. Every time a play is
-                     executed with these C(state) options, a shutdown and a power-on sequence is executed against the
-                     DB node.
+        description: The state of the DB Node that must be asserted to. When I(state=stop), specified DB Node is
+                     powered off. When I(state=start), the specified DB Node is powered on. When I(state=softreset), an
+                     ACPI shutdown is initiated and specified DB Node is powered on. When I(state=reset), specified DB
+                     Node is powered off and then powered on. Note that I(state=softreset) and I(state=reset) states are
+                     not idempotent. Every time a play is executed with these C(state) options, a shutdown and a
+                     power-on sequence is executed against the DB node.
         required: true
+        default: "start"
         choices: ['stop', 'start', 'reset', 'softreset']
 author:
     - "Debayan Gupta(@debayan_gupta)"
@@ -208,8 +207,7 @@ def main():
     module_args = oci_utils.get_common_arg_spec(supports_wait=True)
     module_args.update(dict(
         db_node_id=dict(type='str', required=True, aliases=['id']),
-        state=dict(type='str', required=False, default='start', choices=['stop', 'start',
-                                                                         'reset', 'softreset'])
+        state=dict(type='str', required=False, default='start', choices=['stop', 'start', 'reset', 'softreset'])
     ))
 
     module = AnsibleModule(

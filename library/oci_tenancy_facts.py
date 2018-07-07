@@ -20,7 +20,7 @@ module: oci_tenancy_facts
 short_description: Retrieve details about a tenancy in Oracle Cloud Infrastructure
 description:
     - This module retrieves details about a tenancy in Oracle Cloud Infrastructure.
-version_added: "2.5"
+version_added: "2.x"
 options:
     tenancy_id:
         description: The OCID of the tenancy for which details needs to be retrieved

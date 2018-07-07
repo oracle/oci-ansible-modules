@@ -20,7 +20,7 @@ module: oci_load_balancer_health_facts
 short_description: Fetch details of a Load Balancer Health
 description:
     - Fetch details of a Load Balancer Health.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer

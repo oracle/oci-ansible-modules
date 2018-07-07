@@ -22,7 +22,7 @@ short_description: Update a VNIC
 description:
     - This module allows the user to update a specified VNIC. To create a primary VNIC, use oci_instance. To create a
       secondary VNIC and attach it to an instance, use oci_vnic_attachment.
-version_added: "2.5"
+version_added: "2.x"
 options:
   hostname_label:
         description: The hostname for the VNIC's primary private IP. Used for DNS. The value is the hostname portion of
@@ -39,6 +39,7 @@ options:
                      means the check is performed.
         required: false
         default: false
+        type: bool
   vnic_id:
         description: The OCID of the VNIC. Required when a VNIC needs to be updated.
         required: true

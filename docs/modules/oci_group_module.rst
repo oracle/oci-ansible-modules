@@ -4,7 +4,7 @@
 oci_group - Create,update and delete OCI user groups and specified user associations
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -103,7 +103,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -134,7 +134,7 @@ Options
     <td>force<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>no</td>
-    <td><ul><li>yes</li><li>no</li></ul></td>
+    <td></td>
     <td>
         <div>If <em>force='no'</em> and group has any user assigned, then in the case of <em>state=absent</em>, group will not be deleted. To delete a group which has user associations, <em>force='yes'</em> should be specified.</div>
     </td>
@@ -174,7 +174,7 @@ Options
     <tr>
     <td>purge_user_memberships<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td>no</td>
+    <td></td>
     <td><ul><li>yes</li><li>no</li></ul></td>
     <td>
         <div>Purge users in existing memberships which are not present in the provided users memberships. If <em>purge_user_memberships=no</em>, provided users would be appended to existing user memberships.</div>
@@ -279,7 +279,7 @@ Examples
       oci_group:
                 id: ocid1.group.oc1..xxxxxEXAMPLExxxxx
                 description: 'Group for Testing Ansible Module'
-                purge_user_memberships: 'yes'
+                purge_user_memberships: True
                 users: ['user1','user3']
                 state: 'present'
 

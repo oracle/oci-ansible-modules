@@ -22,7 +22,7 @@ short_description: Retrieve facts of Virtual Cloud Networks(VCNs)
 description:
     - This module retrieves information of a specified virtual cloud network(VCN) or lists all the VCNs in the
       specified compartment.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment. I(compartment_id) is required to get all the VCNs in the compartment.

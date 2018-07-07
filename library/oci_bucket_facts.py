@@ -21,7 +21,7 @@ short_description: Fetches details of a bucket or all available buckets within a
 description:
     - This module retrieves details of a bucket or all the buckets available for specified namespace and compartment
       identifier.
-version_added: "2.5"
+version_added: "2.x"
 options:
     namespace_name:
         description: Name of the namespace from which facts of constituent buckets needs to be fetched.

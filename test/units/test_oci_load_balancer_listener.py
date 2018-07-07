@@ -51,8 +51,12 @@ def update_listener_patch(mocker):
 
 
 @pytest.fixture()
-def verify_work_request_patch(mocker):
-    return mocker.patch.object(oci_lb_utils, 'verify_work_request')
+def create_or_update_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'create_or_update_lb_resources_and_wait')
+
+@pytest.fixture()
+def delete_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'delete_lb_resources_and_wait')
 
 @pytest.fixture()
 def check_and_create_resource_patch(mocker):
@@ -78,10 +82,7 @@ def test_create_or_update_listener_create(lb_client, check_and_create_resource_p
 
 def test_create_or_update_listener_update(lb_client, update_listener_patch):
     module = get_module()
-    load_balancer = LoadBalancer()
-    load_balancer.listeners = dict({'ansible_listener': get_listener()})
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    update_listener_patch.return_value = True, get_listener()
+    update_listener_patch.return_value = {'listener': to_dict(get_listener()), 'changed': True}
     result = oci_load_balancer_listener.create_or_update_listener(lb_client, module)
     assert result['listener']['name'] == module.params.get('name')
 
@@ -94,10 +95,9 @@ def test_create_or_update_listener_service_error(lb_client, check_and_create_res
     check_and_create_resource_patch.side_effect = ServiceError(
         500, 'InternalServerError', dict(), error_message)
     try:
-        result = oci_load_balancer_listener.create_or_update_listener(lb_client, module)
+        oci_load_balancer_listener.create_or_update_listener(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
-
 
 def test_create_or_update_listener_client_error(lb_client, check_and_create_resource_patch):
     error_message = 'Work Request Failed'
@@ -111,100 +111,58 @@ def test_create_or_update_listener_client_error(lb_client, check_and_create_reso
     except Exception as ex:
         assert error_message in ex.args[0]
 
-def test_create_listener(lb_client, verify_work_request_patch):
+def test_create_listener(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module()
-    load_balancer = LoadBalancer()
-    load_balancer.listeners = dict({'ansible_listener': get_listener()})
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    lb_client.create_listeners.return_value = get_response(204, None, None, None)
+    create_or_update_lb_resources_and_wait_patch.return_value = {'listener': to_dict(get_listener()), 'changed': True}
     result = oci_load_balancer_listener.create_listener(lb_client, module, 'ocid1.loadbalancer.aaaa', 'ansible_listener')
     assert result['listener']['name'] == module.params.get('name')
 
-def test_update_listener(lb_client, verify_work_request_patch):
+def test_update_listener(lb_client, create_or_update_lb_resources_and_wait_patch):
     updated_backend_set_name = dict({'default_backend_set_name': 'backend2'})
     module = get_module(updated_backend_set_name)
-    load_balancer = LoadBalancer()
-    load_balancer.listeners = dict({'ansible_listener': get_listener()})
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    lb_client.update_listener.return_value = get_response(204, None, None, None)
-    changed, listener = oci_load_balancer_listener.update_listener(lb_client, module, get_listener(), 'ocid1.loadbalancer.aaaa', 'ansible_listener')
-    assert changed is True
+    create_or_update_lb_resources_and_wait_patch.return_value = {'listener': to_dict(get_listener()), 'changed': True}
+    oci_load_balancer_listener.update_listener(lb_client, module, get_listener(), 'ocid1.loadbalancer.aaaa', 'ansible_listener')
+    assert create_or_update_lb_resources_and_wait_patch.called
 
-def test_update_listener_ssl_config_changed(lb_client, verify_work_request_patch):
+def test_update_listener_ssl_config_changed(lb_client, create_or_update_lb_resources_and_wait_patch):
     updated_backend_set_name = dict({'ssl_configuration':{"certificate_name":"test_cert1","verify_depth": 2, "verify_peer_certificate": True}})
     module = get_module(updated_backend_set_name)
-    load_balancer = LoadBalancer()
-    load_balancer.listeners = dict({'ansible_listener': get_listener()})
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    lb_client.update_listener.return_value = get_response(204, None, None, None)
-    changed, listener = oci_load_balancer_listener.update_listener(lb_client, module, get_listener(), 'ocid1.loadbalancer.aaaa', 'ansible_listener')
-    assert changed is True
+    create_or_update_lb_resources_and_wait_patch.return_value = {'listener': to_dict(get_listener()), 'changed': True}
+    oci_load_balancer_listener.update_listener(lb_client, module, get_listener(), 'ocid1.loadbalancer.aaaa', 'ansible_listener')
+    assert create_or_update_lb_resources_and_wait_patch.called
 
-def test_update_listener_connection_configuration_changed(lb_client, verify_work_request_patch):
-    updated_backend_set_name = dict({'connection_configuration':{'idle_timeout':600}})
+def test_update_listener_connection_configuration_changed(lb_client, create_or_update_lb_resources_and_wait_patch):
+    updated_backend_set_name = dict({'connection_configuration': {'idle_timeout':600}})
     module = get_module(updated_backend_set_name)
-    load_balancer = LoadBalancer()
-    load_balancer.listeners = dict({'ansible_listener': get_listener()})
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    lb_client.update_listener.return_value = get_response(204, None, None, None)
-    changed, listener = oci_load_balancer_listener.update_listener(lb_client, module, get_listener(), 'ocid1.loadbalancer.aaaa', 'ansible_listener')
-    assert changed is True
+    create_or_update_lb_resources_and_wait_patch.return_value = {'listener': to_dict(get_listener()), 'changed': True}
+    oci_load_balancer_listener.update_listener(lb_client, module, get_listener(), 'ocid1.loadbalancer.aaaa', 'ansible_listener')
+    assert create_or_update_lb_resources_and_wait_patch.called
 
-def test_update_listener__no_update(lb_client, verify_work_request_patch):
+def test_update_listener_hostname_names_changed(lb_client, create_or_update_lb_resources_and_wait_patch):
+    updated_hostname_names = dict({'hostname_names': ['host_name_002']})
+    module = get_module(updated_hostname_names)
+    create_or_update_lb_resources_and_wait_patch.return_value = {'listener': to_dict(get_listener()), 'changed': True}
+    oci_load_balancer_listener.update_listener(lb_client, module, get_listener(), 'ocid1.loadbalancer.aaaa', 'ansible_listener')
+    assert create_or_update_lb_resources_and_wait_patch.called
+
+def test_update_listener_path_route_set_name_changed(lb_client, create_or_update_lb_resources_and_wait_patch):
+    updated_path_route_set_name = dict({'path_route_set_name': 'path_route_002'})
+    module = get_module(updated_path_route_set_name)
+    create_or_update_lb_resources_and_wait_patch.return_value = {'listener': to_dict(get_listener()), 'changed': True}
+    oci_load_balancer_listener.update_listener(lb_client, module, get_listener(), 'ocid1.loadbalancer.aaaa', 'ansible_listener')
+    assert create_or_update_lb_resources_and_wait_patch.called
+
+def test_update_listener_no_update(lb_client):
     module = get_module()
-    load_balancer = LoadBalancer()
-    load_balancer.listeners = dict({'ansible_listener': get_listener()})
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    lb_client.update_listener.return_value = get_response(204, None, None, None)
-    changed, listener = oci_load_balancer_listener.update_listener(lb_client, module, get_listener(), 'ocid1.loadbalancer.aaaa', 'ansible_listener')
-    assert changed is False
-
-
-def test_delete_listener(lb_client, verify_work_request_patch):
-    module = get_module()
-    load_balancer = LoadBalancer()
-    load_balancer.listeners = dict({'ansible_listener': get_listener()})
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    lb_client.delete_listener.return_value = get_response(204, None, None, None)
-    result = oci_load_balancer_listener.delete_listener(lb_client, module)
-    assert result['changed'] is True
-
-
-def test_delete_listener_already_deleted(lb_client, verify_work_request_patch):
-    module = get_module()
-    load_balancer = LoadBalancer()
-    load_balancer.listeners = dict()
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    result = oci_load_balancer_listener.delete_listener(lb_client, module)
+    result = oci_load_balancer_listener.update_listener(lb_client, module, get_listener(), 'ocid1.loadbalancer.aaaa', 'ansible_listener')
     assert result['changed'] is False
 
-def test_delete_listener_service_error(lb_client, verify_work_request_patch):
-    error_message = "Internal Server Error"
+
+def test_delete_listener(lb_client, delete_lb_resources_and_wait_patch):
     module = get_module()
-    load_balancer = LoadBalancer()
-    load_balancer.listeners = dict({'ansible_listener': get_listener()})
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    lb_client.delete_listener.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
-    try:
-        oci_load_balancer_listener.delete_listener(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
-def test_delete_listener_client_error(lb_client, verify_work_request_patch):
-    error_message = 'Work Request Failed'
-    module = get_module()
-    load_balancer = LoadBalancer()
-    load_balancer.listeners = dict({'ansible_listener': get_listener()})
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    lb_client.delete_listener.return_value = get_response(204, None, None, None)
-    verify_work_request_patch.side_effect = ClientError(Exception('Work Request Failed'))
-    try:
-        oci_load_balancer_listener.delete_listener(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
-
+    delete_lb_resources_and_wait_patch.return_value = {'listener': to_dict(get_listener()), 'changed': True}
+    result = oci_load_balancer_listener.delete_listener(lb_client, module)
+    assert result['changed'] is True
 
 def get_listener():
     listener = Listener()
@@ -220,6 +178,8 @@ def get_listener():
     connection_configuration = ConnectionConfiguration()
     connection_configuration.idle_timeout = 1200
     listener.connection_configuration = connection_configuration
+    listener.hostname_names = ['host_name_001']
+    listener.path_route_set_name = 'path_route_001'
     return listener
 
 
@@ -233,9 +193,10 @@ def get_module(additional_properties=None):
         "load_balancer_id" : "ocid1.loadbalancer.oc1.iad.aaaa",
         "name":"ansible_listener",
         "default_backend_set_name": "ansible_backend_set",
-        "port": 80, 
+        "port": 80,
         "protocol": "HTTP",
-        "ssl_configuration":{"certificate_name":"cert1","verify_depth": 1, "verify_peer_certificate": True}
+        "ssl_configuration":{"certificate_name":"cert1","verify_depth": 1, "verify_peer_certificate": True},
+        "connection_configuration":{"idle_timeout": 1200}
     }
     if additional_properties is not None:
         params.update(additional_properties)

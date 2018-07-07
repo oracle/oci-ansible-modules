@@ -26,7 +26,7 @@ description:
       allocated to the instance. For more information, see Overview of the Compute Service at
       U(https://docs.us-phoenix-1.oraclecloud.com/Content/Compute/Concepts/computeoverview.htm). In experimental mode,
       this module also allows attaching/detaching volumes and boot volumes to an instance.
-version_added: "2.5"
+version_added: "2.x"
 options:
     availability_domain:
         description: The Availability Domain of the instance. Required when creating a compute instance with
@@ -78,7 +78,6 @@ options:
         description: Used with I(exact_count) to determine how many compute instances matching the specific tag criteria
                      C(count_tag) must be running. Only I(defined_tags) associated with an instance are considered for
                      matching against C(count_tag).
-        default: None
         required: false
     metadata:
         description: A hash/dictionary of custom key/value pairs that are associated with the instance. This
@@ -109,7 +108,8 @@ options:
     preserve_boot_volume:
         description: Whether to preserve the boot volume when terminating an instance with I(state=absent).
         required: false
-        default: no
+        default: False
+        type: bool
     shape:
         description: The shape of the instance. Required when creating a compute instance with I(state=present).
         required: false
@@ -1297,7 +1297,7 @@ def power_action_on_instance(compute_client, id, desired_state, module):
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as ex:
-        module.fail_json(msg=ex.message)
+        module.fail_json(msg=str(ex))
 
     result['changed'] = changed
     return result
@@ -1499,7 +1499,7 @@ def add_volume_attachment_info(module, compute_client, result):
     if 'instances' in result:
         try:
             instances = result['instances']
-            for idx, instance in enumerate(instances):
+            for idx, _ in enumerate(instances):
                 vol_attachments = get_volume_attachments(compute_client, instances[idx])
                 result['instances'][idx]['volume_attachments'] = vol_attachments
                 if 'instance' in result:
@@ -1750,9 +1750,6 @@ def ensure_exact_count(compute_client, exact_count, count_tag, module):
 
     result = dict(changed=False)
 
-    import q
-    q(curr_inst_count)
-    q(exact_count)
     if curr_inst_count == exact_count:
         debug("No change required.")
         result['instances'] = to_dict(matching_instances)
@@ -1853,7 +1850,7 @@ def main():
                                                                            'reset', 'softreset']),
         volume_details=dict(type='dict', required=False),
         source_details=dict(type='dict', required=False),
-        vnic=dict(type='dict')
+        vnic=dict(type='dict', aliases=['create_vnic_details'])
     ))
 
     module = AnsibleModule(

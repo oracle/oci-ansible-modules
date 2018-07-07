@@ -8,6 +8,7 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
@@ -20,7 +21,7 @@ module: oci_load_balancer_work_request_facts
 short_description: Fetch details of all work_requests of a load balancer
 description:
     - Fetch details of all work_requests of a load balancer.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer to which the Work Requests belongs.
@@ -48,101 +49,103 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-    work_requests:
-        description: Attributes of the Work Requests fecthed.
-        returned: success
-        type: complex
-        contains:
-            error_details:
-                description: Error details of the work request
-                returned: always
-                type: list
-                sample: [{
-                           "errorCode" : "BAD_INPUT",
-                           "message" : "Default Listener on port '80' refer to VIP 'private-vip' twice"
-                         }
-                        ]
-            id:
-                description: Identifier of the Work Request
-                returned: always
-                type: string
-                sample: ocid1.loadbalancerworkrequest.oc1.axdf
-            lifecycle_state:
-                description: The current state of the Load Balancer
-                returned: always
-                type: string
-                sample: ACCEPTED
-            load_balancer_id:
-                description: The OCID of the load balancer the Work Request is
-                             associated with.
-                returned: always
-                type: string
-                sample: ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx
-            message:
-                description: A collection of data, related to the load balancer
-                             provisioning process, that helps with debugging in
-                             the event of failure. Possible data elements include
-                                 - workflow name
-                                 - event ID
-                                 - work request ID
-                                 - load balancer ID
-                                 - workflow completion message
-                returned: always
-                type: string
-                sample: { \n  \"eventId\" : \"43644f81-8724-1324\",
-                          \n  \"loadBalancerId\" : \"ocid1.loadbalancer..aaaa\",
-                          \n  \"workflowName\" : \"AddHostnameWorkflow\",
-                          \n  \"type\" : \"SUCCESS\",\n  \"message\" : \"OK\",
-                          \n  \"workRequestId\" : \"ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx\"\n
-                        }
-            time_accepted:
-                description: The date and time the work request was created, in the format defined by RFC3339.
-                returned: always
-                type: datetime
-                sample: 2018-06-26T21:10:29.600Z
-            time_finished:
-                description: The date and time the work request was completed, in the format defined by RFC3339.
-                returned: always
-                type: datetime
-                sample: 2018-06-26T21:112:29.600Z
-            type:
-                description: The type of action the work request represents.
-                returned: always
-                type: string
-                sample: CreateListener
-        sample: [
-                    {
-                      "error_details":[
-
-                       ],
-                     "id":"ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx",
-                     "lifecycle_state":"SUCCEEDED",
-                     "load_balancer_id":"ocid1.loadbalancer..aaaa",
-                     "message":{\n  \"eventId\" : \"43644f81-8724-44b0-a13\",\n  \"loadBalancerId\" : \"ocid1.loadbalancer..aaaa\",
-                                 \n  \"workflowName\" : \"AddHostnameWorkflow\",\n  \"type\" : \"SUCCESS\",\n  \"message\" : \"OK\",
-                                 \n  \"workRequestId\" : \"ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx\"\n
-                                },
-                     "time_accepted":"2018-06-22T09:02:38.505000+00:00",
-                     "time_finished":"2018-06-22T09:02:54.687000+00:00",
-                     "type":"CreateHostname"
-                    },
-                    {
-                      "error_details":[
-
-                       ],
-                     "id":"ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx",
-                     "lifecycle_state":"SUCCEEDED",
-                     "load_balancer_id":"ocid1.loadbalancer..aaaa",
-                     "message":{\n  \"eventId\" : \"43644f81-8724-44b0-a13\",\n  \"loadBalancerId\" : \"ocid1.loadbalancer..aaaa\",
-                                 \n  \"workflowName\" : \"AddHostnameWorkflow\",\n  \"type\" : \"SUCCESS\",\n  \"message\" : \"OK\",
-                                 \n  \"workRequestId\" : \"ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx\"\n
-                                },
-                     "time_accepted":"2018-06-22T09:05:56.508000+00:00",
-                     "time_finished":"2018-06-22T09:06:10.111000+00:00",
-                     "type":"CreateHostname"
+work_requests:
+    description: Attributes of the Work Requests fetched.
+    returned: success
+    type: complex
+    contains:
+        error_details:
+            description: Error details of the work request
+            returned: always
+            type: list
+            sample: [{
+                       "errorCode" : "BAD_INPUT",
+                       "message" : "Default Listener on port '80' refer to VIP 'private-vip' twice"
+                     }
+                    ]
+        id:
+            description: Identifier of the Work Request
+            returned: always
+            type: string
+            sample: ocid1.loadbalancerworkrequest.oc1.xxxxxEXAMPLExxxxx
+        lifecycle_state:
+            description: The current state of the Load Balancer
+            returned: always
+            type: string
+            sample: ACCEPTED
+        load_balancer_id:
+            description: The OCID of the load balancer the Work Request is associated with.
+            returned: always
+            type: string
+            sample: ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx
+        message:
+            description: A collection of data, related to the load balancer provisioning process, that helps with
+                         debugging in the event of failure. Possible data elements include
+                         - workflow name
+                         - event ID
+                         - work request ID
+                         - load balancer ID
+                         - workflow completion message
+            returned: always
+            type: string
+            sample: { "eventId" : "43644f81-8724-1324",
+                      "loadBalancerId" : "ocid1.loadbalancer..aaaa",
+                      "workflowName" : "AddHostnameWorkflow",
+                      "type" : "SUCCESS","message" : "OK",
+                      "workRequestId" : "ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx"
                     }
-                 ]
+        time_accepted:
+            description: The date and time the work request was created, in the format defined by RFC3339.
+            returned: always
+            type: datetime
+            sample: 2018-06-26T21:10:29.600Z
+        time_finished:
+            description: The date and time the work request was completed, in the format defined by RFC3339.
+            returned: always
+            type: datetime
+            sample: 2018-06-26T21:112:29.600Z
+        type:
+            description: The type of action the work request represents.
+            returned: always
+            type: string
+            sample: [
+                        {
+                          "error_details":[],
+                          "id":"ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx",
+                          "lifecycle_state":"SUCCEEDED",
+                          "load_balancer_id":"ocid1.loadbalancer..aaaa",
+                          "message": {
+                            "eventId" : "43644f81-8724-44b0-a13",
+                            "loadBalancerId" : "ocid1.loadbalancer..aaaa",
+                            "workflowName" : "AddHostnameWorkflow",
+                            "type" : "SUCCESS",
+                            "message" : "OK",
+                            "workRequestId" : "ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx"
+                            },
+                            "time_accepted":"2018-06-22T09:02:38.505000+00:00",
+                            "time_finished":"2018-06-22T09:02:54.687000+00:00",
+                            "type":"CreateHostname"
+                        },
+                        {
+                          "error_details":[],
+                          "id":"ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx",
+                          "lifecycle_state":"SUCCEEDED",
+                          "load_balancer_id":"ocid1.loadbalancer..aaaa",
+                          "message": {
+                            "eventId" : "43644f81-8724-44b0-a14",
+                            "loadBalancerId" : "ocid1.loadbalancer..aaaa",
+                            "workflowName" : "AddHostnameWorkflow",
+                            "type" : "SUCCESS",
+                            "message" : "OK",
+                            "workRequestId" : "ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx"
+                            },
+                            "time_accepted":"2018-06-22T09:02:38.505000+00:00",
+                            "time_finished":"2018-06-22T09:02:54.687000+00:00",
+                            "type":"CreateHostname"
+                        }
+                    ]
 '''
+
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils

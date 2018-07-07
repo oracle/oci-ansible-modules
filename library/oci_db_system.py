@@ -24,7 +24,7 @@ description:
     - Terminate an OCI DB System, if present.
     - Since all operations of this module takes a long time, it is recommended to set the C(wait) to False. Use
       M(oci_db_system_facts) to check the status of the operation as a separate task.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment under which this
@@ -35,6 +35,7 @@ options:
         description: Identifier of the existing DB System which required to be
                      updated or terminated. Mandatory for terminate and update.
         required: false
+        aliases: ['id']
     availability_domain:
         description: The Availability Domain where the DB System is located.
         required: false
@@ -146,6 +147,10 @@ options:
         description: The shape of the DB System. The shape determines resources allocated to the DB System - CPU cores
                      and memory for VM shapes; CPU cores, memory and storage for non-VM (or bare metal) shapes.
         required: false
+    ssh_public_keys:
+        description: The public key portion of the key pair to use for SSH access to the DB System. Multiple public keys
+                     can be provided. The length of the combined keys cannot exceed 10,000 characters.
+        required: true
     subnet_id:
         description: The OCID of the subnet the DB System is associated with.
         required: false
@@ -155,6 +160,7 @@ options:
                      public keys.
         required: false
         default: True
+        choices: [True, False]
     version:
         description: This attribute describes the patch version and what actions to perform with that on specified DB
                      system. This is required only for update use case.

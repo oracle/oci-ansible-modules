@@ -22,7 +22,7 @@ description:
     - This module retrieves details of swift passwords of a specified user. The returned object contains the swift
       password's OCID, but not the password itself. The actual password is returned only upon creation of a swift
       password using the M(oci_swift_password) module.
-version_added: "2.5"
+version_added: "2.x"
 options:
     user_id:
         description: The OCID of the user

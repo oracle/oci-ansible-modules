@@ -42,7 +42,8 @@ def verify_work_request(lb_client, response):
 
 
 def create_or_update_lb_resources_and_wait(lb_client, resource_type, function, kwargs_function, module,
-                                           get_fn, get_param=None, states=None, wait_applicable=True, kwargs_get=None):
+                                           get_fn=None, get_sub_resource_fn=None, get_param=None, states=None,
+                                           wait_applicable=True, kwargs_get=None):
     result = dict()
     result[resource_type] = ''
     try:
@@ -54,11 +55,16 @@ def create_or_update_lb_resources_and_wait(lb_client, resource_type, function, k
             response = get_work_request_response(lb_client, work_request_id, states, module)
             if response.data.lifecycle_state == 'FAILED':
                 module.fail_json(msg=response.data.error_details)
+
             if kwargs_get:
-                result[resource_type] = to_dict(oci_utils.call_with_backoff(get_fn, **kwargs_get).data)
+                if get_sub_resource_fn:
+                    result[resource_type] = to_dict(get_sub_resource_fn(**kwargs_get))
+                else:
+                    result[resource_type] = to_dict(oci_utils.call_with_backoff(get_fn, **kwargs_get).data)
             else:
                 result[resource_type] = to_dict(oci_utils.call_with_backoff(
                     get_fn, **{get_param: response.data[get_param]}).data)
+
         result['changed'] = True
     except ServiceError as ex:
         logger.error("Unable to create/update %s due to: %s", resource_type, ex.message)
@@ -70,10 +76,15 @@ def create_or_update_lb_resources_and_wait(lb_client, resource_type, function, k
 
 
 def delete_lb_resources_and_wait(lb_client, resource_type, function, kwargs_function, module,
-                                 get_fn, get_param=None, states=None, wait_applicable=True, kwargs_get=None):
+                                 get_fn=None, get_sub_resource_fn=None, get_param=None, states=None,
+                                 wait_applicable=True, kwargs_get=None):
     result = dict(changed=False)
     try:
-        resource = to_dict(oci_utils.call_with_backoff(get_fn, **kwargs_get).data)
+        if get_sub_resource_fn:
+            resource = to_dict(get_sub_resource_fn(**kwargs_get))
+        else:
+            resource = to_dict(oci_utils.call_with_backoff(get_fn, **kwargs_get).data)
+
         if resource:
             result[resource_type] = resource
             response = oci_utils.call_with_backoff(function, **kwargs_function)
@@ -81,6 +92,7 @@ def delete_lb_resources_and_wait(lb_client, resource_type, function, kwargs_func
             if wait_applicable and module.params.get('wait', None):
                 if states is None:
                     states = module.params.get('wait_until') or DEFAULT_COMPLETED_STATES
+
             response = get_work_request_response(lb_client, work_request_id, states, module)
             if response.data.lifecycle_state == 'FAILED':
                 module.fail_json(msg=response.data.error_details)
@@ -121,11 +133,12 @@ def create_listeners(listener_details_dict):
     if listener_details_dict is None:
         return None
     result_listeners = dict()
-    attributes = ['default_backend_set_name', 'port', 'protocol']
+    attributes = ['default_backend_set_name', 'port', 'protocol', 'hostname_names', 'path_route_set_name']
+    optional_attributes = ['hostname_names', 'path_route_set_name']
     for key, value in six.iteritems(listener_details_dict):
         listener_details = ListenerDetails()
         for attribute in attributes:
-            if value.get(attribute) is None:
+            if value.get(attribute) is None and attribute not in optional_attributes:
                 raise ClientError(
                     Exception(attribute + " is mandatory and must not be empty for listener"))
             listener_details.__setattr__(attribute, value.get(attribute))
@@ -174,9 +187,8 @@ def create_backend_sets(backend_sets_dicts):
             health_checker)
         backend_sets_details.backends = create_backends(
             value.get('backends', None))
-        backend_sets_details.session_persistence_configuration = \
-            create_session_persistence_configuration(
-                value.get('session_persistence_configuration', None))
+        backend_sets_details.session_persistence_configuration = create_session_persistence_configuration(
+            value.get('session_persistence_configuration', None))
         backend_sets_details.ssl_configuration = create_ssl_configuration(
             value.get('ssl_configuration', None))
         result_backend_sets.update({key: backend_sets_details})
@@ -195,9 +207,8 @@ def create_backends(backends_list):
         ip_address = backend_entry.get('ip_address', None)
         port = backend_entry.get('port', None)
         if ip_address is None or port is None:
-            raise ClientError(Exception(
-                "ip_address and port are mandatory attributes for back_ends and \
-                 can not be empty."))
+            raise ClientError(Exception("ip_address and port are mandatory attributes for back_ends and can not "
+                                        "be empty."))
         backend.ip_address = ip_address
         backend.port = port
         for key, value in six.iteritems(attribute_to_default_value_dict):
@@ -238,11 +249,10 @@ def create_session_persistence_configuration(session_persistence_configuration):
     cookie_name = session_persistence_configuration.get('cookie_name')
     if cookie_name is None:
         raise ClientError(Exception(
-            "cookie_name is mandatory attributes for session_persistence_configuration and \
-                 can not be empty."))
+            "cookie_name is mandatory attributes for session_persistence_configuration and can not be empty."))
     result_session_persistence_configuration.cookie_name = cookie_name
-    result_session_persistence_configuration.disable_fallback = \
-        session_persistence_configuration.get('disable_fallback', False)
+    result_session_persistence_configuration.disable_fallback = session_persistence_configuration.get(
+        'disable_fallback', False)
     return result_session_persistence_configuration
 
 
@@ -256,8 +266,7 @@ def create_ssl_configuration(ssl_configuration_details):
     certificate_name = ssl_configuration_details.get('certificate_name')
     if certificate_name is None:
         raise ClientError(Exception(
-            "certificate_name is mandatory attributes for ssl_configuration and \
-                 can not be empty."))
+            "certificate_name is mandatory attributes for ssl_configuration and can not be empty."))
     result_ssl_configuration.certificate_name = certificate_name
     for attribute in attributes:
         result_ssl_configuration.__setattr__(
@@ -296,9 +305,9 @@ def create_path_routes(path_routes_list):
     HashedPathMatchType = oci_utils.generate_subclass(PathMatchType)
     path_match_type = dict(EXACT_MATCH=HashedPathMatchType(match_type=PathMatchType.MATCH_TYPE_EXACT_MATCH),
                            FORCE_LONGEST_PREFIX_MATCH=HashedPathMatchType(
-                               match_type=PathMatchType.MATCH_TYPE_FORCE_LONGEST_PREFIX_MATCH),
-                           PREFIX_MATCH=HashedPathMatchType(match_type=PathMatchType.MATCH_TYPE_PREFIX_MATCH),
-                           SUFFIX_MATCH=HashedPathMatchType(match_type=PathMatchType.MATCH_TYPE_SUFFIX_MATCH))
+        match_type=PathMatchType.MATCH_TYPE_FORCE_LONGEST_PREFIX_MATCH),
+        PREFIX_MATCH=HashedPathMatchType(match_type=PathMatchType.MATCH_TYPE_PREFIX_MATCH),
+        SUFFIX_MATCH=HashedPathMatchType(match_type=PathMatchType.MATCH_TYPE_SUFFIX_MATCH))
     result_path_routes = list()
     HashedPathRoute = oci_utils.generate_subclass(PathRoute)
     for path_route_entry in path_routes_list:
@@ -307,8 +316,8 @@ def create_path_routes(path_routes_list):
         path = path_route_entry.get('path', None)
         path_match_type = path_match_type.get(path_route_entry.get('path_match_type', None).get('match_type', None))
         if backend_set_name is None or path is None or path_match_type is None:
-            raise ClientError(Exception("backend_set_name, path and path_match_type are mandatory attributes for back_ends and" +
-                                        "can not be empty."))
+            raise ClientError(Exception("backend_set_name, path and path_match_type are mandatory attributes for"
+                                        " back_ends and can not be empty."))
         path_route.backend_set_name = backend_set_name
         path_route.path = path
         path_route.path_match_type = path_match_type
@@ -316,29 +325,29 @@ def create_path_routes(path_routes_list):
     return result_path_routes
 
 
-def check_and_return_component_list_difference(input_component_list, existing_componets, purge_components):
+def check_and_return_component_list_difference(input_component_list, existing_components, purge_components):
     if input_component_list:
-        existing_componets, changed = get_component_list_difference(
-            input_component_list, existing_componets, purge_components)
+        existing_components, changed = get_component_list_difference(
+            input_component_list, existing_components, purge_components)
     else:
-        existing_componets = []
+        existing_components = []
         changed = True
-    return existing_componets, changed
+    return existing_components, changed
 
 
-def get_component_list_difference(input_component_list, existing_componets, purge_components):
-    if existing_componets is None:
+def get_component_list_difference(input_component_list, existing_components, purge_components):
+    if existing_components is None:
         return input_component_list, True
     if purge_components:
         components_differences = set(
-            input_component_list).symmetric_difference(set(existing_componets))
+            input_component_list).symmetric_difference(set(existing_components))
 
         if components_differences:
             return input_component_list, True
     components_differences = set(input_component_list).difference(
-        set(existing_componets))
+        set(existing_components))
     if components_differences:
-        return list(components_differences) + existing_componets, True
+        return list(components_differences) + existing_components, True
     return None, False
 
 
@@ -357,6 +366,21 @@ def create_hostnames(hostnames_dicts):
         hostname_details.hostname = hostname
         result_hostnames.update({key: hostname_details})
     return result_hostnames
+
+
+def get_listener(**kwargs_get_listener):
+    listener = ''
+    lb_client = kwargs_get_listener.get('lb_client')
+    module = kwargs_get_listener.get('module')
+    lb_id = kwargs_get_listener.get('load_balancer_id')
+    name = kwargs_get_listener.get('name')
+    existing_load_balancer = to_dict(oci_utils.get_existing_resource(
+        lb_client.get_load_balancer, module, load_balancer_id=lb_id))
+    if existing_load_balancer is None:
+        module.fail_json(msg='Load balancer with id: ' + lb_id + ' does not exist')
+    if name in existing_load_balancer.get('listeners'):
+        listener = existing_load_balancer['listeners'][name]
+    return listener
 
 
 def generic_hash(obj):

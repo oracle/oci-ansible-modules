@@ -4,7 +4,7 @@
 oci_db_node - Control the lifecycle of a DB Node in OCI's Database Cloud Service.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -101,7 +101,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -115,6 +115,7 @@ Options
     <td></td>
     <td>
         <div>Identifier of the DB Node whose lifecycle state is to be controlled.</div>
+        </br><div style="font-size: small;">aliases: id</div>
     </td>
     </tr>
 
@@ -131,7 +132,7 @@ Options
     <tr>
     <td>state<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
-    <td></td>
+    <td>start</td>
     <td><ul><li>stop</li><li>start</li><li>reset</li><li>softreset</li></ul></td>
     <td>
         <div>The state of the DB Node that must be asserted to. When <em>state=stop</em>, specified DB Node is powered off. When <em>state=start</em>, the specified DB Node is powered on. When <em>state=softreset</em>, an ACPI shutdown is initiated and specified DB Node is powered on. When <em>state=reset</em>, specified DB Node is powered off and then powered on. Note that <em>state=softreset</em> and <em>state=reset</em> states are not idempotent. Every time a play is executed with these <code>state</code> options, a shutdown and a power-on sequence is executed against the DB node.</div>

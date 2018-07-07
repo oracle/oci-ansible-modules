@@ -20,7 +20,7 @@ module: oci_db_system_shape_facts
 short_description: Fetches details of all DB System Shapes
 description:
     - Fetches details of all DB System Shapes.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment where DB Systems should be

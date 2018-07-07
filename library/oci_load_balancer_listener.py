@@ -6,6 +6,7 @@
 # See LICENSE.TXT for details.
 
 from __future__ import (absolute_import, division, print_function)
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
@@ -23,7 +24,7 @@ description:
     - Add a listener to a backend set in a OCI Load Balancer
     - Update a listener in a Load Balancer, if present, with any changed attribute
     - Delete a listener from OCI Load Balancer Backends, if present.
-version_added: "2.5"
+version_added: "2.x"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer in which the listener belongs.
@@ -69,6 +70,19 @@ options:
                             operation does not reset the timer for send operations.
                required: true
         required: false
+    hostname_names:
+        description: An array of hostname resource names.
+        required: false
+    path_route_set_name:
+        description: The name of the set of path-based routing rules, PathRouteSet, applied to this listener's traffic.
+        required: false
+    purge_hostname_names:
+        description: Purge any Hostname names in the  Listener named I(name) that is not specified in I(hostname_names).
+                     This is only applicable in case of updating Listener.If I(purge_hostname_names=no), provided
+                     I(hostname_names) would be appended to existing I(hostname_names).
+        required: false
+        default: 'yes'
+        choices: ['yes','no']
     state:
         description: Create,update or delete Load Balancer Backend. For I(state=present),
                      if it does not exists, it gets added. If exists, it gets updated.
@@ -96,6 +110,8 @@ EXAMPLES = '''
         verify_peer_certificate: True
     connection_configuration:
         idle_timeout: 1200
+    hostname_names: ['hostname_001']
+    path_route_set_name: 'path_route_set_001'
     state: 'present'
 # Update Listener
 - name: Update Listener Port
@@ -107,7 +123,7 @@ EXAMPLES = '''
     port: 82
     state: 'present'
 
-- name: Update Listener SSL Configuration
+- name: Update Listener's SSL Configuration
   oci_load_balancer_listener:
     load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_listener"
@@ -120,7 +136,7 @@ EXAMPLES = '''
         verify_peer_certificate: False
     state: 'present'
 
-- name: Update Listener Connection Configuration
+- name: Update Listener's Connection Configuration
   oci_load_balancer_listener:
     load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_listener"
@@ -129,6 +145,29 @@ EXAMPLES = '''
     port: 80
     connection_configuration:
         idle_timeout: 1200
+    state: 'present'
+
+- name: Update Listener's Hostname Names by appending new name
+  oci_load_balancer_listener:
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
+    name: "ansible_listener"
+    hostname_names: ['hostname_002']
+    purge_hostname_names: False
+    state: 'present'
+
+- name: Update Listener's Hostname Names by replacing existing names
+  oci_load_balancer_listener:
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
+    name: "ansible_listener"
+    hostname_names: ['hostname_002']
+    purge_hostname_names: True
+    state: 'present'
+
+- name: Update Listener's Path Route Set Name
+  oci_load_balancer_listener:
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
+    name: "ansible_listener"
+    path_route_set_name: 'path_route_set_002'
     state: 'present'
 
 # Delete listener
@@ -183,11 +222,27 @@ RETURN = '''
                 sample: {
                             "idle_timeout": 1200
                         }
+            hostname_names:
+                description: An array of hostname resource names.
+                returned: always
+                type: list
+                sample: [
+                            "hostname_001"
+                        ]
+            path_route_set_name:
+                description: The name of the set of path-based routing rules, PathRouteSet, applied to this listener's traffic.
+                returned: always
+                type: string
+                sample: "path_route_set_001"
         sample: {
                     "default_backend_set_name": "ansible_backend",
                     "name": "ansible_listener",
                     "port": 87,
+                    "hostname_names": [
+                                        "hostname_001"
+                                      ],
                     "protocol": "HTTP",
+                    "path_route_set_name": "path_route_set_001",
                     "ssl_configuration": {
                         "certificate_name": "certs1",
                         "verify_depth": 1,
@@ -207,8 +262,9 @@ try:
     from oci.load_balancer.load_balancer_client import LoadBalancerClient
     from oci.exceptions import ServiceError, ClientError
     from oci.util import to_dict
-    from oci.load_balancer.models import CreateListenerDetails, UpdateListenerDetails, \
-        SSLConfigurationDetails, ConnectionConfiguration
+    from oci.load_balancer.models import CreateListenerDetails, UpdateListenerDetails, SSLConfigurationDetails, \
+        ConnectionConfiguration
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -224,15 +280,14 @@ def create_or_update_listener(lb_client, module):
     )
     load_balancer_id = module.params.get('load_balancer_id')
     name = module.params.get('name')
-    existing_load_balancer = oci_lb_utils.get_existing_load_balancer(
-        lb_client, module, load_balancer_id)
+    existing_load_balancer = oci_lb_utils.get_existing_load_balancer(lb_client, module, load_balancer_id)
+    if existing_load_balancer is None:
+        module.fail_json(msg='Load balancer with id: ' + load_balancer_id + ' does not exist')
     listener = existing_load_balancer.listeners.get(name)
     try:
         if listener:
-            changed, listener = update_listener(
-                lb_client, module, listener, load_balancer_id, name)
-            result['changed'] = changed
-            result['listener'] = to_dict(listener)
+            result = update_listener(lb_client, module, listener, load_balancer_id, name)
+            get_logger().info("Successfully updated listener %s in load balancer %s", name, load_balancer_id)
         else:
             listeners_list = []
             for _, value in six.iteritems(existing_load_balancer.listeners):
@@ -259,94 +314,83 @@ def create_or_update_listener(lb_client, module):
 
 
 def create_listener(lb_client, module, lb_id, name):
-    result = dict()
     listener_input_details = get_listener_input_details(module)
-    listener_details = oci_lb_utils.create_listeners(
-        {name: listener_input_details}).get(name)
+    listener_details = oci_lb_utils.create_listeners({name: listener_input_details}).get(name)
     create_listener_details = CreateListenerDetails()
+    for attribute in create_listener_details.attribute_map:
+        create_listener_details.__setattr__(attribute, getattr(listener_details, attribute, None))
     create_listener_details.name = name
-    for attribute in create_listener_details.attribute_map.keys():
-        if attribute == 'name':
-            pass
-        else:
-            create_listener_details.__setattr__(
-                attribute, getattr(listener_details, attribute))
-    get_logger().info("Creating listener %s in load balancer %s with parameters %s",
-                      name, lb_id, str(create_listener_details))
-    response = oci_utils.call_with_backoff(lb_client.create_listener, create_listener_details=create_listener_details,
-                                           load_balancer_id=lb_id)
-    oci_lb_utils.verify_work_request(lb_client, response)
-    get_logger().info("Successfully created listener %s in load balancer %s",
-                      name, lb_id)
-    listener = oci_lb_utils.get_existing_load_balancer(
-        lb_client, module, lb_id).listeners.get(name)
-    result['changed'] = True
-    result['listener'] = to_dict(listener)
-    return result
+    get_logger().info("Creating listener %s in load balancer %s with parameters %s", name, lb_id,
+                      str(create_listener_details))
+    return oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type='listener',
+                                                               function=lb_client.create_listener,
+                                                               kwargs_function={
+                                                                   'create_listener_details': create_listener_details,
+                                                                   'load_balancer_id': lb_id},
+                                                               lb_client=lb_client,
+                                                               get_sub_resource_fn=oci_lb_utils.get_listener,
+                                                               kwargs_get={'lb_client': lb_client,
+                                                                           'module': module,
+                                                                           'load_balancer_id': lb_id,
+                                                                           'name': name},
+                                                               module=module
+                                                               )
 
 
 def update_listener(lb_client, module, listener, lb_id, name):
+    result = dict(listener=to_dict(listener), changed=False)
     update_listener_details = UpdateListenerDetails()
     changed = False
     get_logger().info("Updating listener %s in load balancer %s",
                       name, lb_id)
     for attribute in update_listener_details.attribute_map.keys():
-        if attribute not in ['ssl_configuration', 'connection_configuration']:
+        if attribute not in ['ssl_configuration', 'connection_configuration', 'hostname_names']:
             changed = oci_utils.check_and_update_attributes(
                 update_listener_details, attribute, module.params.get(
                     attribute, None), getattr(listener, attribute), changed)
-    input_ssl_configuration = oci_lb_utils.create_ssl_configuration(
-        module.params.get('ssl_configuration', None))
-    ssl_configuration_changed = update_listener_attr_difference(
-        update_listener_details, listener, 'ssl_configuration',
-        SSLConfigurationDetails, input_ssl_configuration)
+
+    input_ssl_configuration = oci_lb_utils.create_ssl_configuration(module.params.get('ssl_configuration', None))
+    existing_ssl_configuration = oci_utils.get_hashed_object(SSLConfigurationDetails, listener.ssl_configuration)
+    ssl_configuration_changed = oci_utils.check_and_update_attributes(
+        update_listener_details, 'ssl_configuration', input_ssl_configuration,
+        existing_ssl_configuration, False)
+
     input_connection_configuration = oci_lb_utils.create_connection_configuration(
         module.params.get('connection_configuration', None))
-    connection_configuration_changed = update_listener_attr_difference(
-        update_listener_details, listener, 'connection_configuration',
-        ConnectionConfiguration, input_connection_configuration)
-    changed = changed or ssl_configuration_changed or connection_configuration_changed
+    existing_connection_configuration = oci_utils.get_hashed_object(
+        ConnectionConfiguration, listener.connection_configuration)
+    connection_configuration_changed = oci_utils.check_and_update_attributes(
+        update_listener_details, 'connection_configuration', input_connection_configuration,
+        existing_connection_configuration, False)
+
+    input_hostname_names = module.params.get('hostname_names', None)
+    update_listener_details.hostname_names = listener.hostname_names
+    hostname_names_changed = False
+    if input_hostname_names is not None:
+        changed_hostname_names, hostname_names_changed = oci_lb_utils.check_and_return_component_list_difference(
+            input_hostname_names, listener.hostname_names, module.params.get('purge_hostname_names'))
+    if hostname_names_changed:
+        update_listener_details.hostname_names = changed_hostname_names
+
+    changed = changed or ssl_configuration_changed or connection_configuration_changed or hostname_names_changed
     get_logger().debug("Existing listener property values: %s, input property values: %s",
                        listener, update_listener_details)
     if changed:
-        response = oci_utils.call_with_backoff(lb_client.update_listener,
-                                               update_listener_details=update_listener_details, load_balancer_id=lb_id,
-                                               listener_name=name)
-        oci_lb_utils.verify_work_request(lb_client, response)
-        listener = oci_lb_utils.get_existing_load_balancer(
-            lb_client, module, lb_id).listeners.get(name)
-        get_logger().info("Successfully updated listener %s in load balancer %s",
-                          name, lb_id)
-    return changed, listener
-
-
-def update_listener_attr_difference(update_listener_details, listener,
-                                    attr_name, attr_class, input_attr_value):
-    changed = False
-    existing_attr_value = get_hashed_object(
-        attr_class, getattr(listener, attr_name))
-    if input_attr_value is None:
-        update_listener_details.__setattr__(
-            attr_name, existing_attr_value)
-    else:
-        changed = not input_attr_value.__eq__(existing_attr_value)
-        if changed:
-            update_listener_details.__setattr__(attr_name, input_attr_value)
-        else:
-            update_listener_details.__setattr__(attr_name, existing_attr_value)
-
-    return changed
-
-
-def get_hashed_object(class_type, object_with_value):
-    if object_with_value is None:
-        return None
-    HashedClass = oci_lb_utils.generate_subclass(class_type)
-    hashed_class_instance = HashedClass()
-    for attribute in hashed_class_instance.attribute_map.keys():
-        hashed_class_instance.__setattr__(
-            attribute, getattr(object_with_value, attribute))
-    return hashed_class_instance
+        result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type='listener',
+                                                                     function=lb_client.update_listener,
+                                                                     kwargs_function={
+                                                                         'update_listener_details': update_listener_details,
+                                                                         'load_balancer_id': lb_id,
+                                                                         'listener_name': name},
+                                                                     lb_client=lb_client,
+                                                                     get_sub_resource_fn=oci_lb_utils.get_listener,
+                                                                     kwargs_get={'lb_client': lb_client,
+                                                                                 'module': module,
+                                                                                 'load_balancer_id': lb_id,
+                                                                                 'name': name},
+                                                                     module=module
+                                                                     )
+    return result
 
 
 def get_listener_input_details(module):
@@ -354,40 +398,28 @@ def get_listener_input_details(module):
                                    'protocol': module.params.get('protocol'),
                                    'port': module.params.get('port'),
                                    'ssl_configuration': module.params.get('ssl_configuration', None),
-                                   'connection_configuration': module.params.get('connection_configuration', None)})
+                                   'connection_configuration': module.params.get('connection_configuration', None),
+                                   'hostname_names': module.params.get('hostname_names', None),
+                                   'path_route_set_name': module.params.get('path_route_set_name', None)})
     return listener_input_details
 
 
 def delete_listener(lb_client, module):
-    changed = False
-    listener = None
-    result = dict(
-        changed=False,
-        listener=''
-    )
-
     load_balancer_id = module.params.get('load_balancer_id')
     name = module.params.get('name')
-    listener = oci_lb_utils.get_existing_load_balancer(
-        lb_client, module, load_balancer_id).listeners.get(name)
-    try:
-        if listener:
-            get_logger().info("Deleting listener %s from load balancer %s",
-                              name, load_balancer_id)
-            response = oci_utils.call_with_backoff(lb_client.delete_listener, load_balancer_id=load_balancer_id,
-                                                   listener_name=name)
-            oci_lb_utils.verify_work_request(lb_client, response)
-            changed = True
-            get_logger().info("Successfully deleted listener %s in load balancer %s",
-                              name, load_balancer_id)
-    except ServiceError as ex:
-        get_logger().error("Failed to delete listener due to: %s", ex.message)
-        module.fail_json(msg=ex.message)
-    except ClientError as ex:
-        module.fail_json(msg=str(ex))
-    result['changed'] = changed
-    result['listener'] = to_dict(listener)
-    return result
+    return oci_lb_utils.delete_lb_resources_and_wait(resource_type="listener",
+                                                     function=lb_client.delete_listener,
+                                                     kwargs_function={
+                                                         'listener_name': name,
+                                                         'load_balancer_id': load_balancer_id},
+                                                     lb_client=lb_client,
+                                                     get_sub_resource_fn=oci_lb_utils.get_listener,
+                                                     kwargs_get={'lb_client': lb_client,
+                                                                 'module': module,
+                                                                 'load_balancer_id': load_balancer_id,
+                                                                 'name': name},
+                                                     module=module
+                                                     )
 
 
 def set_logger(input_logger):
@@ -402,7 +434,7 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_load_balancer_listener")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_common_arg_spec(supports_wait=True)
     module_args.update(dict(
         load_balancer_id=dict(type='str', required=True, aliases=['id']),
         default_backend_set_name=dict(type='str', required=False),
@@ -412,7 +444,11 @@ def main():
         protocol=dict(type='str', required=False),
         port=dict(type=int, required=False),
         ssl_configuration=dict(type=dict, required=False),
-        connection_configuration=dict(type=dict, required=False)
+        connection_configuration=dict(type=dict, required=False),
+        hostname_names=dict(type=list, required=False),
+        purge_hostname_names=dict(type='bool', required=False, default=True,
+                                  choices=[True, False]),
+        path_route_set_name=dict(type='str', required=False)
     ))
 
     module = AnsibleModule(

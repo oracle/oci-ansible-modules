@@ -23,7 +23,7 @@ description:
     - This module allows the user to create, retire and reactivate tag namespaces in OCI. A tag namespace is a
       container for tag keys. It consists of a name, and zero or more tag key definitions. Tag namespaces are not case
       sensitive, and must be unique across the tenancy.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment containing the tag namespace (the compartment may also be the root
@@ -49,7 +49,7 @@ options:
         description: Whether a retired tag namespace needs to be reactivated
         required: false
         default: "no"
-        choices: ["yes", "no"]
+        type: bool
     state:
         description: The state of the tag namespace that must be asserted to. When I(state=present), and the
                      tag namespace doesn't exist, the tag namespace is created. When I(state=absent), the tag namespace

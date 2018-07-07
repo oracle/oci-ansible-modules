@@ -21,7 +21,7 @@ short_description: Retrieve details about shapes that can be used to launch inst
 description:
     - This module retrieves details about shapes that can be used to launch instances within a specified Compartment in
       OCI Compute Service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: The OCID of the compartment (either the tenancy or another compartment in the tenancy).

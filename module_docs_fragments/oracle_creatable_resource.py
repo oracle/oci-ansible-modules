@@ -4,6 +4,7 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
+
 class ModuleDocFragment(object):
     DOCUMENTATION = '''
     options:
@@ -13,7 +14,7 @@ class ModuleDocFragment(object):
                          to true, forcefully creates a copy of the resource, even if it already exists.This option is
                          mutually exclusive with I(key_by).
             required: false
-            default: no
+            default: False
             type: bool
         key_by:
             description: The list of comma-separated attributes of this resource which should be used to uniquely

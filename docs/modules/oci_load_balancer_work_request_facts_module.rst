@@ -4,7 +4,7 @@
 oci_load_balancer_work_request_facts - Fetch details of all work_requests of a load balancer
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.5
+.. versionadded:: 2.x
 
 
 
@@ -98,7 +98,7 @@ Options
     <tr>
     <td>config_profile_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
+    <td>DEFAULT</td>
     <td></td>
     <td>
         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
@@ -186,11 +186,11 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
     <tr>
     <td>work_requests</td>
     <td>
-        <div>Attributes of the Work Requests fecthed.</div>
+        <div>Attributes of the Work Requests fetched.</div>
     </td>
     <td align=center>success</td>
     <td align=center>complex</td>
-    <td align=center>[{'lifecycle_state': 'SUCCEEDED', 'time_finished': '2018-06-22T09:02:54.687000+00:00', 'time_accepted': '2018-06-22T09:02:38.505000+00:00', 'error_details': [], 'load_balancer_id': 'ocid1.loadbalancer..aaaa', 'message': {'eventId': '43644f81-8724-44b0-a13', 'workRequestId': 'ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx', 'workflowName': 'AddHostnameWorkflow', 'loadBalancerId': 'ocid1.loadbalancer..aaaa', 'message': 'OK', 'type': 'SUCCESS'}, 'type': 'CreateHostname', 'id': 'ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx'}, {'lifecycle_state': 'SUCCEEDED', 'time_finished': '2018-06-22T09:06:10.111000+00:00', 'time_accepted': '2018-06-22T09:05:56.508000+00:00', 'error_details': [], 'load_balancer_id': 'ocid1.loadbalancer..aaaa', 'message': {'eventId': '43644f81-8724-44b0-a13', 'workRequestId': 'ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx', 'workflowName': 'AddHostnameWorkflow', 'loadBalancerId': 'ocid1.loadbalancer..aaaa', 'message': 'OK', 'type': 'SUCCESS'}, 'type': 'CreateHostname', 'id': 'ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx'}]</td>
+    <td align=center></td>
     </tr>
 
     <tr>
@@ -273,7 +273,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
         </td>
         <td align=center>always</td>
         <td align=center>string</td>
-        <td align=center>CreateListener</td>
+        <td align=center>[{'lifecycle_state': 'SUCCEEDED', 'time_finished': '2018-06-22T09:02:54.687000+00:00', 'time_accepted': '2018-06-22T09:02:38.505000+00:00', 'error_details': [], 'load_balancer_id': 'ocid1.loadbalancer..aaaa', 'message': {'eventId': '43644f81-8724-44b0-a13', 'workRequestId': 'ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx', 'workflowName': 'AddHostnameWorkflow', 'loadBalancerId': 'ocid1.loadbalancer..aaaa', 'message': 'OK', 'type': 'SUCCESS'}, 'type': 'CreateHostname', 'id': 'ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx'}, {'lifecycle_state': 'SUCCEEDED', 'time_finished': '2018-06-22T09:02:54.687000+00:00', 'time_accepted': '2018-06-22T09:02:38.505000+00:00', 'error_details': [], 'load_balancer_id': 'ocid1.loadbalancer..aaaa', 'message': {'eventId': '43644f81-8724-44b0-a14', 'workRequestId': 'ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx', 'workflowName': 'AddHostnameWorkflow', 'loadBalancerId': 'ocid1.loadbalancer..aaaa', 'message': 'OK', 'type': 'SUCCESS'}, 'type': 'CreateHostname', 'id': 'ocid1.loadbalancerworkrequest.oc1.iad.xxxxxEXAMPLExxxxx'}]</td>
         </tr>
 
         <tr>
@@ -283,7 +283,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
         </td>
         <td align=center>always</td>
         <td align=center>string</td>
-        <td align=center>ocid1.loadbalancerworkrequest.oc1.axdf</td>
+        <td align=center>ocid1.loadbalancerworkrequest.oc1.xxxxxEXAMPLExxxxx</td>
         </tr>
 
         </table>

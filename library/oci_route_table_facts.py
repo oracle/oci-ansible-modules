@@ -23,7 +23,7 @@ short_description: Fetches details of a specific Route Table or a
                    compartment
 description:
     - Fetches details of a specific Route Table or a list of Route tables in the specified VCN and compartment.
-version_added: "2.5"
+version_added: "2.x"
 options:
     compartment_id:
         description: Identifier of the compartment details about
@@ -177,11 +177,11 @@ def list_route_tables(virtual_network_client, module):
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args = dict(
+    module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         vcn_id=dict(type='str', required=False),
         rt_id=dict(type='str', required=False, aliases=['id'])
-    )
+    ))
     module = AnsibleModule(
         argument_spec=module_args,
         mutually_exclusive=[

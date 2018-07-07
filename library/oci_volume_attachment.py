@@ -21,7 +21,7 @@ module: oci_volume_attachment
 short_description: Attach or detach a volume in OCI Block Volume service
 description:
     - This module allows the user to attach a volume to an instance or detach a volume from an instance in OCI.
-version_added: "2.5"
+version_added: "2.x"
 options:
     instance_id:
         description: The OCID of the instance. Required to attach a volume to an instance with I(state=present).

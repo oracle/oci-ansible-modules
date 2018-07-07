@@ -21,7 +21,7 @@ short_description: Retrieve details of tag key definitions for a specified tag n
 description:
     - This module retrieves details of all tag key definitions of a specified tag namespace, or a specific tag key
       definition in OCI.
-version_added: "2.5"
+version_added: "2.x"
 options:
     tag_namespace_id:
         description: The OCID of the tag namespace whose tag definitions must be retrieved

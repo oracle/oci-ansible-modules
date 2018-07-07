@@ -21,7 +21,7 @@ module: oci_boot_volume
 short_description: Manage boot volumes in OCI Block Volume service
 description:
     - This module allows the user to perform delete & update operations on boot volumes in OCI Block Volume service.
-version_added: "2.5"
+version_added: "2.x"
 options:
     lookup_attached_instance:
         description: Whether to fetch information of the compute instance attached to this boot volume from all the
