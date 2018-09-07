@@ -22,7 +22,7 @@ short_description: Retrieve facts of boot volumes in OCI Block Volume service
 description:
     - This module retrieves information of a specified boot volume or all the boot volumes in a specified compartment
       and availability domain.
-version_added: "2.x"
+version_added: "2.5"
 options:
     availability_domain:
         description: The name of the Availability Domain. Required to get information of all the boot volumes in the
@@ -55,7 +55,7 @@ options:
         default: no
         type: bool
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -205,13 +205,13 @@ except ImportError:
 
 
 @check_mode
-def add_attached_instance_info(config, module, boot_volumes, lookup_attached_instance):
-    compute_client = ComputeClient(config)
+def add_attached_instance_info(module, boot_volumes, lookup_attached_instance):
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
     if boot_volumes:
         for boot_volume in boot_volumes:
             try:
                 boot_volume['attached_instance_information'] = oci_utils.get_attached_instance_info(
-                    config,
+                    module,
                     lookup_attached_instance,
                     list_attachments_fn=compute_client.list_boot_volume_attachments,
                     list_attachments_args={"boot_volume_id": boot_volume["id"],
@@ -223,7 +223,7 @@ def add_attached_instance_info(config, module, boot_volumes, lookup_attached_ins
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         availability_domain=dict(type='str', required=False),
         compartment_id=dict(type='str', required=False),
@@ -246,8 +246,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    block_storage_client = BlockstorageClient(config)
+    block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
     boot_volume_id = module.params['boot_volume_id']
 
@@ -261,12 +260,13 @@ def main():
             compartment_id = module.params['compartment_id']
             result = to_dict(oci_utils.list_all_resources(block_storage_client.list_boot_volumes,
                                                           compartment_id=compartment_id,
-                                                          availability_domain=availability_domain))
+                                                          availability_domain=availability_domain,
+                                                          display_name=module.params['display_name']))
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    add_attached_instance_info(config, module, result, module.params['lookup_attached_instance'])
+    add_attached_instance_info(module, result, module.params['lookup_attached_instance'])
 
     module.exit_json(boot_volumes=result)
 

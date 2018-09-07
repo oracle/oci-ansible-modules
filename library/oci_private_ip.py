@@ -21,7 +21,7 @@ module: oci_private_ip
 short_description: Manage private IPs in OCI
 description:
     - This module allows the user to create, delete and update private IPs in OCI.
-version_added: "2.x"
+version_added: "2.5"
 options:
     display_name:
         description: A user-friendly name. Does not have to be unique, and it's changeable. Avoid entering confidential
@@ -175,8 +175,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
 
     state = module.params['state']
     private_ip_id = module.params['private_ip_id']

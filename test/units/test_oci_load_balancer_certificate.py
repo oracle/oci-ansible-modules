@@ -15,6 +15,7 @@ import six
 
 try:
     import oci
+    from oci.util import to_dict
     from oci.load_balancer.models import Certificate, WorkRequest, CreateCertificateDetails
     from oci.exceptions import ServiceError, ClientError
 except ImportError:
@@ -44,23 +45,22 @@ def lb_client(mocker):
 
 
 @pytest.fixture()
-def oci_wait_until_patch(mocker):
-    return mocker.patch.object(oci, 'wait_until')
-
-
-@pytest.fixture()
-def get_existing_certificate_patch(mocker):
-    return mocker.patch.object(oci_load_balancer_certificate, 'get_existing_certificate')
+def get_certificate_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'get_certificate')
 
 
 @pytest.fixture()
 def is_same_certificate_patch(mocker):
-    return mocker.patch.object(oci_load_balancer_certificate, 'is_same_certificate')
+    return mocker.patch.object(oci_lb_utils, 'is_same_certificate')
 
 
 @pytest.fixture()
-def verify_work_request_patch(mocker):
-    return mocker.patch.object(oci_lb_utils, 'verify_work_request')
+def create_or_update_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'create_or_update_lb_resources_and_wait')
+
+@pytest.fixture()
+def delete_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'delete_lb_resources_and_wait')
 
 
 def setUpModule():
@@ -69,26 +69,24 @@ def setUpModule():
     oci_load_balancer_certificate.set_logger(logging)
 
 
-def test_create_certificate(lb_client, get_existing_certificate_patch, verify_work_request_patch):
+def test_create_certificate(lb_client, get_certificate_patch, create_or_update_lb_resources_and_wait_patch):
     certificate_bundle = get_certificate_bundle()
     module = get_module(certificate_bundle)
     certificate = get_certificate(certificate_bundle)
-    get_existing_certificate_patch.side_effect = [None, certificate]
-    lb_client.create_certificate.return_value = get_response(
-        204, None, None, None)
-    result = oci_load_balancer_certificate.create_certificate(
-        lb_client, module)
+    get_certificate_patch.side_effect = [None, certificate]
+    create_or_update_lb_resources_and_wait_patch.return_value = dict(certificate=to_dict(certificate), changed=True)
+    result = oci_load_balancer_certificate.create_certificate(lb_client, module)
     delete_cert_bundle(certificate_bundle)
     assert result['changed'] is True
 
 
-def test_create_certificate_certificate_exists_with_different_attribute_values(lb_client, get_existing_certificate_patch, is_same_certificate_patch):
+def test_create_certificate_certificate_exists_with_different_attribute_values(lb_client, get_certificate_patch, is_same_certificate_patch):
     module = get_module(dict())
     error_message = "Certificate " + \
         module.params.get(
             'name') + " with different attribute value already available in load balancer " + module.params.get('load_balancer_id')
     certificate = get_certificate(dict())
-    get_existing_certificate_patch.return_value = certificate
+    get_certificate_patch.return_value = certificate
     is_same_certificate_patch.return_value = False
     try:
         oci_load_balancer_certificate.create_certificate(
@@ -96,46 +94,40 @@ def test_create_certificate_certificate_exists_with_different_attribute_values(l
     except Exception as ex:
         assert error_message in ex.args[0]
 
-def test_create_certificate_certificate_exists_with_same_attribute_values(lb_client, get_existing_certificate_patch, is_same_certificate_patch):
+def test_create_certificate_certificate_exists_with_same_attribute_values(lb_client, get_certificate_patch, is_same_certificate_patch):
     module = get_module(dict())
     certificate = get_certificate(dict())
-    get_existing_certificate_patch.return_value = certificate
+    get_certificate_patch.return_value = certificate
     is_same_certificate_patch.return_value = True
     result = oci_load_balancer_certificate.create_certificate(lb_client, module)
     assert result['changed'] is False
 
 
 
-def test_create_certificate_service_error(lb_client, get_existing_certificate_patch):
+def test_create_certificate_service_error(lb_client, get_certificate_patch):
     error_message = "Internal Server Error"
     module = get_module(dict())
-    certificate = get_certificate(dict())
-    get_existing_certificate_patch.return_value = None
+    get_certificate_patch.return_value = None
     lb_client.create_certificate.side_effect = ServiceError(
         499, 'InternalServerError', dict(), error_message)
     try:
-        result = oci_load_balancer_certificate.create_certificate(
-            lb_client, module)
+        oci_load_balancer_certificate.create_certificate(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
-def test_create_certificate_client_error(lb_client, get_existing_certificate_patch, verify_work_request_patch):
+def test_create_certificate_client_error(lb_client, get_certificate_patch):
     error_message = 'Work Request Failed'
     module = get_module(dict())
-    certificate = get_certificate(dict())
-    get_existing_certificate_patch.return_value = None
-    lb_client.create_certificate.return_value = get_response(
-        204, None, None, None)
-    verify_work_request_patch.side_effect = ClientError(
+    get_certificate_patch.return_value = None
+    create_or_update_lb_resources_and_wait_patch.side_effect = ClientError(
         Exception('Work Request Failed'))
     try:
-        result = oci_load_balancer_certificate.create_certificate(
-            lb_client, module)
+        oci_load_balancer_certificate.create_certificate(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
-
+'''
 def test_get_existing_certificate(lb_client):
     certificate_bundle = get_certificate_bundle()
     module = get_module(certificate_bundle)
@@ -196,59 +188,14 @@ def test_is_same_certificate_false():
     result = oci_load_balancer_certificate.is_same_certificate(create_certificate_details, certificate)
     delete_cert_bundle(certificate_bundle)
     assert result is False
+'''
 
-
-def test_delete_certificate(lb_client, get_existing_certificate_patch, verify_work_request_patch):
+def test_delete_certificate(lb_client, delete_lb_resources_and_wait_patch):
     module = get_module(dict())
     certificate = get_certificate(dict())
-    get_existing_certificate_patch.return_value = certificate
-    lb_client.delete_certificate.return_value = get_response(
-        204, None, None, None)
-    result = oci_load_balancer_certificate.delete_certificate(
-        lb_client, module)
+    delete_lb_resources_and_wait_patch.return_value = dict(certificate=to_dict(certificate), changed=True)
+    result = oci_load_balancer_certificate.delete_certificate(lb_client, module)
     assert result['changed'] is True
-
-
-def test_delete_certificate_already_deleted(lb_client, get_existing_certificate_patch, verify_work_request_patch):
-    module = get_module(dict())
-    certificate = get_certificate(dict())
-    get_existing_certificate_patch.return_value = None
-    lb_client.delete_certificate.return_value = get_response(
-        204, None, None, None)
-    result = oci_load_balancer_certificate.delete_certificate(
-        lb_client, module)
-    assert result['changed'] is False
-
-
-def test_delete_certificate_service_error(lb_client, get_existing_certificate_patch):
-    error_message = "Internal Server Error"
-    module = get_module(dict())
-    certificate = get_certificate(dict())
-    get_existing_certificate_patch.return_value = certificate
-    lb_client.delete_certificate.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
-    try:
-        oci_load_balancer_certificate.delete_certificate(
-            lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
-
-def test_delete_certificate_client_error(lb_client, get_existing_certificate_patch, verify_work_request_patch):
-    error_message = 'Work Request Failed'
-    module = get_module(dict())
-    certificate = get_certificate(dict())
-    get_existing_certificate_patch.return_value = None
-    lb_client.delete_certificate.return_value = get_response(
-        204, None, None, None)
-    verify_work_request_patch.side_effect = ClientError(
-        Exception('Work Request Failed'))
-    try:
-        result = oci_load_balancer_certificate.delete_certificate(
-            lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
 
 def get_certificate(cert_bundle):
     certificate = Certificate()

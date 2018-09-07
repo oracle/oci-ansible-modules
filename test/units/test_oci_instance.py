@@ -57,6 +57,7 @@ def get_module():
               'availability_domain': 'BnQb:PHX-AD-1',
               'compartment_id': 'ocid1.compartment.oc1.....vm62xq',
               'image_id': 'ocid1.image.oc1.phx....sa7klnoa',
+              'fault_domain': 'FAULT-DOMAIN-1',
               'shape': 'BM.Standard1.36',
               'metadata': {'foo': 'bar'},
               'extended_metadata': {'baz': 'quux'},

@@ -41,11 +41,6 @@ def lb_client(mocker):
 
 
 @pytest.fixture()
-def oci_wait_until_patch(mocker):
-    return mocker.patch.object(oci, 'wait_until')
-
-
-@pytest.fixture()
 def create_path_route_set_patch(mocker):
     return mocker.patch.object(oci_load_balancer_path_route_set, 'create_path_route_set')
 
@@ -56,8 +51,13 @@ def update_path_route_set_patch(mocker):
 
 
 @pytest.fixture()
-def verify_work_request_patch(mocker):
-    return mocker.patch.object(oci_lb_utils, 'verify_work_request')
+def create_or_update_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'create_or_update_lb_resources_and_wait')
+
+
+@pytest.fixture()
+def delete_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'delete_lb_resources_and_wait')
 
 
 @pytest.fixture()
@@ -89,7 +89,7 @@ def test_create_or_update_path_route_set_update(lb_client, update_path_route_set
     module = get_module(dict())
     path_route_set = create_default_path_route_set()
     get_existing_resource_patch.return_value = path_route_set
-    update_path_route_set_patch.return_value = True, path_route_set
+    update_path_route_set_patch.return_value = {'path_route_set': to_dict(path_route_set), 'changed': True}
     result = oci_load_balancer_path_route_set.create_or_update_path_route_set(lb_client, module)
     assert result['path_route_set']['name'] is path_route_set.name
 
@@ -117,101 +117,64 @@ def test_create_or_update_path_route_set_client_error(lb_client, check_and_creat
         assert error_message in ex.args[0]
 
 
-def test_create_path_route_set(lb_client, verify_work_request_patch, get_existing_resource_patch):
+def test_create_path_route_set(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict(path_routes=[{
         "backend_set_name": "test_back_end",
         "path": "/test_resource/catalog",
         "path_match_type": dict(match_type=PathMatchType.MATCH_TYPE_EXACT_MATCH)
     }]))
     path_route_set = create_default_path_route_set()
-    lb_client.create_path_route_set.return_value = get_response(
-        204, None, path_route_set, None)
-    get_existing_resource_patch.return_value = path_route_set
-    result = oci_load_balancer_path_route_set.create_path_route_set(
-        lb_client, module)
+    create_or_update_lb_resources_and_wait_patch.return_value = {
+        'path_route_set': to_dict(path_route_set), 'changed': True}
+    result = oci_load_balancer_path_route_set.create_path_route_set(lb_client, module)
     assert result['path_route_set']['name'] == path_route_set.name
 
 
-def test_update_path_route_set_purge_old_path_routes(lb_client, verify_work_request_patch, get_existing_resource_patch):
+def test_update_path_route_set_purge_old_path_routes(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict(path_routes=[{
         "backend_set_name": "test_back_end",
         "path": "/test_resource/catalog",
         "path_match_type": dict(match_type=PathMatchType.MATCH_TYPE_PREFIX_MATCH)
     }], name='path_route_set1', purge_path_routes=True))
     path_route_set = create_default_path_route_set()
-    lb_client.update_path_route_set.return_value = get_response(
-        204, None, path_route_set, None)
-    get_existing_resource_patch.return_value = path_route_set
-    changed, path_route_set = oci_load_balancer_path_route_set.update_path_route_set(
+    create_or_update_lb_resources_and_wait_patch.return_value = {
+        'path_route_set': to_dict(path_route_set), 'changed': True}
+    result = oci_load_balancer_path_route_set.update_path_route_set(
         lb_client, module, 'ocid1.loadbalancer.aaa', path_route_set, 'path_route_set1')
-    assert changed is True
+    assert result['changed'] is True
 
 
-def test_update_path_route_set_purge_empty_path_routes(lb_client, verify_work_request_patch, get_existing_resource_patch):
+def test_update_path_route_set_purge_empty_path_routes(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict(path_routes=[], name='path_route_set1', purge_path_routes=True))
     path_route_set = create_default_path_route_set()
-    lb_client.update_path_route_set.return_value = get_response(
-        204, None, path_route_set, None)
-    get_existing_resource_patch.return_value = path_route_set
-    changed, path_route_set = oci_load_balancer_path_route_set.update_path_route_set(
+    create_or_update_lb_resources_and_wait_patch.return_value = {
+        'path_route_set': to_dict(path_route_set), 'changed': True}
+    result = oci_load_balancer_path_route_set.update_path_route_set(
         lb_client, module, 'ocid1.loadbalancer.aaa', path_route_set, 'path_route_set1')
-    assert changed is True
+    assert result['changed'] is True
 
 
-def test_update_path_route_set_append_new_path_routes(lb_client, verify_work_request_patch, get_existing_resource_patch):
+def test_update_path_route_set_append_new_path_routes(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict(path_routes=[{
         "backend_set_name": "test_back_end",
         "path": "/test_resource/catalog",
         "path_match_type": dict(match_type=PathMatchType.MATCH_TYPE_PREFIX_MATCH)
     }], name='path_route_set1', purge_path_routes=False))
     path_route_set = create_default_path_route_set()
-    lb_client.update_path_route_set.return_value = get_response(
-        204, None, path_route_set, None)
-    get_existing_resource_patch.return_value = path_route_set
-    changed, path_route_set = oci_load_balancer_path_route_set.update_path_route_set(
+    create_or_update_lb_resources_and_wait_patch.return_value = {
+        'path_route_set': to_dict(path_route_set), 'changed': True}
+    result = oci_load_balancer_path_route_set.update_path_route_set(
         lb_client, module, 'ocid1.loadbalancer.aaa', path_route_set, 'path_route_set1')
-    assert changed is True
-
-
-def test_delete_path_route_set(lb_client, verify_work_request_patch, get_existing_resource_patch):
-    module = get_module(dict())
-    path_route_set = create_default_path_route_set()
-    lb_client.delete_path_route_set.return_value = get_response(
-        204, None, path_route_set, None)
-    get_existing_resource_patch.return_value = path_route_set
-    result = oci_load_balancer_path_route_set.delete_path_route_set(lb_client, module)
     assert result['changed'] is True
 
-def test_delete_path_route_set_not_found(lb_client, verify_work_request_patch, get_existing_resource_patch):
+
+def test_delete_path_route_set(lb_client, delete_lb_resources_and_wait_patch):
     module = get_module(dict())
-    get_existing_resource_patch.return_value = None
+    path_route_set = create_default_path_route_set()
+    delete_lb_resources_and_wait_patch.return_value = {
+        'path_route_set': to_dict(path_route_set), 'changed': True}
     result = oci_load_balancer_path_route_set.delete_path_route_set(lb_client, module)
-    assert result['changed'] is False
-
-def test_delete_path_route_set_service_error(lb_client, verify_work_request_patch, get_existing_resource_patch):
-    error_message = "Internal Server Error"
-    module = get_module(dict())
-    path_route_set = create_default_path_route_set()
-    lb_client.delete_path_route_set.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
-    get_existing_resource_patch.return_value = path_route_set
-    try:
-        oci_load_balancer_path_route_set.delete_path_route_set(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
-def test_delete_backend_client_error(lb_client, verify_work_request_patch, get_existing_resource_patch):
-    error_message = "Work Request Failed"
-    module = get_module(dict())
-    path_route_set = create_default_path_route_set()
-    lb_client.delete_path_route_set.return_value = get_response(
-        200, None, path_route_set, None)
-    get_existing_resource_patch.return_value = path_route_set
-    verify_work_request_patch.side_effect = ClientError(Exception('Work Request Failed'))
-    try:
-        oci_load_balancer_path_route_set.delete_path_route_set(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
+    assert result['changed'] is True
 
 
 def create_default_path_route_set():

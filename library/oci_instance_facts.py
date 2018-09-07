@@ -21,7 +21,7 @@ short_description: Retrieve details about one or more Compute instances in OCI C
 description:
     - This module retrieves details about a specific Compute instance, or all Compute instances in a specified
       Compartment in a specified Availability Domain in OCI Compute Service.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment (either the tenancy or another compartment in the tenancy). Required
@@ -36,7 +36,7 @@ options:
         aliases: ['id']
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -303,9 +303,11 @@ def list_instances(compute_client, module):
         availability_domain = module.params['availability_domain']
         if availability_domain:
             instances = oci_utils.list_all_resources(compute_client.list_instances, compartment_id=cid,
-                                                     availability_domain=availability_domain)
+                                                     availability_domain=availability_domain,
+                                                     display_name=module.params['display_name'])
         else:
-            instances = oci_utils.list_all_resources(compute_client.list_instances, compartment_id=cid)
+            instances = oci_utils.list_all_resources(compute_client.list_instances, compartment_id=cid,
+                                                     display_name=module.params['display_name'])
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
@@ -347,7 +349,7 @@ def add_volume_attachment_facts(compute_client, result):
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         availability_domain=dict(type='str', required=False),
@@ -363,8 +365,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    compute_client = ComputeClient(config)
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
 
     compartment_id = module.params['compartment_id']
     id = module.params['instance_id']

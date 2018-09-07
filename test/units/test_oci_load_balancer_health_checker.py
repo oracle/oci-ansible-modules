@@ -12,6 +12,7 @@ from ansible.module_utils.oracle import oci_utils, oci_lb_utils
 
 try:
     import oci
+    from oci.util import to_dict
     from oci.load_balancer.models import HealthChecker
     from oci.exceptions import ServiceError, ClientError
 except ImportError:
@@ -41,13 +42,13 @@ def lb_client(mocker):
 
 
 @pytest.fixture()
-def get_existing_health_checker_patch(mocker):
-    return mocker.patch.object(oci_load_balancer_health_checker, 'get_existing_health_checker')
+def get_existing_resource_patch(mocker):
+    return mocker.patch.object(oci_utils, 'get_existing_resource')
 
 
 @pytest.fixture()
-def verify_work_request_patch(mocker):
-    return mocker.patch.object(oci_lb_utils, 'verify_work_request')
+def create_or_update_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'create_or_update_lb_resources_and_wait')
 
 def setUpModule():
     logging.basicConfig(filename='/tmp/oci_ansible_module.log',
@@ -55,76 +56,21 @@ def setUpModule():
     oci_load_balancer_health_checker.set_logger(logging)
 
 
-def test_update_health_checker(lb_client, verify_work_request_patch, get_existing_health_checker_patch):
+def test_update_health_checker(lb_client, get_existing_resource_patch, create_or_update_lb_resources_and_wait_patch):
     module = get_module()
     health_checker = get_health_checker()
-    get_existing_health_checker_patch.return_value = health_checker
-    lb_client.update_health_checker.return_value = get_response(204, None, health_checker, None)
+    get_existing_resource_patch.return_value = health_checker
+    create_or_update_lb_resources_and_wait_patch.return_value = dict(health_checker=to_dict(health_checker), changed=True)
     result = oci_load_balancer_health_checker.update_health_checker(lb_client, module)
     assert result['changed'] is True
 
-def test_update_health_checker_no_change(lb_client, verify_work_request_patch, get_existing_health_checker_patch):
+def test_update_health_checker_no_change(lb_client, get_existing_resource_patch):
     additional_properties = dict({'port': 82})
     module = get_module(additional_properties)
     health_checker = get_health_checker()
-    get_existing_health_checker_patch.return_value = health_checker
-    lb_client.update_health_checker.return_value = get_response(204, None, health_checker, None)
+    get_existing_resource_patch.return_value = health_checker
     result = oci_load_balancer_health_checker.update_health_checker(lb_client, module)
     assert result['changed'] is False
-
-def test_update_health_checker_service_error(lb_client, verify_work_request_patch, get_existing_health_checker_patch):
-    error_message = "Internal Server Error"
-    module = get_module()
-    health_checker = get_health_checker()
-    get_existing_health_checker_patch.return_value = health_checker
-    lb_client.update_health_checker.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
-    try:
-        oci_load_balancer_health_checker.update_health_checker(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
-def test_update_health_checker_client_error(lb_client, verify_work_request_patch, get_existing_health_checker_patch):
-    error_message = 'Work Request Failed'
-    module = get_module()
-    health_checker = get_health_checker()
-    get_existing_health_checker_patch.return_value = health_checker
-    lb_client.update_health_checker.return_value = get_response(204, None, health_checker, None)
-    verify_work_request_patch.side_effect = ClientError(Exception('Work Request Failed'))
-    try:
-        oci_load_balancer_health_checker.update_health_checker(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
-def test_get_existing_health_checker(lb_client):
-    module = get_module()
-    health_checker = get_health_checker()
-    lb_client.get_health_checker.return_value = get_response(200, None, health_checker, None)
-    result = oci_load_balancer_health_checker.get_existing_health_checker(
-        lb_client, module, 'ocid1.loadbalancer.aaaa', 'backend_set')
-    assert result.protocol == health_checker.protocol
-
-
-def test_get_existing_health_checker_not_found(lb_client):
-    module = get_module()
-    health_checker = get_health_checker()
-    lb_client.get_health_checker.side_effect = ServiceError(
-        404, 'NotFound', dict(), None)
-    result = oci_load_balancer_health_checker.get_existing_health_checker(
-        lb_client, module, 'ocid1.loadbalancer.aaaa', 'backend_set')
-    assert result is None
-
-def test_get_existing_health_checker_service_error(lb_client):
-    error_message = "Internal Server Error"
-    module = get_module()
-    lb_client.get_health_checker.side_effect = ServiceError(
-        499, 'NotFound', dict(), error_message)
-    try:
-        oci_load_balancer_health_checker.get_existing_health_checker(
-        lb_client, module, 'ocid1.loadbalancer.aaaa', 'backend_set')
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
 
 def get_health_checker():
     health_checker = HealthChecker()

@@ -25,7 +25,7 @@ from oci.util import to_dict, Sentinel
 
 from ansible.module_utils.basic import _load_params
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -54,6 +54,7 @@ def get_common_arg_spec(supports_create=False, supports_wait=False):
         api_user_fingerprint=dict(type='str', required=False, no_log=True),
         api_user_key_file=dict(type='str', required=False),
         api_user_key_pass_phrase=dict(type='str', required=False, no_log=True),
+        auth_type=dict(type='str', required=False, choices=['api_key', 'instance_principal'], default='api_key'),
         tenancy=dict(type='str', required=False),
         region=dict(type='str', required=False)
     )
@@ -70,7 +71,16 @@ def get_common_arg_spec(supports_create=False, supports_wait=False):
     return common_args
 
 
-def get_oci_config(module):
+def get_facts_module_arg_spec(filter_by_name=False):
+    facts_module_arg_spec = get_common_arg_spec()
+    if filter_by_name:
+        facts_module_arg_spec.update(name=dict(type='str', required=False))
+    else:
+        facts_module_arg_spec.update(display_name=dict(type='str', required=False))
+    return facts_module_arg_spec
+
+
+def get_oci_config(module, service_client_class=None):
     """Return the OCI configuration to use for all OCI API calls. The effective OCI configuration is derived by merging
     any overrides specified for configuration attributes through Ansible module options or environment variables. The
     order of precedence for deriving the effective configuration dict is:
@@ -80,66 +90,119 @@ def get_oci_config(module):
         a. Ansible Module option
         b. Environment variable
         and override the value in the config dict in that order."""
-    config = None
+    config = {}
 
+    config_file = module.params.get('config_file_location')
+    _debug("Config file through module options - {0} ".format(config_file))
+    if not config_file:
+        if 'OCI_CONFIG_FILE' in os.environ:
+            config_file = os.environ['OCI_CONFIG_FILE']
+            _debug("Config file through OCI_CONFIG_FILE environment variable - {0}".format(config_file))
+        else:
+            config_file = "~/.oci/config"
+            _debug("Config file (fallback) - {0} ".format(config_file))
+
+    config_profile = module.params.get('config_profile_name')
+    if not config_profile:
+        if 'OCI_CONFIG_PROFILE' in os.environ:
+            config_profile = os.environ['OCI_CONFIG_PROFILE']
+        else:
+            config_profile = "DEFAULT"
     try:
-        config_file = module.params.get('config_file_location')
-        _debug("Config file through module options - {} ".format(config_file))
-        if not config_file:
-            if 'OCI_CONFIG_FILE' in os.environ:
-                config_file = os.environ['OCI_CONFIG_FILE']
-                _debug("Config file through OCI_CONFIG_FILE environment variable - {}".format(config_file))
-            else:
-                config_file = "~/.oci/config"
-                _debug("Config file (fallback) - {} ".format(config_file))
-
-        config_profile = module.params.get('config_profile_name')
-        if not config_profile:
-            if 'OCI_CONFIG_PROFILE' in os.environ:
-                config_profile = os.environ['OCI_CONFIG_PROFILE']
-            else:
-                config_profile = "DEFAULT"
-
         config = oci.config.from_file(file_location=config_file, profile_name=config_profile)
-        config["additional_user_agent"] = "Oracle-Ansible/{}".format(__version__)
+    except (ConfigFileNotFound, InvalidConfig, InvalidPrivateKey, MissingPrivateKeyPassphrase) as ex:
+        if not _is_instance_principal_auth(module):
+            # When auth_type is not instance_principal, config file is required
+            module.fail_json(msg=str(ex))
+        else:
+            _debug("Ignore {0} as the auth_type is set to instance_principal".format(str(ex)))
+            # if instance_principal auth is used, an empty 'config' map is used below.
 
-        # Merge any overrides through other IAM options
-        _merge_auth_option(config, module, module_option_name="api_user", env_var_name="OCI_USER_ID",
-                           config_attr_name="user")
-        _merge_auth_option(config, module, module_option_name="api_user_fingerprint",
-                           env_var_name="OCI_USER_FINGERPRINT", config_attr_name="fingerprint")
-        _merge_auth_option(config, module, module_option_name="api_user_key_file",
-                           env_var_name="OCI_USER_KEY_FILE", config_attr_name="key_file")
-        _merge_auth_option(config, module, module_option_name="api_user_key_pass_phrase",
-                           env_var_name="OCI_USER_KEY_PASS_PHRASE", config_attr_name="pass_phrase")
-        _merge_auth_option(config, module, module_option_name="tenancy",
-                           env_var_name="OCI_TENANCY", config_attr_name="tenancy")
-        _merge_auth_option(config, module, module_option_name="region",
-                           env_var_name="OCI_REGION", config_attr_name="region")
-    except (ConfigFileNotFound, InvalidConfig, InvalidPrivateKey,
-            MissingPrivateKeyPassphrase) as ex:
-        module.fail_json(msg=ex.args)
+    config["additional_user_agent"] = "Oracle-Ansible/{0}".format(__version__)
+    # Merge any overrides through other IAM options
+    _merge_auth_option(config, module, module_option_name="api_user", env_var_name="OCI_USER_ID",
+                       config_attr_name="user")
+    _merge_auth_option(config, module, module_option_name="api_user_fingerprint",
+                       env_var_name="OCI_USER_FINGERPRINT", config_attr_name="fingerprint")
+    _merge_auth_option(config, module, module_option_name="api_user_key_file",
+                       env_var_name="OCI_USER_KEY_FILE", config_attr_name="key_file")
+    _merge_auth_option(config, module, module_option_name="api_user_key_pass_phrase",
+                       env_var_name="OCI_USER_KEY_PASS_PHRASE", config_attr_name="pass_phrase")
+    _merge_auth_option(config, module, module_option_name="tenancy",
+                       env_var_name="OCI_TENANCY", config_attr_name="tenancy")
+    _merge_auth_option(config, module, module_option_name="region",
+                       env_var_name="OCI_REGION", config_attr_name="region")
+
+    # Redirect calls to home region for IAM service.
+    if service_client_class == IdentityClient:
+        _debug("Region passed for module invocation - {0} ".format(config['region']))
+        identity_client = IdentityClient(config)
+        region_subscriptions = identity_client.list_region_subscriptions(config['tenancy']).data
+        # Replace the region in the config with the home region.
+        [config['region']] = [rs.region_name for rs in region_subscriptions if rs.is_home_region is True]
+        _debug("Setting region in the config to home region - {0} ".format(config['region']))
 
     return config
+
+
+def create_service_client(module, service_client_class):
+    """
+    Creates a service client using the common module options provided by the user.
+    :param module: An AnsibleModule that represents user provided options for a Task
+    :param service_client_class: A class that represents a client to an OCI Service
+    :return: A fully configured client
+    """
+    config = get_oci_config(module, service_client_class)
+    kwargs = {}
+
+    if _is_instance_principal_auth(module):
+        try:
+            signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
+        except Exception as ex:
+            message = "Failed retrieving certificates from localhost. Instance principal based authentication is only" \
+                      "possible from within OCI compute instances. Exception: {0}".format(str(ex))
+            module.fail_json(msg=message)
+
+        kwargs['signer'] = signer
+
+    # XXX: Validate configuration -- this may be redundant, as all Client constructors perform a validation
+    try:
+        oci.config.validate_config(config, **kwargs)
+    except oci.exceptions.InvalidConfig as ic:
+        module.fail_json(msg="Invalid OCI configuration. Exception: {0}".format(str(ic)))
+
+    # Create service client class with the signer
+    client = service_client_class(config, **kwargs)
+
+    return client
+
+
+def _is_instance_principal_auth(module):
+    # check if auth type is overridden via module params
+    instance_principal_auth = 'auth_type' in module.params and module.params['auth_type'] == "instance_principal"
+    if not instance_principal_auth:
+        instance_principal_auth = 'OCI_ANSIBLE_AUTH_TYPE' in os.environ \
+                                  and os.environ['OCI_ANSIBLE_AUTH_TYPE'] == "instance_principal"
+    return instance_principal_auth
 
 
 def _merge_auth_option(config, module, module_option_name, env_var_name, config_attr_name):
     """Merge the values for an authentication attribute from ansible module options and
     environment variables with the values specified in a configuration file"""
-    _debug("Merging {}".format(module_option_name))
+    _debug("Merging {0}".format(module_option_name))
 
     auth_attribute = module.params.get(module_option_name)
-    _debug("\t Ansible module option {} = {}".format(module_option_name, auth_attribute))
+    _debug("\t Ansible module option {0} = {1}".format(module_option_name, auth_attribute))
     if not auth_attribute:
         if env_var_name in os.environ:
             auth_attribute = os.environ[env_var_name]
-            _debug("\t Environment variable {} = {}".format(env_var_name, auth_attribute))
+            _debug("\t Environment variable {0} = {1}".format(env_var_name, auth_attribute))
 
     # An authentication attribute has been provided through an env-variable or an ansible
     # option and must override the corresponding attribute's value specified in the
     # config file [profile].
     if auth_attribute:
-        _debug("Updating config attribute {} -> {} ".format(config_attr_name, auth_attribute))
+        _debug("Updating config attribute {0} -> {1} ".format(config_attr_name, auth_attribute))
         config.update({config_attr_name: auth_attribute})
 
 
@@ -158,6 +221,15 @@ def bucket_details_factory(bucket_details_type, module):
     return bucket_details
 
 
+def filter_resources(all_resources, filter_params):
+    if not filter_params:
+        return all_resources
+    filtered_resources = []
+    filtered_resources.extend([resource for resource in all_resources
+                               for key, value in filter_params.items() if getattr(resource, key) == value])
+    return filtered_resources
+
+
 def list_all_resources(target_fn, **kwargs):
     """
     Return all resources after paging through all results returned by target_fn.
@@ -167,14 +239,28 @@ def list_all_resources(target_fn, **kwargs):
     :raises ServiceError: When the Service returned an Error response
     :raises MaximumWaitTimeExceededError: When maximum wait time is exceeded while invoking target_fn
     """
-    existing_resources = None
-    response = call_with_backoff(target_fn, **kwargs)
+    filter_params = None
+    try:
+        response = call_with_backoff(target_fn, **kwargs)
+    except ValueError as ex:
+        if "unknown kwargs" in str(ex):
+            if "display_name" in kwargs:
+                if kwargs["display_name"]:
+                    filter_params = {"display_name": kwargs["display_name"]}
+                del kwargs["display_name"]
+            elif "name" in kwargs:
+                if kwargs["name"]:
+                    filter_params = {"name": kwargs["name"]}
+                del kwargs["name"]
+        response = call_with_backoff(target_fn, **kwargs)
+
     existing_resources = response.data
     while response.has_next_page:
         kwargs.update(page=response.headers.get(HEADER_NEXT_PAGE))
         response = call_with_backoff(target_fn, **kwargs)
         existing_resources += response.data
-    return existing_resources
+
+    return filter_resources(existing_resources, filter_params)
 
 
 def _debug(s):
@@ -257,36 +343,65 @@ def check_and_update_resource(resource_type, get_fn, kwargs_get, update_fn, prim
     """
     try:
         result = dict(changed=False)
-        resource = call_with_backoff(get_fn, **kwargs_get).data
-
-        attributes_to_update = []
-        for attr in update_attributes:
-            resources_attr_value = getattr(resource, attr, None)
-            user_provided_attr_value = module.params.get(attr, None)
-            if resources_attr_value != user_provided_attr_value:
-                # only update if the user has explicitly provided a value for this attribute
-                # otherwise, no update is necessary because the user hasn't expressed a particular
-                # value for that attribute
-                if has_user_provided_value_for_option(module, attr):
-                    attributes_to_update.append(attr)
+        attributes_to_update, resource = get_attr_to_update(get_fn, kwargs_get, module, update_attributes)
 
         if attributes_to_update:
-            kwargs_update = dict()
-            for param in primitive_params_update:
-                kwargs_update[param] = module.params[param]
-            for param in kwargs_non_primitive_update:
-                update_object = param()
-                for key in update_object.attribute_map:
-                    if key in attributes_to_update:
-                        setattr(update_object, key, module.params[key])
-
-                kwargs_update[kwargs_non_primitive_update[param]] = update_object
+            kwargs_update = get_kwargs_update(attributes_to_update, kwargs_non_primitive_update, module,
+                                              primitive_params_update)
             resource = call_with_backoff(update_fn, **kwargs_update).data
             result['changed'] = True
         result[resource_type] = to_dict(resource)
         return result
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
+
+
+def get_kwargs_update(attributes_to_update, kwargs_non_primitive_update, module, primitive_params_update):
+    kwargs_update = dict()
+    for param in primitive_params_update:
+        kwargs_update[param] = module.params[param]
+    for param in kwargs_non_primitive_update:
+        update_object = param()
+        for key in update_object.attribute_map:
+            if key in attributes_to_update:
+                setattr(update_object, key, module.params[key])
+
+        kwargs_update[kwargs_non_primitive_update[param]] = update_object
+    return kwargs_update
+
+
+def compare_list(s, t):
+    if s is None and t or t is None and s:
+        return False
+    s = to_dict(s)
+    t = to_dict(t)
+    try:
+        for elem in s:
+            t.remove(elem)
+    except ValueError:
+        return False
+    return not t
+
+
+def get_attr_to_update(get_fn, kwargs_get, module, update_attributes):
+    try:
+        resource = call_with_backoff(get_fn, **kwargs_get).data
+    except ServiceError as ex:
+        module.fail_json(msg=ex.message)
+    attributes_to_update = []
+    for attr in update_attributes:
+        resources_attr_value = getattr(resource, attr, None)
+        user_provided_attr_value = module.params.get(attr, None)
+
+        if (type(resources_attr_value) == list and not compare_list(resources_attr_value, user_provided_attr_value)) \
+                or (type(resources_attr_value) != list and to_dict(resources_attr_value) !=
+                    to_dict(user_provided_attr_value)):
+            # only update if the user has explicitly provided a value for this attribute
+            # otherwise, no update is necessary because the user hasn't expressed a particular
+            # value for that attribute
+            if has_user_provided_value_for_option(module, attr):
+                attributes_to_update.append(attr)
+    return attributes_to_update, resource
 
 
 def get_taggable_arg_spec(supports_create=False, supports_wait=False):
@@ -325,14 +440,14 @@ def add_tags_to_model_class(model, freeform_tags, defined_tags):
     """
     try:
         if freeform_tags is not None:
-            _debug("Model {} set freeform tags to {}".format(model, freeform_tags))
+            _debug("Model {0} set freeform tags to {1}".format(model, freeform_tags))
             model.__setattr__("freeform_tags", freeform_tags)
 
         if defined_tags is not None:
-            _debug("Model {} set defined tags to {}".format(model, defined_tags))
+            _debug("Model {0} set defined tags to {1}".format(model, defined_tags))
             model.__setattr__("defined_tags", defined_tags)
     except AttributeError as ae:
-        _debug("Model {} doesn't support tags. Error {}".format(model, ae))
+        _debug("Model {0} doesn't support tags. Error {1}".format(model, ae))
 
     return model
 
@@ -360,7 +475,7 @@ def check_and_create_resource(resource_type, create_fn, kwargs_create, list_fn, 
     """
 
     if module.params.get('force_create', None):
-        _debug("Force creating {}".format(resource_type))
+        _debug("Force creating {0}".format(resource_type))
         result = call_with_backoff(create_fn, **kwargs_create)
         return result
 
@@ -393,16 +508,15 @@ def check_and_create_resource(resource_type, create_fn, kwargs_create, list_fn, 
     resource_matched = None
     for resource in existing_resources:
         if _is_resource_active(resource, dead_states):
-            _debug("Comparing user specified values {} against an existing resource's values {}".format(module.params,
-                                                                                                        to_dict(
-                                                                                                            resource)))
-            if does_existing_resource_match_user_inputs(to_dict(resource), module, attributes_to_consider, exclude_attributes,
-                                                        default_attribute_values):
+            _debug("Comparing user specified values {0} against an existing resource's "
+                   "values {1}".format(module.params, to_dict(resource)))
+            if does_existing_resource_match_user_inputs(to_dict(resource), module, attributes_to_consider,
+                                                        exclude_attributes, default_attribute_values):
                 resource_matched = to_dict(resource)
                 break
 
     if resource_matched:
-        _debug("Resource with same attributes found: {}.".format(resource_matched))
+        _debug("Resource with same attributes found: {0}.".format(resource_matched))
         result[resource_type] = resource_matched
         result['changed'] = False
     else:
@@ -433,7 +547,7 @@ def _get_attributes_to_consider(exclude_attributes, model, module):
         # Temporarily removing node_count as the exisiting resource does not reflect it
         if "node_count" in attributes_to_consider:
             attributes_to_consider.remove("node_count")
-    _debug("attributes to consider: {}".format(attributes_to_consider))
+    _debug("attributes to consider: {0}".format(attributes_to_consider))
     return attributes_to_consider
 
 
@@ -503,11 +617,11 @@ def create_resource(resource_type, create_fn, kwargs_create, module):
     result = dict(changed=False)
     try:
         resource = to_dict(call_with_backoff(create_fn, **kwargs_create).data)
-        _debug("Created {}, {}".format(resource_type, resource))
+        _debug("Created {0}, {1}".format(resource_type, resource))
         result['changed'] = True
         result[resource_type] = resource
         return result
-    except ServiceError as ex:
+    except (ServiceError, TypeError) as ex:
         module.fail_json(msg=str(ex))
 
 
@@ -520,9 +634,9 @@ def does_existing_resource_match_user_inputs(existing_resource, module, attribut
     :param attributes_to_compare: A list of attributes of a resource that are used to compare if an existing resource
                                     matches the desire state of the resource expressed by the user in 'module'.
     :param exclude_attributes: The attributes, that a module author provides, which should not be used to match the
-        resource. This dictionary typically includes: (a) attributes which are initialized with dynamic default values like
-        'display_name', 'security_list_ids' for subnets and (b) attributes that don't have any defaults like 'dns_label'
-        in VCNs. The attributes are part of keys and 'True' is the value for all existing keys.
+        resource. This dictionary typically includes: (a) attributes which are initialized with dynamic default values
+        like 'display_name', 'security_list_ids' for subnets and (b) attributes that don't have any defaults like
+        'dns_label' in VCNs. The attributes are part of keys and 'True' is the value for all existing keys.
     :param default_attribute_values: A dictionary containing default values for attributes.
     :return: True if the values for the list of attributes is the same in the existing_resource and module instances.
     """
@@ -542,8 +656,8 @@ def does_existing_resource_match_user_inputs(existing_resource, module, attribut
                                                            user_provided_value_for_attr, exclude_attributes,
                                                            default_attribute_values, res)
                 if not res[0]:
-                    _debug("Mismatch on attribute '{}'. User provided value is {} & existing resource's value is {}.".
-                           format(attr, user_provided_value_for_attr, resources_value_for_attr))
+                    _debug("Mismatch on attribute '{0}'. User provided value is {1} & existing resource's value"
+                           "is {2}.".format(attr, user_provided_value_for_attr, resources_value_for_attr))
                     return False
             else:
                 # If the user has not explicitly provided the value for attr and attr is in exclude_list, we can
@@ -563,7 +677,7 @@ def does_existing_resource_match_user_inputs(existing_resource, module, attribut
                             return False
 
         else:
-            _debug("Attribute {} is in the create model of resource {}"
+            _debug("Attribute {0} is in the create model of resource {1}"
                    "but doesn't exist in the get model of the resource".format(attr, existing_resource.__class__))
     return True
 
@@ -636,9 +750,9 @@ def are_dicts_equal(option_name, existing_resource_dict, user_provided_dict, exc
         # If user has provided value for sub-attribute, then compare it with corresponding key in existing resource.
         if sub_attr in user_provided_dict:
             if existing_resource_dict[sub_attr] != user_provided_dict[sub_attr]:
-                _debug("Failed to match: Existing resource's attr {} sub-attr {} value is {}, while user "
-                       "provided value is {}".format(option_name, sub_attr, existing_resource_dict[sub_attr],
-                                                     user_provided_dict.get(sub_attr, None)))
+                _debug("Failed to match: Existing resource's attr {0} sub-attr {1} value is {2}, while user "
+                       "provided value is {3}".format(option_name, sub_attr, existing_resource_dict[sub_attr],
+                                                      user_provided_dict.get(sub_attr, None)))
                 return False
 
         # If sub_attr not provided by user, check if the sub-attribute value of existing resource matches default value.
@@ -653,9 +767,9 @@ def are_dicts_equal(option_name, existing_resource_dict, user_provided_dict, exc
                         return False
                 else:
                     # No default value specified by module author for sub_attr
-                    _debug("Consider as match: Existing resource's attr {} sub-attr {} value is {}, while user did not "
-                           "provide a value for it. The module author also has not provided a default value for it or "
-                           "marked it for exclusion. So ignoring this attribute during matching and continuing with"
+                    _debug("Consider as match: Existing resource's attr {0} sub-attr {1} value is {2}, while user did"
+                           "not provide a value for it. The module author also has not provided a default value for it"
+                           "or marked it for exclusion. So ignoring this attribute during matching and continuing with"
                            "other checks".format(option_name, sub_attr, existing_resource_dict[sub_attr]))
 
     return True
@@ -789,7 +903,7 @@ def delete_and_wait(resource_type, client, get_fn, kwargs_get, delete_fn, kwargs
             if "lifecycle_state" not in resource or resource['lifecycle_state'] not in \
                     {'DETACHING', 'DETACHED', 'DELETING', 'DELETED', 'TERMINATING', 'TERMINATED'}:
                 call_with_backoff(delete_fn, **kwargs_delete)
-                _debug("Deleted {}, {}".format(resource_type, resource))
+                _debug("Deleted {0}, {1}".format(resource_type, resource))
                 result['changed'] = True
 
                 if wait_applicable and module.params.get('wait', None):
@@ -822,11 +936,17 @@ def delete_and_wait(resource_type, client, get_fn, kwargs_get, delete_fn, kwargs
 
             result[resource_type] = resource
         else:
-            _debug("Resource {} with {} already deleted. So returning changed=False".format(resource_type, kwargs_get))
+            _debug("Resource {0} with {1} already deleted. So returning changed=False".format(resource_type, kwargs_get))
     except ServiceError as ex:
-        if ex.status != 404:
+        # DNS API throws a 400 InvalidParameter when a zone id is provided for zone_name_or_id and if the zone
+        # resource is not available, instead of the expected 404. So working around this for now.
+        if type(client) == oci.dns.DnsClient:
+            if ex.status == 400 and ex.code == "InvalidParameter":
+                _debug("Resource {0} with {1} already deleted. So returning changed=False".format(
+                    resource_type, kwargs_get))
+        elif ex.status != 404:
             module.fail_json(msg=ex.message)
-        result[resource_type] = ''
+        result[resource_type] = dict()
     return result
 
 
@@ -886,7 +1006,7 @@ def update_model_with_user_options(curr_model, update_model, module):
         if curr_value_for_attr != user_provided_value:
             if user_provided_value is not None:
                 # Only update if a user has specified a value for an option
-                _debug("User requested {} for attribute {}, whereas the current value is {}. So adding it "
+                _debug("User requested {0} for attribute {1}, whereas the current value is {2}. So adding it "
                        "to the update model".format(user_provided_value, attr, curr_value_for_attr))
                 setattr(update_model, attr, user_provided_value)
             else:
@@ -914,8 +1034,12 @@ def call_with_backoff(fn, **kwargs):
         return fn(**kwargs)
     except TypeError as te:
         if "unexpected keyword argument" in str(te):
+            # to handle older SDKs that did not support retry_strategy
             del kwargs["retry_strategy"]
             return fn(**kwargs)
+        else:
+            # A validation error raised by the SDK, throw it back
+            raise
 
 
 def generic_hash(obj):
@@ -1058,8 +1182,9 @@ def get_existing_resource(target_fn, module, **kwargs):
     return existing_resource
 
 
-def get_attached_instance_info(config, lookup_attached_instance, list_attachments_fn, list_attachments_args):
-    identity_client = IdentityClient(config)
+def get_attached_instance_info(module, lookup_attached_instance, list_attachments_fn, list_attachments_args):
+    config = get_oci_config(module)
+    identity_client = create_service_client(module, IdentityClient)
 
     volume_attachments = []
 
@@ -1097,3 +1222,28 @@ def check_mode(fn):
             return fn(*args, **kwargs)
         return None
     return wrapper
+
+
+def check_and_return_component_list_difference(input_component_list, existing_components, purge_components):
+    if input_component_list:
+        existing_components, changed = get_component_list_difference(input_component_list, existing_components,
+                                                                     purge_components)
+    else:
+        existing_components = []
+        changed = True
+    return existing_components, changed
+
+
+def get_component_list_difference(input_component_list, existing_components, purge_components):
+    if existing_components is None:
+        return input_component_list, True
+    if purge_components:
+        components_differences = set(input_component_list).symmetric_difference(set(existing_components))
+
+        if components_differences:
+            return input_component_list, True
+
+    components_differences = set(input_component_list).difference(set(existing_components))
+    if components_differences:
+        return list(components_differences) + existing_components, True
+    return None, False

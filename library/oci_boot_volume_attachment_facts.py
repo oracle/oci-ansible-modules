@@ -22,7 +22,7 @@ short_description: Retrieve facts of boot volume attachments in OCI
 description:
     - This module retrieves information of a specified boot volume attachment or all the boot volume attachments in the
       specified compartment and availability domain.
-version_added: "2.x"
+version_added: "2.5"
 options:
     availability_domain:
         description: The name of the Availability Domain. Required to get information of all the boot volume attachments
@@ -46,7 +46,7 @@ options:
                      I(availability_domain) to get boot volume attachment information related to I(boot_volume_id).
         required: false
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -134,7 +134,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         availability_domain=dict(type='str', required=False),
         compartment_id=dict(type='str', required=False),
@@ -151,8 +151,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    compute_client = ComputeClient(config)
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
 
     boot_volume_attachment_id = module.params['boot_volume_attachment_id']
 
@@ -162,7 +161,7 @@ def main():
                                                           boot_volume_attachment_id=boot_volume_attachment_id).data)]
 
         else:
-            key_list = ["availability_domain", "compartment_id", "instance_id", "boot_volume_id"]
+            key_list = ["availability_domain", "compartment_id", "instance_id", "boot_volume_id", "display_name"]
             param_map = {k: v for (k, v) in six.iteritems(module.params) if k in key_list and v is not None}
 
             result = to_dict(oci_utils.list_all_resources(compute_client.list_boot_volume_attachments, **param_map))

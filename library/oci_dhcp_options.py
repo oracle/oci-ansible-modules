@@ -26,7 +26,7 @@ description:
     - Update OCI Dhcp Options, if present, by purging existing options and replacing them with
       specified ones
     - Delete OCI Dhcp Options, if present.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment under which this
@@ -305,8 +305,8 @@ def update_dhcp_options(virtual_network_client, existing_dhcp_options, module):
                                                                  name_tag_changed)
     if input_options is not None:
         if input_options:
-            options, options_changed = get_options_difference(
-                get_options_objects(input_options), existing_options, module.params.get('purge_dhcp_options'))
+            options, options_changed = oci_utils.get_component_list_difference(
+                get_options_objects(input_options), get_hashed_options(existing_options), module.params.get('purge_dhcp_options'))
 
     if options_changed:
         update_dhcp_details.options = options
@@ -328,24 +328,10 @@ def update_dhcp_options(virtual_network_client, existing_dhcp_options, module):
     return result
 
 
-def get_options_difference(input_options, existing_options, purge_dhcp_options):
-    if not existing_options:
-        return input_options, True
-    if purge_dhcp_options:
-        options_differences = set(
-            input_options).symmetric_difference(set(get_hashed_options(existing_options)))
-        if options_differences:
-            return input_options, True
-    options_differences = set(input_options).difference(
-        set(get_hashed_options(existing_options)))
-    if options_differences:
-        return existing_options + list(options_differences), True
-
-    return None, False
-
-
 def get_hashed_options(options):
     hashed_options = []
+    if options is None:
+        return hashed_options
     for option in options:
         dhcp_option = None
         if option.type == 'DomainNameServer':
@@ -423,8 +409,8 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(oci_config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+
     state = module.params['state']
 
     if state == 'present':

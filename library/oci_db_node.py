@@ -24,7 +24,7 @@ description:
     - Soft-reset a DB Node
     - All operations of this module returns after triggering the lifecycle operation. Use M(oci_db_node_facts)
       to check the status of the operation.
-version_added: "2.x"
+version_added: "2.5"
 options:
     db_node_id:
         description: Identifier of the DB Node whose lifecycle state is to be controlled.
@@ -217,7 +217,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    db_client = DatabaseClient(oci_utils.get_oci_config(module))
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = perform_db_node_action(db_client, module)
 
     module.exit_json(**result)

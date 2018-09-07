@@ -49,7 +49,8 @@ def setUpModule():
     oci_db_home_facts.set_logger(logging)
 
 def test_list_db_homes_list_all(db_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa','db_system_id': 'ocid1.dbsystem.aaaa'}))
+    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa','db_system_id': 'ocid1.dbsystem.aaaa',
+                              'display_name': None}))
     list_all_resources_patch.return_value = get_db_homes()
     result = oci_db_home_facts.list_db_homes(db_client, module)
     assert len(result['db_homes']) is 2

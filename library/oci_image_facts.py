@@ -21,7 +21,7 @@ short_description: Retrieve details about one or more Compute images in OCI Comp
 description:
     - This module retrieves details about a specific image, or all images in a specified Compartment in OCI Compute
       Service.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment (either the tenancy or another compartment in the tenancy). Required
@@ -33,7 +33,7 @@ options:
         aliases: ['id']
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -125,7 +125,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         image_id=dict(type='str', required=False, aliases=['id'])
@@ -140,8 +140,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    compute_client = ComputeClient(config)
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
 
     compartment_id = module.params['compartment_id']
     id = module.params['image_id']
@@ -149,7 +148,8 @@ def main():
     result = dict(changed=False)
     try:
         if compartment_id:
-            inst = oci_utils.list_all_resources(compute_client.list_images, compartment_id=compartment_id)
+            inst = oci_utils.list_all_resources(compute_client.list_images, compartment_id=compartment_id,
+                                                display_name=module.params['display_name'])
             result = to_dict(inst)
         else:
             inst = oci_utils.call_with_backoff(compute_client.get_image, image_id=id).data

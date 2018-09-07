@@ -1,0 +1,47 @@
+demo_public_subnet_ingress_security_rules:
+  - source: "{{ demo_private_subnet_mongo_ad1_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ HTTP_port }}
+        max: {{ HTTP_port }}
+  - source: "{{ demo_private_subnet_mongo_ad1_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ HTTPS_port }}
+        max: {{ HTTPS_port }}
+  - source: "{{ demo_private_subnet_mongo_ad2_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ HTTP_port }}
+        max: {{ HTTP_port }}
+  - source: "{{ demo_private_subnet_mongo_ad1_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ HTTPS_port }}
+        max: {{ HTTPS_port }}
+  # HTTP
+  - source: "{{ quad_zero_route }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ HTTP_port }}
+        max: {{ HTTP_port }}
+  # SSL/TLS
+  - source: "{{ quad_zero_route }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ HTTPS_port }}
+        max: {{ HTTPS_port }}
+  # Enable SSH access from Bastion
+  - source: "{{ bastion_subnet_cidr_block }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ SSH_port }}
+        max: {{ SSH_port }}
+

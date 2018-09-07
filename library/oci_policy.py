@@ -20,7 +20,7 @@ module: oci_policy
 short_description: Manage policies in OCI Identity and Access Management
 description:
     - This module allows the user to create, delete and update policies in OCI Identity and Access Management service.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment containing the policy (either the tenancy or another compartment).
@@ -225,8 +225,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
     state = module.params['state']
     policy_id = module.params['policy_id']
     exclude_attributes = {'version_date': True}

@@ -21,7 +21,7 @@ short_description: Retrieve details of tag key definitions for a specified tag n
 description:
     - This module retrieves details of all tag key definitions of a specified tag namespace, or a specific tag key
       definition in OCI.
-version_added: "2.x"
+version_added: "2.5"
 options:
     tag_namespace_id:
         description: The OCID of the tag namespace whose tag definitions must be retrieved
@@ -113,7 +113,7 @@ except ImportError:
 
 def list_tags(identity_client, tag_namespace_id, tag_name, module):
     try:
-        if tag_name is not None and not tag_name:
+        if tag_name is not None:
             tag = oci_utils.call_with_backoff(identity_client.get_tag, tag_namespace_id=tag_namespace_id,
                                               tag_name=tag_name).data
             return to_dict([tag])
@@ -138,8 +138,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     tag_namespace_id = module.params.get("tag_namespace_id")
     tag_name = module.params.get("tag_name", None)

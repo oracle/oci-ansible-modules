@@ -37,7 +37,7 @@ $ ansible-doc oci_bucket_facts
 **3. How do I enable `debug` mode for the OCI Ansible Cloud Modules?**
 
 -  Set the `log_requests` variable in your ~/.oci/config to `True` to enable Request logging in the OCI python SDK as described in https://github.com/oracle/oci-python-sdk/blob/master/docs/logging.rst
--  Export an environment variable to enable DEBUG mode for our Ansible modules
+-  Export an environment variable named `LOG_LEVEL` with the value `DEBUG` to enable DEBUG mode for the OCI Ansible modules
 ```sh
 $ export LOG_LEVEL="DEBUG"
 ```
@@ -46,7 +46,9 @@ All subsequent debug messages from an ansible playbook execution using the OCI A
 ```sh
 $ ansible-playbook ....
 ```
-would go to `/tmp/oci_ansible_module.log` (the default logging location for our modules).
+would go to `/tmp/oci_ansible_module.log` (the default logging location for the OCI Ansible modules).
+
+OCI Ansible Cloud Modules uses standard Python logging facilities for logging. To configure log messages, export an environment variable `LOG_CONFIG` pointing to a YAML file (as discussed in https://docs.python.org/3/howto/logging.html#configuring-logging) containing your logging configuration information Optionally, export an environment variable `LOG_PATH` to to your custom path where the logs must be placed.
 
 **4. In a Mac OSX controller node, I am seeing "ImportError: No module named yaml" when executing a playbook, in spite of observing that I have ansible and its requirements including PyYAML installed in my python setup.**
 
@@ -79,12 +81,16 @@ The documentation fragments shipped by an ansible module that is delivered by an
 
 **6. How do I use the `oci_inventory.py` dynamic inventory script?**
 
-In addition to the OCI Ansible Cloud Modules, this project also provide a [dynamic inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html) script for OCI that you can use to construct a dynamic inventory of your OCI compute instances. For more details, see our how-to documentation at [using the dynamic inventory script](dynamic-inventory-script.md).
+In addition to the OCI Ansible Cloud Modules, this project also provide a [dynamic inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html) script for OCI that you can use to construct a dynamic inventory of your OCI compute instances. For more details, see our how-to documentation at [using the dynamic inventory script](https://oracle-cloud-infrastructure-ansible-modules.readthedocs.io/en/latest/dynamic-inventory-script.html).
 
 **7. Any security guidelines or best practices?**
 
-The OCI Ansible Cloud Modules uses the authentication information specified in the standard OCI SDK configuration file (https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/installation.html#configuring-the-sdk) while creating and configuring OCI resources.
+1. The OCI Ansible Cloud Modules uses the authentication information specified in the standard OCI SDK configuration file (https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/installation.html#configuring-the-sdk) while creating and configuring OCI resources.
 
 > *Caution*: IAM credentials referenced in the OCI SDK configuration file, grants access to resources. It is important to secure these credentials to prevent unauthorized access to Oracle Cloud Infrastructure resources. Follow the guidelines in https://docs.us-phoenix-1.oraclecloud.com/Content/Security/Reference/iam_security.htm#IAMCredentials to secure the IAM credentials in the controller node where you run ansible playbooks that uses these modules.
 
 The OCI Ansible Cloud Modules allows the authentication information specified in the OCI SDK configuration file to be overridden using module options and environment variables. Please refer to the ansible module documentation of the OCI Ansible Cloud Modules for more details. Oracle recommends the use of OCI SDK configuration file to specify authentication information. Use the "profiles" feature in the OCI SDK configuration file to support different users. The use of environment variables and ansible module options to override Authentication information must be avoided in production scenarios. While distributing roles that use the OCI Ansible Cloud Modules, ensure that no IAM credentials are included with the roles.
+
+2. Logging of OCI Ansible Cloud Modules may be configured using the a file through the `LOG_CONFIG` environment variable, as discussed in FAQ #3 above. It is recommended that the file pointed to by `LOG_CONFIG` environment variable be only access-able (Unix file permissions 400 or 600) by the user running the `ansible-playbook` that uses OCI Ansible Cloud Modules.
+
+3. The [OCI Ansible Dynamic Inventory Script](https://oracle-cloud-infrastructure-ansible-modules.readthedocs.io/en/latest/dynamic-inventory-script.html) allows you to override the directory where cache files of the inventory script will reside using the `OCI_CACHE_DIR` environment variable. It is recommended that the directory pointed to by `OCI_CACHE_DIR` environment variable be only read-able and write-able (Unix file permissions 600) by the user running the inventory script.

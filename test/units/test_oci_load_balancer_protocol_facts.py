@@ -83,7 +83,7 @@ def get_response(status, header, data, request):
 
 
 def get_module():
-    params = {'compartment_id': 'ocid1.compartment.xcds'}
+    params = {'compartment_id': 'ocid1.compartment.xcds', 'name': None}
     module = FakeModule(**params)
     return module
 

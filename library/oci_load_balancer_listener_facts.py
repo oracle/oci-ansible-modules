@@ -21,7 +21,7 @@ module: oci_load_balancer_listener_facts
 short_description: Fetch details of all listeners of a load balancer
 description:
     - Fetch details of all listeners of a load balancer.
-version_added: "2.x"
+version_added: "2.5"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer to which the listeners belongs.
@@ -188,7 +188,7 @@ def main():
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
-    lb_client = LoadBalancerClient(oci_utils.get_oci_config(module))
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
     result = list_load_balancer_listeners(lb_client, module)
 
     module.exit_json(**result)

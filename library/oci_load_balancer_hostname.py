@@ -23,7 +23,7 @@ description:
     - Create an OCI Load Balancer Hostname
     - Update OCI Load Balancers Hostname, if present.
     - Delete OCI Load Balancers Hostname, if present.
-version_added: "2.x"
+version_added: "2.5"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer. Mandatory for create,delete and update.
@@ -152,17 +152,20 @@ def create_hostname(lb_client, module):
     create_hostname_details = CreateHostnameDetails()
     for attribute in create_hostname_details.attribute_map:
         create_hostname_details.__setattr__(attribute, getattr(hostname_details, attribute))
-    return oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="hostname",
-                                                                             function=lb_client.create_hostname,
-                                                                             kwargs_function={
-                                                                                 'create_hostname_details': create_hostname_details,
-                                                                                 'load_balancer_id': lb_id},
-                                                                             lb_client=lb_client,
-                                                                             get_fn=lb_client.get_hostname,
-                                                                             kwargs_get={'load_balancer_id': lb_id,
-                                                                                         'name': name},
-                                                                             module=module
-                                                               )
+    result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="hostname",
+                                                                 function=lb_client.create_hostname,
+                                                                 kwargs_function={
+                                                                     'create_hostname_details': create_hostname_details,
+                                                                     'load_balancer_id': lb_id},
+                                                                 lb_client=lb_client,
+                                                                 get_fn=lb_client.get_hostname,
+                                                                 kwargs_get={'load_balancer_id': lb_id,
+                                                                             'name': name},
+                                                                 module=module
+                                                                 )
+    get_logger().info("Successfully created hostname %s in the load balancer %s", name, lb_id)
+
+    return result
 
 
 def update_hostname(lb_client, module, lb_id, hostname, name):
@@ -186,6 +189,8 @@ def update_hostname(lb_client, module, lb_id, hostname, name):
                                                                      module=module
                                                                      )
         get_logger().info("Successfully updated hostname %s  in load balancer %s", hostname, lb_id)
+    else:
+        get_logger().info("No update to the hostname %s  in load balancer %s as no attribute changed", hostname, lb_id)
 
     return result
 
@@ -193,17 +198,20 @@ def update_hostname(lb_client, module, lb_id, hostname, name):
 def delete_hostname(lb_client, module):
     lb_id = module.params.get('load_balancer_id', None)
     name = module.params.get('name', None)
-    return oci_lb_utils.delete_lb_resources_and_wait(resource_type="hostname",
-                                                     function=lb_client.delete_hostname,
-                                                     kwargs_function={
-                                                                   'name': name,
-                                                                   'load_balancer_id': lb_id},
-                                                     lb_client=lb_client,
-                                                     get_fn=lb_client.get_hostname,
-                                                     kwargs_get={'load_balancer_id': lb_id,
-                                                                 'name': name},
-                                                     module=module
-                                                     )
+    get_logger().info("Deleting hostname %s from the load balancer %s", name, lb_id)
+    result = oci_lb_utils.delete_lb_resources_and_wait(resource_type="hostname",
+                                                       function=lb_client.delete_hostname,
+                                                       kwargs_function={
+                                                           'name': name,
+                                                           'load_balancer_id': lb_id},
+                                                       lb_client=lb_client,
+                                                       get_fn=lb_client.get_hostname,
+                                                       kwargs_get={'load_balancer_id': lb_id,
+                                                                   'name': name},
+                                                       module=module
+                                                       )
+    get_logger().info("Successfully deleted hostname %s from the load balancer %s", name, lb_id)
+    return result
 
 
 def set_logger(input_logger):
@@ -234,7 +242,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    lb_client = LoadBalancerClient(oci_utils.get_oci_config(module))
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
     state = module.params['state']
 
     if state == 'present':

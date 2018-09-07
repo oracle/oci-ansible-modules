@@ -21,7 +21,7 @@ module: oci_private_ip_facts
 short_description: Retrieve facts of private IPs
 description:
     - This module retrieves information of a specified private IP or lists all the private IPs in a subnet.
-version_added: "2.x"
+version_added: "2.5"
 options:
     private_ip_id:
         description: The OCID of the private IP. I(private_ip_id) is required to get a specific private IP's
@@ -32,7 +32,7 @@ options:
         description: The OCID of the subnet. Required to list all the private IPs in a subnet.
         required: false
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -150,7 +150,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         private_ip_id=dict(type='str', required=False, aliases=['id']),
         subnet_id=dict(type='str', required=False)
@@ -164,8 +164,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
 
     private_ip_id = module.params['private_ip_id']
 
@@ -175,7 +174,8 @@ def main():
                                                           private_ip_id=private_ip_id).data)]
         else:
             result = to_dict(oci_utils.list_all_resources(virtual_network_client.list_private_ips,
-                                                          subnet_id=module.params['subnet_id']))
+                                                          subnet_id=module.params['subnet_id'],
+                                                          display_name=module.params['display_name']))
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 

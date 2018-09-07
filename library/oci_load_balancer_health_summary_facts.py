@@ -20,7 +20,7 @@ module: oci_load_balancer_health_summary_facts
 short_description: Fetches the summary health statuses for all load balancers in a given compartment.
 description:
     - Fetches the summary health statuses for all load balancers in a given compartment.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the Compartment containing all Load Balancer
@@ -121,7 +121,7 @@ def main():
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
-    lb_client = LoadBalancerClient(oci_utils.get_oci_config(module))
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
 
     result = list_load_balancer_healths(lb_client, module)
 

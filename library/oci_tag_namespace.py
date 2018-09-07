@@ -23,7 +23,7 @@ description:
     - This module allows the user to create, retire and reactivate tag namespaces in OCI. A tag namespace is a
       container for tag keys. It consists of a name, and zero or more tag key definitions. Tag namespaces are not case
       sensitive, and must be unique across the tenancy.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment containing the tag namespace (the compartment may also be the root
@@ -205,8 +205,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
     state = module.params['state']
 
     result = dict(changed=False)

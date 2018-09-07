@@ -21,7 +21,7 @@ short_description: Retrieve details about one or more VNIC attachments in the sp
 description:
     - This module retrieves details about a VNIC attachment, or all VNIC attachments in a specified Compartment in OCI
       Compute Service. A VNIC attachment resides in the same compartment as the attached instance.
-version_added: "2.x"
+version_added: "2.5"
 options:
     availability_domain:
         description: The name of the Availability Domain.
@@ -42,7 +42,7 @@ options:
         aliases: ['id']
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -153,7 +153,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         availability_domain=dict(type='str', required=False),
@@ -170,8 +170,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    compute_client = ComputeClient(config)
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
 
     compartment_id = module.params.get('compartment_id', None)
     id = module.params['vnic_attachment_id']
@@ -180,7 +179,7 @@ def main():
     try:
         if compartment_id:
             # filter and get only key:values that have been provided by the user
-            key_list = ['availability_domain', "instance_id", "compartment_id"]
+            key_list = ['availability_domain', "instance_id", "compartment_id", "display_name"]
             param_map = {k: v for (k, v) in six.iteritems(module.params) if k in key_list and v is not None}
 
             inst = oci_utils.list_all_resources(compute_client.list_vnic_attachments, **param_map)

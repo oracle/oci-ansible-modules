@@ -22,7 +22,7 @@ short_description: Retrieve facts of volume attachments in OCI
 description:
     - This module retrieves information of a specified volume attachment or all the volume attachments in a specified
       compartment.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment. Required to get information of all the volume attachments in a
@@ -41,7 +41,7 @@ options:
                      information related to I(volume_id).
         required: false
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -176,7 +176,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         instance_id=dict(type='str', required=False),
@@ -195,8 +195,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    compute_client = ComputeClient(config)
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
 
     volume_attachment_id = module.params['volume_attachment_id']
 
@@ -206,7 +205,7 @@ def main():
                                                           volume_attachment_id=volume_attachment_id).data)]
 
         else:
-            key_list = ["compartment_id", "instance_id", "volume_id"]
+            key_list = ["compartment_id", "instance_id", "volume_id", "display_name"]
             param_map = {k: v for (k, v) in six.iteritems(module.params) if k in key_list and v is not None}
 
             result = to_dict(oci_utils.list_all_resources(compute_client.list_volume_attachments, **param_map))

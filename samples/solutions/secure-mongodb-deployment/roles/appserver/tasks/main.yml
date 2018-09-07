@@ -17,7 +17,7 @@
 - name: Slurp cloud-init content from the template-applied result for AS1
   slurp: 
     src: "{{ role_path }}/files/appserver_bootstrap"
-  register: demo_appserver_1_cloud_init
+  register: demo_appserver_cloud_init
 
 - name: Launch AS1 in Public Subnet
   oci_instance:
@@ -25,10 +25,10 @@
         image_id: "{{ demo_appserver_image_ocid }}"
         shape: "{{ demo_appserver_shape }}"
         compartment_id: "{{ demo_compartment_ocid }}"
-        availability_domain: "{{ demo_appserver_availability_domain }}"
+        availability_domain: "{{ demo_appserver_availability_domain_ad1 }}"
         metadata:
             ssh_authorized_keys: "{{ lookup('file', demo_ssh_public_key)}}"
-            user_data: "{{ demo_appserver_1_cloud_init['content'] }}"
+            user_data: "{{ demo_appserver_cloud_init['content'] }}"
         vnic:
             hostname_label: "{{ demo_appserver_1_host_name }}"
             assign_pubic_ip: True
@@ -55,7 +55,46 @@
   register: result
 
 - set_fact:
-    appserver_public_ip: "{{ result.vnic.public_ip }}"
+    appserver_1_private_ip: "{{ result.vnic.private_ip }}"
+
+- name: Launch AS2 in Public Subnet
+  oci_instance:
+        name: "{{ demo_appserver_2_name }}"
+        image_id: "{{ demo_appserver_image_ocid }}"
+        shape: "{{ demo_appserver_shape }}"
+        compartment_id: "{{ demo_compartment_ocid }}"
+        availability_domain: "{{ demo_appserver_availability_domain_ad1 }}"
+        metadata:
+            ssh_authorized_keys: "{{ lookup('file', demo_ssh_public_key)}}"
+            user_data: "{{ demo_appserver_cloud_init['content'] }}"
+        vnic:
+            hostname_label: "{{ demo_appserver_2_host_name }}"
+            assign_pubic_ip: True
+            subnet_id: "{{ demo_public_subnet_ocid }}"
+        freeform_tags:
+            infra: "{{ infra_name }}"
+            type: appserver
+  register: demoas2
+- name: Set AS2 Instance OCID
+  set_fact: 
+    demo_appserver_2_ocid: "{{ demoas2.instance.id }}"
+    demo_appserver_2_dns_label: "{{ demo_appserver_2_host_name }}"
+- debug: msg="AS2 OCID {{ demo_appserver_2_ocid }}"
+
+- name: Get the VNIC attachment details of application server 2
+  oci_vnic_attachment_facts:
+    compartment_id: "{{ compartment_id }}"
+    instance_id: "{{ demo_appserver_2_ocid }}"
+  register: result
+
+- name: Get details of the VNIC
+  oci_vnic_facts:
+    id: "{{ result.vnic_attachments[0].vnic_id }}"
+  register: result
+
+- set_fact:
+    appserver_2_private_ip: "{{ result.vnic.private_ip }}"
+
 
 # Wait for sometime for the app server cloud init commands to complete.
 - pause:

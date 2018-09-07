@@ -1,13 +1,14 @@
-.. _oci_policy:
+:source: cloud/oracle/oci_policy.py
+
+:orphan:
+
+.. _oci_policy_module:
 
 
 oci_policy - Manage policies in OCI Identity and Access Management
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.x
-
-
-
+.. versionadded:: 2.5
 
 .. contents::
    :local:
@@ -16,253 +17,279 @@ oci_policy - Manage policies in OCI Identity and Access Management
 
 Synopsis
 --------
-
-
-* This module allows the user to create, delete and update policies in OCI Identity and Access Management service.
-
-
-
-Requirements (on host that executes module)
--------------------------------------------
-
-  * python >= 2.6
-  * Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
+- This module allows the user to create, delete and update policies in OCI Identity and Access Management service.
 
 
 
-Options
--------
+Requirements
+~~~~~~~~~~~~
+The below requirements are needed on the host that executes this module.
+
+- python >= 2.6
+- Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
+
+
+Parameters
+----------
 
 .. raw:: html
 
-    <table border=1 cellpadding=4>
+    <table  border=0 cellpadding=0 class="documentation-table">
+        <tr>
+            <th colspan="1">Parameter</th>
+            <th>Choices/<font color="blue">Defaults</font></th>
+                        <th width="100%">Comments</th>
+        </tr>
+                    <tr>
+                                                                <td colspan="1">
+                    <b>api_user</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>api_user_fingerprint</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>api_user_key_file</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Full path and filename of the private key (in PEM format). If not set, then the value of the OCI_USER_KEY_FILE variable, if any, is used. This option is required if the private key is not specified through a configuration file (See <code>config_file_location</code>). If the key is encrypted with a pass-phrase, the <code>api_user_key_pass_phrase</code> option must also be provided.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>api_user_key_pass_phrase</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Passphrase used by the key referenced in <code>api_user_key_file</code>, if it is encrypted. If not set, then the value of the OCI_USER_KEY_PASS_PHRASE variable, if any, is used. This option is required if the key passphrase is not specified through a configuration file (See <code>config_file_location</code>).</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>auth_type</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>instance_principal</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>compartment_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the compartment containing the policy (either the tenancy or another compartment). Required when creating a policy with <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>config_file_location</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Path to configuration file. If not set then the value of the OCI_CONFIG_FILE environment variable, if any, is used. Otherwise, defaults to ~/.oci/config.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>config_profile_name</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">DEFAULT</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>defined_tags</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>description</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The description you assign to the policy. Does not have to be unique, and it's changeable. Required when creating a policy with <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>freeform_tags</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>name</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The name you assign to the policy during creation. The name must be unique across all policies in the tenancy and cannot be changed. Required when creating a policy with <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>policy_document</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The path to the policy file. This option is mutually exclusive with <em>statements</em>. Either <em>statements</em> or <em>policy_document</em> must be specified when creating a policy with <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>policy_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the policy. Required to update or delete a policy.</div>
+                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>region</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>state</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>absent</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Create or update a policy with <em>state=present</em>. Delete a policy with <em>state=absent</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>statements</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>An array of policy statements written in the policy language. This option is mutually exclusive with <em>policy_document</em>. Either <em>statements</em> or <em>policy_document</em> must be specified when creating a policy with <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>tenancy</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>version_date</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The version of the policy. The version of the policy. If null or set to an empty string, when a request comes in for authorization, the policy will be evaluated according to the current behavior of the services at that moment. If set to a particular date (YYYY-MM-DD), the policy will be evaluated according to the behavior of the services on that date.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>wait</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Whether to wait for create or delete operation to complete.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>wait_timeout</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>wait_until</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The lifecycle state to wait for the resource to transition into when <em>wait=yes</em>. By default, when <em>wait=yes</em>, we wait for the resource to get into ACTIVE/ATTACHED/AVAILABLE/PROVISIONED/ RUNNING applicable lifecycle state during create operation &amp; to get into DELETED/DETACHED/ TERMINATED lifecycle state during delete operation.</div>
+                                                                                </td>
+            </tr>
+                        </table>
+    <br/>
 
-    <tr>
-    <th class="head">parameter</th>
-    <th class="head">required</th>
-    <th class="head">default</th>
-    <th class="head">choices</th>
-    <th class="head">comments</th>
-    </tr>
 
-    <tr>
-    <td>api_user<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
-    </td>
-    </tr>
+Notes
+-----
 
-    <tr>
-    <td>api_user_fingerprint<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
-    </td>
-    </tr>
+.. note::
+    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
 
-    <tr>
-    <td>api_user_key_file<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Full path and filename of the private key (in PEM format). If not set, then the value of the OCI_USER_KEY_FILE variable, if any, is used. This option is required if the private key is not specified through a configuration file (See <code>config_file_location</code>). If the key is encrypted with a pass-phrase, the <code>api_user_key_pass_phrase</code> option must also be provided.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>api_user_key_pass_phrase<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Passphrase used by the key referenced in <code>api_user_key_file</code>, if it is encrypted. If not set, then the value of the OCI_USER_KEY_PASS_PHRASE variable, if any, is used. This option is required if the key passphrase is not specified through a configuration file (See <code>config_file_location</code>).</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>compartment_id<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The OCID of the compartment containing the policy (either the tenancy or another compartment). Required when creating a policy with <em>state=present</em>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>config_file_location<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Path to configuration file. If not set then the value of the OCI_CONFIG_FILE environment variable, if any, is used. Otherwise, defaults to ~/.oci/config.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>config_profile_name<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>DEFAULT</td>
-    <td></td>
-    <td>
-        <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>defined_tags<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>description<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The description you assign to the policy. Does not have to be unique, and it's changeable. Required when creating a policy with <em>state=present</em>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>freeform_tags<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>name<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The name you assign to the policy during creation. The name must be unique across all policies in the tenancy and cannot be changed. Required when creating a policy with <em>state=present</em>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>policy_document<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The path to the policy file. This option is mutually exclusive with <em>statements</em>. Either <em>statements</em> or <em>policy_document</em> must be specified when creating a policy with <em>state=present</em>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>policy_id<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The OCID of the policy. Required to update or delete a policy.</div>
-        </br><div style="font-size: small;">aliases: id</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>region<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>state<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>present</td>
-    <td><ul><li>present</li><li>absent</li></ul></td>
-    <td>
-        <div>Create or update a policy with <em>state=present</em>. Delete a policy with <em>state=absent</em>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>statements<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>An array of policy statements written in the policy language. This option is mutually exclusive with <em>policy_document</em>. Either <em>statements</em> or <em>policy_document</em> must be specified when creating a policy with <em>state=present</em>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>tenancy<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>version_date<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The version of the policy. The version of the policy. If null or set to an empty string, when a request comes in for authorization, the policy will be evaluated according to the current behavior of the services at that moment. If set to a particular date (YYYY-MM-DD), the policy will be evaluated according to the behavior of the services on that date.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>wait<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>True</td>
-    <td><ul><li>yes</li><li>no</li></ul></td>
-    <td>
-        <div>Whether to wait for create or delete operation to complete.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>wait_timeout<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>1200</td>
-    <td></td>
-    <td>
-        <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>wait_until<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The lifecycle state to wait for the resource to transition into when <em>wait=yes</em>. By default, when <em>wait=yes</em>, we wait for the resource to get into ACTIVE/ATTACHED/AVAILABLE/PROVISIONED/ RUNNING applicable lifecycle state during create operation &amp; to get into DELETED/DETACHED/ TERMINATED lifecycle state during delete operation.</div>
-    </td>
-    </tr>
-
-    </table>
-    </br>
 
 Examples
 --------
 
- ::
+.. code-block:: yaml+jinja
 
     
     - name: Create a policy
@@ -285,58 +312,54 @@ Examples
         state: 'absent'
 
 
+
+
 Return Values
 -------------
-
 Common return values are documented :ref:`here <common_return_values>`, the following are the fields unique to this module:
 
 .. raw:: html
 
-    <table border=1 cellpadding=4>
-
-    <tr>
-    <th class="head">name</th>
-    <th class="head">description</th>
-    <th class="head">returned</th>
-    <th class="head">type</th>
-    <th class="head">sample</th>
-    </tr>
-
-    <tr>
-    <td>policy</td>
-    <td>
-        <div>OCI policy details</div>
-    </td>
-    <td align=center>On successful operation</td>
-    <td align=center>dict</td>
-    <td align=center>{'lifecycle_state': 'ACTIVE', 'inactive_status': None, 'statements': ['Allow group GroupAdmins to manage users in compartment Project-A'], 'name': 'mypolicy', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'time_created': '2017-11-01T19:19:36.700000+00:00', 'version_date': '2017-11-01T00:00:00+00:00', 'id': 'ocid1.policy.oc1..xxxxxEXAMPLExxxxx', 'description': 'GroupAdmins can add/remove users in Project-A compartment'}</td>
-    </tr>
-
-    </table>
-    </br>
-    </br>
-
-
-Notes
------
-
-.. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
-
-
-Author
-~~~~~~
-
-    * Rohit Chaware (@rohitChaware)
-
-
+    <table border=0 cellpadding=0 class="documentation-table">
+        <tr>
+            <th colspan="1">Key</th>
+            <th>Returned</th>
+            <th width="100%">Description</th>
+        </tr>
+                    <tr>
+                                <td colspan="1">
+                    <b>policy</b>
+                    <br/><div style="font-size: small; color: red">dict</div>
+                                    </td>
+                <td>On successful operation</td>
+                <td>
+                                            <div>OCI policy details</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'ACTIVE', 'inactive_status': None, 'statements': ['Allow group GroupAdmins to manage users in compartment Project-A'], 'name': 'mypolicy', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'time_created': '2017-11-01T19:19:36.700000+00:00', 'version_date': '2017-11-01T00:00:00+00:00', 'id': 'ocid1.policy.oc1..xxxxxEXAMPLExxxxx', 'description': 'GroupAdmins can add/remove users in Project-A compartment'}</div>
+                                    </td>
+            </tr>
+                        </table>
+    <br/><br/>
 
 
 Status
-~~~~~~
+------
+
+
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
 
 
 
-For help in developing on modules, should you be so inclined, please read :doc:`../../community`, :doc:`../../dev_guide/testing` and :doc:`../../dev_guide/developing_modules`.
+Author
+~~~~~~
+
+- Rohit Chaware (@rohitChaware)
+
+
+.. hint::
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_policy.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

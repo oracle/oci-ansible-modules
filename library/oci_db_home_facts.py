@@ -20,7 +20,7 @@ module: oci_db_home_facts
 short_description: Fetches details of one or more OCI DB Homes
 description:
     - Fetches details of the OCI DB Home.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment in which the specified DB System exists
@@ -34,7 +34,7 @@ options:
         aliases: ['id']
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -146,7 +146,8 @@ def list_db_homes(db_client, module):
                                compartment_id, db_system_id)
             existing_db_homes = oci_utils.list_all_resources(
                 db_client.list_db_homes,
-                compartment_id=compartment_id, db_system_id=db_system_id)
+                compartment_id=compartment_id, db_system_id=db_system_id,
+                display_name=module.params['display_name'])
         elif db_home_id:
             get_logger().debug("Listing DB Home %s", db_home_id)
             response = oci_utils.call_with_backoff(
@@ -171,7 +172,7 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_db_home_facts")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         db_system_id=dict(type='str', required=False),
@@ -188,8 +189,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    db_client = DatabaseClient(oci_config)
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_db_homes(db_client, module)
 
     module.exit_json(**result)

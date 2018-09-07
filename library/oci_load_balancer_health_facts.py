@@ -20,7 +20,7 @@ module: oci_load_balancer_health_facts
 short_description: Fetch details of a Load Balancer Health
 description:
     - Fetch details of a Load Balancer Health.
-version_added: "2.x"
+version_added: "2.5"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer
@@ -152,7 +152,7 @@ def main():
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
-    lb_client = LoadBalancerClient(oci_utils.get_oci_config(module))
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
 
     result = get_load_balancer_health(lb_client, module)
 

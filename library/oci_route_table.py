@@ -26,7 +26,7 @@ description:
     - Update OCI Route Table, if present, by purging existing Route Rules and replacing them with
       specified ones
     - Delete OCI Route Table, if present.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment under which this
@@ -292,8 +292,9 @@ def update_route_table(virtual_network_client, existing_route_table, module):
     if input_route_rules is not None:
         if input_route_rules:
             route_rules_object_list = get_route_rules(input_route_rules)
-            route_rules, route_rules_changed = get_route_rules_difference(
-                route_rules_object_list, existing_route_rules, purge_route_rules)
+            route_rules, route_rules_changed = oci_utils.get_component_list_difference(
+                get_hashed_route_rules(route_rules_object_list),
+                get_hashed_route_rules(existing_route_rules), purge_route_rules)
         else:
             route_rules = []
             route_rules_changed = True
@@ -315,26 +316,6 @@ def update_route_table(virtual_network_client, existing_route_table, module):
                                            )
 
     return result
-
-
-def get_route_rules_difference(
-        input_route_rules, existing_route_rules, purge_route_rules):
-    if not existing_route_rules:
-        return input_route_rules, True
-    if purge_route_rules:
-        route_rule_differences = set(get_hashed_route_rules(input_route_rules)). \
-            symmetric_difference(
-            set(get_hashed_route_rules(existing_route_rules)))
-        if route_rule_differences:
-            return input_route_rules, True
-
-    route_rule_differences = set(get_hashed_route_rules(input_route_rules)). \
-        difference(set(get_hashed_route_rules(existing_route_rules)))
-
-    if route_rule_differences:
-        return list(route_rule_differences) + existing_route_rules, True
-
-    return None, False
 
 
 def get_hashed_route_rules(route_rules):
@@ -376,8 +357,8 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(oci_config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+
     state = module.params['state']
 
     if state == 'present':

@@ -53,7 +53,7 @@ The `oci_inventory.py` script also accepts the following environment variables:
 | OCI_TENANCY | Specifies the OCID of the tenancy to use to fetch the inventory |
 | OCI_REGION |  Specifies the OCI Region to use to fetch the inventory |
 | OCI_USER_KEY_PASS_PHRASE | Specifies the passphrase of the key (if encrypted), to use to fetch the inventory. |
-| OCI_CACHE_DIR | Specifies the directory where cache files of the inventory script will reside. A file named "ansible-oci.cache" will be written to this directory. |
+| OCI_CACHE_DIR | Specifies the directory where cache files of the inventory script will reside. A file named "ansible-oci.cache" will be written to this directory. It is recommended that the directory pointed to by this environment variable be read-able and write-able (unix file permissions 600) only by the user running the inventory script. |
 | OCI_CACHE_MAX_AGE |  The number of seconds a cache file is considered valid. To disable caching and get the latest inventory from OCI, set this value to 0. |
 | OCI_HOSTNAME_FORMAT | Host naming format to use in the generated inventory. Use 'fqdn' to list hosts using the instance's Fully Qualified Domain Name (FQDN). Use 'public_ip' to list hosts using public IP address. Use 'private_ip' to list hosts using private IP address.|
 
@@ -172,4 +172,4 @@ The script would then return the following variables for the specified host:
   - GetVCN
   - GetVNIC
   - GetInstance
-- The default `OCI_HOSTNAME_FORMAT` is "public_ip" and so the generated inventory would only contain compute instances with public IP. This is useful when your ansible controller node is outside the OCI VCN (as Ansible can only reach instances with public IPs). However if you are running Ansible in a compute instance within your OCI VCN that has access to all subnets within yuor VCN and can reach compute instances with private ips, set `OCI_HOSTNAME_FORMAT` to "private_ip" to fetch nodes with private IPs as well.
+- The default `OCI_HOSTNAME_FORMAT` is "public_ip" and so the generated inventory would only contain compute instances with a public IP. This is useful when your ansible controller node is outside the OCI VCN (as Ansible can only reach instances with public IPs). However if you are running Ansible in a compute instance within your OCI VCN that has access to all subnets within yuor VCN and can reach compute instances with private ips, set `OCI_HOSTNAME_FORMAT` to "private_ip" to fetch nodes with private IPs as well.

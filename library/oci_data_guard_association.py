@@ -27,7 +27,7 @@ description:
     - Perform a reinstate on a disabled standby Database associated in a Data Guard Association
     - Since all operations of this module takes a long time, it is recommended to set the C(wait) to False. Use
       M(oci_data_guard_association_facts) to check the status of the operation as a separate task.
-version_added: "2.x"
+version_added: "2.5"
 options:
     database_id:
         description: Identifier of the Database to which the Data Guard should be Associated.
@@ -390,7 +390,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    db_client = DatabaseClient(oci_utils.get_oci_config(module))
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     state = module.params['state']
     if state == 'present':
         result = oci_utils.check_and_create_resource(resource_type='data_guard_association',

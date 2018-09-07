@@ -24,7 +24,7 @@ description:
     - Add a listener to a backend set in a OCI Load Balancer
     - Update a listener in a Load Balancer, if present, with any changed attribute
     - Delete a listener from OCI Load Balancer Backends, if present.
-version_added: "2.x"
+version_added: "2.5"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer in which the listener belongs.
@@ -82,7 +82,7 @@ options:
                      I(hostname_names) would be appended to existing I(hostname_names).
         required: false
         default: 'yes'
-        choices: ['yes','no']
+        type: "bool"
     state:
         description: Create,update or delete Load Balancer Backend. For I(state=present),
                      if it does not exists, it gets added. If exists, it gets updated.
@@ -91,7 +91,7 @@ options:
         choices: ['present','absent']
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [oracle, oracle_wait_options]
 '''
 
 EXAMPLES = '''
@@ -322,19 +322,23 @@ def create_listener(lb_client, module, lb_id, name):
     create_listener_details.name = name
     get_logger().info("Creating listener %s in load balancer %s with parameters %s", name, lb_id,
                       str(create_listener_details))
-    return oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type='listener',
-                                                               function=lb_client.create_listener,
-                                                               kwargs_function={
-                                                                   'create_listener_details': create_listener_details,
-                                                                   'load_balancer_id': lb_id},
-                                                               lb_client=lb_client,
-                                                               get_sub_resource_fn=oci_lb_utils.get_listener,
-                                                               kwargs_get={'lb_client': lb_client,
-                                                                           'module': module,
-                                                                           'load_balancer_id': lb_id,
-                                                                           'name': name},
-                                                               module=module
-                                                               )
+    result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type='listener',
+                                                                 function=lb_client.create_listener,
+                                                                 kwargs_function={
+                                                                     'create_listener_details': create_listener_details,
+                                                                     'load_balancer_id': lb_id},
+                                                                 lb_client=lb_client,
+                                                                 get_sub_resource_fn=oci_lb_utils.get_listener,
+                                                                 kwargs_get={'lb_client': lb_client,
+                                                                             'module': module,
+                                                                             'load_balancer_id': lb_id,
+                                                                             'name': name},
+                                                                 module=module
+                                                                 )
+    get_logger().info("Successfully created listener %s in load balancer %s with parameters %s", name, lb_id,
+                      str(create_listener_details))
+
+    return result
 
 
 def update_listener(lb_client, module, listener, lb_id, name):
@@ -367,7 +371,7 @@ def update_listener(lb_client, module, listener, lb_id, name):
     update_listener_details.hostname_names = listener.hostname_names
     hostname_names_changed = False
     if input_hostname_names is not None:
-        changed_hostname_names, hostname_names_changed = oci_lb_utils.check_and_return_component_list_difference(
+        changed_hostname_names, hostname_names_changed = oci_utils.check_and_return_component_list_difference(
             input_hostname_names, listener.hostname_names, module.params.get('purge_hostname_names'))
     if hostname_names_changed:
         update_listener_details.hostname_names = changed_hostname_names
@@ -390,6 +394,9 @@ def update_listener(lb_client, module, listener, lb_id, name):
                                                                                  'name': name},
                                                                      module=module
                                                                      )
+    else:
+        get_logger().info("Successfully updated listener %s in load balancer %s", name, lb_id)
+
     return result
 
 
@@ -405,21 +412,25 @@ def get_listener_input_details(module):
 
 
 def delete_listener(lb_client, module):
-    load_balancer_id = module.params.get('load_balancer_id')
+    lb_id = module.params.get('load_balancer_id')
     name = module.params.get('name')
-    return oci_lb_utils.delete_lb_resources_and_wait(resource_type="listener",
-                                                     function=lb_client.delete_listener,
-                                                     kwargs_function={
-                                                         'listener_name': name,
-                                                         'load_balancer_id': load_balancer_id},
-                                                     lb_client=lb_client,
-                                                     get_sub_resource_fn=oci_lb_utils.get_listener,
-                                                     kwargs_get={'lb_client': lb_client,
-                                                                 'module': module,
-                                                                 'load_balancer_id': load_balancer_id,
-                                                                 'name': name},
-                                                     module=module
-                                                     )
+    get_logger().info("Deleting listener %s from the load balancer %s", name, lb_id)
+    result = oci_lb_utils.delete_lb_resources_and_wait(resource_type="listener",
+                                                       function=lb_client.delete_listener,
+                                                       kwargs_function={
+                                                           'listener_name': name,
+                                                           'load_balancer_id': lb_id},
+                                                       lb_client=lb_client,
+                                                       get_sub_resource_fn=oci_lb_utils.get_listener,
+                                                       kwargs_get={'lb_client': lb_client,
+                                                                   'module': module,
+                                                                   'load_balancer_id': lb_id,
+                                                                   'name': name},
+                                                       module=module
+                                                       )
+    get_logger().info("Successfully deleted listener %s from the load balancer %s", name, lb_id)
+
+    return result
 
 
 def set_logger(input_logger):
@@ -439,15 +450,13 @@ def main():
         load_balancer_id=dict(type='str', required=True, aliases=['id']),
         default_backend_set_name=dict(type='str', required=False),
         name=dict(type='str', required=True),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent']),
+        state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
         protocol=dict(type='str', required=False),
         port=dict(type=int, required=False),
         ssl_configuration=dict(type=dict, required=False),
         connection_configuration=dict(type=dict, required=False),
         hostname_names=dict(type=list, required=False),
-        purge_hostname_names=dict(type='bool', required=False, default=True,
-                                  choices=[True, False]),
+        purge_hostname_names=dict(type='bool', required=False, default=True),
         path_route_set_name=dict(type='str', required=False)
     ))
 
@@ -458,7 +467,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    lb_client = LoadBalancerClient(oci_utils.get_oci_config(module))
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
     state = module.params['state']
 
     if state == 'present':

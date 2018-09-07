@@ -29,7 +29,7 @@ description:
     - Update OCI user, if present, and reset the ui password of the user
     - Unblock a blocked user
     - Delete OCI user, if present.
-version_added: "2.x"
+version_added: "2.5"
 options:
     name:
         description: Name of the user. Must be unique for a tenancy.
@@ -183,7 +183,7 @@ user:
             sample: ocid1.user.oc1.axdf
         inactive_status:
             description: The detailed status of INACTIVE life cycle state
-            returned: always
+            returned: when user's lifecycle_state is INACTIVE
             type: string
             sample: None
         lifecycle_state:
@@ -535,7 +535,8 @@ def main():
         module.fail_json(msg='oci python sdk required for this module')
 
     oci_config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(oci_config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
+
     compartment_id = oci_config['tenancy']
     module.params.update(dict({'compartment_id': compartment_id}))
     state = module.params['state']

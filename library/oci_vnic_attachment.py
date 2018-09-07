@@ -23,7 +23,7 @@ short_description: Create a secondary VNIC and attach it to a compute instance, 
 description:
     - This module allows the user to create a secondary VNIC and attach it to a compute instance, detach a secondary
       VNIC attachment from a compute instance, and delete the secondary VNIC.
-version_added: "2.x"
+version_added: "2.5"
 options:
     instance_id:
         description: The OCID of the instance to which the secondary VNIC must be attached. Required when a secondary
@@ -283,8 +283,8 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    compute_client = ComputeClient(config)
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
+
     state = module.params['state']
 
     result = dict(changed=False)

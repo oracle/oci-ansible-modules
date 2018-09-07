@@ -96,7 +96,8 @@ def get_response(status, header, data, request):
 def get_module():
     params = {'compartment_id': 'ocid1.comp..axsd',
               'vcn_id': 'ocid1.vcn..fxdv',
-              'dhcp_id': None}
+              'dhcp_id': None,
+              'display_name': None}
     module = FakeModule(**params)
     return module
 

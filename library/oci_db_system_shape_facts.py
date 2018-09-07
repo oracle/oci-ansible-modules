@@ -20,7 +20,7 @@ module: oci_db_system_shape_facts
 short_description: Fetches details of all DB System Shapes
 description:
     - Fetches details of all DB System Shapes.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment where DB Systems should be
@@ -31,7 +31,7 @@ options:
         required: true
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_name_option ]
 '''
 EXAMPLES = '''
 #Fetch DB System Shapes
@@ -102,7 +102,8 @@ def list_db_system_shapes(db_client, module):
                            compartment_id, availability_domain)
         db_system_shapes = oci_utils.list_all_resources(
             db_client.list_db_system_shapes,
-            availability_domain=availability_domain, compartment_id=compartment_id)
+            availability_domain=availability_domain, compartment_id=compartment_id,
+            name=module.params['name'])
     except ServiceError as ex:
         get_logger().error("Unable to list DB System Shapes due to %s", ex.message)
         module.fail_json(msg=ex.message)
@@ -123,7 +124,7 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_db_system_shape_facts")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
     module_args.update(dict(
         compartment_id=dict(type='str', required=True),
         availability_domain=dict(type='str', required=True)
@@ -135,8 +136,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    db_client = DatabaseClient(oci_config)
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_db_system_shapes(db_client, module)
 
     module.exit_json(**result)

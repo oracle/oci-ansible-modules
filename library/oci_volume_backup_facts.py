@@ -22,7 +22,7 @@ short_description: Retrieve facts of volume backups in OCI Block Volume service
 description:
     - This module retrieves information of a specified volume backup or all the volume backups in a compartment in OCI
       Block Volume service.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment.
@@ -32,7 +32,7 @@ options:
         required: false
         aliases: [ 'id' ]
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -139,7 +139,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         volume_backup_id=dict(type='str', required=False, aliases=['id'])
@@ -159,8 +159,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    block_storage_client = BlockstorageClient(config)
+    block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
     volume_backup_id = module.params['volume_backup_id']
 
@@ -172,7 +171,8 @@ def main():
         else:
             compartment_id = module.params['compartment_id']
             result = to_dict(oci_utils.list_all_resources(block_storage_client.list_volume_backups,
-                                                          compartment_id=compartment_id))
+                                                          compartment_id=compartment_id,
+                                                          display_name=module.params['display_name']))
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 

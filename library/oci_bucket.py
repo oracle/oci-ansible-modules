@@ -22,7 +22,7 @@ description:
     - Creates OCI bucket if not present.
     - Update OCI bucket, if present.
     - Delete OCI bucket, if present.
-version_added: "2.x"
+version_added: "2.5"
 options:
     namespace_name:
         description: Name of the namespace in which the bucket is available or should be available
@@ -281,8 +281,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    object_storage_client = ObjectStorageClient(
-        oci_utils.get_oci_config(module))
+    object_storage_client = oci_utils.create_service_client(module, ObjectStorageClient)
     state = module.params['state']
     if state == 'present':
         result = create_or_update_bucket(object_storage_client, module)

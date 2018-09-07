@@ -24,7 +24,7 @@ description:
     - Update OCI Security List, if present, with a new display name
     - Update OCI Security List, if present, with ingress/egress security rules
     - Delete OCI Security List, if present.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment under which this security List would be created. Mandatory for create
@@ -416,14 +416,16 @@ def update_security_list(virtual_network_client, existing_security_list, module)
                                                                  name_tag_changed)
 
     if input_egress_security_rules is not None:
-        egress_security_rules, egress_security_rules_changed = get_final_security_rules(
-            input_egress_security_rules, existing_egress_security_rule,
-            'egress_security_rules', purge_security_rules)
+        input_egress_security_rules = get_security_rules('egress_security_rules', input_egress_security_rules)
+        egress_security_rules, egress_security_rules_changed = oci_utils.check_and_return_component_list_difference(
+            input_egress_security_rules, get_hashed_security_rules(
+                'egress_security_rules', existing_egress_security_rule), purge_security_rules)
 
     if input_ingress_security_rules is not None:
-        ingress_security_rules, ingress_security_rules_changed = get_final_security_rules(
-            input_ingress_security_rules, existing_ingress_security_rule,
-            'ingress_security_rules', purge_security_rules)
+        input_ingress_security_rules = get_security_rules('ingress_security_rules', input_ingress_security_rules)
+        ingress_security_rules, ingress_security_rules_changed = oci_utils.check_and_return_component_list_difference(
+            input_ingress_security_rules, get_hashed_security_rules(
+                'ingress_security_rules', existing_ingress_security_rule), purge_security_rules)
 
     if egress_security_rules_changed:
         update_security_list_details.egress_security_rules = egress_security_rules
@@ -449,42 +451,11 @@ def update_security_list(virtual_network_client, existing_security_list, module)
     return result
 
 
-def get_final_security_rules(input_security_rules, existing_security_rules, security_rules_type, purge_security_rules):
-    security_rules = None
-    security_rules_changed = False
-    if input_security_rules:
-        input_security_rules_object_list = get_security_rules(
-            security_rules_type, input_security_rules)
-        security_rules, security_rules_changed = get_security_rules_difference(
-            existing_security_rules, input_security_rules_object_list, security_rules_type, purge_security_rules)
-    else:
-        security_rules = []
-        security_rules_changed = True
-
-    return security_rules, security_rules_changed
-
-
-def get_security_rules_difference(
-        existing_security_rules, input_security_rules, security_rules_type, purge_security_rules):
-    if not existing_security_rules:
-        return input_security_rules, True
-    existing_security_rules_object_list = get_hashed_security_rules(
-        security_rules_type, existing_security_rules)
-    if purge_security_rules:
-        security_rule_differences = set(input_security_rules).symmetric_difference(
-            set(existing_security_rules_object_list))
-        if security_rule_differences:
-            return input_security_rules, True
-    security_rule_differences = set(input_security_rules).difference(
-        set(existing_security_rules_object_list))
-    if security_rule_differences:
-        return list(security_rule_differences) + existing_security_rules_object_list, True
-    return None, False
-
-
 def get_hashed_security_rules(security_rules_type, security_rules):
     supported_security_rule_simple_attributes = ['source', 'destination', 'is_stateless', 'protocol']
     hashed_security_rules = []
+    if security_rules is None:
+        return hashed_security_rules
     for security_rule in security_rules:
         if security_rules_type == 'ingress_security_rules':
             hashed_security_rule = oci_utils.create_hashed_instance(
@@ -623,8 +594,8 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(oci_config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+
     state = module.params['state']
 
     if state == 'present':

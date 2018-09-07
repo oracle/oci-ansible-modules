@@ -22,7 +22,7 @@ short_description: Update a VNIC
 description:
     - This module allows the user to update a specified VNIC. To create a primary VNIC, use oci_instance. To create a
       secondary VNIC and attach it to an instance, use oci_vnic_attachment.
-version_added: "2.x"
+version_added: "2.5"
 options:
   hostname_label:
         description: The hostname for the VNIC's primary private IP. Used for DNS. The value is the hostname portion of
@@ -139,9 +139,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    virtnetwork_client = VirtualNetworkClient(config)
-
+    virtnetwork_client = oci_utils.create_service_client(module, VirtualNetworkClient)
     result = dict(changed=False)
 
     id = module.params['id']

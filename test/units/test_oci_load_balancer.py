@@ -41,21 +41,6 @@ def lb_client(mocker):
 
 
 @pytest.fixture()
-def oci_wait_until_patch(mocker):
-    return mocker.patch.object(oci, 'wait_until')
-
-
-@pytest.fixture()
-def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
-
-
-@pytest.fixture()
-def get_existing_load_balancer_patch(mocker):
-    return mocker.patch.object(oci_lb_utils, 'get_existing_load_balancer')
-
-
-@pytest.fixture()
 def create_load_balancer_patch(mocker):
     return mocker.patch.object(oci_load_balancer, 'create_load_balancer')
 
@@ -69,9 +54,21 @@ def update_load_balancer_patch(mocker):
 def check_and_create_resource_patch(mocker):
     return mocker.patch.object(oci_utils, 'check_and_create_resource')
 
+
+@pytest.fixture()
+def create_or_update_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'create_or_update_lb_resources_and_wait')
+
+
+@pytest.fixture()
+def delete_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'delete_lb_resources_and_wait')
+
+
 @pytest.fixture()
 def get_existing_resource_patch(mocker):
     return mocker.patch.object(oci_utils, 'get_existing_resource')
+
 
 def setUpModule():
     logging.basicConfig(filename='/tmp/oci_ansible_module.log',
@@ -91,7 +88,7 @@ def test_create_or_update_lb_update(lb_client, get_existing_resource_patch, upda
     module = get_module(dict(load_balancer_id='ocid1.loadbalancer..xdvf'))
     load_balancer = get_load_balancer()
     get_existing_resource_patch.return_value = load_balancer
-    update_load_balancer_patch.return_value = True, load_balancer
+    update_load_balancer_patch.return_value = {'load_balancer': to_dict(load_balancer), 'changed': True}
     result = oci_load_balancer.create_or_update_lb(lb_client, module)
     assert result['load_balancer']['id'] == load_balancer.id
 
@@ -109,83 +106,40 @@ def test_create_or_update_lb_service_error(lb_client, get_existing_resource_patc
         assert error_message in ex.args[0]
 
 
-def test_create_load_balancer(lb_client, oci_wait_until_patch):
+def test_create_load_balancer(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict())
-    work_request_response_header = dict(
-        {'opc-work-request-id': 'ABE00987F'})
-    work_request = WorkRequest()
-    work_request.load_balancer_id = 'ocid.loadbalancer.cvghs'
-    work_request.lifecycle_state = 'SUCCEEDED'
-    lb_client.create_load_balancer.return_value = get_response(
-        204, work_request_response_header, work_request, None)
-    lb_client.get_work_request.return_value = get_response(
-        200, None, work_request, None)
     load_balancer = LoadBalancer()
     load_balancer.id = 'ocid.loadbalancer.cvghs'
-    lb_client.get_load_balancer.return_value = get_response(
-        200, None, load_balancer, None)
+    create_or_update_lb_resources_and_wait_patch.return_value = dict(load_balancer=to_dict(load_balancer), changed=True)
     result = oci_load_balancer.create_load_balancer(lb_client, module)
     assert result['load_balancer']['id'] == load_balancer.id
 
 
-def test_update_load_balancer(lb_client, oci_wait_until_patch):
+def test_update_load_balancer(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict())
-    work_request_response_header = dict(
-        {'opc-work-request-id': 'ABE00987F'})
-    work_request = WorkRequest()
-    work_request.load_balancer_id = 'ocid.loadbalancer.cvghs'
-    work_request.lifecycle_state = 'SUCCEEDED'
-    lb_client.update_load_balancer.return_value = get_response(
-        204, work_request_response_header, work_request, None)
-    lb_client.get_work_request.return_value = get_response(
-        200, None, work_request, None)
     load_balancer = LoadBalancer()
     load_balancer.id = 'ocid.loadbalancer.cvghs'
     load_balancer.display_name = 'ansible_lb_updated'
-    lb_client.get_load_balancer.return_value = get_response(
-        200, None, load_balancer, None)
-    changed, result = oci_load_balancer.update_load_balancer(
-        lb_client, module, load_balancer)
-    assert result.display_name == load_balancer.display_name
+    create_or_update_lb_resources_and_wait_patch.return_value = dict(load_balancer=to_dict(load_balancer), changed=True)
+    oci_load_balancer.update_load_balancer(lb_client, module, load_balancer)
+    assert create_or_update_lb_resources_and_wait_patch.called
 
 
-def test_delete_load_balancer(lb_client, get_existing_resource_patch, oci_wait_until_patch):
+def test_delete_load_balancer(lb_client, get_existing_resource_patch, delete_lb_resources_and_wait_patch):
     module = get_module(dict())
-    work_request_response_header = dict(
-        {'opc-work-request-id': 'ABE00987F'})
-    work_request = WorkRequest()
-    work_request.load_balancer_id = 'ocid.loadbalancer.cvghs'
-    lb_client.delete_load_balancer.return_value = get_response(
-        204, work_request_response_header, work_request, None)
     load_balancer = get_load_balancer()
     get_existing_resource_patch.return_value = load_balancer
+    delete_lb_resources_and_wait_patch.return_value = dict(load_balancer=to_dict(load_balancer), changed=True)
     result = oci_load_balancer.delete_load_balancer(lb_client, module)
     assert result['changed'] is True
 
-
-def test_delete_load_balancer_no_existing_lb(lb_client, get_existing_resource_patch):
-    module = get_module(dict())
-    get_existing_resource_patch.side_effect = ServiceError(
-        404, 'NotFound', dict(), None)
-    result = oci_load_balancer.delete_load_balancer(lb_client, module)
-    assert result['changed'] is False
-
-
-def test_delete_load_balancer_service_error(lb_client, get_existing_resource_patch):
-    error_message = 'Internal Server Error'
-    module = get_module(dict())
-    get_existing_resource_patch.side_effect = ServiceError(
-        500, 'InternalServerError', dict(), error_message)
-    try:
-        oci_load_balancer.delete_load_balancer(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
 
 def get_load_balancer():
     load_balancer = LoadBalancer()
     load_balancer.id = 'ocid.loadbalancer.cvghs'
     load_balancer.display_name = 'ansible_lb'
     return load_balancer
+
 
 def get_response(status, header, data, request):
     return oci.Response(status, header, data, request)

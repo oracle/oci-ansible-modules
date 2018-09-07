@@ -20,7 +20,7 @@ module: oci_db_home_patch_history_entry_facts
 short_description: Fetches details of one or more DB Home Patch History Entries
 description:
     - Fetches details of one or more  DB Home Patch History Entries.
-version_added: "2.x"
+version_added: "2.5"
 options:
     db_home_id:
         description: Identifier of the  DB Home whose Patch History Entries needs
@@ -165,8 +165,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    db_client = DatabaseClient(oci_config)
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_db_home_patch_history_entries(db_client, module)
 
     module.exit_json(**result)

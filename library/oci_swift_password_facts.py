@@ -22,7 +22,7 @@ description:
     - This module retrieves details of swift passwords of a specified user. The returned object contains the swift
       password's OCID, but not the password itself. The actual password is returned only upon creation of a swift
       password using the M(oci_swift_password) module.
-version_added: "2.x"
+version_added: "2.5"
 options:
     user_id:
         description: The OCID of the user
@@ -142,8 +142,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     user_id = module.params.get("user_id")
     id = module.params.get("swift_password_id", None)

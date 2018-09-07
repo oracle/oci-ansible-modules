@@ -1,0 +1,40 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+compartment_id: "{{ demo_compartment_ocid }}"
+
+availability_domain_1: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"
+availability_domain_2: "{{ lookup('env', 'SAMPLE_AD2_NAME') }}"
+
+lb_dns_label_ad1: 'lbdnsad1'
+lb_dns_label_ad2: 'lbdnsad2'
+
+lb_subnet_ad1: 'lb_subnet_ad1'
+lb_subnet_ad2: 'lb_subnet_ad2'
+demo_public_subnet_security_list_name: "{{ demo_var_prefix }}_public_subnet"
+
+lb_name: "{{ demo_var_prefix }}_load_balancer"
+sample_shape: "100Mbps"
+sample_first_backend_set_name: 'sample_first_backend_set'
+sample_first_backend_set_policy: 'ROUND_ROBIN'
+
+sample_second_backend_set_name: 'sample_second_backend_set'
+sample_second_backend_set_policy: 'IP_HASH'
+
+http_path_route_set_name: 'http_path_route_set'
+https_path_route_set_name: 'https_path_route_set'
+
+# Initialize values for certificates
+sample_ca_certificate: "{{cert_path}}/ca_cert.pem"
+sample_private_key: "{{cert_path}}/private_key.pem"
+sample_public_certificate: "{{cert_path}}/cert.pem"
+sample_certificate_name: "sample_certs"
+
+# Initialize values for listeners
+http_listener_name: 'http_listener1'
+https_listener_name: 'https_listener'
+http_port: 80
+https_port: 443

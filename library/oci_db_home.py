@@ -24,7 +24,7 @@ description:
     - Delete an OCI DB Home, if present.
     - Since all operations of this module takes a long time, it is recommended to set the C(wait) to False. Use
       M(oci_db_home_facts) to check the status of the operation as a separate task.
-version_added: "2.x"
+version_added: "2.5"
 options:
     db_system_id:
         description: Identifier of the  DB System under which the DB Home should exist.
@@ -401,7 +401,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    db_client = DatabaseClient(oci_utils.get_oci_config(module))
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     if os.environ.get('OCI_DB_MOCK') is not None:
         db_client.base_client.session.headers.update(
             {'opc-host-serial': 'FakeHostSerial'})

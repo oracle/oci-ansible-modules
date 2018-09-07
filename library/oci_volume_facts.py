@@ -22,7 +22,7 @@ short_description: Retrieve facts of volumes in OCI Block Volume service
 description:
     - This module retrieves information of a specified volume or all the volumes in a specified compartment and
       availability domain.
-version_added: "2.x"
+version_added: "2.5"
 options:
     availability_domain:
         description: The name of the Availability Domain.
@@ -53,7 +53,7 @@ options:
         required: false
         aliases: [ 'id' ]
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -265,14 +265,14 @@ except ImportError:
 
 
 @check_mode
-def add_attached_instance_info(config, module, volumes, lookup_attached_instance):
-    compute_client = ComputeClient(config)
+def add_attached_instance_info(module, volumes, lookup_attached_instance):
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
 
     if volumes:
         for volume in volumes:
             try:
                 volume['attached_instance_information'] = oci_utils.get_attached_instance_info(
-                    config,
+                    module,
                     lookup_attached_instance,
                     list_attachments_fn=compute_client.list_volume_attachments,
                     list_attachments_args={"volume_id": volume['id'],
@@ -285,7 +285,7 @@ def add_attached_instance_info(config, module, volumes, lookup_attached_instance
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         availability_domain=dict(type='str', required=False),
         compartment_id=dict(type='str', required=False),
@@ -307,8 +307,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    block_storage_client = BlockstorageClient(config)
+    block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
     volume_id = module.params['volume_id']
 
@@ -323,15 +322,17 @@ def main():
             if availability_domain is not None:
                 result = to_dict(oci_utils.list_all_resources(block_storage_client.list_volumes,
                                                               compartment_id=compartment_id,
-                                                              availability_domain=availability_domain))
+                                                              availability_domain=availability_domain,
+                                                              display_name=module.params['display_name']))
             else:
                 result = to_dict(oci_utils.list_all_resources(block_storage_client.list_volumes,
-                                                              compartment_id=compartment_id))
+                                                              compartment_id=compartment_id,
+                                                              display_name=module.params['display_name']))
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    add_attached_instance_info(config, module, result, module.params['lookup_all_attached_instances'])
+    add_attached_instance_info(module, result, module.params['lookup_all_attached_instances'])
 
     module.exit_json(volumes=result)
 

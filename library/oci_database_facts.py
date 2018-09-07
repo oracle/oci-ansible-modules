@@ -20,7 +20,7 @@ module: oci_database_facts
 short_description: Fetches details of one or more Databases
 description:
     - Fetches details of one or more OCI Databases.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment in which the specified Database exists
@@ -241,8 +241,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    db_client = DatabaseClient(oci_config)
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_databases(db_client, module)
 
     module.exit_json(**result)

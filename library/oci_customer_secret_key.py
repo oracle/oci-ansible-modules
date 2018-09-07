@@ -24,7 +24,7 @@ description:
       Oracle-provided key for using the Object Storage Service's Amazon S3 compatible API. A user can have up to two
       secret keys at a time.
       Note: The secret key is always an Oracle-generated string; you can't change it to a string of your choice."
-version_added: "2.x"
+version_added: "2.5"
 options:
     user_id:
         description: The OCID of the user.
@@ -225,8 +225,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
     state = module.params['state']
 
     result = dict(changed=False)

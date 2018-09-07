@@ -1,0 +1,63 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+
+- name: Show how instance_principal based authentication can be used while running ansible playbooks within an OCI compute instance
+  hosts: localhost
+  vars:
+    dynamic_group_name: "sample_dynamic_group"
+    policy_name: "sample_policy_using_dynamic_group"
+
+    # common networking definitions
+    quad_zero_route: "0.0.0.0/0"
+    TCP_protocol: "6"
+    HTTP_port: "80"
+    HTTPS_port: "443"
+    SSH_port: "22"
+
+    vcn_name: "mytestvcn"
+    vcn_cidr_block: "10.0.0.0/16"
+    vcn_dns_label: "mytestvcn"
+
+    ig_name: "myinternetgatewayformytestvcn"
+
+    route_table_name: "myroutetable"
+    # route all internet access to our Internet Gateway
+    route_table_rules:
+        - cidr_block: "{{ quad_zero_route }}"
+          network_entity_id: "{{ ig_id }}"
+
+
+    subnet_cidr: "10.0.0.48/28"
+    subnet_name: "mytestsubnet"
+    subnet_dns_label: "mytestsubnet"
+
+    securitylist_name: "mysecuritylist"
+
+    instance_shape: "VM.Standard1.1"
+    instance_hostname: "mytestinstanceprincipalauth"
+
+    #########################################
+    # Tenancy specific configuration
+    # *Note* - Override the following variables based on your tenancy
+    # or set a valid value for the corresponding environment variable
+    #########################################
+    sample_tenancy_ocid: "{{ lookup('env', 'SAMPLE_TENANCY_OCID') }}"
+    sample_compartment_ocid: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
+    sample_image_ocid: "{{ lookup('env', 'SAMPLE_IMAGE_OCID') }}"
+    sample_ad_name: "{{ lookup('env', 'SAMPLE_AD_NAME') }}"
+
+  tasks:
+    - import_tasks: setup.yaml
+
+    - name: ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }}
+      debug: msg="The setup is complete, and an instance is running and can be connected to, with the command in this task's title above. To check if instance-principal based authentication is working, copy over the script, instance-principal-test.sh, to the provisioned instance, and execute the script in that instance"
+
+    # XXX automate the steps of running the script in the newly launched instance
+    # (after publishing a public release that contains this sample)
+
+    - import_tasks: teardown.yaml
+

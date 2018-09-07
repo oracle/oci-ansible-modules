@@ -22,7 +22,7 @@ short_description: Manage volume backups in OCI Block Volume service
 description:
     - This module allows the user to perform create, delete & update operations on volume backups in OCI Block Volume
       service.
-version_added: "2.x"
+version_added: "2.5"
 options:
     display_name:
         description: A user-friendly name for the volume backup. Does not have to be unique and it's changeable. Avoid
@@ -266,8 +266,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    block_storage_client = BlockstorageClient(config)
+    block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
     state = module.params['state']
     volume_backup_id = module.params['volume_backup_id']

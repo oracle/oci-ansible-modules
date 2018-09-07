@@ -20,7 +20,7 @@ module: oci_vnic_facts
 short_description: Retrieve details about a specific VNIC
 description:
     - This module retrieves details about a specific VNIC.
-version_added: "2.x"
+version_added: "2.5"
 options:
     vnic_id:
         description: The OCID of the VNIC. Required for retrieving information about a specific VNIC attachment.
@@ -156,8 +156,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    virtnw_client = VirtualNetworkClient(config)
+    virtnw_client = oci_utils.create_service_client(module, VirtualNetworkClient)
 
     id = module.params['vnic_id']
 

@@ -22,7 +22,7 @@ description:
     - This module retrieves details of api signing keys of a specified user. Note that this is not the SSH key for
       accessing compute instances. This is the credential for securing requests to the Oracle Cloud Infrastructure
       REST API.
-version_added: "2.x"
+version_added: "2.5"
 options:
     user_id:
         description: The OCID of the user whose API signing keys must be retrieved
@@ -137,8 +137,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     user_id = module.params.get("user_id")
     api_key_id = module.params.get("api_key_id", None)

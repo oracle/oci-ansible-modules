@@ -21,7 +21,7 @@ short_description: Manage objects in OCI Object Storage Service
 description:
     - Create, read, update or delete an object in OCI. This module allows the user to store a file as an object in OCI
       or download an object from OCI to a local file.
-version_added: "2.x"
+version_added: "2.5"
 options:
     bucket_name:
         description: Name of the bucket in which the object exists.
@@ -320,8 +320,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    config = oci_utils.get_oci_config(module)
-    object_storage_client = ObjectStorageClient(config)
+    object_storage_client = oci_utils.create_service_client(module, ObjectStorageClient)
 
     state = module.params['state']
     src = module.params['src']

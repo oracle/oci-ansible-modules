@@ -21,7 +21,7 @@ module: oci_volume
 short_description: Manage volumes in OCI Block Volume service
 description:
     - This module allows the user to perform create, delete & update operations on volumes in OCI Block Volume service.
-version_added: "2.x"
+version_added: "2.5"
 options:
     availability_domain:
         description: The availability domain of the volume. Required when creating a volume with I(state=present).
@@ -427,13 +427,13 @@ def handle_update_volume(block_storage_client, module):
 
 
 @check_mode
-def add_attached_instance_info(config, module, result, lookup_attached_instance):
-    compute_client = ComputeClient(config)
+def add_attached_instance_info(module, result, lookup_attached_instance):
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
 
     if 'volume' in result:
         try:
             result['volume']['attached_instance_information'] = oci_utils.get_attached_instance_info(
-                config,
+                module,
                 lookup_attached_instance,
                 list_attachments_fn=compute_client.list_volume_attachments,
                 list_attachments_args={"volume_id": result['volume']['id'],
@@ -470,8 +470,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    block_storage_client = BlockstorageClient(config)
+    block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
     state = module.params['state']
     volume_id = module.params['volume_id']
@@ -504,7 +503,7 @@ def main():
         else:
             result = handle_update_volume(block_storage_client, module)
 
-    add_attached_instance_info(config, module, result, module.params['lookup_all_attached_instances'])
+    add_attached_instance_info(module, result, module.params['lookup_all_attached_instances'])
 
     module.exit_json(**result)
 

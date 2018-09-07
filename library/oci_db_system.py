@@ -24,7 +24,7 @@ description:
     - Terminate an OCI DB System, if present.
     - Since all operations of this module takes a long time, it is recommended to set the C(wait) to False. Use
       M(oci_db_system_facts) to check the status of the operation as a separate task.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment under which this
@@ -528,7 +528,7 @@ def launch_db_system(db_client, module):
         module.params.get('db_home', None))
     launch_db_system_details.ssh_public_keys = create_ssh_public_keys(
         module.params.get('ssh_public_keys', None))
-    for attribute in launch_db_system_details.attribute_map.keys():
+    for attribute in launch_db_system_details.attribute_map:
         if attribute != 'db_home' and attribute != 'ssh_public_keys':
             launch_db_system_details.__setattr__(
                 attribute, module.params.get(attribute))
@@ -580,7 +580,7 @@ def update_db_system(db_client, module, db_system_id):
         module.params.get('ssh_public_keys', None))
     ssh_public_keys_changed = False
     if input_ssh_public_keys is not None:
-        ssh_public_keys, ssh_public_keys_changed = get_final_ssh_public_keys(
+        ssh_public_keys, ssh_public_keys_changed = oci_utils.get_component_list_difference(
             input_ssh_public_keys, existing_ssh_public_keys, purge_ssh_public_keys)
     if ssh_public_keys_changed:
         update_db_system_details.ssh_public_keys = ssh_public_keys
@@ -618,21 +618,6 @@ def create_ssh_public_keys(ssh_public_keys):
     for ssh_public_key in ssh_public_keys:
         result_ssh_public_keys.append(get_file_content(ssh_public_key))
     return result_ssh_public_keys
-
-
-def get_final_ssh_public_keys(
-        input_ssh_public_keys, existing_ssh_public_keys, purge_ssh_public_keys):
-    if input_ssh_public_keys:
-        if purge_ssh_public_keys:
-            ssh_keys_differences = set(
-                input_ssh_public_keys).symmetric_difference(set(existing_ssh_public_keys))
-            if ssh_keys_differences:
-                return input_ssh_public_keys, True
-    ssh_keys_differences = set(
-        input_ssh_public_keys).difference(set(existing_ssh_public_keys))
-    if ssh_keys_differences:
-        return list(ssh_keys_differences) + existing_ssh_public_keys, True
-    return None, False
 
 
 def delete_db_system(db_client, module):
@@ -702,7 +687,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    db_client = DatabaseClient(oci_utils.get_oci_config(module))
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     if os.environ.get('OCI_DB_MOCK') is not None:
         db_client.base_client.session.headers.update(
             {'opc-host-serial': 'FakeHostSerial'})

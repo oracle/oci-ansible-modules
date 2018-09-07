@@ -25,7 +25,7 @@ description:
       Infrastructure Object Storage Service. This password is associated with the user's Console login. Swift passwords
       never expire. A user can have up to two Swift passwords at a time. Note: The password is always an
       Oracle-generated string; you can't change it to a string of your choice."
-version_added: "2.x"
+version_added: "2.5"
 options:
     user_id:
         description: The OCID of the user.
@@ -226,8 +226,8 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
+
     state = module.params['state']
 
     result = dict(changed=False)

@@ -44,11 +44,6 @@ def oci_wait_until_patch(mocker):
 
 
 @pytest.fixture()
-def get_options_difference_patch(mocker):
-    return mocker.patch.object(oci_dhcp_options, 'get_options_difference')
-
-
-@pytest.fixture()
 def check_and_create_resource_patch(mocker):
     return mocker.patch.object(oci_utils, 'check_and_create_resource')
 
@@ -155,18 +150,17 @@ def test_update_dhcp_options_defined_tags_changed(virtual_network_client, update
     oci_dhcp_options.update_dhcp_options(virtual_network_client, dhcp_options, module)
     assert update_and_wait_patch.called
 
-def test_update_dhcp_options_options_changed(virtual_network_client, get_options_difference_patch, update_and_wait_patch):
+def test_update_dhcp_options_options_changed(virtual_network_client, update_and_wait_patch):
     dhcp_dns_options = get_options(
         'DomainNameServer', 'VcnLocalPlusInternet', [], None)
     dhcp_search_domain = get_options('SearchDomain', None, None, [
                                      'ansibletestvcn.oraclevcn.com'])
     options = [dhcp_dns_options, dhcp_search_domain]
     input_options = [{"custom_dns_servers": [], "server_type": "VcnLocalPlusInternet", "type": "DomainNameServer"},
-                     {"search_domain_names": ["ansibletestvcn.oraclevcn.com"], "type": "SearchDomain"}]
+                     {"search_domain_names": ["ansibletestvcn.oracle.com"], "type": "SearchDomain"}]
     module = get_module(dict(options=input_options, purge_dhcp_options=False))
     dhcp_options = get_dhcp_options('ansible_dhcp_options', options)
     update_and_wait_patch.return_value = dict({'dhcp_options': dhcp_options, 'changed': True})
-    get_options_difference_patch.return_value = None, True
     oci_dhcp_options.update_dhcp_options(virtual_network_client, dhcp_options, module)
     assert update_and_wait_patch.called
 
@@ -176,7 +170,7 @@ def test_get_options_difference_no_existing_dns():
         'DomainNameServer', 'VcnLocalPlusInternet', [], None)
     dhcp_search_domain = get_options('SearchDomain', None, None, [
                                      'ansibletestvcn.oraclevcn.com'])
-    result, changed = oci_dhcp_options.get_options_difference(
+    result, changed = oci_utils.get_component_list_difference(
         [dhcp_dns_options, dhcp_search_domain], [], True)
     assert changed is True
 
@@ -192,7 +186,7 @@ def test_update_dhcp_options_dns_changed_append():
     input_dhcp_search_domain = get_options('SearchDomain', None, None, [
         'ansibletestvcn.oraclevcn.com'])
     input_options = [input_dhcp_dns_options, input_dhcp_search_domain]
-    result, changed = oci_dhcp_options.get_options_difference(
+    result, changed = oci_utils.get_component_list_difference(
         input_options, existing_options, False)
     assert changed is True
     assert len(result) is 3
@@ -209,7 +203,7 @@ def test_update_dhcp_options_searchdomain_changed_append():
     input_dhcp_search_domain = get_options('SearchDomain', None, None, [
         'ansiblevcn.oraclevcn.com'])
     input_options = [input_dhcp_dns_options, input_dhcp_search_domain]
-    result, changed = oci_dhcp_options.get_options_difference(
+    result, changed = oci_utils.get_component_list_difference(
         input_options, existing_options, False)
     assert changed is True
     assert len(result) is 3
@@ -226,7 +220,7 @@ def test_update_dhcp_options_dns_changed_purged():
     input_dhcp_search_domain = get_options('SearchDomain', None, None, [
         'ansibletestvcn.oraclevcn.com'])
     input_options = [input_dhcp_dns_options, input_dhcp_search_domain]
-    result, changed = oci_dhcp_options.get_options_difference(
+    result, changed = oci_utils.get_component_list_difference(
         input_options, existing_options, False)
     assert changed is True
     for option in result:
@@ -245,7 +239,7 @@ def test_update_dhcp_options_searchdomain_changed_purged():
     input_dhcp_search_domain = get_options('SearchDomain', None, None, [
         'ansiblevcn.oraclevcn.com'])
     input_options = [input_dhcp_dns_options, input_dhcp_search_domain]
-    result, changed = oci_dhcp_options.get_options_difference(
+    result, changed = oci_utils.get_component_list_difference(
         input_options, existing_options, True)
     assert changed is True
     for option in result:

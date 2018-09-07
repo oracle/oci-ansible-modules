@@ -20,7 +20,7 @@ module: oci_data_guard_association_facts
 short_description: Fetches details of an OCI Data Guard Association
 description:
     - Fetches details of an OCI Data Guard Association
-version_added: "2.x"
+version_added: "2.5"
 options:
     database_id:
         description: Identifier of the database whose Data Guard Association
@@ -229,8 +229,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    db_client = DatabaseClient(oci_config)
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_data_guard_associations(db_client, module)
 
     module.exit_json(**result)

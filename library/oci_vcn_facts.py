@@ -22,7 +22,7 @@ short_description: Retrieve facts of Virtual Cloud Networks(VCNs)
 description:
     - This module retrieves information of a specified virtual cloud network(VCN) or lists all the VCNs in the
       specified compartment.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment. I(compartment_id) is required to get all the VCNs in the compartment.
@@ -31,7 +31,7 @@ options:
         description: The OCID of the VCN. I(vcn_id) is required to get a specific VCN's information.
         required: false
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -39,9 +39,14 @@ EXAMPLES = '''
   oci_vcn_facts:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
 
-- name: Get a specific VCN
+- name: Get a specific VCN using its OCID
   oci_vcn_facts:
     vcn_id: ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
+
+- name: Get VCNs in a compartment having the specified display name
+  oci_vcn_facts:
+    compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+    display_name: 'oci_ansible_vcn'
 '''
 
 RETURN = '''
@@ -136,7 +141,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         vcn_id=dict(type='str', required=False)
@@ -150,8 +155,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
 
     vcn_id = module.params['vcn_id']
     compartment_id = module.params['compartment_id']
@@ -165,7 +169,9 @@ def main():
     elif compartment_id is not None:
         try:
             result = to_dict(oci_utils.list_all_resources(
-                virtual_network_client.list_vcns, compartment_id=compartment_id))
+                virtual_network_client.list_vcns,
+                display_name=module.params['display_name'],
+                compartment_id=compartment_id))
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
     else:
