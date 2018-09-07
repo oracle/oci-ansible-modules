@@ -28,7 +28,7 @@ description:
       Each user can have a maximum of three API signing keys.
       For more information about user credentials, see
       U(https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm).
-version_added: "2.x"
+version_added: "2.5"
 options:
     user_id:
         description: The OCID of the user whose API signing key needs to be created or deleted.
@@ -200,8 +200,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
     state = module.params['state']
 
     result = dict(changed=False)

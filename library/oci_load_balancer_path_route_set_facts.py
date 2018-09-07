@@ -20,7 +20,7 @@ module: oci_load_balancer_path_route_set_facts
 short_description: Fetches details of path route set(s) that are associated with a load balancer
 description:
     - Fetches details of all path route sets, or a specific path route set, that are associated with a load balancer.
-version_added: "2.x"
+version_added: "2.5"
 options:
     path_route_set_name:
         description: Name of the Path Route Set
@@ -151,8 +151,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    lb_client = LoadBalancerClient(oci_config)
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
     result = list_load_balancer_path_route_sets(lb_client, module)
 
     module.exit_json(**result)

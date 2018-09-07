@@ -22,7 +22,7 @@ description:
     - Create and Delete a Database Backup in OCI Database Cloud Service.
     - Since all the operations of this module takes a long time, it is recommended to set the C(wait) parameter to
       False. Use M(oci_backup_facts) to check the status of the operation as a separate task.
-version_added: "2.x"
+version_added: "2.5"
 options:
     database_id:
         description: Identifier of the  Database whose backup has to be created.
@@ -219,7 +219,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    db_client = DatabaseClient(oci_utils.get_oci_config(module))
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     state = module.params['state']
     if state == 'present':
         result = oci_utils.check_and_create_resource(resource_type='backup',

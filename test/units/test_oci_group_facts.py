@@ -60,7 +60,7 @@ def test_list_user_groups_failure_service_error(identity_client, list_all_resour
         499, 'InternalError', dict(), error_message)
     try:
         oci_group_facts.list_user_groups(
-            identity_client, get_module(dict()))
+            identity_client, get_module(dict({'name': None})))
     except Exception as ex:
         assert error_message in ex.args[0]
 
@@ -71,7 +71,7 @@ def test_list_user_groups_failure_timeout_error(identity_client, list_all_resour
         400, 'TimeOutError', dict(), error_message)
     try:
         oci_group_facts.list_user_groups(
-            identity_client, get_module(dict()))
+            identity_client, get_module(dict({'name': None})))
     except Exception as ex:
         assert error_message in ex.args[0]
 

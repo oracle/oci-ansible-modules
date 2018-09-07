@@ -54,6 +54,16 @@ class ModuleDocFragment(object):
                   the value of the OCI_USER_KEY_PASS_PHRASE variable, if any, is used. This option is required if the
                   key passphrase is not specified through a configuration file (See C(config_file_location)).
             required: false
+        auth_type:
+            description:
+                - The type of authentication to use for making API requests. By default C(auth_type="api_key") based
+                  authentication is performed and the API key (see I(api_user_key_file)) in your config file will be
+                  used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, 
+                  if any, is used. Use C(auth_type="instance_principal") to use instance principal based authentication
+                  when running ansible playbooks within an OCI compute instance.
+            choices: ['api_key', 'instance_principal']
+            default: 'api_key'
+            required: false
         tenancy:
             description:
                 - OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is

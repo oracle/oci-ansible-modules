@@ -125,7 +125,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
 
 def _get_retry_strategy():
@@ -261,7 +261,7 @@ class OCIInventory(object):
         self.config = oci.config.from_file(file_location=self.params['config_file'],
                                            profile_name=self.params['profile'])
 
-        self.config["additional_user_agent"] = "Oracle-Ansible/{}".format(__version__)
+        self.config["additional_user_agent"] = "Oracle-Ansible/{0}".format(__version__)
 
         for setting in self.config:
             self.params[setting] = self.config[setting]

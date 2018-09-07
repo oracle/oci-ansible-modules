@@ -22,7 +22,7 @@ short_description: Retrieve facts of subnets
 description:
     - This module allows the user to retrieve information of the specified subnet or all the subnets in the specified
       VCN and the specified compartment.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment. I(compartment_id) is required to retrieve all the subnets in the
@@ -38,7 +38,7 @@ options:
                      the specified compartment.
         required: false
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -183,7 +183,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         subnet_id=dict(type='str', required=False),
@@ -198,8 +198,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
 
     subnet_id = module.params['subnet_id']
     vcn_id = module.params['vcn_id']
@@ -216,7 +215,8 @@ def main():
         try:
             result = to_dict(oci_utils.list_all_resources(
                 virtual_network_client.list_subnets,
-                compartment_id=compartment_id, vcn_id=vcn_id))
+                compartment_id=compartment_id, vcn_id=vcn_id,
+                display_name=module.params['display_name']))
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
     else:

@@ -22,7 +22,7 @@ description:
     - This module retrieves details of customer secret keys of a specified user. The returned object contains the
       customer secret key's OCID, but not the password itself. The actual password is returned only upon creation
       of a customer secret key using the M(oci_customer_secret_key) module.
-version_added: "2.x"
+version_added: "2.5"
 options:
     user_id:
         description: The OCID of the user
@@ -34,7 +34,7 @@ options:
         aliases: ['id']
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -118,8 +118,9 @@ except ImportError:
 
 def list_customer_secret_keys(identity_client, user_id, csk_id, module):
     try:
-        customer_secret_keys = oci_utils.call_with_backoff(identity_client.list_customer_secret_keys,
-                                                           user_id=user_id).data
+        customer_secret_keys = oci_utils.list_all_resources(identity_client.list_customer_secret_keys,
+                                                            user_id=user_id,
+                                                            display_name=module.params['display_name'])
 
         if csk_id:
             return next((to_dict([secret_key]) for secret_key in customer_secret_keys if secret_key.id == csk_id), {})
@@ -129,7 +130,7 @@ def list_customer_secret_keys(identity_client, user_id, csk_id, module):
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         user_id=dict(type='str', required=True),
         customer_secret_key_id=dict(type='str', required=False, aliases=['id'], no_log=True)
@@ -143,8 +144,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     user_id = module.params.get("user_id")
     id = module.params.get("customer_secret_key_id", None)

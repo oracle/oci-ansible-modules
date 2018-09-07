@@ -12,3 +12,18 @@ demo_public_subnet_egress_security_rules:
       destination_port_range:
         min: {{ MONGODB_port }}
         max: {{ MONGODB_port }}
+  # Allow HTTP and HTTPS traffic to internet. This is required for accessing 
+  # the application through Load Balancer.
+  - destination: "{{ demo_public_subnet_ad1_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ HTTP_port }}
+        max: {{ HTTP_port }}
+
+  - destination: "{{ demo_public_subnet_ad1_cidr }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ HTTPS_port }}
+        max: {{ HTTPS_port }}

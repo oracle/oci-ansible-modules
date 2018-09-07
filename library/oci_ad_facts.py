@@ -20,7 +20,7 @@ module: oci_ad_facts
 short_description: Retrieve details of availability domains in your tenancy
 description:
     - This module retrieves details of all availability domains in your tenancy.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment (either the tenancy or another compartment in the tenancy).
@@ -106,8 +106,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     result = list_availability_domains(identity_client, module)
     module.exit_json(availability_domains=result)

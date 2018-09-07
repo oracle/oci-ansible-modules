@@ -39,11 +39,6 @@ def virtual_network_client(mocker):
     return virtual_network_client.return_value
 
 
-@pytest.fixture()
-def get_route_rules_difference_patch(mocker):
-    return mocker.patch.object(oci_route_table, 'get_route_rules_difference')
-
-
 
 @pytest.fixture()
 def update_route_table_patch(mocker):
@@ -154,12 +149,11 @@ def test_update_route_table_defined_tags_changed(virtual_network_client, update_
     assert result['changed'] is True
 
 
-def test_update_route_table_input_route_rules_different(virtual_network_client, get_route_rules_difference_patch, update_and_wait_patch):
+def test_update_route_table_input_route_rules_different(virtual_network_client, update_and_wait_patch):
     route_table = get_route_table()
     route_rules = [{'cidr_block': '0.0.0.0/0', 'network_entity_id': 'oci1.internetgateway.abcd'},
                    {'cidr_block': '10.0.0.4/16', 'network_entity_id': 'oci1.internetgateway.efgh'}]
     module = get_module(dict(route_rules=route_rules))
-    get_route_rules_difference_patch.return_value = get_route_rules(), True
     update_and_wait_patch.return_value = dict(changed=True, route_table=to_dict(route_table))
     result = oci_route_table.update_route_table(virtual_network_client, route_table, module)
     assert result['changed'] is True
@@ -174,13 +168,12 @@ def test_update_route_table_empty_input_route_rules(virtual_network_client, upda
     assert result['changed'] is True
 
 
-def test_update_route_table_input_no_route_rules_different(virtual_network_client, get_route_rules_difference_patch, update_and_wait_patch):
+def test_update_route_table_input_no_route_rules_different(virtual_network_client, update_and_wait_patch):
     route_table = get_route_table()
-    route_rules = [{'cidr_block': '0.0.0.0/0', 'network_entity_id': 'oci1.internetgateway.abcd'},
-                   {'cidr_block': '10.0.0.4/16', 'network_entity_id': 'oci1.internetgateway.efgh'}]
+    route_rules = [{'cidr_block': '10.0.0.0/12', 'network_entity_id': 'oci1.internetgateway.ijkl'},
+                   {'cidr_block': '10.0.0.0/16', 'network_entity_id': 'oci1.internetgateway.efgh'}]
     module = get_module(dict(route_rules=route_rules))
-    get_route_rules_difference_patch.return_value = None, False
-    update_and_wait_patch.return_value = dict(changed=True, route_table=to_dict(route_table))
+    update_and_wait_patch.return_value = dict(changed=False, route_table=to_dict(route_table))
     result = oci_route_table.update_route_table(virtual_network_client, route_table, module)
     assert result['changed'] is False
 
@@ -206,29 +199,29 @@ def test_get_route_rules_difference_no_existing_route_rule(virtual_network_clien
     route_rules = [{'cidr_block': '0.0.0.0/0', 'network_entity_id': 'oci1.internetgateway.abcd'},
                    {'cidr_block': '10.0.0.4/16', 'network_entity_id': 'oci1.internetgateway.efgh'}]
 
-    result_rt, result = oci_route_table.get_route_rules_difference(route_rules, None, True)
+    result_rt, result = oci_utils.get_component_list_difference(route_rules, None, True)
     assert result is True
     assert len(result_rt) is 2
 
 
 def test_get_route_rules_difference_no_purge_same_rule(virtual_network_client):
     route_table = get_route_table()
-    _, result = oci_route_table.get_route_rules_difference(
-        route_table.route_rules, route_table.route_rules, True)
+    _, result = oci_utils.get_component_list_difference(
+        get_hashed_route_rules(route_table.route_rules), get_hashed_route_rules(route_table.route_rules), True)
     assert result is False
 
 
 def test_get_route_rules_difference_append_different_rule():
     route_table = get_route_table()
-    result_rt, result = oci_route_table.get_route_rules_difference(
-        get_route_rules(), route_table.route_rules, False)
+    result_rt, result = oci_utils.get_component_list_difference(
+        get_hashed_route_rules(get_route_rules()), get_hashed_route_rules(route_table.route_rules), False)
     assert result is True
     assert len(result_rt) is 3
 
 
 def get_route_rules_difference_append_only_different_rules():
     route_table = get_route_table()
-    result_rt, result = oci_route_table.get_route_rules_difference(
+    result_rt, result = oci_utils.get_component_list_difference(
         get_route_rules(), route_table.route_rules, False)
     assert result is True
     assert len(result_rt) is 3
@@ -236,8 +229,8 @@ def get_route_rules_difference_append_only_different_rules():
 
 def test_get_route_rules_difference_no_different_rules():
     existing_route_rules = get_route_rules() + [(get_common_route_rule())]
-    _, result = oci_route_table.get_route_rules_difference(
-        [get_common_route_rule()], existing_route_rules, False)
+    _, result = oci_utils.get_component_list_difference(
+        get_hashed_route_rules([get_common_route_rule()]), get_hashed_route_rules(existing_route_rules), False)
     assert result is False
 
 
@@ -276,6 +269,14 @@ def get_route_rules():
     route_rule2.network_entity_id = 'oci1.internetgateway.efgh'
     return [route_rule1, route_rule2]
 
+def get_hashed_route_rules(route_rules):
+    route_rules_reprs = []
+    supported_route_rule_attributes = ['cidr_block', 'network_entity_id']
+    for route_rule in route_rules:
+        hashed_route_rule = oci_utils.get_hashed_object(
+            RouteRule, route_rule, supported_attributes=supported_route_rule_attributes)
+        route_rules_reprs.append(hashed_route_rule)
+    return route_rules_reprs
 
 def get_module(additional_properties):
     params = {'display_name': 'ansible_route_table',

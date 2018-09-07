@@ -53,7 +53,7 @@ def setUpModule():
 
 
 def test_list_db_systems_list_all(db_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa'}))
+    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'display_name': None}))
     list_all_resources_patch.return_value = get_db_systems()
     result = oci_db_system_facts.list_db_systems(db_client, module)
     assert len(result['db_systems']) is 2

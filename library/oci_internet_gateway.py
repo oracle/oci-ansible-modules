@@ -24,7 +24,7 @@ description:
     - Update OCI Internet Gateway, if present, with a new display name
     - Update OCI Internet Gateway, if present, with enable/disable state
     - Delete OCI Internet Gateway, if present.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment under which this Internet Gateway would be created. Mandatory for
@@ -255,8 +255,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(oci_config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
     state = module.params['state']
 
     if state == 'present':

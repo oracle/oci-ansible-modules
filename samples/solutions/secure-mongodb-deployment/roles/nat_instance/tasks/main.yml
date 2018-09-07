@@ -5,41 +5,6 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-# Use a jinja2 template of the ingress and egress security rules to generate
-# a templated version of the final rules.
-- name: create ingress rules yaml body
-  template: src=templates/demo_public_subnet_ingress_security_rules.yaml.j2 dest=/tmp/demo_public_subnet_ingress_security_rules.yaml
-- name: create egress yaml body
-  template: src=templates/demo_public_subnet_egress_security_rules.yaml.j2 dest=/tmp/demo_public_subnet_egress_security_rules.yaml
-
-# Load the variables defined in the generated files
-- name: load the variables defined in the ingress rules yaml body
-  include_vars:
-    file: /tmp/demo_public_subnet_ingress_security_rules.yaml
-    name: loaded_ingress
-- name: print loaded_ingress
-  debug:
-    msg: "loaded ingress is {{loaded_ingress}}"
-- name: load the variables defined in the egress rules yaml body
-  include_vars:
-    file: /tmp/demo_public_subnet_egress_security_rules.yaml
-    name: loaded_egress
-- name: print loaded_egress
-  debug:
-    msg: "loaded egress is {{loaded_egress}}"
-
-- name: Create Public Subnet's security list
-  oci_security_list:
-    name: "{{ demo_public_subnet_security_list_name }}"
-    compartment_id: "{{ demo_compartment_ocid }}"
-    vcn_id: "{{ demo_vcn_ocid }}"
-    ingress_security_rules: "{{ loaded_ingress.demo_public_subnet_ingress_security_rules }}"
-    egress_security_rules: "{{ loaded_egress.demo_public_subnet_egress_security_rules }}"
-    state: 'present'
-  register: demopublicsubnetseclist
-- set_fact:
-    demo_public_subnet_seclist_ocid: "{{ demopublicsubnetseclist.security_list.id}}"
-
 - debug:
     msg: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"
 

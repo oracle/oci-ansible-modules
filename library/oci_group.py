@@ -26,7 +26,7 @@ description:
     - Update OCI group, if present, with new user(s) associations
     - Update OCI group, if present, removing all user associations
     - Delete OCI group, if present.
-version_added: "2.x"
+version_added: "2.5"
 options:
     name:
         description: Name of the group. Must be unique within a tenancy.
@@ -141,7 +141,7 @@ group:
             sample: ocid1.group.oc1.axdf
         inactive_status:
             description: The detailed status of INACTIVE life cycle state
-            returned: always
+            returned: when group's lifecycle_state is INACTIVE
             type: string
             sample: null
         lifecycle_state:
@@ -425,7 +425,8 @@ def main():
         module.fail_json(msg='oci python sdk required for this module')
 
     oci_config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(oci_config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
+
     compartment_id = oci_config['tenancy']
     module.params.update(dict({'compartment_id': compartment_id}))
     state = module.params['state']

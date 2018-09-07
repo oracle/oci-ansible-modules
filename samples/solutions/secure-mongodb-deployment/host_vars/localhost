@@ -9,7 +9,7 @@ infra_name: "mongodb-demo-setup-{{ random_suffix }}"
 
 # A prefix we add to all the display_names of demo artifacts that we
 # create in this demo
-demo_var_prefix: "demo-20171214-{{ random_suffix }}"
+demo_var_prefix: "secure-mongodb-{{ random_suffix }}"
 
 # networking common vars
 quad_zero_route: "0.0.0.0/0"
@@ -24,7 +24,8 @@ demo_vcn_cidr_block: "10.0.0.0/26"
 demo_public_subnet_ad1_cidr: "10.0.0.0/28"
 demo_private_subnet_mongo_ad1_cidr: "10.0.0.16/28"
 demo_private_subnet_mongo_ad2_cidr: "10.0.0.32/28"
-demo_bastion_ad1_cidr: "10.0.0.48/28"
-
+demo_lb_subnet_ad1_cidr: "10.0.0.56/30"
+demo_lb_subnet_ad2_cidr: "10.0.0.60/30"
+bastion_subnet_cidr_block: "10.0.0.48/29"
 # Compartment to use for the demo
 demo_compartment_ocid: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"

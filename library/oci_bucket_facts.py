@@ -21,7 +21,7 @@ short_description: Fetches details of a bucket or all available buckets within a
 description:
     - This module retrieves details of a bucket or all the buckets available for specified namespace and compartment
       identifier.
-version_added: "2.x"
+version_added: "2.5"
 options:
     namespace_name:
         description: Name of the namespace from which facts of constituent buckets needs to be fetched.
@@ -165,8 +165,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    object_storage_client = ObjectStorageClient(
-        oci_utils.get_oci_config(module))
+    object_storage_client = oci_utils.create_service_client(module, ObjectStorageClient)
 
     bucket_name = module.params['name']
     if bucket_name is not None:

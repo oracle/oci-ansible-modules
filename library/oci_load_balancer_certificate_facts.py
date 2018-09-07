@@ -21,7 +21,7 @@ module: oci_load_balancer_certificate_facts
 short_description: Fetch details of all certificates associated with a load balancer
 description:
     - Fetch details of all certificates or details of a particular certificate that is associated with a load balancer.
-version_added: "2.x"
+version_added: "2.5"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer to which the certificate belongs.
@@ -154,8 +154,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    lb_client = LoadBalancerClient(oci_config)
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
     result = list_load_balancer_certificates(lb_client, module)
 
     module.exit_json(**result)

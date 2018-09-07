@@ -22,7 +22,7 @@ module: oci_load_balancer_facts
 short_description: Fetches details of the OCI Load Balancer
 description:
     - Fetches details of the OCI Load Balancer.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment in which this
@@ -34,7 +34,7 @@ options:
         aliases: ['id']
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -239,13 +239,15 @@ def list_load_balancers(lb_client, module):
     )
     compartment_id = module.params.get('compartment_id')
     load_balancer_id = module.params.get('load_balancer_id')
+    display_name = module.params.get('display_name')
     try:
         if compartment_id:
             get_logger().debug("Listing all load balancers under \
             compartment %s", compartment_id)
             existing_load_balancers = oci_utils.list_all_resources(
                 lb_client.list_load_balancers,
-                compartment_id=compartment_id)
+                compartment_id=compartment_id,
+                display_name=display_name)
         elif load_balancer_id:
             get_logger().debug("Listing load balancer %s", load_balancer_id)
             response = lb_client.get_load_balancer(load_balancer_id)
@@ -269,7 +271,7 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_load_balancer_facts")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         load_balancer_id=dict(type='str', required=False, aliases=['id'])
@@ -284,8 +286,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    lb_client = LoadBalancerClient(oci_config)
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
     result = list_load_balancers(lb_client, module)
 
     module.exit_json(**result)

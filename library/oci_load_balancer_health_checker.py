@@ -21,7 +21,7 @@ short_description: Update health checker details of a backend set in a load bala
                    OCI Load Balancing Service
 description:
     - Update health checker details of a backend set in a load balancer in OCI Load Balancing Service.
-version_added: "2.x"
+version_added: "2.5"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer in which the backend set
@@ -59,7 +59,7 @@ options:
         required: true
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_wait_options ]
 '''
 
 EXAMPLES = '''
@@ -142,7 +142,6 @@ from ansible.module_utils.oracle import oci_utils, oci_lb_utils
 
 try:
     from oci.load_balancer.load_balancer_client import LoadBalancerClient
-    from oci.exceptions import ServiceError, ClientError
     from oci.util import to_dict
     from oci.load_balancer.models import UpdateHealthCheckerDetails
     HAS_OCI_PY_SDK = True
@@ -158,17 +157,17 @@ def update_health_checker(lb_client, module):
         changed=False,
         health_checker=''
     )
-    load_balancer_id = module.params.get('load_balancer_id')
+    lb_id = module.params.get('load_balancer_id')
     backend_set_name = module.params.get('backend_set_name')
-    health_checker = get_existing_health_checker(
-        lb_client, module, load_balancer_id, backend_set_name)
-    try:
-        if health_checker:
-            changed = False
-            get_logger().info("Updating healtch checker details  for backendset %s in load balancer %s",
-                              backend_set_name, load_balancer_id)
-            input_health_checker = UpdateHealthCheckerDetails()
-        for attribute in input_health_checker.attribute_map.keys():
+    health_checker = oci_utils.get_existing_resource(
+        lb_client.get_health_checker, module, load_balancer_id=lb_id, backend_set_name=backend_set_name)
+    if health_checker:
+        changed = False
+        result = dict(health_checker=to_dict(health_checker), changed=changed)
+        get_logger().info("Updating healtch checker details for backendset %s in load balancer %s",
+                          backend_set_name, lb_id)
+        input_health_checker = UpdateHealthCheckerDetails()
+        for attribute in input_health_checker.attribute_map:
             input_attribute_value = module.params.get(attribute)
             changed = oci_utils.check_and_update_attributes(
                 input_health_checker, attribute, input_attribute_value,
@@ -176,42 +175,23 @@ def update_health_checker(lb_client, module):
         get_logger().debug("Existing health checker property values: %s, input property values: %s",
                            health_checker, input_health_checker)
         if changed:
-            response = oci_utils.call_with_backoff(lb_client.update_health_checker, health_checker=input_health_checker,
-                                                   load_balancer_id=load_balancer_id, backend_set_name=backend_set_name)
-            oci_lb_utils.verify_work_request(lb_client, response)
-        health_checker = get_existing_health_checker(
-            lb_client, module, load_balancer_id, backend_set_name)
-        get_logger().info("Successfully updated health checker for backendset %s \
-        in load balancer %s", backend_set_name, load_balancer_id)
-    except ServiceError as ex:
-        get_logger().error("Unable to create/update listener due to: %s", ex.message)
-        module.fail_json(msg=ex.message)
-    except ClientError as ex:
-        get_logger().error("Unable to create/update listener due to: %s", str(ex))
-        module.fail_json(msg=str(ex))
-
-    result['changed'] = changed
-    result['health_checker'] = to_dict(health_checker)
+            result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="health_checker",
+                                                                         function=lb_client.update_health_checker,
+                                                                         kwargs_function={
+                                                                                       'health_checker': input_health_checker,
+                                                                                       'load_balancer_id': lb_id,
+                                                                                       'backend_set_name': backend_set_name},
+                                                                         lb_client=lb_client,
+                                                                         get_fn=lb_client.get_health_checker,
+                                                                         kwargs_get={'load_balancer_id': lb_id,
+                                                                                     'backend_set_name': backend_set_name},
+                                                                         module=module
+                                                                         )
+            get_logger().info("Updating health checker details for backendset %s in load balancer %s", backend_set_name, lb_id)
+        else:
+            get_logger().info("No update to the health checker details for backendset %s in load balancer %s as " +
+                              "no attribute changed", backend_set_name, lb_id)
     return result
-
-
-def get_existing_health_checker(
-        lb_client, module, lb_id, backend_set_name):
-    existing_health_checker = None
-    get_logger().debug(
-        "Trying to get health checker details for backend sets %s in load balancer %s", backend_set_name, lb_id)
-    try:
-        response = oci_utils.call_with_backoff(lb_client.get_health_checker, load_balancer_id=lb_id,
-                                               backend_set_name=backend_set_name)
-        existing_health_checker = response.data
-    except ServiceError as ex:
-        if ex.status != 404:
-            get_logger().error("Failed to perform checking existing health checker details",
-                               exc_info=True)
-            module.fail_json(msg=ex.message)
-        get_logger().debug("Backend Set %s does not exist in load balancer %s, so no health checker details were "
-                           "fetched", backend_set_name, lb_id)
-    return existing_health_checker
 
 
 def set_logger(input_logger):
@@ -226,7 +206,7 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_load_balancer_health_checker")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_common_arg_spec(supports_wait=True)
     module_args.update(dict(
         load_balancer_id=dict(type='str', required=True, aliases=['id']),
         backend_set_name=dict(type='str', required=True),
@@ -247,7 +227,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    lb_client = LoadBalancerClient(oci_utils.get_oci_config(module))
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
     result = update_health_checker(lb_client, module)
 
     module.exit_json(**result)

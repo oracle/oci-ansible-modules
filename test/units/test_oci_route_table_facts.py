@@ -102,7 +102,8 @@ def get_response(status, header, data, request):
 def get_module():
     params = {'compartment_id': 'ocid1.comp..axsd',
               'vcn_id': 'ocid1.vcn..fxdv',
-              'rt_id': ''}
+              'rt_id': '',
+              'display_name': None}
     module = FakeModule(**params)
     return module
 
@@ -110,6 +111,7 @@ def get_module():
 def get_module_with_ig_id():
     params = {'compartment_id': '',
               'vcn_id': '',
-              'rt_id': 'ocid1.internetgateway..fxdv'}
+              'rt_id': 'ocid1.internetgateway..fxdv',
+              'display_name': None}
     module = FakeModule(**params)
     return module

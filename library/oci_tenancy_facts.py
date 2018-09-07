@@ -20,7 +20,7 @@ module: oci_tenancy_facts
 short_description: Retrieve details about a tenancy in Oracle Cloud Infrastructure
 description:
     - This module retrieves details about a tenancy in Oracle Cloud Infrastructure.
-version_added: "2.x"
+version_added: "2.5"
 options:
     tenancy_id:
         description: The OCID of the tenancy for which details needs to be retrieved
@@ -105,8 +105,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     result = get_tenancy_details(identity_client, module)
     module.exit_json(tenancy=result)

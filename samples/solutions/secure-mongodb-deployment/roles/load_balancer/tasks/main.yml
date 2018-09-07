@@ -1,0 +1,245 @@
+---
+# Copyright (c) 2018, Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
+# ===========================================================================================
+- name: Create a subnet in AD1
+  oci_subnet:
+    availability_domain: "{{ availability_domain_1 }}"
+    name: '{{ lb_subnet_ad1 }}'
+    dns_label: '{{ lb_dns_label_ad1 }}'
+    route_table_id: '{{ demo_core_rt_ocid }}'
+    security_list_ids: ['{{ demo_public_subnet_seclist_ocid }}']
+    cidr_block: "{{ demo_lb_subnet_ad1_cidr }}"
+    compartment_id: "{{ compartment_id }}"
+    vcn_id: '{{ demo_vcn_ocid }}'
+  register: result
+
+- set_fact:
+    sample_subnet_id_ad1: "{{ result.subnet.id }}"
+# ===========================================================================================
+- name: Create a subnet in AD2
+  oci_subnet:
+    availability_domain: "{{ availability_domain_2 }}"
+    name: '{{ lb_subnet_ad2 }}'
+    dns_label: '{{ lb_dns_label_ad2 }}'
+    route_table_id: '{{ demo_core_rt_ocid }}'
+    security_list_ids: ['{{ demo_public_subnet_seclist_ocid }}']
+    cidr_block: "{{ demo_lb_subnet_ad2_cidr }}"
+    compartment_id: "{{ compartment_id }}"
+    vcn_id: '{{ demo_vcn_ocid }}'
+  register: result
+
+- set_fact:
+    sample_subnet_id_ad2: "{{ result.subnet.id }}"
+# ===========================================================================================
+# A self-singed temporary certificate is used in this sample, so that the sample can be run without any dependencies,
+# and the certificate can be validated. In production environment, a valid certificate should be used.
+- name: create temporary directory for certificates
+  tempfile:
+    state: directory
+    suffix: cert
+  register: result
+
+- set_fact:
+    cert_path: "{{ result.path }}"
+# ===========================================================================================
+- name: Generate CA Cert Key
+  openssl_privatekey:
+    path: "{{cert_path}}/ca_key.pem"
+    type: RSA
+    size: 2048
+# ===========================================================================================
+- name: Generate CA cert
+  command: openssl req \
+        -x509 -new -days 365 \
+        -subj '/C=IN/ST=KA/L=Bangalore/O=Ansible/CN=www.ansible.oracle.com'
+        -key "{{cert_path}}/ca_key.pem" \
+        -out "{{cert_path}}/ca_cert.pem"
+  args:
+      creates: "{{cert_path}}/ca_cert.pem"
+# ===========================================================================================
+- name: Generate Server Private Key Without Passphrase
+  openssl_privatekey:
+      path: "{{cert_path}}/private_key.pem"
+      type: RSA
+      size: 2048
+# ===========================================================================================
+- name: Generate Certificate Signing Request With Normal Private Key
+  openssl_csr:
+    path: "{{cert_path}}/csr.pem"
+    privatekey_path: "{{cert_path}}/private_key.pem"
+    country_name: IN
+    organization_name: Ansible
+    state_or_province_name: KA
+    locality_name: Bangalore
+    common_name: www.ansible.oracle.com
+# ===========================================================================================
+- name: Generate CA signed Certificate Without Passphrase
+  command: openssl x509 -req \
+        -days 1825 -CA "{{cert_path}}/ca_cert.pem" -CAkey "{{cert_path}}/ca_key.pem" -CAcreateserial \
+        -in "{{cert_path}}/csr.pem" \
+        -out "{{cert_path}}/cert.pem"
+  args:
+    creates: "{{cert_path}}/cert.pem"
+# ===========================================================================================
+- name: Create Public Load Balancer
+  oci_load_balancer:
+      compartment_id: "{{ compartment_id }}"
+      name: "{{ lb_name }}"
+      shape_name: "{{ sample_shape }}"
+      #A public load balancer is regional in scope and requires two subnets, each
+      #in a separate availability domain. One subnet hosts the primary load balancer
+      #and the other hosts a standby load balancer to ensure accessibility even during
+      #an availability domain outage.
+      subnet_ids:
+        - "{{ sample_subnet_id_ad1 }}"
+        - "{{ sample_subnet_id_ad2 }}"
+      state: 'present'
+  register: result
+- debug:
+      msg: "Load balancer details: {{ result.load_balancer}}"
+- set_fact:
+      public_load_balancer_id: "{{ result.load_balancer.id }}"
+      public_load_balancer_ip_addresses: "{{ result.load_balancer.ip_addresses }}"
+#==========================================================================================
+- name: Create First Sample Backend Set
+  oci_load_balancer_backend_set:
+    load_balancer_id: "{{ public_load_balancer_id }}"
+    name: '{{ sample_first_backend_set_name }}'
+    policy: '{{ sample_first_backend_set_policy }}'
+    health_checker:
+        interval_in_millis: 30000
+        port: '{{ http_port }}'
+        protocol: "HTTP"
+        response_body_regex: ".*"
+        retries: 3
+        timeout_in_millis: 10000
+        return_code: 200
+        url_path: "/healthcheck"
+    state: 'present'
+#==========================================================================================
+- name: Create Second Sample Backend Set
+  oci_load_balancer_backend_set:
+    load_balancer_id: "{{ public_load_balancer_id }}"
+    name: '{{ sample_second_backend_set_name }}'
+    policy: '{{ sample_second_backend_set_policy }}'
+    health_checker:
+        interval_in_millis: 30000
+        port: '{{ http_port }}'
+        protocol: "HTTP"
+        response_body_regex: ".*"
+        retries: 3
+        timeout_in_millis: 10000
+        return_code: 200
+        url_path: "/healthcheck"
+    state: 'present'
+#==========================================================================================
+- name: Create Path Route For First Sample Backend Set
+  oci_load_balancer_path_route_set:
+    load_balancer_id: "{{ public_load_balancer_id }}"
+    name: "{{ http_path_route_set_name }}"
+    path_routes:
+          - backend_set_name: "{{ sample_first_backend_set_name }}"
+            path: "/http_host"
+            path_match_type:
+                 match_type: 'EXACT_MATCH'
+    state: 'present'
+#==========================================================================================
+- name: Create Path Route For Second Sample Backend Set
+  oci_load_balancer_path_route_set:
+    load_balancer_id: "{{ public_load_balancer_id }}"
+    name: "{{ https_path_route_set_name }}"
+    path_routes:
+          - backend_set_name: "{{ sample_second_backend_set_name }}"
+            path: "/https_host"
+            path_match_type:
+                 match_type: 'EXACT_MATCH'
+    state: 'present'
+#==========================================================================================
+- name: Create Certificate for Listener
+  oci_load_balancer_certificate:
+    load_balancer_id: "{{ public_load_balancer_id }}"
+    name: '{{ sample_certificate_name }}'
+    ca_certificate: '{{ sample_ca_certificate }}'
+    private_key: '{{ sample_private_key }}'
+    public_certificate: '{{ sample_public_certificate }}'
+    state: 'present'
+ #==========================================================================================
+- name: Create Listener for HTTP traffic
+  oci_load_balancer_listener:
+    load_balancer_id: "{{ public_load_balancer_id }}"
+    name: '{{ http_listener_name }}'
+    default_backend_set_name: '{{ sample_first_backend_set_name }}'
+    port: '{{ http_port }}'
+    protocol: "HTTP"
+    path_route_set_name: "{{ http_path_route_set_name }}"
+    connection_configuration:
+        idle_timeout: 300
+    state: 'present'
+#==========================================================================================
+- name: Create Listener for HTTPS traffic
+  oci_load_balancer_listener:
+    load_balancer_id: "{{ public_load_balancer_id }}"
+    name: '{{ https_listener_name }}'
+    default_backend_set_name: '{{ sample_second_backend_set_name }}'
+    port: '{{ https_port }}'
+    protocol: "HTTP"
+    path_route_set_name: "{{ https_path_route_set_name }}"
+    ssl_configuration:
+        certificate_name: '{{ sample_certificate_name }}'
+        verify_peer_certificate: False
+    state: 'present'
+#==========================================================================================
+- name: Create First Backend
+  oci_load_balancer_backend:
+    load_balancer_id: "{{ public_load_balancer_id }}"
+    backend_set_name: "{{ sample_first_backend_set_name }}"
+    ip_address: "{{ appserver_1_private_ip }}"
+    port: '{{ http_port }}'
+    backup: False
+    drain: False
+    offline: False
+    weight: 1
+    state: 'present'
+#==========================================================================================
+- name: Create Second Backend
+  oci_load_balancer_backend:
+    load_balancer_id: "{{ public_load_balancer_id }}"
+    backend_set_name: "{{ sample_second_backend_set_name }}"
+    ip_address: "{{ appserver_2_private_ip }}"
+    port: '{{ http_port }}'
+    backup: False
+    drain: False
+    offline: False
+    weight: 1
+    state: 'present'
+
+# Generate the list of OCIDs corresponding to the various artifacts
+# created by this playbook and write to a file so that check_secure_mongodb_deployment.yaml
+# can use it to test the deployment.
+- copy:
+    content: |
+          compartment_id: "{{ compartment_id }}"
+          vcn_id: "{{ demo_vcn_ocid }}"
+          demo_ig_ocid: "{{ demo_ig_ocid }}"
+          demo_core_rt_ocid: "{{ demo_core_rt_ocid }}"
+          private_subnet_ad1_rt_id: "{{ private_subnet_ad1_rt_id }}"
+          private_subnet_ad2_rt_id: "{{ private_subnet_ad2_rt_id }}"
+          demo_appserver_1_ocid: "{{ demo_appserver_1_ocid }}"
+          demo_public_subnet_ocid: "{{ demo_public_subnet_ocid }}"
+          demo_public_subnet_seclist_ocid: "{{ demo_public_subnet_seclist_ocid }}"
+          private_sec_list_ad1_id: "{{ private_sec_list_ad1_id }}"
+          private_sec_list_ad2_id: "{{ private_sec_list_ad2_id }}"
+          private_subnet_ad1_id: "{{ private_subnet_ad1_id }}"
+          private_subnet_ad2_id: "{{ private_subnet_ad2_id }}"
+          mongodb1_id: "{{ mongodb1_id }}"
+          mongodb2_id: "{{ mongodb2_id }}"
+          bastion_security_list_ocid: "{{ bastion_security_list_ocid }}"
+          bastion_subnet_ocid: "{{ bastion_subnet_ocid }}"
+          bastion_instance_ocid: "{{ bastion_instance_ocid }}"
+          nat_instance_ocid: "{{ nat_instance_id }}"
+          public_load_balancer_ip_address: "{{ public_load_balancer_ip_addresses[0].ip_address }}"
+    dest: ./demo_artifacts_info.yaml

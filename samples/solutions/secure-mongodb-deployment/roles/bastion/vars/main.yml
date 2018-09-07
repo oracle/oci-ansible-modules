@@ -5,7 +5,6 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-bastion_subnet_cidr_block: "10.0.0.48/28"
 bastion_image_ocid: "{{ lookup('env', 'SAMPLE_OEL_IMAGE_OCID') }}"
 bastion_shape: "VM.Standard1.2"
 bastion_availability_domain: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"

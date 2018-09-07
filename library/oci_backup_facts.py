@@ -20,7 +20,7 @@ module: oci_backup_facts
 short_description: Fetches details of one or more Database Backups
 description:
     - Fetches details of the Database Backups.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment from which the
@@ -35,7 +35,7 @@ options:
         required: false
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 EXAMPLES = '''
 #Fetch Database Backup for a Compartment
@@ -168,11 +168,11 @@ def list_backups(db_client, module):
         elif database_id:
             get_logger().debug("Listing all Database Backups for Database %s", database_id)
             existing_backups = oci_utils.list_all_resources(
-                db_client.list_backups, database_id=database_id)
+                db_client.list_backups, database_id=database_id, display_name=module.params['display_name'])
         elif compartment_id:
             get_logger().debug("Listing all Database Backups under compartment %s", compartment_id)
             existing_backups = oci_utils.list_all_resources(
-                db_client.list_backups, compartment_id=compartment_id)
+                db_client.list_backups, compartment_id=compartment_id, display_name=module.params['display_name'])
     except ServiceError as ex:
         get_logger().error("Unable to list Database Backups due to %s", ex.message)
         module.fail_json(msg=ex.message)
@@ -192,7 +192,7 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_backup_facts")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         backup_id=dict(type='str', required=False, aliases=['id']),
@@ -210,8 +210,8 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    db_client = DatabaseClient(oci_config)
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
+
     result = list_backups(db_client, module)
 
     module.exit_json(**result)

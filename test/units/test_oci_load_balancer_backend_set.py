@@ -42,21 +42,6 @@ def lb_client(mocker):
 
 
 @pytest.fixture()
-def oci_wait_until_patch(mocker):
-    return mocker.patch.object(oci, 'wait_until')
-
-
-@pytest.fixture()
-def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
-
-
-@pytest.fixture()
-def get_existing_backend_set_patch(mocker):
-    return mocker.patch.object(oci_load_balancer_backend_set, 'get_existing_backend_set')
-
-
-@pytest.fixture()
 def create_backend_set_patch(mocker):
     return mocker.patch.object(oci_load_balancer_backend_set, 'create_backend_set')
 
@@ -67,12 +52,24 @@ def update_backend_set_patch(mocker):
 
 
 @pytest.fixture()
-def verify_work_request_patch(mocker):
-    return mocker.patch.object(oci_lb_utils, 'verify_work_request')
+def create_or_update_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'create_or_update_lb_resources_and_wait')
+
+
+@pytest.fixture()
+def delete_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'delete_lb_resources_and_wait')
+
+
+@pytest.fixture()
+def get_existing_resource_patch(mocker):
+    return mocker.patch.object(oci_utils, 'get_existing_resource')
+
 
 @pytest.fixture()
 def check_and_create_resource_patch(mocker):
     return mocker.patch.object(oci_utils, 'check_and_create_resource')
+
 
 def setUpModule():
     logging.basicConfig(filename='/tmp/oci_ansible_module.log',
@@ -80,362 +77,102 @@ def setUpModule():
     oci_load_balancer_backend_set.set_logger(logging)
 
 
-def test_create_or_update_backend_create(lb_client, check_and_create_resource_patch, get_existing_backend_set_patch):
+def test_create_or_update_backend_create(lb_client, check_and_create_resource_patch, get_existing_resource_patch):
     module = get_module(dict())
     backend_set = create_default_backend_set()
-    get_existing_backend_set_patch.return_value = None
+    get_existing_resource_patch.return_value = None
     check_and_create_resource_patch.return_value = {'backend_set': to_dict(backend_set), 'changed': True}
     result = oci_load_balancer_backend_set.create_or_update_backend_set(lb_client, module)
     assert result['backend_set']['policy'] is backend_set.policy
 
-def test_create_or_update_backend_update(lb_client, update_backend_set_patch, get_existing_backend_set_patch):
+
+def test_create_or_update_backend_update(lb_client, update_backend_set_patch, get_existing_resource_patch):
     module = get_module(dict())
     backend_set = create_default_backend_set()
-    get_existing_backend_set_patch.return_value = backend_set
-    update_backend_set_patch.return_value = True, backend_set
+    get_existing_resource_patch.return_value = backend_set
+    update_backend_set_patch.return_value = {'backend_set': to_dict(backend_set), 'changed': True}
     result = oci_load_balancer_backend_set.create_or_update_backend_set(lb_client, module)
     assert result['backend_set']['policy'] is backend_set.policy
 
 
-def test_create_or_update_backend_set_service_error(lb_client, check_and_create_resource_patch, get_existing_backend_set_patch):
+def test_create_or_update_backend_set_service_error(lb_client, check_and_create_resource_patch, get_existing_resource_patch):
     module = get_module(dict())
     error_message = "Internal Server Error"
     check_and_create_resource_patch.side_effect = ServiceError(
         500, 'InternalServerError', dict(), error_message)
-    get_existing_backend_set_patch.return_value = None
+    get_existing_resource_patch.return_value = None
     try:
         oci_load_balancer_backend_set.create_or_update_backend_set(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
-def test_create_or_update_backend_set_client_error(lb_client, check_and_create_resource_patch, get_existing_backend_set_patch):
+
+def test_create_or_update_backend_set_client_error(lb_client, check_and_create_resource_patch, get_existing_resource_patch):
     module = get_module(dict())
     error_message = 'Work Request Failed'
     check_and_create_resource_patch.side_effect = ClientError(Exception('Work Request Failed'))
-    get_existing_backend_set_patch.return_value = None
+    get_existing_resource_patch.return_value = None
     try:
         oci_load_balancer_backend_set.create_or_update_backend_set(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
-
-def test_create_backend_set(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
+def test_create_backend_set(lb_client, create_or_update_lb_resources_and_wait_patch, get_existing_resource_patch):
     module = get_module(dict())
-    health_checker_dict = {"interval_in_millis": 30000,
-                           "port": 8080,
-                           "protocol": "HTTP",
-                           "response_body_regex": "^(500|40[1348])$",
-                           "retries": 3,
-                           "timeout_in_millis": 6000,
-                           "return_code": 200,
-                           "url_path": "/healthcheck"}
-    backends = [{
-                "ip_address": "10.159.34.21",
-                "port": 8080,
-                }]
-    sp_config_dict = {"cookie_name": "my_cookie", "disable_fallback": True}
-    ssl_config_dict = {"certificate_name": "cert1",
-                       "verify_depth": 1, "verify_peer_certificate": True}
-    backend_set = get_backend_set('backend_set1', 'LEAST_CONNECTIONS',
-                                  backends, health_checker_dict, sp_config_dict, ssl_config_dict)
-    lb_client.create_backend_set.return_value = get_response(
-        204, None, backend_set, None)
-    get_existing_backend_set_patch.return_value = backend_set
-    result = oci_load_balancer_backend_set.create_backend_set(
-        lb_client, module)
+    backend_set = create_default_backend_set()
+    create_or_update_lb_resources_and_wait_patch.return_value = {'backend_set': to_dict(backend_set), 'changed': True}
+    result = oci_load_balancer_backend_set.create_backend_set(lb_client, module)
     assert result['backend_set']['name'] == backend_set.name
 
 
-def test_update_backend_set_backends_purge_new_backend(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
+def test_update_backend_set_backends_purge_new_backend(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict({'purge_backends': True}))
-    health_checker_dict = {"interval_in_millis": 30000,
-                           "port": 8080,
-                           "protocol": "HTTP",
-                           "response_body_regex": "^(500|40[1348])$",
-                           "retries": 3,
-                           "timeout_in_millis": 6000,
-                           "return_code": 200,
-                           "url_path": "/healthcheck"}
-    backends = [{
-                "ip_address": "10.159.34.21",
-                "port": 8282,
-                "backup": True,
-                "offline": False,
-                "drain": True,
-                "weight": 1
-                }]
-    sp_config_dict = {"cookie_name": "my_cookie", "disable_fallback": True}
-    ssl_config_dict = {"certificate_name": "cert1",
-                       "verify_depth": 1, "verify_peer_certificate": True}
-    backend_set = get_backend_set('backend_set1', 'LEAST_CONNECTIONS',
-                                  backends, health_checker_dict, sp_config_dict, ssl_config_dict)
-    lb_client.update_backend_set.return_value = get_response(
-        204, None, backend_set, None)
-    get_existing_backend_set_patch.return_value = backend_set
-    changed, backend_set = oci_load_balancer_backend_set.update_backend_set(
-        lb_client, module, 'ocid1.loadbalancer.aaa', backend_set, 'backend_set1')
-    assert changed is True
+    assert_update_true(create_or_update_lb_resources_and_wait_patch, lb_client, module)
 
-def test_update_backend_set_backends_purge_empty_backend(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
+def test_update_backend_set_backends_purge_empty_backend(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict({'purge_backends': True}))
     module.params.update(dict({'backends': []}))
-    health_checker_dict = {"interval_in_millis": 30000,
-                           "port": 8080,
-                           "protocol": "HTTP",
-                           "response_body_regex": "^(500|40[1348])$",
-                           "retries": 3,
-                           "timeout_in_millis": 6000,
-                           "return_code": 200,
-                           "url_path": "/healthcheck"}
-    backends = [{
-                "ip_address": "10.159.34.21",
-                "port": 8282,
-                "backup": True,
-                "offline": False,
-                "drain": True,
-                "weight": 1
-                }]
-    sp_config_dict = {"cookie_name": "my_cookie", "disable_fallback": True}
-    ssl_config_dict = {"certificate_name": "cert1",
-                       "verify_depth": 1, "verify_peer_certificate": True}
-    backend_set = get_backend_set('backend_set1', 'LEAST_CONNECTIONS',
-                                  backends, health_checker_dict, sp_config_dict, ssl_config_dict)
-    lb_client.update_backend_set.return_value = get_response(
-        204, None, backend_set, None)
-    get_existing_backend_set_patch.return_value = backend_set
-    changed, backend_set = oci_load_balancer_backend_set.update_backend_set(
-        lb_client, module, 'ocid1.loadbalancer.aaa', backend_set, 'backend_set1')
-    assert changed is True
+    assert_update_true(create_or_update_lb_resources_and_wait_patch, lb_client, module)
 
 
-def test_update_backend_set_backends_append_new_backend(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
+def test_update_backend_set_backends_append_new_backend(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict({'purge_backends': False}))
-    health_checker_dict = {"interval_in_millis": 30000,
-                           "port": 8080,
-                           "protocol": "HTTP",
-                           "response_body_regex": "^(500|40[1348])$",
-                           "retries": 3,
-                           "timeout_in_millis": 6000,
-                           "return_code": 200,
-                           "url_path": "/healthcheck"}
-    backends = [{
-                "ip_address": "10.159.34.21",
-                "port": 8282,
-                "backup": True,
-                "offline": False,
-                "drain": True,
-                "weight": 1
-                }]
-    sp_config_dict = {"cookie_name": "my_cookie", "disable_fallback": True}
-    ssl_config_dict = {"certificate_name": "cert1",
-                       "verify_depth": 1, "verify_peer_certificate": True}
-    backend_set = get_backend_set('backend_set1', 'LEAST_CONNECTIONS',
-                                  backends, health_checker_dict, sp_config_dict, ssl_config_dict)
-    lb_client.update_backend_set.return_value = get_response(
-        204, None, backend_set, None)
-    get_existing_backend_set_patch.return_value = backend_set
-    changed, backend_set = oci_load_balancer_backend_set.update_backend_set(
-        lb_client, module, 'ocid1.loadbalancer.aaa', backend_set, 'backend_set1')
-    assert changed is True
+    assert_update_true(create_or_update_lb_resources_and_wait_patch, lb_client, module)
 
-def test_update_backend_set_policy_change(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
+
+def test_update_backend_set_policy_change(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict({'purge_backends': True}))
-    health_checker_dict = {"interval_in_millis": 30000,
-                           "port": 8080,
-                           "protocol": "HTTP",
-                           "response_body_regex": "^(500|40[1348])$",
-                           "retries": 3,
-                           "timeout_in_millis": 6000,
-                           "return_code": 200,
-                           "url_path": "/healthcheck"}
-    backends = [{
-                "ip_address": "10.159.34.21",
-                "port": 8080,
-                "backup": True,
-                "offline": False,
-                "drain": True,
-                "weight": 1
-                }]
-    sp_config_dict = {"cookie_name": "my_cookie", "disable_fallback": True}
-    ssl_config_dict = {"certificate_name": "cert1",
-                       "verify_depth": 1, "verify_peer_certificate": True}
-    backend_set = get_backend_set('backend_set1', 'IP_HASH',
-                                  backends, health_checker_dict, sp_config_dict, ssl_config_dict)
-    lb_client.update_backend_set.return_value = get_response(
-        204, None, backend_set, None)
-    get_existing_backend_set_patch.return_value = backend_set
-    changed, backend_set = oci_load_balancer_backend_set.update_backend_set(
-        lb_client, module, 'ocid1.loadbalancer.aaa', backend_set, 'backend_set1')
-    assert changed is True
+    assert_update_true(create_or_update_lb_resources_and_wait_patch, lb_client, module)
 
 
-def test_update_backend_set_health_checker_change(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
+def test_update_backend_set_health_checker_change(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict({'purge_backends': True}))
-    health_checker_dict = {"interval_in_millis": 30000,
-                           "port": 8080,
-                           "protocol": "HTTP",
-                           "response_body_regex": "^(500|40[1348])$",
-                           "retries": 3,
-                           "timeout_in_millis": 6000,
-                           "return_code": 500,
-                           "url_path": "/healthcheck"}
-    backends = [{
-                "ip_address": "10.159.34.21",
-                "port": 8080,
-                "backup": True,
-                "offline": False,
-                "drain": True,
-                "weight": 1
-                }]
-    sp_config_dict = {"cookie_name": "my_cookie", "disable_fallback": True}
-    ssl_config_dict = {"certificate_name": "cert1",
-                       "verify_depth": 1, "verify_peer_certificate": True}
-    backend_set = get_backend_set('backend_set1', 'LEAST_CONNECTIONS',
-                                  backends, health_checker_dict, sp_config_dict, ssl_config_dict)
-    lb_client.update_backend_set.return_value = get_response(
-        204, None, backend_set, None)
-    get_existing_backend_set_patch.return_value = backend_set
-    changed, backend_set = oci_load_balancer_backend_set.update_backend_set(
-        lb_client, module, 'ocid1.loadbalancer.aaa', backend_set, 'backend_set1')
-    assert changed is True
+    assert_update_true(create_or_update_lb_resources_and_wait_patch, lb_client, module)
 
 
-def test_update_backend_set_sp_config_change(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
+def test_update_backend_set_sp_config_change(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict({'purge_backends': True}))
-    health_checker_dict = {"interval_in_millis": 30000,
-                           "port": 8080,
-                           "protocol": "HTTP",
-                           "response_body_regex": "^(500|40[1348])$",
-                           "retries": 3,
-                           "timeout_in_millis": 6000,
-                           "return_code": 200,
-                           "url_path": "/healthcheck"}
-    backends = [{
-                "ip_address": "10.159.34.21",
-                "port": 8080,
-                "backup": True,
-                "offline": False,
-                "drain": True,
-                "weight": 1
-                }]
-    sp_config_dict = {"cookie_name": "my_updated_cookie", "disable_fallback": True}
-    ssl_config_dict = {"certificate_name": "cert1",
-                       "verify_depth": 1, "verify_peer_certificate": True}
-    backend_set = get_backend_set('backend_set1', 'LEAST_CONNECTIONS',
-                                  backends, health_checker_dict, sp_config_dict, ssl_config_dict)
-    lb_client.update_backend_set.return_value = get_response(
-        204, None, backend_set, None)
-    get_existing_backend_set_patch.return_value = backend_set
-    changed, backend_set = oci_load_balancer_backend_set.update_backend_set(
-        lb_client, module, 'ocid1.loadbalancer.aaa', backend_set, 'backend_set1')
-    assert changed is True
+    assert_update_true(create_or_update_lb_resources_and_wait_patch, lb_client, module)
 
 
-def test_update_backend_set_ssl_config_change(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
+def test_update_backend_set_ssl_config_change(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module(dict({'purge_backends': True}))
-    health_checker_dict = {"interval_in_millis": 30000,
-                           "port": 8080,
-                           "protocol": "HTTP",
-                           "response_body_regex": "^(500|40[1348])$",
-                           "retries": 3,
-                           "timeout_in_millis": 6000,
-                           "return_code": 200,
-                           "url_path": "/healthcheck"}
-    backends = [{
-                "ip_address": "10.159.34.21",
-                "port": 8080,
-                "backup": True,
-                "offline": False,
-                "drain": True,
-                "weight": 1
-                }]
-    sp_config_dict = {"cookie_name": "my_cookie", "disable_fallback": True}
-    ssl_config_dict = {"certificate_name": "cert1",
-                       "verify_depth": 3, "verify_peer_certificate": True}
-    backend_set = get_backend_set('backend_set1', 'LEAST_CONNECTIONS',
-                                  backends, health_checker_dict, sp_config_dict, ssl_config_dict)
-    lb_client.update_backend_set.return_value = get_response(
-        204, None, backend_set, None)
-    get_existing_backend_set_patch.return_value = backend_set
-    changed, backend_set = oci_load_balancer_backend_set.update_backend_set(
-        lb_client, module, 'ocid1.loadbalancer.aaa', backend_set, 'backend_set1')
-    assert changed is True
+    assert_update_true(create_or_update_lb_resources_and_wait_patch, lb_client, module)
 
-
-def test_delete_backend_set(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
-    module = get_module(dict())
+def assert_update_true(create_or_update_lb_resources_and_wait_patch, lb_client, module):
     backend_set = create_default_backend_set()
-    lb_client.delete_backend_set.return_value = get_response(
-        204, None, backend_set, None)
-    get_existing_backend_set_patch.return_value = backend_set
-    result = oci_load_balancer_backend_set.delete_backend_set(lb_client, module)
+    create_or_update_lb_resources_and_wait_patch.return_value = {'backend_set': to_dict(backend_set), 'changed': True}
+    result = oci_load_balancer_backend_set.update_backend_set(
+        lb_client, module, 'ocid1.loadbalancer.aaa', backend_set, 'backend_set1')
     assert result['changed'] is True
 
-def test_delete_backend_set_not_found(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
+def test_delete_backend_set(lb_client, delete_lb_resources_and_wait_patch):
     module = get_module(dict())
-    get_existing_backend_set_patch.side_effect = ServiceError(
-        404, 'NotFoundError', dict(), None)
+    backend_set = create_default_backend_set()
+    delete_lb_resources_and_wait_patch.return_value = {'backend_set': to_dict(backend_set), 'changed': True}
     result = oci_load_balancer_backend_set.delete_backend_set(lb_client, module)
-    assert result['changed'] is False
-
-def test_delete_backend_set_service_error(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
-    error_message = "Internal Server Error"
-    module = get_module(dict())
-    backend_set = create_default_backend_set()
-    lb_client.delete_backend_set.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
-    get_existing_backend_set_patch.return_value = backend_set
-    try:
-        oci_load_balancer_backend_set.delete_backend_set(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
-def test_delete_backend_client_error(lb_client, verify_work_request_patch, get_existing_backend_set_patch):
-    error_message = "Work Request Failed"
-    module = get_module(dict())
-    backend_set = create_default_backend_set()
-    lb_client.delete_backend_set.return_value = get_response(
-        200, None, backend_set, None)
-    get_existing_backend_set_patch.return_value = backend_set
-    verify_work_request_patch.side_effect = ClientError(Exception('Work Request Failed'))
-    try:
-        oci_load_balancer_backend_set.delete_backend_set(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
-
-
-def test_get_existing_backend_set(lb_client):
-    module = get_module(dict())
-    backend_set = create_default_backend_set()
-    lb_client.get_backend_set.return_value = get_response(
-        200, None, backend_set, None)
-    result = oci_load_balancer_backend_set.get_existing_backend_set(
-        lb_client, module, 'ocid1.loadbalancer.oc1.iad.aaaaa', 'backend_set1')
-    assert result.name == backend_set.name
-
-
-def test_get_existing_backend_set_not_found(lb_client):
-    module = get_module(dict())
-    lb_client.get_backend_set.side_effect = ServiceError(
-        404, 'NotFoundError', dict(), None)
-    result = oci_load_balancer_backend_set.get_existing_backend_set(
-        lb_client, module, 'ocid1.loadbalancer.oc1.iad.aaaaa', 'backend_set1')
-    assert result is None
-
-
-def test_get_existing_backend_set_service_error(lb_client):
-    module = get_module(dict())
-    error_message = "Internal Server Error"
-    lb_client.get_backend_set.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
-    try:
-        oci_load_balancer_backend_set.get_existing_backend_set(
-            lb_client, module, 'ocid1.loadbalancer.oc1.iad.aaaaa', '10.159.34.21:8181')
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
+    assert result['changed'] is True
 
 def create_default_backend_set():
     health_checker_dict = {"interval_in_millis": 30000,
@@ -460,6 +197,7 @@ def create_default_backend_set():
     backend_set = get_backend_set('backend_set1', 'LEAST_CONNECTIONS',
                                   backends, health_checker_dict, sp_config_dict, ssl_config_dict)
     return backend_set
+
 
 def get_backend_set(name, policy, backends, health_checker_dict, sp_config_dict, ssl_config_dict):
     backend_set = BackendSet()

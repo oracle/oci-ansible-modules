@@ -21,7 +21,7 @@ module: oci_vcn
 short_description: Manage Virtual Cloud Networks(VCN) in OCI
 description:
     - This module allows the user to create, delete and update virtual cloud networks(VCNs) in OCI.
-version_added: "2.x"
+version_added: "2.5"
 options:
     cidr_block:
         description: The CIDR IP address block of the VCN. Required when creating a VCN with I(state=present).
@@ -81,7 +81,7 @@ vcn:
     type: dict
     sample: {
             "cidr_block": "10.0.0.0/16",
-            "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
+            compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
             "default_dhcp_options_id": "ocid1.dhcpoptions.oc1.phx.xxxxxEXAMPLExxxxx",
             "default_route_table_id": "ocid1.routetable.oc1.phx.xxxxxEXAMPLExxxxx",
             "default_security_list_id": "ocid1.securitylist.oc1.phx.xxxxxEXAMPLExxxxx",
@@ -171,8 +171,8 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+
     exclude_attributes = {'display_name': True, 'dns_label': True}
     state = module.params['state']
     vcn_id = module.params['vcn_id']

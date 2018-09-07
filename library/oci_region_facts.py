@@ -20,9 +20,9 @@ module: oci_region_facts
 short_description: Retrieve details about all Regions offered by Oracle Cloud Infrastructure
 description:
     - This module retrieves details about all Regions offered by Oracle Cloud Infrastructure.
-version_added: "2.x"
+version_added: "2.5"
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_name_option ]
 '''
 
 EXAMPLES = '''
@@ -78,7 +78,8 @@ except ImportError:
 
 def list_regions(identity_client, module):
     try:
-        regions = oci_utils.call_with_backoff(identity_client.list_regions).data
+        regions = oci_utils.list_all_resources(identity_client.list_regions,
+                                               name=module.params['name'])
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
@@ -86,7 +87,7 @@ def list_regions(identity_client, module):
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
 
     module = AnsibleModule(
         argument_spec=module_args,
@@ -96,8 +97,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     result = list_regions(identity_client, module)
     module.exit_json(regions=result)

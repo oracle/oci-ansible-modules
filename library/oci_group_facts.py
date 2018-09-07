@@ -22,7 +22,7 @@ short_description: Fetches details of all the OCI groups of a tenancy and the us
                    associated
 description:
     - Fetches details of all the OCI groups of a tenancy and the users associated with them.
-version_added: "2.x"
+version_added: "2.5"
 options:
     group_id:
         description: Identifier of the group whose details should be fetched
@@ -30,7 +30,7 @@ options:
         aliases: ['id']
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_name_option ]
 '''
 
 EXAMPLES = '''
@@ -73,7 +73,7 @@ groups:
             sample: ocid1.group.oc1.axdf
         inactive_status:
             description: The detailed status of INACTIVE life cycle state
-            returned: always
+            returned: when group's lifecycle_state is INACTIVE
             type: string
             sample: null
         lifecycle_state:
@@ -157,11 +157,12 @@ except ImportError:
 def list_user_groups(identity_client, module):
     group_id = module.params.get('group_id')
     compartment_id = module.params.get('compartment_id')
+    name = module.params['name']
     try:
         if group_id:
             result = get_group(identity_client, group_id, module)
         else:
-            result = get_all_groups(identity_client, compartment_id)
+            result = get_all_groups(identity_client, compartment_id, name)
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as ex:
@@ -179,10 +180,10 @@ def get_group(identity_client, group_id, module):
     return group_dict_list
 
 
-def get_all_groups(identity_client, compartment_id):
+def get_all_groups(identity_client, compartment_id, name=None):
     group_dict_list = []
     group_list = oci_utils.list_all_resources(
-        identity_client.list_groups, compartment_id=compartment_id)
+        identity_client.list_groups, compartment_id=compartment_id, name=name)
     for group in group_list:
         append_group_with_associated_users(
             identity_client, group, compartment_id, group_dict_list)
@@ -222,7 +223,7 @@ def get_associated_users(identity_client, compartment_id, group_id):
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
     module_args.update(
         dict(
             group_id=dict(type='str', required=False, aliases=['id'])
@@ -236,7 +237,8 @@ def main():
         module.fail_json(msg='oci python sdk required for this module')
 
     oci_config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(oci_config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
+
     compartment_id = oci_config['tenancy']
     module.params.update(dict({'compartment_id': compartment_id}))
     result = list_user_groups(identity_client, module)

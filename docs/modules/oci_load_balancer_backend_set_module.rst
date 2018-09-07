@@ -1,13 +1,14 @@
-.. _oci_load_balancer_backend_set:
+:source: cloud/oracle/oci_load_balancer_backend_set.py
+
+:orphan:
+
+.. _oci_load_balancer_backend_set_module:
 
 
 oci_load_balancer_backend_set - Create, update and delete a backend set of a load balancer.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.x
-
-
-
+.. versionadded:: 2.5
 
 .. contents::
    :local:
@@ -16,481 +17,503 @@ oci_load_balancer_backend_set - Create, update and delete a backend set of a loa
 
 Synopsis
 --------
-
-
-* Create an OCI Load Balancer Backend Set
-* Update OCI Load Balancers Backend Set, if present.
-* Delete OCI Load Balancers Backend Set, if present.
-
-
-
-Requirements (on host that executes module)
--------------------------------------------
-
-  * python >= 2.6
-  * Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
+- Create an OCI Load Balancer Backend Set
+- Update OCI Load Balancers Backend Set, if present.
+- Delete OCI Load Balancers Backend Set, if present.
 
 
 
-Options
--------
+Requirements
+~~~~~~~~~~~~
+The below requirements are needed on the host that executes this module.
+
+- python >= 2.6
+- Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
+
+
+Parameters
+----------
 
 .. raw:: html
 
-    <table border=1 cellpadding=4>
-
-    <tr>
-    <th class="head">parameter</th>
-    <th class="head">required</th>
-    <th class="head">default</th>
-    <th class="head">choices</th>
-    <th class="head">comments</th>
-    </tr>
-
-    <tr>
-    <td>api_user<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>api_user_fingerprint<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>api_user_key_file<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Full path and filename of the private key (in PEM format). If not set, then the value of the OCI_USER_KEY_FILE variable, if any, is used. This option is required if the private key is not specified through a configuration file (See <code>config_file_location</code>). If the key is encrypted with a pass-phrase, the <code>api_user_key_pass_phrase</code> option must also be provided.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>api_user_key_pass_phrase<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Passphrase used by the key referenced in <code>api_user_key_file</code>, if it is encrypted. If not set, then the value of the OCI_USER_KEY_PASS_PHRASE variable, if any, is used. This option is required if the key passphrase is not specified through a configuration file (See <code>config_file_location</code>).</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td rowspan="2">backends<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>A list of configurations related to Backends that are part of a backend set.</div>
-    </tr>
-
-    <tr>
-    <td colspan="5">
-        <table border=1 cellpadding=4>
-        <caption><b>Dictionary object backends</b></caption>
-
+    <table  border=0 cellpadding=0 class="documentation-table">
         <tr>
-        <th class="head">parameter</th>
-        <th class="head">required</th>
-        <th class="head">default</th>
-        <th class="head">choices</th>
-        <th class="head">comments</th>
+            <th colspan="2">Parameter</th>
+            <th>Choices/<font color="blue">Defaults</font></th>
+                        <th width="100%">Comments</th>
         </tr>
+                    <tr>
+                                                                <td colspan="2">
+                    <b>api_user</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>api_user_fingerprint</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>api_user_key_file</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Full path and filename of the private key (in PEM format). If not set, then the value of the OCI_USER_KEY_FILE variable, if any, is used. This option is required if the private key is not specified through a configuration file (See <code>config_file_location</code>). If the key is encrypted with a pass-phrase, the <code>api_user_key_pass_phrase</code> option must also be provided.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>api_user_key_pass_phrase</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Passphrase used by the key referenced in <code>api_user_key_file</code>, if it is encrypted. If not set, then the value of the OCI_USER_KEY_PASS_PHRASE variable, if any, is used. This option is required if the key passphrase is not specified through a configuration file (See <code>config_file_location</code>).</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>auth_type</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>instance_principal</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>backends</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A list of configurations related to Backends that are part of a backend set.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>drain</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                    </td>
+                                                                <td>
+                                            <div>Specifies whether the load balancer should drain this server. Servers marked &quot;drain&quot; receive no new incoming traffic.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>weight</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1</div>
+                                    </td>
+                                                                <td>
+                                            <div>Describes the load balancing policy weight assigned to the server. Backend servers with a higher weight receive a larger proportion of incoming traffic. For example, a server weighted '3' receives 3 times the number of new connections as a server weighted '1'.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>backup</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                    </td>
+                                                                <td>
+                                            <div>Specifies whether the load balancer should treat this server as a backup unit. If true, the load balancer forwards no ingress traffic to this backend server unless all other backend servers not marked as &quot;backup&quot; fail the health check policy.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>offline</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                    </td>
+                                                                <td>
+                                            <div>Ensures whether the load balancer should treat this server as offline. Offline servers receive no incoming traffic.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>ip_address</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>IP address of the backend server.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>port</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The communication port for the backend server</div>
+                                                        </td>
+            </tr>
+                    
+                                                <tr>
+                                                                <td colspan="2">
+                    <b>config_file_location</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Path to configuration file. If not set then the value of the OCI_CONFIG_FILE environment variable, if any, is used. Otherwise, defaults to ~/.oci/config.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>config_profile_name</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">DEFAULT</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>health_checker</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Describes the health check policy for a backend set.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>retries</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">3</div>
+                                    </td>
+                                                                <td>
+                                            <div>Describes the number of retries to attempt before a backend server is considered unhealthy.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>protocol</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>HTTP</li>
+                                                                                                                                                                                                <li>TCP</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>Describes the protocol the health check must use, either HTTP or TCP.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>response_body_regex</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">.*</div>
+                                    </td>
+                                                                <td>
+                                            <div>Describes a regular expression for parsing the response body from the backend server.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>return_code</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">200</div>
+                                    </td>
+                                                                <td>
+                                            <div>Describes the status code a healthy backend server should return.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>timeout_in_millis</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">3000</div>
+                                    </td>
+                                                                <td>
+                                            <div>Describes the maximum time, in milliseconds, to wait for a reply to a health check. A health check is successful only if a reply returns within this timeout period.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>interval_in_millis</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">10000</div>
+                                    </td>
+                                                                <td>
+                                            <div>Describes the interval between health checks, in milliseconds.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>url_path</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Describes the path against which to run the health check.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>port</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">0</div>
+                                    </td>
+                                                                <td>
+                                            <div>Describes the backend server port against which to run the health check. If the port is not specified, the load balancer uses the port information from the backends.</div>
+                                                        </td>
+            </tr>
+                    
+                                                <tr>
+                                                                <td colspan="2">
+                    <b>load_balancer_id</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Identifier of the Load Balancer. Mandatory for create,delete and update.</div>
+                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>name</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Name of the Load Balancer Backend Set. A user friendly name. Does not have to be unique, and could be changed. Mandatory for create and update.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>policy</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The load balancer policy for the backend set. <span class='module'>oci_load_balancer_policy_facts</span> could be used to fetch policy types suupported by OCI Load Balancer Service.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>purge_backends</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Purge any backends in the  Backend Set named <em>name</em> that is not specified in <em>backends</em>. If <em>purge_backends=no</em>, provided backends would be appended to existing backends.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>region</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>session_persistence_configuration</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The configuration details for implementing session persistence. Session persistence enables the Load Balancing Service to direct any number of requests that originate from a single logical client to a single backend web server.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>cookie_name</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Describes the name of the cookie used to detect a session initiated by the backend server. Use '*' to specify that any cookie set by the backend causes the session to persist.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>disable_fallback</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                    </td>
+                                                                <td>
+                                            <div>DescribesWhether the load balancer is prevented from directing traffic from a persistent session client to a different backend server if the original server is unavailable.</div>
+                                                        </td>
+            </tr>
+                    
+                                                <tr>
+                                                                <td colspan="2">
+                    <b>ssl_configuration</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The load balancer's SSL handling configuration details.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>certificate_name</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Describes a friendly name for the certificate bundle. It must be unique and it cannot be changed. Valid certificate bundle names include only alphanumeric characters, dashes, and underscores.Certificate bundle names cannot contain spaces.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>verify_depth</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Describes the maximum depth for peer certificate chain verification.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>verify_peer_certificate</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Describeswhether the load balancer listener should verify peer certificates.</div>
+                                                        </td>
+            </tr>
+                    
+                                                <tr>
+                                                                <td colspan="2">
+                    <b>state</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>absent</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Create,update or delete Load Balancer Backend Set. For <em>state=present</em>, if it does not exists, it gets created. If exists, it gets updated.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>tenancy</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>wait</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Whether to wait for create or delete operation to complete.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>wait_timeout</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>wait_until</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The lifecycle state to wait for the resource to transition into when <em>wait=yes</em>. By default, when <em>wait=yes</em>, we wait for the resource to get into ACTIVE/ATTACHED/AVAILABLE/PROVISIONED/ RUNNING applicable lifecycle state during create operation &amp; to get into DELETED/DETACHED/ TERMINATED lifecycle state during delete operation.</div>
+                                                                                </td>
+            </tr>
+                        </table>
+    <br/>
 
-        <tr>
-        <td>drain<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>Specifies whether the load balancer should drain this server. Servers marked &quot;drain&quot; receive no new incoming traffic.</div>
-        </td>
-        </tr>
 
-        <tr>
-        <td>weight<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td>1</td>
-        <td></td>
-        <td>
-        <div>Describes the load balancing policy weight assigned to the server. Backend servers with a higher weight receive a larger proportion of incoming traffic. For example, a server weighted '3' receives 3 times the number of new connections as a server weighted '1'.</div>
-        </td>
-        </tr>
+Notes
+-----
 
-        <tr>
-        <td>backup<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>Specifies whether the load balancer should treat this server as a backup unit. If true, the load balancer forwards no ingress traffic to this backend server unless all other backend servers not marked as &quot;backup&quot; fail the health check policy.</div>
-        </td>
-        </tr>
+.. note::
+    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
 
-        <tr>
-        <td>offline<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>Ensures whether the load balancer should treat this server as offline. Offline servers receive no incoming traffic.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>ip_address<br/><div style="font-size: small;"></div></td>
-        <td>yes</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>IP address of the backend server.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>port<br/><div style="font-size: small;"></div></td>
-        <td>yes</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>The communication port for the backend server</div>
-        </td>
-        </tr>
-
-        </table>
-
-    </td>
-    </tr>
-    </td>
-    </tr>
-
-    <tr>
-    <td>config_file_location<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Path to configuration file. If not set then the value of the OCI_CONFIG_FILE environment variable, if any, is used. Otherwise, defaults to ~/.oci/config.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>config_profile_name<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>DEFAULT</td>
-    <td></td>
-    <td>
-        <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td rowspan="2">health_checker<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Describes the health check policy for a backend set.</div>
-    </tr>
-
-    <tr>
-    <td colspan="5">
-        <table border=1 cellpadding=4>
-        <caption><b>Dictionary object health_checker</b></caption>
-
-        <tr>
-        <th class="head">parameter</th>
-        <th class="head">required</th>
-        <th class="head">default</th>
-        <th class="head">choices</th>
-        <th class="head">comments</th>
-        </tr>
-
-        <tr>
-        <td>retries<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td>3</td>
-        <td></td>
-        <td>
-        <div>Describes the number of retries to attempt before a backend server is considered unhealthy.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>protocol<br/><div style="font-size: small;"></div></td>
-        <td>yes</td>
-        <td></td>
-        <td><ul><li>HTTP</li><li>TCP</li></ul></td>
-        <td>
-        <div>Describes the protocol the health check must use, either HTTP or TCP.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>response_body_regex<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td>.*</td>
-        <td></td>
-        <td>
-        <div>Describes a regular expression for parsing the response body from the backend server.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>return_code<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td>200</td>
-        <td></td>
-        <td>
-        <div>Describes the status code a healthy backend server should return.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>timeout_in_millis<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td>3000</td>
-        <td></td>
-        <td>
-        <div>Describes the maximum time, in milliseconds, to wait for a reply to a health check. A health check is successful only if a reply returns within this timeout period.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>interval_in_millis<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td>10000</td>
-        <td></td>
-        <td>
-        <div>Describes the interval between health checks, in milliseconds.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>url_path<br/><div style="font-size: small;"></div></td>
-        <td>yes</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>Describes the path against which to run the health check.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>port<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>Describes the backend server port against which to run the health check. If the port is not specified, the load balancer uses the port information from the backends.</div>
-        </td>
-        </tr>
-
-        </table>
-
-    </td>
-    </tr>
-    </td>
-    </tr>
-
-    <tr>
-    <td>load_balancer_id<br/><div style="font-size: small;"></div></td>
-    <td>yes</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Identifier of the Load Balancer. Mandatory for create,delete and update.</div>
-        </br><div style="font-size: small;">aliases: id</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>name<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Name of the Load Balancer Backend Set. A user friendly name. Does not have to be unique, and could be changed. Mandatory for create and update.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>policy<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The load balancer policy for the backend set. <span class='module'>oci_load_balancer_policy_facts</span> could be used to fetch policy types suupported by OCI Load Balancer Service.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>purge_backends<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>yes</td>
-    <td><ul><li>yes</li><li>no</li></ul></td>
-    <td>
-        <div>Purge any backends in the  Backend Set named <em>name</em> that is not specified in <em>backends</em>. If <em>purge_backends=no</em>, provided backends would be appended to existing backends.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>region<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td rowspan="2">session_persistence_configuration<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The configuration details for implementing session persistence. Session persistence enables the Load Balancing Service to direct any number of requests that originate from a single logical client to a single backend web server.</div>
-    </tr>
-
-    <tr>
-    <td colspan="5">
-        <table border=1 cellpadding=4>
-        <caption><b>Dictionary object session_persistence_configuration</b></caption>
-
-        <tr>
-        <th class="head">parameter</th>
-        <th class="head">required</th>
-        <th class="head">default</th>
-        <th class="head">choices</th>
-        <th class="head">comments</th>
-        </tr>
-
-        <tr>
-        <td>cookie_name<br/><div style="font-size: small;"></div></td>
-        <td>yes</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>Describes the name of the cookie used to detect a session initiated by the backend server. Use '*' to specify that any cookie set by the backend causes the session to persist.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>disable_fallback<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>DescribesWhether the load balancer is prevented from directing traffic from a persistent session client to a different backend server if the original server is unavailable.</div>
-        </td>
-        </tr>
-
-        </table>
-
-    </td>
-    </tr>
-    </td>
-    </tr>
-
-    <tr>
-    <td rowspan="2">ssl_configuration<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The load balancer's SSL handling configuration details.</div>
-    </tr>
-
-    <tr>
-    <td colspan="5">
-        <table border=1 cellpadding=4>
-        <caption><b>Dictionary object ssl_configuration</b></caption>
-
-        <tr>
-        <th class="head">parameter</th>
-        <th class="head">required</th>
-        <th class="head">default</th>
-        <th class="head">choices</th>
-        <th class="head">comments</th>
-        </tr>
-
-        <tr>
-        <td>certificate_name<br/><div style="font-size: small;"></div></td>
-        <td>yes</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>Describes a friendly name for the certificate bundle. It must be unique and it cannot be changed. Valid certificate bundle names include only alphanumeric characters, dashes, and underscores.Certificate bundle names cannot contain spaces.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>verify_depth<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>Describes the maximum depth for peer certificate chain verification.</div>
-        </td>
-        </tr>
-
-        <tr>
-        <td>verify_peer_certificate<br/><div style="font-size: small;"></div></td>
-        <td>no</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>Describeswhether the load balancer listener should verify peer certificates.</div>
-        </td>
-        </tr>
-
-        </table>
-
-    </td>
-    </tr>
-    </td>
-    </tr>
-
-    <tr>
-    <td>state<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>present</td>
-    <td><ul><li>present</li><li>absent</li></ul></td>
-    <td>
-        <div>Create,update or delete Load Balancer Backend Set. For <em>state=present</em>, if it does not exists, it gets created. If exists, it gets updated.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>tenancy<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
-    </td>
-    </tr>
-
-    </table>
-    </br>
 
 Examples
 --------
 
- ::
+.. code-block:: yaml+jinja
 
     
     # Note: These examples do not set authentication details.
@@ -539,135 +562,139 @@ Examples
         state: 'absent'
 
 
+
+
 Return Values
 -------------
-
 Common return values are documented :ref:`here <common_return_values>`, the following are the fields unique to this module:
 
 .. raw:: html
 
-    <table border=1 cellpadding=4>
-
-    <tr>
-    <th class="head">name</th>
-    <th class="head">description</th>
-    <th class="head">returned</th>
-    <th class="head">type</th>
-    <th class="head">sample</th>
-    </tr>
-
-    <tr>
-    <td>backend_set</td>
-    <td>
-        <div>Attributes of the created/updated Load Balancer Backend Set. For delete, deleted Load Balancer Backend Set description will be returned.</div>
-    </td>
-    <td align=center>success</td>
-    <td align=center>complex</td>
-    <td align=center>{'ssl_configuration': {'certificate_name': 'certs1', 'verify_depth': 1, 'verify_peer_certificate': True}, 'backends': [{'drain': False, 'name': '10.159.34.21:8080', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8080}, {'drain': False, 'name': '10.159.34.21:8282', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8282}], 'health_checker': {'retries': 3, 'protocol': 'HTTP', 'response_body_regex': '^(500|40[1348])$', 'return_code': 500, 'timeout_in_millis': 6000, 'interval_in_millis': 30000, 'url_path': '/healthcheck', 'port': 8080}, 'name': 'backend_set_1', 'policy': 'IP_HASH', 'session_persistence_configuration': {'cookie_name': 'first_backend_set_cookie_updated', 'disable_fallback': True}}</td>
-    </tr>
-
-    <tr>
-    <td>contains:</td>
-    <td colspan=4>
-        <table border=1 cellpadding=2>
-
+    <table border=0 cellpadding=0 class="documentation-table">
         <tr>
-        <th class="head">name</th>
-        <th class="head">description</th>
-        <th class="head">returned</th>
-        <th class="head">type</th>
-        <th class="head">sample</th>
+            <th colspan="2">Key</th>
+            <th>Returned</th>
+            <th width="100%">Description</th>
         </tr>
-
-        <tr>
-        <td>ssl_configuration</td>
-        <td>
-            <div>The load balancer's SSL handling configuration details.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>dict</td>
-        <td align=center>{'certificate_name': 'certs1', 'verify_depth': 1, 'verify_peer_certificate': True}</td>
-        </tr>
-
-        <tr>
-        <td>backends</td>
-        <td>
-            <div>A list of configurations related to Backends that are part of the backend set</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>list</td>
-        <td align=center>[{'drain': False, 'name': '10.159.34.21:8080', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8080}, {'drain': False, 'name': '10.159.34.21:8282', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8282}]</td>
-        </tr>
-
-        <tr>
-        <td>health_checker</td>
-        <td>
-            <div>Health check policy for a backend set.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>dict</td>
-        <td align=center>{'retries': 3, 'protocol': 'HTTP', 'response_body_regex': '^(500|40[1348])$', 'return_code': 200, 'timeout_in_millis': 6000, 'interval_in_millis': 30000, 'url_path': '/healthcheck', 'port': 8080}</td>
-        </tr>
-
-        <tr>
-        <td>name</td>
-        <td>
-            <div>Name assigned to the Load Balancer Backend Set during creation</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ansible_backend_set</td>
-        </tr>
-
-        <tr>
-        <td>policy</td>
-        <td>
-            <div>The load balancer policy for the backend set.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>LEAST_CONNECTIONS</td>
-        </tr>
-
-        <tr>
-        <td>session_persistence_configuration</td>
-        <td>
-            <div>The configuration details for implementing session persistence</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>dict</td>
-        <td align=center>{'cookie_name': 'first_backend_set_cookie', 'disable_fallback': True}</td>
-        </tr>
-
-        </table>
-    </td>
-    </tr>
-
-    </table>
-    </br>
-    </br>
-
-
-Notes
------
-
-.. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
-
-
-Author
-~~~~~~
-
-    * Debayan Gupta(@debayan_gupta)
-
-
+                    <tr>
+                                <td colspan="2">
+                    <b>backend_set</b>
+                    <br/><div style="font-size: small; color: red">complex</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>Attributes of the created/updated Load Balancer Backend Set. For delete, deleted Load Balancer Backend Set description will be returned.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'ssl_configuration': {'certificate_name': 'certs1', 'verify_depth': 1, 'verify_peer_certificate': True}, 'backends': [{'drain': False, 'name': '10.159.34.21:8080', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8080}, {'drain': False, 'name': '10.159.34.21:8282', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8282}], 'health_checker': {'retries': 3, 'protocol': 'HTTP', 'response_body_regex': '^(500|40[1348])$', 'return_code': 500, 'timeout_in_millis': 6000, 'interval_in_millis': 30000, 'url_path': '/healthcheck', 'port': 8080}, 'name': 'backend_set_1', 'policy': 'IP_HASH', 'session_persistence_configuration': {'cookie_name': 'first_backend_set_cookie_updated', 'disable_fallback': True}}</div>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>ssl_configuration</b>
+                    <br/><div style="font-size: small; color: red">dict</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The load balancer's SSL handling configuration details.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'certificate_name': 'certs1', 'verify_depth': 1, 'verify_peer_certificate': True}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>backends</b>
+                    <br/><div style="font-size: small; color: red">list</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>A list of configurations related to Backends that are part of the backend set</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'drain': False, 'name': '10.159.34.21:8080', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8080}, {'drain': False, 'name': '10.159.34.21:8282', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8282}]</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>health_checker</b>
+                    <br/><div style="font-size: small; color: red">dict</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Health check policy for a backend set.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'retries': 3, 'protocol': 'HTTP', 'response_body_regex': '^(500|40[1348])$', 'return_code': 200, 'timeout_in_millis': 6000, 'interval_in_millis': 30000, 'url_path': '/healthcheck', 'port': 8080}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>name</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Name assigned to the Load Balancer Backend Set during creation</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible_backend_set</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>policy</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The load balancer policy for the backend set.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">LEAST_CONNECTIONS</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>session_persistence_configuration</b>
+                    <br/><div style="font-size: small; color: red">dict</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The configuration details for implementing session persistence</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'cookie_name': 'first_backend_set_cookie', 'disable_fallback': True}</div>
+                                    </td>
+            </tr>
+                    
+                                        </table>
+    <br/><br/>
 
 
 Status
-~~~~~~
+------
+
+
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
 
 
 
-For help in developing on modules, should you be so inclined, please read :doc:`../../community`, :doc:`../../dev_guide/testing` and :doc:`../../dev_guide/developing_modules`.
+Author
+~~~~~~
+
+- Debayan Gupta(@debayan_gupta)
+
+
+.. hint::
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_load_balancer_backend_set.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

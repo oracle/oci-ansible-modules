@@ -22,7 +22,7 @@ description:
     - Creates OCI Load Balancers
     - Update OCI Load Balancers, if present, with a new display name
     - Delete OCI Load Balancers, if present.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment under which this
@@ -196,7 +196,7 @@ options:
         required: true
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: [ oracle, oracle_creatable_resource ]
+extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
 '''
 
 EXAMPLES = '''
@@ -467,7 +467,6 @@ logger = None
 
 
 def create_or_update_lb(lb_client, module):
-    load_balancer = None
     result = dict(
         changed=False,
         load_balancer=''
@@ -484,10 +483,8 @@ def create_or_update_lb(lb_client, module):
         if load_balancer_id:
             existing_load_balancer = oci_utils.get_existing_resource(
                 lb_client.get_load_balancer, module, load_balancer_id=load_balancer_id)
-            changed, load_balancer = update_load_balancer(
+            result = update_load_balancer(
                 lb_client, module, existing_load_balancer)
-            result['changed'] = changed
-            result['load_balancer'] = to_dict(load_balancer)
         else:
             module1 = copy.deepcopy(module)
             module1.params.update({'certificates': to_dict(
@@ -514,7 +511,6 @@ def create_or_update_lb(lb_client, module):
 
 
 def create_load_balancer(lb_client, module):
-    result = dict()
     compartment_id = module.params['compartment_id']
     name = module.params['display_name']
     get_logger().info("Creating load balancer %s in the compartment %s", name, compartment_id)
@@ -533,73 +529,63 @@ def create_load_balancer(lb_client, module):
                                     'hostnames': hostnames, 'shape_name': shape_name, 'subnet_ids': subnet_ids})
     for key, value in six.iteritems(atributes_to_value_dict):
         create_load_balancer_details.__setattr__(key, value)
-    response = oci_utils.call_with_backoff(lb_client.create_load_balancer,
-                                           create_load_balancer_details=create_load_balancer_details)
-
-    response = oci_lb_utils.verify_work_request(lb_client, response)
-    get_logger().info("Successfully created load balancer %s in the compartment %s",
-                      name, compartment_id)
-    result['load_balancer'] = to_dict(
-        lb_client.get_load_balancer(response.data.load_balancer_id).data)
-    result['changed'] = True
-    return result
+    return oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="load_balancer",
+                                                                             function=lb_client.create_load_balancer,
+                                                                             kwargs_function={
+                                                                                 'create_load_balancer_details': create_load_balancer_details},
+                                                                             lb_client=lb_client,
+                                                                             get_fn=lb_client.get_load_balancer,
+                                                                             get_param='load_balancer_id',
+                                                                             module=module
+                                                               )
 
 
 def update_load_balancer(lb_client, module, load_balancer):
     if load_balancer is None:
         raise ClientError(Exception("No Load Balancer with id " +
                                     module.params.get('load_balancer_id') + " is found for update"))
-    changed = False
+    result = dict(load_balancer=to_dict(load_balancer), changed=False)
     name = module.params['display_name']
     update_load_balancer_details = UpdateLoadBalancerDetails()
     if load_balancer.display_name.strip() != name.strip():
         get_logger().info("Updating the display name of load balancer from %s to %s",
                           load_balancer.display_name, name)
         update_load_balancer_details.display_name = name
-        response = oci_utils.call_with_backoff(lb_client.update_load_balancer,
-                                               update_load_balancer_details=update_load_balancer_details,
-                                               load_balancer_id=load_balancer.id)
-        changed = True
-        response = oci_lb_utils.verify_work_request(lb_client, response)
-        response = lb_client.get_load_balancer(load_balancer.id)
-        load_balancer = response.data
+        result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="load_balancer",
+                                                                     function=lb_client.update_load_balancer,
+                                                                     kwargs_function={
+                                                                         'update_load_balancer_details': update_load_balancer_details,
+                                                                         'load_balancer_id': load_balancer.id},
+                                                                     lb_client=lb_client,
+                                                                     get_fn=lb_client.get_load_balancer,
+                                                                     kwargs_get={'load_balancer_id': load_balancer.id},
+                                                                     module=module
+                                                                     )
+
         get_logger().info("Successfully updated the display name of load balancer from %s to %s",
                           load_balancer.display_name, name)
-    if not changed:
+    if not result['changed']:
         get_logger().info(
             "Unable to update display name of load balancer as the new name is same as old")
-    return changed, load_balancer
+    return result
 
 
 def delete_load_balancer(lb_client, module):
-    changed = False
-    load_balancer = None
-    result = dict(
-        changed=False,
-        load_balancer=''
-    )
+    lb_id = module.params.get('load_balancer_id')
+    get_logger().info("Deleting load balancer %s", lb_id)
+    result = oci_lb_utils.delete_lb_resources_and_wait(resource_type="load_balancer",
+                                                       function=lb_client.delete_load_balancer,
+                                                       kwargs_function={'load_balancer_id': lb_id},
+                                                       lb_client=lb_client,
+                                                       get_fn=lb_client.get_load_balancer,
+                                                       kwargs_get={'load_balancer_id': lb_id},
+                                                       module=module
+                                                       )
+    if result['changed']:
+        get_logger().info("Successfully deleted load balancer %s", lb_id)
+    else:
+        get_logger().info("Load balancer %s is already deleted", lb_id)
 
-    load_balancer_id = module.params.get('load_balancer_id')
-    try:
-        load_balancer = oci_utils.get_existing_resource(
-            lb_client.get_load_balancer, module, load_balancer_id=load_balancer_id)
-        if load_balancer:
-            get_logger().info("Deleting load balancer %s", load_balancer_id)
-            response = oci_utils.call_with_backoff(
-                lb_client.delete_load_balancer, load_balancer_id=load_balancer_id)
-            oci_lb_utils.verify_work_request(lb_client, response)
-            changed = True
-            get_logger().info("Successfully deleted load balancer %s",
-                              load_balancer_id)
-            result['load_balancer'] = to_dict(load_balancer)
-    except ServiceError as ex:
-        if ex.status != 404:
-            get_logger().error("Failed to delete load balancer due to: %s", ex.message)
-            module.fail_json(msg=ex.message)
-    if not changed:
-        get_logger().info(
-            "Unable to delete load balancer %s as it is not available", load_balancer_id)
-    result['changed'] = changed
     return result
 
 
@@ -615,7 +601,7 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_load_balancer")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec(supports_create=True)
+    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         display_name=dict(type='str', required=False, aliases=['name']),
@@ -644,7 +630,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    lb_client = LoadBalancerClient(oci_utils.get_oci_config(module))
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
     state = module.params['state']
 
     if state == 'present':

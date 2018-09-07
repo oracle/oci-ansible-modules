@@ -51,11 +51,6 @@ def get_security_rules_patch(mocker):
 
 
 @pytest.fixture()
-def get_security_rules_difference_patch(mocker):
-    return mocker.patch.object(oci_security_list, 'get_security_rules_difference')
-
-
-@pytest.fixture()
 def create_security_list_patch(mocker):
     return mocker.patch.object(oci_security_list, 'create_security_list')
 
@@ -69,17 +64,21 @@ def update_security_list_patch(mocker):
 def check_and_create_resource_patch(mocker):
     return mocker.patch.object(oci_utils, 'check_and_create_resource')
 
+
 @pytest.fixture()
 def get_existing_resource_patch(mocker):
     return mocker.patch.object(oci_utils, 'get_existing_resource')
+
 
 @pytest.fixture()
 def create_and_wait_patch(mocker):
     return mocker.patch.object(oci_utils, 'create_and_wait')
 
+
 @pytest.fixture()
 def update_and_wait_patch(mocker):
     return mocker.patch.object(oci_utils, 'update_and_wait')
+
 
 @pytest.fixture()
 def delete_and_wait_patch(mocker):
@@ -161,6 +160,7 @@ def test_update_security_list_no_security_list_for_update(virtual_network_client
     except Exception as ex:
         assert error_message in str(ex.args)
 
+
 def test_update_security_list_name_changed(virtual_network_client, update_and_wait_patch):
     module = get_module(dict({'egress_security_rules': None,
                               'ingress_security_rules': None, 'purge_security_rules': True}))
@@ -170,6 +170,7 @@ def test_update_security_list_name_changed(virtual_network_client, update_and_wa
 
     assert result['changed'] is True
 
+
 def test_update_security_list_freeform_tags_changed(virtual_network_client, update_and_wait_patch):
     module = get_module(dict(freeform_tags=dict(security_level='strict')))
     security_list = get_security_list(None, None, 'ansible_security_list')
@@ -177,6 +178,7 @@ def test_update_security_list_freeform_tags_changed(virtual_network_client, upda
     result = oci_security_list.update_security_list(virtual_network_client, security_list, module)
 
     assert result['changed'] is True
+
 
 def test_update_security_list_defined_tags_changed(virtual_network_client, update_and_wait_patch):
     module = get_module(dict(defined_tags=dict(department=dict(department_type='commericial'))))
@@ -186,15 +188,15 @@ def test_update_security_list_defined_tags_changed(virtual_network_client, updat
 
     assert result['changed'] is True
 
+
 def test_get_security_rules_difference_ingress_tcp_options_append():
     input_ingress_rules = get_security_rules(
         'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False,  None, None, None, '3', '4')
 
     existing_ingress_rules = get_security_rules(
-        'ingress', None, '10.0.0.0/8', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
+        'ingress', 'hashed', '10.0.0.0/8', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_ingress_rules, input_ingress_rules, 'ingress_security_rules', False)
+    result, changed = oci_utils.get_component_list_difference(input_ingress_rules, existing_ingress_rules, False)
 
     assert changed is True
     assert result[0].source == '10.0.0.0/0'
@@ -205,10 +207,9 @@ def test_get_security_rules_difference_ingress_udp_options_append():
         'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/12',  False, None, None, None, '3', '4')
 
     existing_ingress_rules = get_security_rules(
-        'ingress', None, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
+        'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_ingress_rules, input_ingress_rules, 'ingress_security_rules', False)
+    result, changed = oci_utils.get_component_list_difference(input_ingress_rules, existing_ingress_rules, False)
 
     assert changed is True
     assert result[0].source == '10.0.0.0/12'
@@ -219,10 +220,10 @@ def test_get_security_rules_difference_ingress_icmp_options_append():
         'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16',  False, None, None, None, '3', '4')
 
     existing_ingress_rules = get_security_rules(
-        'ingress', None, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', None)
+        'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', None)
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_ingress_rules, input_ingress_rules, 'ingress_security_rules', False)
+    result, changed = oci_utils.get_component_list_difference(
+        existing_ingress_rules, input_ingress_rules, False)
 
     assert changed is True
     assert result[0].source == '0.0.0.0/0'
@@ -233,10 +234,9 @@ def test_get_security_rules_difference_ingress_tcp_options_purge():
         'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
 
     existing_ingress_rules = get_security_rules(
-        'ingress', None, '10.0.0.0/8', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
+        'ingress', 'hashed', '10.0.0.0/8', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_ingress_rules, input_ingress_rules, 'ingress_security_rules', True)
+    result, changed = oci_utils.get_component_list_difference(input_ingress_rules,  existing_ingress_rules, True)
 
     assert changed is True
     assert len(result) is 3
@@ -247,10 +247,10 @@ def test_get_security_rules_difference_ingress_udp_options_purge():
         'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/12', False, None, None, None, '3', '4')
 
     existing_ingress_rules = get_security_rules(
-        'ingress', None, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
+        'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_ingress_rules, input_ingress_rules, 'ingress_security_rules', True)
+    result, changed = oci_utils.get_component_list_difference(
+        existing_ingress_rules, input_ingress_rules, True)
 
     assert changed is True
     assert len(result) is 3
@@ -261,10 +261,10 @@ def test_get_security_rules_difference_ingress_icmp_options_purge():
         'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
 
     existing_ingress_rules = get_security_rules(
-        'ingress', None, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', None)
+        'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', None)
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_ingress_rules, input_ingress_rules, 'ingress_security_rules', True)
+    result, changed = oci_utils.get_component_list_difference(
+        existing_ingress_rules, input_ingress_rules, True)
 
     assert changed is True
     assert len(result) is 3
@@ -275,10 +275,9 @@ def test_get_security_rules_difference_egress_tcp_options_append():
         'egress', 'hashed', None, None, None, False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
 
     existing_egress_rules = get_security_rules(
-        'egress', None, None,  None, None,  False, '10.0.0.0/8', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
+        'egress', 'hashed', None,  None, None,  False, '10.0.0.0/8', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_egress_rules, input_egress_rules, 'egress_security_rules', False)
+    result, changed = oci_utils.get_component_list_difference(input_egress_rules, existing_egress_rules, False)
     assert changed is True
     assert result[0].destination == '10.0.0.0/0'
 
@@ -288,10 +287,9 @@ def test_get_security_rules_difference_egress_udp_options_append():
         'egress', 'hashed', None, None, None, False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
 
     existing_egress_rules = get_security_rules(
-        'egress', None, None,  None, None,  False, '10.0.0.0/0', '10.0.0.0/0', '10.0.0.0/16', '3', '4')
+        'egress', 'hashed', None,  None, None,  False, '10.0.0.0/0', '10.0.0.0/0', '10.0.0.0/16', '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_egress_rules, input_egress_rules, 'egress_security_rules', False)
+    result, changed = oci_utils.get_component_list_difference(input_egress_rules, existing_egress_rules, False)
     assert changed is True
     assert result[0].destination == '0.0.0.0/0'
 
@@ -301,10 +299,9 @@ def test_get_security_rules_difference_egress_icmp_options_append():
         'egress', 'hashed', None, None, None, False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
 
     existing_egress_rules = get_security_rules(
-        'egress', None, None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', None)
+        'egress', 'hashed', None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', None)
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_egress_rules, input_egress_rules, 'egress_security_rules', False)
+    result, changed = oci_utils.get_component_list_difference(input_egress_rules, existing_egress_rules, False)
     assert changed is True
     assert result[0].destination == '10.0.0.0/16'
 
@@ -314,10 +311,9 @@ def test_get_security_rules_difference_egress_state_changed():
         'egress', 'hashed', None, None, None, True, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
 
     existing_egress_rules = get_security_rules(
-        'egress', None, None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
+        'egress', 'hashed', None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_egress_rules, input_egress_rules, 'egress_security_rules', False)
+    result, changed = oci_utils.get_component_list_difference(input_egress_rules, existing_egress_rules, False)
     assert changed is True
     assert len(result) is 6
 
@@ -327,10 +323,9 @@ def test_get_security_rules_difference_egress_tcp_options_purge():
         'egress', 'hashed', None, None, None, False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
 
     existing_egress_rules = get_security_rules(
-        'egress', None, None,  None, None,  False, '10.0.0.0/8', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
+        'egress', 'hashed', None,  None, None,  False, '10.0.0.0/8', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_egress_rules, input_egress_rules, 'egress_security_rules', True)
+    result, changed = oci_utils.get_component_list_difference(input_egress_rules, existing_egress_rules, True)
     assert changed is True
     assert len(result) is 3
 
@@ -340,10 +335,9 @@ def test_get_security_rules_difference_egress_udp_options_purge():
         'egress', 'hashed', None, None, None, False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
 
     existing_egress_rules = get_security_rules(
-        'egress', None, None,  None, None,  False, '10.0.0.0/0', '10.0.0.0/0', '10.0.0.0/16', '3', '4')
+        'egress', 'hashed', None,  None, None,  False, '10.0.0.0/0', '10.0.0.0/0', '10.0.0.0/16', '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_egress_rules, input_egress_rules, 'egress_security_rules', True)
+    result, changed = oci_utils.get_component_list_difference(input_egress_rules, existing_egress_rules, True)
     assert changed is True
     assert len(result) is 3
 
@@ -353,10 +347,9 @@ def test_get_security_rules_difference_egress_icmp_options_purge():
         'egress', 'hashed', None, None, None, False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', '4')
 
     existing_egress_rules = get_security_rules(
-        'egress', None, None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', None)
+        'egress', 'hashed', None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', None)
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_egress_rules, input_egress_rules, 'egress_security_rules', True)
+    result, changed = oci_utils.get_component_list_difference(input_egress_rules, existing_egress_rules, True)
     assert changed is True
     assert len(result) is 3
 
@@ -365,32 +358,29 @@ def test_get_security_rules_difference_no_existing_rule():
     input_ingress_rules = get_security_rules(
         'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        None, input_ingress_rules, 'ingress_security_rules', True)
+    result, changed = oci_utils.get_component_list_difference(
+        input_ingress_rules, None, True)
 
     assert changed is True
     assert len(result) is 3
 
 
+
 def test_get_final_security_rules_empty_input_security_rule():
     existing_egress_rules = get_security_rules(
-        'egress', None, None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', None)
+        'egress', 'hashed', None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', None)
 
-    result, changed = oci_security_list.\
-        get_final_security_rules(None, existing_egress_rules,
-                                 'egress_security_rules', False)
+    result, changed = oci_utils.check_and_return_component_list_difference(None, existing_egress_rules, False)
     assert changed is True
     assert not result
 
 
-def test_get_final_security_rules_rule_changed(get_security_rules_patch, get_security_rules_difference_patch):
-    final_security_rules = get_security_rules(
-        'egress', None, None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', None)
 
-    get_security_rules_difference_patch.return_value = final_security_rules, True
-    result, changed = oci_security_list.\
-        get_final_security_rules(final_security_rules, final_security_rules,
-                                 'egress_security_rules', False)
+def test_get_final_security_rules_rule_changed(get_security_rules_patch):
+    final_security_rules = get_security_rules(
+        'egress', 'hashed', None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', None)
+
+    result, changed = oci_utils.check_and_return_component_list_difference(final_security_rules, None, False)
     assert changed is True
     assert len(result) is 3
 
@@ -408,10 +398,10 @@ def test_get_security_rules_difference_ingress_same_rules_state_unchanged():
         'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False,  None, None, None, '3', '4')
 
     existing_ingress_rules = get_security_rules(
-        'ingress', None, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
+        'ingress', 'hashed', '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', False, None, None, None, '3', '4')
 
-    result, changed = oci_security_list.get_security_rules_difference(
-        existing_ingress_rules, input_ingress_rules, 'ingress_security_rules', False)
+    result, changed = oci_utils.get_component_list_difference(
+        existing_ingress_rules, input_ingress_rules, False)
 
     assert changed is False
 

@@ -21,7 +21,7 @@ module: oci_public_ip
 short_description: Manage public IPs in OCI
 description:
     - This module allows the user to create, delete and update public IPs in OCI.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment to contain the public IP. For ephemeral public IPs, you must set this
@@ -199,8 +199,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
 
     state = module.params['state']
     public_ip_id = module.params['public_ip_id']

@@ -20,7 +20,7 @@ module: oci_tag_namespace_facts
 short_description: Retrieve details of tag namespaces for a specified compartment or tenancy in OCI
 description:
     - This module retrieves details of tag namespaces of a specified tenancy or compartment in OCI.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment whose tag namespaces must be retrieved. To get the tag namespaces of
@@ -33,7 +33,7 @@ options:
         aliases: ['id']
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_name_option ]
 '''
 
 EXAMPLES = '''
@@ -118,13 +118,15 @@ def list_tag_namespaces(identity_client, compartment_id, tag_namespace_id, modul
                                                  tag_namespace_id=tag_namespace_id).data
             return to_dict([tag_ns])
 
-        return to_dict(oci_utils.list_all_resources(identity_client.list_tag_namespaces, compartment_id=compartment_id))
+        return to_dict(oci_utils.list_all_resources(identity_client.list_tag_namespaces,
+                                                    compartment_id=compartment_id,
+                                                    name=module.params['name']))
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         tag_namespace_id=dict(type='str', required=False, aliases=['id'])
@@ -138,8 +140,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     compartment_id = module.params.get("compartment_id")
     tagns_id = module.params.get("tag_namespace_id", None)

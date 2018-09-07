@@ -20,7 +20,7 @@ module: oci_db_home_patch_facts
 short_description: Fetches details of one or more  DB Home Patches
 description:
     - Fetches details of one or more  DB Home Patches.
-version_added: "2.x"
+version_added: "2.5"
 options:
     db_home_id:
         description: Identifier of the  DB Home for which the Patches are
@@ -175,8 +175,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    db_client = DatabaseClient(oci_config)
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_db_home_patches(db_client, module)
 
     module.exit_json(**result)

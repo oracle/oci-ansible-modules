@@ -50,7 +50,7 @@ def setUpModule():
 
 
 def test_list_db_system_shapes(db_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'availability_domain': 'AD2'}))
+    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'availability_domain': 'AD2', 'name': None}))
     list_all_resources_patch.return_value = [get_db_system_shapes()]
     result = oci_db_system_shape_facts.list_db_system_shapes(db_client, module)
     assert result['db_system_shapes'][0]['name'] is get_db_system_shapes().name
@@ -58,7 +58,7 @@ def test_list_db_system_shapes(db_client, list_all_resources_patch):
 
 def test_list_db_system_shapes_service_error(db_client, list_all_resources_patch):
     error_message = 'Internal Server Error'
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'availability_domain': 'AD2'}))
+    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'availability_domain': 'AD2', 'name': None}))
     list_all_resources_patch.side_effect = ServiceError(
         499, 'InternalServerError', dict(), error_message)
     try:

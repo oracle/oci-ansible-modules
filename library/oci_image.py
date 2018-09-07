@@ -22,7 +22,7 @@ short_description: Create, import, update and delete OCI Compute images
 description:
     - This module allows the user to create an image, import an exported image, update an image and delete OCI Compute
       Images.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment containing the instance that needs to be used as the basis for the
@@ -277,8 +277,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    compute_client = ComputeClient(config)
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
     state = module.params['state']
 
     result = dict(changed=False)

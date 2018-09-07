@@ -22,7 +22,7 @@ short_description: Fetches details of a specific Dhcp Options or a list of Dhcp 
                    compartment
 description:
     - Fetches details of a specific Dhcp Options or a list of Dhcp Optionss in the specified VCN and compartment.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the compartment details about
@@ -40,7 +40,7 @@ options:
         aliases: ['id']
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -179,7 +179,8 @@ def list_dhcp_options(virtual_network_client, module):
         if compartment_id and vcn_id:
             existing_dhcp_options = oci_utils.list_all_resources(
                 virtual_network_client.list_dhcp_options,
-                compartment_id=compartment_id, vcn_id=vcn_id)
+                compartment_id=compartment_id, vcn_id=vcn_id,
+                display_name=module.params['display_name'])
         elif dhcp_id:
             response = oci_utils.call_with_backoff(
                 virtual_network_client.get_dhcp_options, dhcp_id=dhcp_id)
@@ -191,7 +192,7 @@ def list_dhcp_options(virtual_network_client, module):
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         vcn_id=dict(type='str', required=False),
@@ -208,8 +209,8 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
 
-    oci_config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(oci_config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+
     result = list_dhcp_options(virtual_network_client, module)
 
     module.exit_json(**result)

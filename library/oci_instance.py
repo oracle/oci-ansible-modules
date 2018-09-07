@@ -26,7 +26,7 @@ description:
       allocated to the instance. For more information, see Overview of the Compute Service at
       U(https://docs.us-phoenix-1.oraclecloud.com/Content/Compute/Concepts/computeoverview.htm). In experimental mode,
       this module also allows attaching/detaching volumes and boot volumes to an instance.
-version_added: "2.x"
+version_added: "2.5"
 options:
     availability_domain:
         description: The Availability Domain of the instance. Required when creating a compute instance with
@@ -78,6 +78,15 @@ options:
         description: Used with I(exact_count) to determine how many compute instances matching the specific tag criteria
                      C(count_tag) must be running. Only I(defined_tags) associated with an instance are considered for
                      matching against C(count_tag).
+        required: false
+    fault_domain:
+        description: A fault domain is a grouping of hardware and infrastructure within an availability domain. Each
+                     availability domain contains three fault domains. Fault domains let you distribute your instances
+                     so that they are not on the same physical hardware within a single availability domain. A hardware
+                     failure or Compute hardware maintenance that affects one fault domain does not affect instances in
+                     other fault domains. If you do not specify the fault domain, the system selects one for you. To
+                     change the fault domain for an instance, terminate it and launch a new instance in the preferred
+                     fault domain. To get a list of fault domains, use M(oci_fault_domain_facts).
         required: false
     metadata:
         description: A hash/dictionary of custom key/value pairs that are associated with the instance. This
@@ -231,10 +240,12 @@ EXAMPLES = '''
         private_ip: "10.0.0.5"
         subnet_id: "ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...5iddusmpqpaoa"
 
-- name: Launch/create an instance using a boot volume, a private IP assignment and attach a volume
+- name: Launch/create an instance using a boot volume, a private IP assignment and attach a volume, and a specific
+        fault domain
   oci_instance:
      name: myinstance2
      availability_domain: "BnQb:PHX-AD-1"
+     fault_domain: "FAULT-DOMAIN-2"
      source_details:
         source_type: bootVolume
         boot_volume_id: ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx
@@ -385,6 +396,18 @@ instance:
             returned: always
             type: dict(str, str)
             sample: {'foo': 'bar'}
+        fault_domain:
+            description: The name of the fault domain the instance is running in. A fault domain is a grouping of
+                         hardware and infrastructure within an availability domain. Each availability domain contains
+                         three fault domains. Fault domains let you distribute your instances so that they are not on
+                         the same physical hardware within a single availability domain. A hardware failure or Compute
+                         hardware maintenance that affects one fault domain does not affect instances in other fault
+                         domains. If you do not specify the fault domain, the system selects one for you. To change the
+                         fault domain for an instance, terminate it and launch a new instance in the preferred fault
+                         domain.
+            returned: always
+            type: string
+            sample: "FAULT-DOMAIN-1"
         id:
             description: The OCID of the instance.
             returned: always
@@ -573,6 +596,18 @@ instances:
             returned: always
             type: dict(str, str)
             sample: {'foo': 'bar'}
+        fault_domain:
+            description: The name of the fault domain the instance is running in. A fault domain is a grouping of
+                         hardware and infrastructure within an availability domain. Each availability domain contains
+                         three fault domains. Fault domains let you distribute your instances so that they are not on
+                         the same physical hardware within a single availability domain. A hardware failure or Compute
+                         hardware maintenance that affects one fault domain does not affect instances in other fault
+                         domains. If you do not specify the fault domain, the system selects one for you. To change the
+                         fault domain for an instance, terminate it and launch a new instance in the preferred fault
+                         domain.
+            returned: always
+            type: string
+            sample: "FAULT-DOMAIN-1"
         id:
             description: The OCID of the instance.
             returned: always
@@ -705,6 +740,7 @@ instances:
              "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq",
              "display_name": "ansible-test-968",
              "extended_metadata": {},
+             "fault_domain": "FAULT-DOMAIN-1",
              "id": "ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx....lxiggdq",
              "image_id": "ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....7klnoa",
              "ipxe_script": null,
@@ -989,6 +1025,18 @@ terminated_instances:
             returned: always
             type: dict(str, str)
             sample: {'foo': 'bar'}
+        fault_domain:
+            description: The name of the fault domain the instance is running in. A fault domain is a grouping of
+                         hardware and infrastructure within an availability domain. Each availability domain contains
+                         three fault domains. Fault domains let you distribute your instances so that they are not on
+                         the same physical hardware within a single availability domain. A hardware failure or Compute
+                         hardware maintenance that affects one fault domain does not affect instances in other fault
+                         domains. If you do not specify the fault domain, the system selects one for you. To change the
+                         fault domain for an instance, terminate it and launch a new instance in the preferred fault
+                         domain.
+            returned: always
+            type: string
+            sample: "FAULT-DOMAIN-1"
         id:
             description: The OCID of the instance.
             returned: always
@@ -1284,13 +1332,13 @@ def power_action_on_instance(compute_client, id, desired_state, module):
             response = oci_utils.call_with_backoff(compute_client.get_instance, instance_id=id)
             # for now the power actions on instances do not go through common utilities for wait.
             if module.params.get('wait', None):
-                debug("waiting for lifecycle_state to reach {}".format(desired_lifecycle_states[desired_state]))
+                debug("waiting for lifecycle_state to reach {0}".format(desired_lifecycle_states[desired_state]))
                 oci.wait_until(compute_client, response, 'lifecycle_state', desired_lifecycle_states[desired_state],
                                max_wait_seconds=module.params.get('wait_timeout',
                                                                   oci_utils.MAX_WAIT_TIMEOUT_IN_SECONDS))
                 response = oci_utils.call_with_backoff(compute_client.get_instance, instance_id=id)
             else:
-                debug("Not waiting for power action request {} as 'wait' is false.".format(desired_state))
+                debug("Not waiting for power action request {0} as 'wait' is false.".format(desired_state))
 
         result['instances'] = [to_dict(response.data)]
         result['instance'] = to_dict(response.data)  # retain for backward compat
@@ -1346,6 +1394,16 @@ def get_launch_instance_details(module, display_name_override=None):
 
     lid.availability_domain = module.params['availability_domain']
     lid.compartment_id = module.params['compartment_id']
+
+    # 'fault_domain' requires OCI Python SDK 2.0.1
+    fault_domain = module.params['fault_domain']
+    if fault_domain is not None:
+        if 'fault_domain' in lid.attribute_map:
+            lid.fault_domain = fault_domain
+        else:
+            module.fail_json(msg="OCI Python SDK 2.0.1 or above is required to support `fault_domain`. The local SDK"
+                                 "version is {0}".format(oci.__version__))
+
     lid.extended_metadata = module.params['extended_metadata']
     lid.metadata = module.params['metadata']
     lid.ipxe_script = module.params['ipxe_script']
@@ -1728,10 +1786,12 @@ def create_one_instance(compute_client, module, display_name_override=None):
 # ensuring instances that match count_tag are evenly spread across regions. Future versions could also support cases
 # where a user specifies a host-name pattern, private IP CIDR range under 'vnic', a volume attachment pattern etc,
 # so that new provisioned instances can have names, IPs, volume attachments generated using that range.
-def ensure_exact_count(compute_client, exact_count, count_tag, module):
+def ensure_exact_count(compute_client, exact_count, count_tag, fault_domain, module):
     """
     Ensure that the exact number of instances specified by 'exact_count' and defined by 'count_tag' are in RUNNING
     state.
+    :param fault_domain: An optional fault_domain for the new instances. If no fault_domain is specified, OCI chooses a
+    fault_domain.
     :param compute_client: The compute client to use to create/terminate/list instances
     :param exact_count: The count of instances that the user wants to ensure
     :param count_tag: The tag that the `exact_count` instances must be tagged with to be considered as a match
@@ -1743,9 +1803,9 @@ def ensure_exact_count(compute_client, exact_count, count_tag, module):
     compartment_id = module.params['compartment_id']
 
     # get all instances that match `count_tag`
-    matching_instances = _get_matching_instances(compute_client, ad, compartment_id, count_tag)
+    matching_instances = _get_matching_instances(compute_client, ad, compartment_id, count_tag, fault_domain)
     curr_inst_count = len(matching_instances)
-    debug("The number of instances that match count_tag {} is {}. Desired exact_count is {}".format(
+    debug("The number of instances that match count_tag {0} is {1}. Desired exact_count is {2}".format(
         count_tag, curr_inst_count, exact_count))
 
     result = dict(changed=False)
@@ -1755,15 +1815,23 @@ def ensure_exact_count(compute_client, exact_count, count_tag, module):
         result['instances'] = to_dict(matching_instances)
     elif curr_inst_count < exact_count:
         to_add = exact_count - curr_inst_count
-        debug("Need to create {} new instances".format(to_add))
+        debug("Need to create {0} new instances".format(to_add))
         added_instances = []
 
-        for i in range(to_add):
-            debug("Creating instance # {}".format(i))
+        for inst_idx in range(to_add):
+            debug("Creating instance # {0}".format(inst_idx))
             name = module.params['name']
-            # Add a suffix to the new instance's name, so that it doesn't conflict with an existing instance
-            suffix = _get_next_available_suffix(matching_instances, exact_count, name)
-            display_name_override = _generate_name_for_instance(name, suffix)
+            display_name_override = None
+            if name is not None:
+                # Add a suffix to the new instance's name, so that it doesn't conflict with an existing instance
+                suffix = _get_next_available_suffix(matching_instances, exact_count, name)
+                display_name_override = _generate_name_for_instance(name, suffix)
+
+            else:
+                # Case when display_name is not provided, skip checking for matching existing instances and create an
+                # instance, as an unique display_name would be generated by the backend anyway.
+                module.params['force_create'] = True
+
             created_result, _ = create_one_instance(compute_client, module, display_name_override)
 
             added_instances.append(created_result['instance'])
@@ -1775,7 +1843,7 @@ def ensure_exact_count(compute_client, exact_count, count_tag, module):
         result['added_instances'] = to_dict(added_instances)
     else:
         to_delete = curr_inst_count - exact_count
-        debug("Need to terminate {} existing instances".format(to_delete))
+        debug("Need to terminate {0} existing instances".format(to_delete))
         terminated_instances = []
         for inst in matching_instances[-to_delete:]:
             terminated_result = terminate_instance(compute_client, to_dict(inst)['id'], module)
@@ -1788,13 +1856,14 @@ def ensure_exact_count(compute_client, exact_count, count_tag, module):
     return result, None
 
 
-def _get_matching_instances(compute_client, ad, compartment_id, count_tag):
+def _get_matching_instances(compute_client, ad, compartment_id, count_tag, fault_domain):
     # Sort instances by time_created in ASC order, so that we can terminate the latest instance easily
     param_map = {'availability_domain': ad, 'compartment_id': compartment_id, 'sort_by': "TIMECREATED",
                  'sort_order': "ASC"}
     curr_instances = oci_utils.list_all_resources(compute_client.list_instances, **param_map)
     return [inst for inst in curr_instances if
-            inst.lifecycle_state == "RUNNING" and _does_instance_match_tag(inst, count_tag)]
+            inst.lifecycle_state == "RUNNING" and _does_instance_match_tag(inst, count_tag) and
+            _does_instance_match_fault_domain(inst, fault_domain)]
 
 
 def _does_instance_match_tag(instance, count_tag):
@@ -1807,6 +1876,12 @@ def _does_instance_match_tag(instance, count_tag):
             # A namespace specified in "count_tag" is not in instance's defined_tags
             return False
     # all count_tag tags present in instance's defined_tags
+    return True
+
+
+def _does_instance_match_fault_domain(inst, fault_domain):
+    if fault_domain is not None:
+        return inst.fault_domain == fault_domain
     return True
 
 
@@ -1824,7 +1899,9 @@ def _generate_name_for_instance(name_prefix, suffix):
     try:
         return name_prefix % suffix
     except TypeError:
-        return name_prefix + "-" + str(suffix)
+        if name_prefix:
+            return name_prefix + "-" + str(suffix)
+        return None
 
 
 def main():
@@ -1839,6 +1916,7 @@ def main():
         count_tag=dict(type='dict', required=False),
         exact_count=dict(type='int', required=False),
         extended_metadata=dict(type='dict', required=False),
+        fault_domain=dict(type='str', required=False),
         instance_id=dict(type='str', required=False, aliases=['id']),
         image_id=dict(type='str', required=False),
         ipxe_script=dict(type='str', required=False),
@@ -1872,9 +1950,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    debug("Using config - " + str(config))
-    compute_client = ComputeClient(config)
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
     state = module.params['state']
 
     result = dict(changed=False)
@@ -1926,9 +2002,10 @@ def main():
 
         exact_count = module.params.get('exact_count')
         count_tag = module.params.get('count_tag')
+        fault_domain = module.params.get('fault_domain')
         if exact_count is not None and count_tag is not None:
             debug("Use exact_count and count_tag to ensure the specified number of instances are RUNNING.")
-            result, _ = ensure_exact_count(compute_client, exact_count, count_tag, module)
+            result, _ = ensure_exact_count(compute_client, exact_count, count_tag, fault_domain, module)
         else:
             debug("Launch a new instance")
             create_result, vol_attachment_result = create_one_instance(compute_client, module)

@@ -21,7 +21,7 @@ module: oci_subnet
 short_description: Manage subnets in a VCN in OCI
 description:
     - This module allows the user to create, delete and update subnets in a VCN in OCI.
-version_added: "2.x"
+version_added: "2.5"
 options:
     availability_domain:
         description: The Availability Domain to contain the subnet. Required when creating a subnet with
@@ -214,8 +214,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
     exclude_attributes = {'display_name': True, 'dns_label': True, 'dhcp_options_id': True}
     state = module.params['state']
     subnet_id = module.params['subnet_id']

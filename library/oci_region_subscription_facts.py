@@ -26,7 +26,7 @@ options:
         description: The OCID of the tenancy for which region subscriptions needs to be retrieved
         required: true
         aliases: [ 'id' ]
-version_added: "2.x"
+version_added: "2.5"
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
 '''
@@ -115,8 +115,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     result = list_region_subscriptions(identity_client, module)
     module.exit_json(region_subscriptions=result)

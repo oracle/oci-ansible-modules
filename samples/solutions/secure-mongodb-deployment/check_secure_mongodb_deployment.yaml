@@ -33,3 +33,28 @@
       until: result['status']|default(0) == 200
     - assert:
         that: "1.0 == {{ result.json.MongoDB_ping_status.ok }}"
+
+    - name: Check whether the appserver is reachable and and mongodb is reachable through Load Balancer with HTTP
+      uri:
+         url: http://{{public_load_balancer_ip_address}}/test
+         body_format: json
+         timeout: 300
+      register: result
+      retries: 5
+      delay: 10
+      until: result['status']|default(0) == 200
+    - assert:
+        that: "1.0 == {{ result.json.MongoDB_ping_status.ok }}"
+
+    - name: Check whether the appserver is reachable and and mongodb is reachable through Load Balancer with HTTPS
+      uri:
+         url: https://{{public_load_balancer_ip_address}}/test
+         body_format: json
+         timeout: 300
+         validate_certs: false
+      register: result
+      retries: 5
+      delay: 10
+      until: result['status']|default(0) == 200
+    - assert:
+        that: "1.0 == {{ result.json.MongoDB_ping_status.ok }}"

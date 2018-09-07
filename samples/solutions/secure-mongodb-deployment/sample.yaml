@@ -16,6 +16,7 @@
       - { role: roles/mongo }
       - { role: roles/appserver }
       - { role: roles/bastion }
+      - { role: roles/load_balancer }
   tasks:
     - debug:
-        msg: "The appserver is available at http://{{ appserver_public_ip }}:80"
+        msg: "The appserver is available at http://{{ public_load_balancer_ip_addresses[0].ip_address }}:80 and https://{{ public_load_balancer_ip_addresses[0].ip_address }}:443"

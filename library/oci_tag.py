@@ -24,7 +24,7 @@ description:
       the schema of a tag and includes a namespace, tag key, and tag value type. Currently the only tag value type
       supported is "string", and hence is not specified during creation. Defined tag keys are case insensitive. However
       note that defined tag values are case sensitive.
-version_added: "2.x"
+version_added: "2.5"
 options:
     tag_namespace_id:
         description: The OCID of the tag namespace that will contain this tag key definition.
@@ -213,8 +213,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
     state = module.params['state']
 
     result = dict(changed=False)

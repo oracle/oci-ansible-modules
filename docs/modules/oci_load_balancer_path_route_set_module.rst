@@ -1,13 +1,14 @@
-.. _oci_load_balancer_path_route_set:
+:source: cloud/oracle/oci_load_balancer_path_route_set.py
+
+:orphan:
+
+.. _oci_load_balancer_path_route_set_module:
 
 
 oci_load_balancer_path_route_set - Create, update and delete a path route set of a load balancer.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.x
-
-
-
+.. versionadded:: 2.5
 
 .. contents::
    :local:
@@ -16,224 +17,269 @@ oci_load_balancer_path_route_set - Create, update and delete a path route set of
 
 Synopsis
 --------
-
-
-* Create an OCI Load Balancer Path Route Set
-* Update OCI Load Balancers Path Route Set, if present.
-* Delete OCI Load Balancers Path Route Set, if present.
-
-
-
-Requirements (on host that executes module)
--------------------------------------------
-
-  * python >= 2.6
-  * Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
+- Create an OCI Load Balancer Path Route Set
+- Update OCI Load Balancers Path Route Set, if present.
+- Delete OCI Load Balancers Path Route Set, if present.
 
 
 
-Options
--------
+Requirements
+~~~~~~~~~~~~
+The below requirements are needed on the host that executes this module.
+
+- python >= 2.6
+- Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
+
+
+Parameters
+----------
 
 .. raw:: html
 
-    <table border=1 cellpadding=4>
-
-    <tr>
-    <th class="head">parameter</th>
-    <th class="head">required</th>
-    <th class="head">default</th>
-    <th class="head">choices</th>
-    <th class="head">comments</th>
-    </tr>
-
-    <tr>
-    <td>api_user<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>api_user_fingerprint<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>api_user_key_file<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Full path and filename of the private key (in PEM format). If not set, then the value of the OCI_USER_KEY_FILE variable, if any, is used. This option is required if the private key is not specified through a configuration file (See <code>config_file_location</code>). If the key is encrypted with a pass-phrase, the <code>api_user_key_pass_phrase</code> option must also be provided.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>api_user_key_pass_phrase<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Passphrase used by the key referenced in <code>api_user_key_file</code>, if it is encrypted. If not set, then the value of the OCI_USER_KEY_PASS_PHRASE variable, if any, is used. This option is required if the key passphrase is not specified through a configuration file (See <code>config_file_location</code>).</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>config_file_location<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Path to configuration file. If not set then the value of the OCI_CONFIG_FILE environment variable, if any, is used. Otherwise, defaults to ~/.oci/config.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>config_profile_name<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>DEFAULT</td>
-    <td></td>
-    <td>
-        <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>load_balancer_id<br/><div style="font-size: small;"></div></td>
-    <td>yes</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Identifier of the Load Balancer. Mandatory for create,delete and update.</div>
-        </br><div style="font-size: small;">aliases: id</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>name<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The name for this set of path route rules. It must be unique and it can not be changed.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td rowspan="2">path_routes<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The set of path route rules. Mandatory for create and update.</div>
-    </tr>
-
-    <tr>
-    <td colspan="5">
-        <table border=1 cellpadding=4>
-        <caption><b>Dictionary object path_routes</b></caption>
-
+    <table  border=0 cellpadding=0 class="documentation-table">
         <tr>
-        <th class="head">parameter</th>
-        <th class="head">required</th>
-        <th class="head">default</th>
-        <th class="head">choices</th>
-        <th class="head">comments</th>
+            <th colspan="2">Parameter</th>
+            <th>Choices/<font color="blue">Defaults</font></th>
+                        <th width="100%">Comments</th>
         </tr>
+                    <tr>
+                                                                <td colspan="2">
+                    <b>api_user</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>api_user_fingerprint</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>api_user_key_file</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Full path and filename of the private key (in PEM format). If not set, then the value of the OCI_USER_KEY_FILE variable, if any, is used. This option is required if the private key is not specified through a configuration file (See <code>config_file_location</code>). If the key is encrypted with a pass-phrase, the <code>api_user_key_pass_phrase</code> option must also be provided.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>api_user_key_pass_phrase</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Passphrase used by the key referenced in <code>api_user_key_file</code>, if it is encrypted. If not set, then the value of the OCI_USER_KEY_PASS_PHRASE variable, if any, is used. This option is required if the key passphrase is not specified through a configuration file (See <code>config_file_location</code>).</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>auth_type</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>instance_principal</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>config_file_location</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Path to configuration file. If not set then the value of the OCI_CONFIG_FILE environment variable, if any, is used. Otherwise, defaults to ~/.oci/config.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>config_profile_name</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">DEFAULT</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>load_balancer_id</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Identifier of the Load Balancer. Mandatory for create,delete and update.</div>
+                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>name</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The name for this set of path route rules. It must be unique and it can not be changed.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>path_routes</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The set of path route rules. Mandatory for create and update.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>path</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The path string to match against the incoming URI path. - Path strings are case-insensitive. - Asterisk (*) wildcards are not supported. - Regular expressions are not supported.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>backend_set_name</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The name of the target backend set for requests where the incoming URI matches the specified path.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>path_match_type</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The type of matching to apply to incoming URIs. This should be a dict/hash that consists of the key [match_type describes how the load balancing service compares a PathRoute object's path string against the incoming URI. The choices for the value are EXACT_MATCH, FORCE_LONGEST_PREFIX_MATCH, PREFIX_MATCH, SUFFIX_MATCH. required - true]</div>
+                                                        </td>
+            </tr>
+                    
+                                                <tr>
+                                                                <td colspan="2">
+                    <b>purge_path_routes</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Purge any Path Route in the  Path Route Set named <em>name</em> that is not specified in <em>path_routes</em>. This is only applicable in case of updating path route set.If <em>purge_path_routes=no</em>, provided path_routes would be appended to existing path_routes.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>region</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>state</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>absent</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Create,update or delete Load Balancer Path Route Set. For <em>state=present</em>, if it does not exists, it gets created. If exists, it gets updated.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>tenancy</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>wait</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Whether to wait for create or delete operation to complete.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>wait_timeout</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>wait_until</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The lifecycle state to wait for the resource to transition into when <em>wait=yes</em>. By default, when <em>wait=yes</em>, we wait for the resource to get into ACTIVE/ATTACHED/AVAILABLE/PROVISIONED/ RUNNING applicable lifecycle state during create operation &amp; to get into DELETED/DETACHED/ TERMINATED lifecycle state during delete operation.</div>
+                                                                                </td>
+            </tr>
+                        </table>
+    <br/>
 
-        <tr>
-        <td>path<br/><div style="font-size: small;"></div></td>
-        <td>yes</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>The path string to match against the incoming URI path. - Path strings are case-insensitive. - Asterisk (*) wildcards are not supported. - Regular expressions are not supported.</div>
-        </td>
-        </tr>
 
-        <tr>
-        <td>backend_set_name<br/><div style="font-size: small;"></div></td>
-        <td>yes</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>The name of the target backend set for requests where the incoming URI matches the specified path.</div>
-        </td>
-        </tr>
+Notes
+-----
 
-        <tr>
-        <td>path_match_type<br/><div style="font-size: small;"></div></td>
-        <td>yes</td>
-        <td></td>
-        <td></td>
-        <td>
-        <div>The type of matching to apply to incoming URIs. This should be a dict/hash that consists of the key [match_type describes how the load balancing service compares a PathRoute object's path string against the incoming URI. The choices for the value are EXACT_MATCH, FORCE_LONGEST_PREFIX_MATCH, PREFIX_MATCH, SUFFIX_MATCH. required - true]</div>
-        </td>
-        </tr>
+.. note::
+    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
 
-        </table>
-
-    </td>
-    </tr>
-    </td>
-    </tr>
-
-    <tr>
-    <td>purge_path_routes<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>yes</td>
-    <td><ul><li>yes</li><li>no</li></ul></td>
-    <td>
-        <div>Purge any Path Route in the  Path Route Set named <em>name</em> that is not specified in <em>path_routes</em>. This is only applicable in case of updating path route set.If <em>purge_path_routes=no</em>, provided path_routes would be appended to existing path_routes.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>region<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>state<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>present</td>
-    <td><ul><li>present</li><li>absent</li></ul></td>
-    <td>
-        <div>Create,update or delete Load Balancer Path Route Set. For <em>state=present</em>, if it does not exists, it gets created. If exists, it gets updated.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>tenancy<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
-    </td>
-    </tr>
-
-    </table>
-    </br>
 
 Examples
 --------
 
- ::
+.. code-block:: yaml+jinja
 
     
     # Note: These examples do not set authentication details.
@@ -282,95 +328,83 @@ Examples
         state: 'absent'
 
 
+
+
 Return Values
 -------------
-
 Common return values are documented :ref:`here <common_return_values>`, the following are the fields unique to this module:
 
 .. raw:: html
 
-    <table border=1 cellpadding=4>
-
-    <tr>
-    <th class="head">name</th>
-    <th class="head">description</th>
-    <th class="head">returned</th>
-    <th class="head">type</th>
-    <th class="head">sample</th>
-    </tr>
-
-    <tr>
-    <td>path_route_set</td>
-    <td>
-        <div>Attributes of the created/updated Load Balancer Path Route Set. For delete, deleted Load Balancer Path Route Set description will be returned.</div>
-    </td>
-    <td align=center>success</td>
-    <td align=center>complex</td>
-    <td align=center>{'name': 'ansible_path_route_set', 'path_routes': [{'path': '/admin', 'backend_set_name': 'ansible_backend_set', 'path_match_type': {'match_type': 'EXACT_MATCH'}}]}</td>
-    </tr>
-
-    <tr>
-    <td>contains:</td>
-    <td colspan=4>
-        <table border=1 cellpadding=2>
-
+    <table border=0 cellpadding=0 class="documentation-table">
         <tr>
-        <th class="head">name</th>
-        <th class="head">description</th>
-        <th class="head">returned</th>
-        <th class="head">type</th>
-        <th class="head">sample</th>
+            <th colspan="2">Key</th>
+            <th>Returned</th>
+            <th width="100%">Description</th>
         </tr>
-
-        <tr>
-        <td>path_routes</td>
-        <td>
-            <div>The set of path route rules.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>list</td>
-        <td align=center>[{'path': '/admin', 'backend_set_name': 'ansible_backend_set', 'path_match_type': {'match_type': 'EXACT_MATCH'}}]</td>
-        </tr>
-
-        <tr>
-        <td>name</td>
-        <td>
-            <div>Name assigned to the Load Balancer Path Route Set during creation</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ansible_path_route_set</td>
-        </tr>
-
-        </table>
-    </td>
-    </tr>
-
-    </table>
-    </br>
-    </br>
-
-
-Notes
------
-
-.. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
-
-
-Author
-~~~~~~
-
-    * Debayan Gupta(@debayan_gupta)
-
-
+                    <tr>
+                                <td colspan="2">
+                    <b>path_route_set</b>
+                    <br/><div style="font-size: small; color: red">complex</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>Attributes of the created/updated Load Balancer Path Route Set. For delete, deleted Load Balancer Path Route Set description will be returned.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'name': 'ansible_path_route_set', 'path_routes': [{'path': '/admin', 'backend_set_name': 'ansible_backend_set', 'path_match_type': {'match_type': 'EXACT_MATCH'}}]}</div>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>path_routes</b>
+                    <br/><div style="font-size: small; color: red">list</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The set of path route rules.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'path': '/admin', 'backend_set_name': 'ansible_backend_set', 'path_match_type': {'match_type': 'EXACT_MATCH'}}]</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>name</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Name assigned to the Load Balancer Path Route Set during creation</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible_path_route_set</div>
+                                    </td>
+            </tr>
+                    
+                                        </table>
+    <br/><br/>
 
 
 Status
-~~~~~~
+------
+
+
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
 
 
 
-For help in developing on modules, should you be so inclined, please read :doc:`../../community`, :doc:`../../dev_guide/testing` and :doc:`../../dev_guide/developing_modules`.
+Author
+~~~~~~
+
+- Debayan Gupta(@debayan_gupta)
+
+
+.. hint::
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_load_balancer_path_route_set.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

@@ -30,9 +30,22 @@
     with_items: "{{ instances }}"
     until: result.instances[0].lifecycle_state == "TERMINATED"
     when: instances is defined
-    retries: 5
+    retries: 10
     # 10 seconds delays between retries
     delay: 10
+  
+  - oci_load_balancer_facts:
+      compartment_id: "{{ demo_compartment_ocid }}"
+    register: result
+  - set_fact:
+      demo_load_balancer_id: "{{ item['id'] }}"
+    with_items: "{{ result.load_balancers }}"
+    when: item.display_name.find(demo_var_prefix) != -1
+
+  - oci_load_balancer:
+      load_balancer_id: "{{ demo_load_balancer_id }}"       
+      state: 'absent'
+    ignore_errors: yes
 
   - oci_vcn_facts:
       compartment_id: "{{ demo_compartment_ocid }}"

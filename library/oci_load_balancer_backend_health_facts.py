@@ -20,7 +20,7 @@ module: oci_load_balancer_backend_health_facts
 short_description: Fetch details of Backend Health in a load balancer backend set of a load balancer
 description:
     - Fetch details of Backend Health in a load balancer backend set of a load balancer.
-version_added: "2.x"
+version_added: "2.5"
 options:
     load_balancer_id:
         description: Identifier of the Load Balancer to which the Backends belongs.
@@ -155,7 +155,7 @@ def main():
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
-    lb_client = LoadBalancerClient(oci_utils.get_oci_config(module))
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
 
     result = get_load_balancer_backend_health(lb_client, module)
 

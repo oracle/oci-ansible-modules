@@ -22,7 +22,7 @@ short_description: Retrieve details about a policy or policies attached to a com
 description:
     - This module retrieves a specific policy or all the policies attached to a specified compartment in OCI Identity
       and Access Management service.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the compartment (remember that the tenancy is simply the root compartment). Required to
@@ -33,7 +33,7 @@ options:
         required: false
         aliases: [ 'id' ]
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_name_option ]
 '''
 
 EXAMPLES = '''
@@ -130,7 +130,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         policy_id=dict(type='str', required=False, aliases=['id'])
@@ -147,15 +147,15 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     policy_id = module.params['policy_id']
 
     try:
         if policy_id is None:
             result = to_dict(oci_utils.list_all_resources(identity_client.list_policies,
-                                                          compartment_id=module.params['compartment_id']))
+                                                          compartment_id=module.params['compartment_id'],
+                                                          name=module.params['name']))
         else:
             result = [to_dict(identity_client.get_policy(policy_id).data)]
     except ServiceError as ex:

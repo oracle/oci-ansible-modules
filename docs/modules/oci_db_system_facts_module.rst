@@ -1,13 +1,14 @@
-.. _oci_db_system_facts:
+:source: cloud/oracle/oci_db_system_facts.py
+
+:orphan:
+
+.. _oci_db_system_facts_module:
 
 
 oci_db_system_facts - Fetches details of the OCI DB System
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.x
-
-
-
+.. versionadded:: 2.5
 
 .. contents::
    :local:
@@ -16,143 +17,170 @@ oci_db_system_facts - Fetches details of the OCI DB System
 
 Synopsis
 --------
-
-
-* Fetches details of the OCI DB System.
-
-
-
-Requirements (on host that executes module)
--------------------------------------------
-
-  * python >= 2.6
-  * Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
+- Fetches details of the OCI DB System.
 
 
 
-Options
--------
+Requirements
+~~~~~~~~~~~~
+The below requirements are needed on the host that executes this module.
+
+- python >= 2.6
+- Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
+
+
+Parameters
+----------
 
 .. raw:: html
 
-    <table border=1 cellpadding=4>
+    <table  border=0 cellpadding=0 class="documentation-table">
+        <tr>
+            <th colspan="1">Parameter</th>
+            <th>Choices/<font color="blue">Defaults</font></th>
+                        <th width="100%">Comments</th>
+        </tr>
+                    <tr>
+                                                                <td colspan="1">
+                    <b>api_user</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>api_user_fingerprint</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>api_user_key_file</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Full path and filename of the private key (in PEM format). If not set, then the value of the OCI_USER_KEY_FILE variable, if any, is used. This option is required if the private key is not specified through a configuration file (See <code>config_file_location</code>). If the key is encrypted with a pass-phrase, the <code>api_user_key_pass_phrase</code> option must also be provided.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>api_user_key_pass_phrase</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Passphrase used by the key referenced in <code>api_user_key_file</code>, if it is encrypted. If not set, then the value of the OCI_USER_KEY_PASS_PHRASE variable, if any, is used. This option is required if the key passphrase is not specified through a configuration file (See <code>config_file_location</code>).</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>auth_type</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>instance_principal</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>compartment_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Identifier of the compartment in which this DB System exists</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>config_file_location</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Path to configuration file. If not set then the value of the OCI_CONFIG_FILE environment variable, if any, is used. Otherwise, defaults to ~/.oci/config.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>config_profile_name</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">DEFAULT</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>db_system_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Identifier of the DB System whose details needs to be fetched.</div>
+                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>display_name</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Use <em>display_name</em> along with the other options to return only resources that match the given display name exactly.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>region</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>tenancy</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
+                                                                                </td>
+            </tr>
+                        </table>
+    <br/>
 
-    <tr>
-    <th class="head">parameter</th>
-    <th class="head">required</th>
-    <th class="head">default</th>
-    <th class="head">choices</th>
-    <th class="head">comments</th>
-    </tr>
 
-    <tr>
-    <td>api_user<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
-    </td>
-    </tr>
+Notes
+-----
 
-    <tr>
-    <td>api_user_fingerprint<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
-    </td>
-    </tr>
+.. note::
+    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
 
-    <tr>
-    <td>api_user_key_file<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Full path and filename of the private key (in PEM format). If not set, then the value of the OCI_USER_KEY_FILE variable, if any, is used. This option is required if the private key is not specified through a configuration file (See <code>config_file_location</code>). If the key is encrypted with a pass-phrase, the <code>api_user_key_pass_phrase</code> option must also be provided.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>api_user_key_pass_phrase<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Passphrase used by the key referenced in <code>api_user_key_file</code>, if it is encrypted. If not set, then the value of the OCI_USER_KEY_PASS_PHRASE variable, if any, is used. This option is required if the key passphrase is not specified through a configuration file (See <code>config_file_location</code>).</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>compartment_id<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Identifier of the compartment in which this DB System exists</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>config_file_location<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Path to configuration file. If not set then the value of the OCI_CONFIG_FILE environment variable, if any, is used. Otherwise, defaults to ~/.oci/config.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>config_profile_name<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>DEFAULT</td>
-    <td></td>
-    <td>
-        <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>db_system_id<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>Identifier of the DB System whose details needs to be fetched.</div>
-        </br><div style="font-size: small;">aliases: id</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>region<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
-    </td>
-    </tr>
-
-    <tr>
-    <td>tenancy<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-    <td></td>
-    <td>
-        <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
-    </td>
-    </tr>
-
-    </table>
-    </br>
 
 Examples
 --------
 
- ::
+.. code-block:: yaml+jinja
 
     
     #Fetch DB System
@@ -166,345 +194,433 @@ Examples
           db_system_id: 'ocid1.dbsystem..xcds'
 
 
+
+
 Return Values
 -------------
-
 Common return values are documented :ref:`here <common_return_values>`, the following are the fields unique to this module:
 
 .. raw:: html
 
-    <table border=1 cellpadding=4>
-
-    <tr>
-    <th class="head">name</th>
-    <th class="head">description</th>
-    <th class="head">returned</th>
-    <th class="head">type</th>
-    <th class="head">sample</th>
-    </tr>
-
-    <tr>
-    <td>db_system</td>
-    <td>
-        <div>Attributes of the Fetched DB System.</div>
-    </td>
-    <td align=center>success</td>
-    <td align=center>complex</td>
-    <td align=center>[{'domain': 'ansiblevcn955.ansiblevcn955.oraclevcn.com', 'backup_subnet_id': None, 'reco_storage_size_in_gb': None, 'database_edition': 'STANDARD_EDITION', 'time_created': '2018-02-10T19:21:44.171000+00:00', 'shape': 'BM.DenseIO1.36', 'disk_redundancy': 'NORMAL', 'last_patch_history_entry_id': None, 'license_model': 'LICENSE_INCLUDED', 'lifecycle_details': None, 'data_storage_size_in_gbs': None, 'id': 'ocid1.dbsystem.oc1.iad.xxxxxEXAMPLExxxxx', 'listener_port': 1521, 'lifecycle_state': 'PROVISIONING', 'availability_domain': 'IwGV:US-ASHBURN-AD-2', 'display_name': 'ansible-db-system-955', 'data_storage_percentage': 80, 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'subnet_id': 'ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx', 'defined_tags': {'target_users': {'division': 'accounts'}}, 'hostname': 'db-system-955', 'freeform_tags': {'deployment': 'production'}, 'ssh_public_keys': ['ssh-rsa AAA'], 'vip_ids': None, 'cluster_name': 'db-clus-955', 'scan_ip_ids': None, 'version': None, 'cpu_core_count': 2, 'scan_dns_record_id': None, 'node_count': None}]</td>
-    </tr>
-
-    <tr>
-    <td>contains:</td>
-    <td colspan=4>
-        <table border=1 cellpadding=2>
-
+    <table border=0 cellpadding=0 class="documentation-table">
         <tr>
-        <th class="head">name</th>
-        <th class="head">description</th>
-        <th class="head">returned</th>
-        <th class="head">type</th>
-        <th class="head">sample</th>
+            <th colspan="2">Key</th>
+            <th>Returned</th>
+            <th width="100%">Description</th>
         </tr>
-
-        <tr>
-        <td>domain</td>
-        <td>
-            <div>The domain name for the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ansiblevcn955.ansiblevcn955.oraclevcn.com</td>
-        </tr>
-
-        <tr>
-        <td>data_storage_percentage</td>
-        <td>
-            <div>The percentage assigned to DATA storage</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>80</td>
-        </tr>
-
-        <tr>
-        <td>reco_storage_size_in_gb</td>
-        <td>
-            <div>RECO/REDO storage size, in GBs, that is currently allocated to the DB system. This is applicable only for VM-based DBs.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>1024</td>
-        </tr>
-
-        <tr>
-        <td>database_edition</td>
-        <td>
-            <div>The Oracle Database Edition that applies to all the databases on the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>STANDARD_EDITION</td>
-        </tr>
-
-        <tr>
-        <td>time_created</td>
-        <td>
-            <div>Date and time when the DB System was created, in the format defined by RFC3339</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>datetime</td>
-        <td align=center>2016-08-25 21:10:29.600000</td>
-        </tr>
-
-        <tr>
-        <td>shape</td>
-        <td>
-            <div>The shape of the DB System</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>BM.DenseIO1.36</td>
-        </tr>
-
-        <tr>
-        <td>disk_redundancy</td>
-        <td>
-            <div>The type of redundancy configured for the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>NORMAL</td>
-        </tr>
-
-        <tr>
-        <td>last_patch_history_entry_id</td>
-        <td>
-            <div>The OCID of the last patch history. This is updated as soon as a patch operation is started.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ocid1.lastpatchhistory.aaaa</td>
-        </tr>
-
-        <tr>
-        <td>license_model</td>
-        <td>
-            <div>The Oracle license model that applies to all the databases on the DB System</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>LICENSE_INCLUDED</td>
-        </tr>
-
-        <tr>
-        <td>lifecycle_details</td>
-        <td>
-            <div>Additional information about the current lifecycle state.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>details</td>
-        </tr>
-
-        <tr>
-        <td>data_storage_size_in_gbs</td>
-        <td>
-            <div>Data storage size, in GBs, that is currently available to the DB system. This is applicable only for VM-based DBs.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>2048</td>
-        </tr>
-
-        <tr>
-        <td>id</td>
-        <td>
-            <div>The identifier of the DB System</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ocid1.dbsystem.oc1.xzvf..oifds</td>
-        </tr>
-
-        <tr>
-        <td>listener_port</td>
-        <td>
-            <div>The port number configured for the listener on the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>1521</td>
-        </tr>
-
-        <tr>
-        <td>lifecycle_state</td>
-        <td>
-            <div>The current state of the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>AVAILABLE</td>
-        </tr>
-
-        <tr>
-        <td>availability_domain</td>
-        <td>
-            <div>The Availability Domain where the DB System is located.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>IwGV:US-ASHBURN-AD-2</td>
-        </tr>
-
-        <tr>
-        <td>display_name</td>
-        <td>
-            <div>The user-friendly name for the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ansible-db-system</td>
-        </tr>
-
-        <tr>
-        <td>compartment_id</td>
-        <td>
-            <div>The identifier of the compartment containing the DB System</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ocid1.compartment.oc1.xzvf..oifds</td>
-        </tr>
-
-        <tr>
-        <td>subnet_id</td>
-        <td>
-            <div>The OCID of the subnet the DB System is associated with.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ocid1.subnet.aaaa</td>
-        </tr>
-
-        <tr>
-        <td>scan_dns_record_id</td>
-        <td>
-            <div>The OCID of the DNS record for the SCAN IP addresses that are associated with the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ocid.dnsrecord.aaaa</td>
-        </tr>
-
-        <tr>
-        <td>hostname</td>
-        <td>
-            <div>The user-friendly name for the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>db-system</td>
-        </tr>
-
-        <tr>
-        <td>ssh_public_keys</td>
-        <td>
-            <div>The public key portion of one or more key pairs used for SSH access to the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>['ssh-rsa 3NzaC1y']</td>
-        </tr>
-
-        <tr>
-        <td>vip_ids</td>
-        <td>
-            <div>The OCID of the virtual IP (VIP) addresses associated with the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>['159.28.0.1']</td>
-        </tr>
-
-        <tr>
-        <td>cluster_name</td>
-        <td>
-            <div>Cluster name for Exadata and 2-node RAC DB Systems</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>db-cluster</td>
-        </tr>
-
-        <tr>
-        <td>scan_ip_ids</td>
-        <td>
-            <div>The OCID of the Single Client Access Name (SCAN) IP addresses associated with the DB System. SCAN IP addresses are typically used for load balancing and are not assigned to any interface. Clusterware directs the requests to the appropriate nodes in the cluster. For a single-node DB System, this list is empty.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>ocid1.scanip.aaaa</td>
-        </tr>
-
-        <tr>
-        <td>version</td>
-        <td>
-            <div>The version of the DB System.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>12.2.0.1</td>
-        </tr>
-
-        <tr>
-        <td>cpu_core_count</td>
-        <td>
-            <div>The number of CPU cores to enable.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>2</td>
-        </tr>
-
-        <tr>
-        <td>node_count</td>
-        <td>
-            <div>Number of nodes in this DB system. For RAC DBs, this will be greater than 1.</div>
-        </td>
-        <td align=center>always</td>
-        <td align=center>string</td>
-        <td align=center>2</td>
-        </tr>
-
-        </table>
-    </td>
-    </tr>
-
-    </table>
-    </br>
-    </br>
-
-
-Notes
------
-
-.. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
-
-
-Author
-~~~~~~
-
-    * Debayan Gupta(@debayan_gupta)
-
-
+                    <tr>
+                                <td colspan="2">
+                    <b>db_system</b>
+                    <br/><div style="font-size: small; color: red">complex</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>Attributes of the Fetched DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'domain': 'ansiblevcn955.ansiblevcn955.oraclevcn.com', 'backup_subnet_id': None, 'reco_storage_size_in_gb': None, 'database_edition': 'STANDARD_EDITION', 'time_created': '2018-02-10T19:21:44.171000+00:00', 'shape': 'BM.DenseIO1.36', 'disk_redundancy': 'NORMAL', 'last_patch_history_entry_id': None, 'license_model': 'LICENSE_INCLUDED', 'lifecycle_details': None, 'data_storage_size_in_gbs': None, 'id': 'ocid1.dbsystem.oc1.iad.xxxxxEXAMPLExxxxx', 'listener_port': 1521, 'lifecycle_state': 'PROVISIONING', 'availability_domain': 'IwGV:US-ASHBURN-AD-2', 'display_name': 'ansible-db-system-955', 'data_storage_percentage': 80, 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'subnet_id': 'ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx', 'defined_tags': {'target_users': {'division': 'accounts'}}, 'hostname': 'db-system-955', 'freeform_tags': {'deployment': 'production'}, 'ssh_public_keys': ['ssh-rsa AAA'], 'vip_ids': None, 'cluster_name': 'db-clus-955', 'scan_ip_ids': None, 'version': None, 'cpu_core_count': 2, 'scan_dns_record_id': None, 'node_count': None}]</div>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>domain</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The domain name for the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansiblevcn955.ansiblevcn955.oraclevcn.com</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>data_storage_percentage</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The percentage assigned to DATA storage</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">80</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>reco_storage_size_in_gb</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>RECO/REDO storage size, in GBs, that is currently allocated to the DB system. This is applicable only for VM-based DBs.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">1024</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>database_edition</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The Oracle Database Edition that applies to all the databases on the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">STANDARD_EDITION</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>time_created</b>
+                    <br/><div style="font-size: small; color: red">datetime</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Date and time when the DB System was created, in the format defined by RFC3339</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>shape</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The shape of the DB System</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">BM.DenseIO1.36</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>disk_redundancy</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The type of redundancy configured for the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">NORMAL</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>last_patch_history_entry_id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the last patch history. This is updated as soon as a patch operation is started.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.lastpatchhistory.aaaa</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>license_model</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The Oracle license model that applies to all the databases on the DB System</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">LICENSE_INCLUDED</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>lifecycle_details</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Additional information about the current lifecycle state.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">details</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>data_storage_size_in_gbs</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Data storage size, in GBs, that is currently available to the DB system. This is applicable only for VM-based DBs.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2048</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The identifier of the DB System</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.dbsystem.oc1.xzvf..oifds</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>listener_port</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The port number configured for the listener on the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">1521</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>lifecycle_state</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The current state of the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">AVAILABLE</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>availability_domain</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The Availability Domain where the DB System is located.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">IwGV:US-ASHBURN-AD-2</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>display_name</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The user-friendly name for the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible-db-system</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>compartment_id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The identifier of the compartment containing the DB System</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1.xzvf..oifds</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>subnet_id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the subnet the DB System is associated with.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.subnet.aaaa</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>scan_dns_record_id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the DNS record for the SCAN IP addresses that are associated with the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid.dnsrecord.aaaa</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>hostname</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The user-friendly name for the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">db-system</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>ssh_public_keys</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The public key portion of one or more key pairs used for SSH access to the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">['ssh-rsa 3NzaC1y']</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>vip_ids</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the virtual IP (VIP) addresses associated with the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">['159.28.0.1']</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>cluster_name</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Cluster name for Exadata and 2-node RAC DB Systems</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">db-cluster</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>scan_ip_ids</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the Single Client Access Name (SCAN) IP addresses associated with the DB System. SCAN IP addresses are typically used for load balancing and are not assigned to any interface. Clusterware directs the requests to the appropriate nodes in the cluster. For a single-node DB System, this list is empty.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.scanip.aaaa</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>version</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The version of the DB System.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">12.2.0.1</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>cpu_core_count</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The number of CPU cores to enable.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>node_count</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Number of nodes in this DB system. For RAC DBs, this will be greater than 1.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2</div>
+                                    </td>
+            </tr>
+                    
+                                        </table>
+    <br/><br/>
 
 
 Status
-~~~~~~
+------
+
+
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
 
 
 
-For help in developing on modules, should you be so inclined, please read :doc:`../../community`, :doc:`../../dev_guide/testing` and :doc:`../../dev_guide/developing_modules`.
+Author
+~~~~~~
+
+- Debayan Gupta(@debayan_gupta)
+
+
+.. hint::
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_db_system_facts.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

@@ -22,14 +22,14 @@ short_description: Retrieve details of a compartment or all the compartments in 
 description:
     - This module allows the user to retrieve details of a specific compartment in a tenancy or all the compartments in
       a tenancy in OCI.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: OCID of a compartment. Use OCID of a tenancy to get details of all the compartments in the
                      tenancy. Use OCID of a compartment in a tenancy to get details of the compartment.
         required: true
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_name_option ]
 '''
 
 EXAMPLES = '''
@@ -40,6 +40,11 @@ EXAMPLES = '''
 - name: Get details of a compartment by specifying OCID of the compartment
   oci_compartment_facts:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+
+- name: Get details of a compartment in a tenancy using the compartment's name
+  oci_compartment_facts:
+    compartment_id: 'ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx:aaaaaaaamx5hilztihors5wfsn2akuyty4'
+    name: test_compartment
 '''
 
 RETURN = '''
@@ -107,7 +112,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
     module_args.update(dict(
         compartment_id=dict(type='str', required=True)
     ))
@@ -120,8 +125,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     compartment_id = module.params['compartment_id']
     tenancy = None
@@ -137,7 +141,8 @@ def main():
     try:
         if tenancy is not None:
             result = to_dict(oci_utils.list_all_resources(identity_client.list_compartments,
-                                                          compartment_id=compartment_id))
+                                                          compartment_id=compartment_id,
+                                                          name=module.params['name']))
         else:
             result = [to_dict(oci_utils.call_with_backoff(identity_client.get_compartment,
                                                           compartment_id=compartment_id).data)]

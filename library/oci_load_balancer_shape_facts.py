@@ -20,7 +20,7 @@ module: oci_load_balancer_shape_facts
 short_description: Fetches details of all valid load balancer shapes supported in the OCI Load Balancer Service.
 description:
     - Fetches details of all valid load balancer shapes supported in the OCI Load Balancer Service.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: Identifier of the Compartment containing all Load Balancer
@@ -28,7 +28,7 @@ options:
         aliases: ['id']
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_name_option ]
 '''
 
 EXAMPLES = '''
@@ -83,7 +83,8 @@ def list_load_balancer_shapes(lb_client, module):
     try:
         result['load_balancer_shapes'] = to_dict(oci_utils.list_all_resources(
             lb_client.list_shapes,
-            compartment_id=compartment_id))
+            compartment_id=compartment_id,
+            name=module.params.get('name')))
     except ServiceError as ex:
         get_logger().error("Unable to list all load balancer shapes due to: %s", ex.message)
         module.fail_json(msg=ex.message)
@@ -103,7 +104,7 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_load_balancer_shape_facts")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
     module_args.update(dict(
         compartment_id=dict(type='str', required=True, aliases=['id'])
     ))
@@ -113,7 +114,7 @@ def main():
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module')
-    lb_client = LoadBalancerClient(oci_utils.get_oci_config(module))
+    lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
 
     result = list_load_balancer_shapes(lb_client, module)
 

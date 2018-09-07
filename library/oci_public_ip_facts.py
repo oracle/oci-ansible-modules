@@ -21,7 +21,7 @@ module: oci_public_ip_facts
 short_description: Retrieve facts of public IPs
 description:
     - This module retrieves information of the specified public IP or all public IPs in the specified compartment.
-version_added: "2.x"
+version_added: "2.5"
 options:
     public_ip_id:
         description: OCID of the public IP. Use I(public_ip_id) to retrieve a specific public IP's information using its
@@ -50,7 +50,7 @@ options:
                      public IPs in the specified I(compartment_id) and I(availability_domain).
         required: false
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
 
 EXAMPLES = '''
@@ -182,7 +182,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         public_ip_id=dict(type='str', required=False, aliases=['id']),
         private_ip_id=dict(type='str', required=False),
@@ -200,8 +200,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    virtual_network_client = VirtualNetworkClient(config)
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
 
     public_ip_id = module.params['public_ip_id']
 
@@ -221,7 +220,8 @@ def main():
                                                           ).data)]
         elif module.params['scope'] is not None:
             list_args = {'scope': module.params['scope'],
-                         'compartment_id': module.params['compartment_id']
+                         'compartment_id': module.params['compartment_id'],
+                         'display_name': module.params['display_name']
                          }
             if module.params['availability_domain'] is not None:
                 list_args['availability_domain'] = module.params['availability_domain']

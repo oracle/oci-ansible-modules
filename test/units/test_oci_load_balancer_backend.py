@@ -39,88 +39,74 @@ def lb_client(mocker):
         'oci.load_balancer.load_balancer_client.LoadBalancerClient')
     return mock_lb_client.return_value
 
-
-@pytest.fixture()
-def oci_wait_until_patch(mocker):
-    return mocker.patch.object(oci, 'wait_until')
-
-
-@pytest.fixture()
-def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
-
-
-@pytest.fixture()
-def get_existing_backend_patch(mocker):
-    return mocker.patch.object(oci_load_balancer_backend, 'get_existing_backend')
-
-
 @pytest.fixture()
 def create_backend_patch(mocker):
     return mocker.patch.object(oci_load_balancer_backend, 'create_backend')
 
-
 @pytest.fixture()
 def update_backend_patch(mocker):
     return mocker.patch.object(oci_load_balancer_backend, 'update_backend')
-
-
-@pytest.fixture()
-def verify_work_request_patch(mocker):
-    return mocker.patch.object(oci_lb_utils, 'verify_work_request')
 
 @pytest.fixture()
 def create_or_update_lb_resources_and_wait_patch(mocker):
     return mocker.patch.object(oci_lb_utils, 'create_or_update_lb_resources_and_wait')
 
 @pytest.fixture()
+def delete_lb_resources_and_wait_patch(mocker):
+    return mocker.patch.object(oci_lb_utils, 'delete_lb_resources_and_wait')
+
+@pytest.fixture()
 def check_and_create_resource_patch(mocker):
     return mocker.patch.object(oci_utils, 'check_and_create_resource')
+
+@pytest.fixture()
+def get_existing_resource_patch(mocker):
+    return mocker.patch.object(oci_utils, 'get_existing_resource')
 
 def setUpModule():
     logging.basicConfig(filename='/tmp/oci_ansible_module.log',
                         filemode='a', level=logging.INFO)
     oci_load_balancer_backend.set_logger(logging)
 
-def test_create_or_update_backend_create(lb_client, check_and_create_resource_patch, get_existing_backend_patch):
+def test_create_or_update_backend_create(lb_client, check_and_create_resource_patch, get_existing_resource_patch):
     module = get_module()
     backend = get_backend()
-    get_existing_backend_patch.return_value = None
+    get_existing_resource_patch.return_value = None
     check_and_create_resource_patch.return_value = {'backend': to_dict(backend), 'changed': True}
     result = oci_load_balancer_backend.create_or_update_backend(lb_client, module)
     assert result['backend']['ip_address'] is backend.ip_address
 
-def test_create_or_update_backend_update(lb_client, update_backend_patch, get_existing_backend_patch):
+def test_create_or_update_backend_update(lb_client, update_backend_patch, get_existing_resource_patch):
     module = get_module()
     backend = get_backend()
-    get_existing_backend_patch.return_value = backend
+    get_existing_resource_patch.return_value = backend
     update_backend_patch.return_value = {'backend': to_dict(backend), 'changed': True}
     result = oci_load_balancer_backend.create_or_update_backend(lb_client, module)
     assert result['backend']['ip_address'] is backend.ip_address
 
 
-def test_create_or_update_backend_service_error(lb_client, check_and_create_resource_patch, get_existing_backend_patch):
+def test_create_or_update_backend_service_error(lb_client, check_and_create_resource_patch, get_existing_resource_patch):
     module = get_module()
     error_message = "Internal Server Error"
     check_and_create_resource_patch.side_effect = ServiceError(
         500, 'InternalServerError', dict(), error_message)
-    get_existing_backend_patch.return_value = None
+    get_existing_resource_patch.return_value = None
     try:
         oci_load_balancer_backend.create_or_update_backend(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
-def test_create_or_update_backend_client_error(lb_client, check_and_create_resource_patch, get_existing_backend_patch):
+def test_create_or_update_backend_client_error(lb_client, check_and_create_resource_patch, get_existing_resource_patch):
     module = get_module()
     error_message = 'Work Request Failed'
     check_and_create_resource_patch.side_effect = ClientError(Exception('Work Request Failed'))
-    get_existing_backend_patch.return_value = None
+    get_existing_resource_patch.return_value = None
     try:
         oci_load_balancer_backend.create_or_update_backend(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
-def test_create_backend(lb_client, verify_work_request_patch, create_or_update_lb_resources_and_wait_patch):
+def test_create_backend(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module()
     backend = get_backend()
     create_or_update_lb_resources_and_wait_patch.return_value = {'backend': to_dict(backend), 'changed': True}
@@ -129,7 +115,7 @@ def test_create_backend(lb_client, verify_work_request_patch, create_or_update_l
     assert result['backend']['name'] == backend.name
 
 
-def test_update_backend(lb_client, verify_work_request_patch, create_or_update_lb_resources_and_wait_patch):
+def test_update_backend(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module()
     backend = get_backend()
     create_or_update_lb_resources_and_wait_patch.return_value = {'backend': to_dict(backend), 'changed': True}
@@ -146,78 +132,14 @@ def test_update_backend_no_update(lb_client):
         lb_client, module, backend, 'ocid1.loadbalancer.oc1.iad.aaaaa', "10.159.34.21:8181")
     assert result['changed'] is False
 
-
-def test_get_existing_backend(lb_client):
+def test_delete_backend(lb_client, delete_lb_resources_and_wait_patch):
     module = get_module()
     backend = get_backend()
-    lb_client.get_backend.return_value = get_response(
-        200, None, backend, None)
-    result = oci_load_balancer_backend.get_existing_backend(
-        lb_client, module, 'ocid1.loadbalancer.oc1.iad.aaaaa', '10.159.34.21:8181')
-    assert result.name == backend.name
-
-
-def test_get_existing_backend_not_found(lb_client):
-    module = get_module()
-    lb_client.get_backend.side_effect = ServiceError(
-        404, 'NotFoundError', dict(), None)
-    result = oci_load_balancer_backend.get_existing_backend(
-        lb_client, module, 'ocid1.loadbalancer.oc1.iad.aaaaa', '10.159.34.21:8181')
-    assert result is None
-
-
-def test_get_existing_backend_service_error(lb_client):
-    module = get_module()
-    error_message = "Internal Server Error"
-    lb_client.get_backend.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
-    try:
-        oci_load_balancer_backend.get_existing_backend(
-            lb_client, module, 'ocid1.loadbalancer.oc1.iad.aaaaa', '10.159.34.21:8181')
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
-def test_delete_backend(lb_client, verify_work_request_patch, get_existing_backend_patch):
-    module = get_module()
-    backend = get_backend()
-    lb_client.delete_backend.return_value = get_response(
+    delete_lb_resources_and_wait_patch.return_value = get_response(
         204, None, backend, None)
-    get_existing_backend_patch.return_value = backend
+    delete_lb_resources_and_wait_patch.return_value = {'backend': to_dict(backend), 'changed': True}
     result = oci_load_balancer_backend.delete_backend(lb_client, module)
     assert result['changed'] is True
-
-def test_delete_backend_not_found(lb_client, verify_work_request_patch, get_existing_backend_patch):
-    module = get_module()
-    get_existing_backend_patch.side_effect = ServiceError(
-        404, 'NotFoundError', dict(), None)
-    result = oci_load_balancer_backend.delete_backend(lb_client, module)
-    assert result['changed'] is False
-
-def test_delete_backend_service_error(lb_client, verify_work_request_patch, get_existing_backend_patch):
-    error_message = "Internal Server Error"
-    module = get_module()
-    backend = get_backend()
-    lb_client.delete_backend.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
-    get_existing_backend_patch.return_value = backend
-    try:
-        oci_load_balancer_backend.delete_backend(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
-def test_delete_backend_client_error(lb_client, verify_work_request_patch, get_existing_backend_patch):
-    error_message = "Work Request Failed"
-    module = get_module()
-    backend = get_backend()
-    lb_client.delete_backend.return_value = get_response(
-        200, None, backend, None)
-    get_existing_backend_patch.return_value = backend
-    verify_work_request_patch.side_effect = ClientError(Exception('Work Request Failed'))
-    try:
-        oci_load_balancer_backend.delete_backend(lb_client, module)
-    except Exception as ex:
-        assert error_message in ex.args[0]
-
 
 def get_backend():
     backend = Backend()

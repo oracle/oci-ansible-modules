@@ -20,7 +20,7 @@ module: oci_compartment
 short_description: Manage compartments in OCI
 description:
     - This module allows the user to create and update a compartment in OCI.
-version_added: "2.x"
+version_added: "2.5"
 options:
     compartment_id:
         description: The OCID of the tenancy in which the compartment has to be created or the OCID of the compartment
@@ -136,8 +136,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    identity_client = IdentityClient(config)
+    identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     compartment_id = module.params['compartment_id']
 

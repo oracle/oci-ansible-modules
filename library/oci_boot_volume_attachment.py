@@ -22,7 +22,7 @@ short_description: Attach or detach a boot volume in OCI Block Volume service
 description:
     - This module allows the user to attach a boot volume to an instance or detach a boot volume from an instance in
       OCI.
-version_added: "2.x"
+version_added: "2.5"
 options:
     instance_id:
         description: The OCID of the instance. Required to attach a boot volume to an instance with I(state=present).
@@ -168,8 +168,8 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    compute_client = ComputeClient(config)
+    compute_client = oci_utils.create_service_client(module, ComputeClient)
+
     exclude_attributes = {'display_name': True}
     state = module.params['state']
 

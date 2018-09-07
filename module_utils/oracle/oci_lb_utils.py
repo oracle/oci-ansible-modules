@@ -15,7 +15,7 @@ try:
         HealthCheckerDetails, SessionPersistenceConfigurationDetails, \
         SSLConfigurationDetails, CertificateDetails, ListenerDetails, \
         ConnectionConfiguration, PathRouteSetDetails, PathRoute, PathMatchType, \
-        HostnameDetails
+        HostnameDetails, CreateCertificateDetails
     from oci.util import to_dict
     from oci.exceptions import ServiceError, ClientError, MaximumWaitTimeExceeded
     HAS_OCI_PY_SDK = True
@@ -45,7 +45,7 @@ def create_or_update_lb_resources_and_wait(lb_client, resource_type, function, k
                                            get_fn=None, get_sub_resource_fn=None, get_param=None, states=None,
                                            wait_applicable=True, kwargs_get=None):
     result = dict()
-    result[resource_type] = ''
+    result[resource_type] = dict()
     try:
         response = oci_utils.call_with_backoff(function, **kwargs_function)
         work_request_id = response.headers.get('opc-work-request-id')
@@ -63,8 +63,7 @@ def create_or_update_lb_resources_and_wait(lb_client, resource_type, function, k
                     result[resource_type] = to_dict(oci_utils.call_with_backoff(get_fn, **kwargs_get).data)
             else:
                 result[resource_type] = to_dict(oci_utils.call_with_backoff(
-                    get_fn, **{get_param: response.data[get_param]}).data)
-
+                    get_fn, **{get_param: to_dict(response.data).get(get_param)}).data)
         result['changed'] = True
     except ServiceError as ex:
         logger.error("Unable to create/update %s due to: %s", resource_type, ex.message)
@@ -97,12 +96,14 @@ def delete_lb_resources_and_wait(lb_client, resource_type, function, kwargs_func
             if response.data.lifecycle_state == 'FAILED':
                 module.fail_json(msg=response.data.error_details)
             result['changed'] = True
+        else:
+            result[resource_type] = dict()
     except MaximumWaitTimeExceeded as ex:
         module.fail_json(msg=str(ex))
     except ServiceError as ex:
         if ex.status != 404:
             module.fail_json(msg=ex.message)
-        result[resource_type] = ''
+        result[resource_type] = dict()
     return result
 
 
@@ -112,6 +113,10 @@ def get_work_request_response(lb_client, work_request_id, states, module):
                               evaluate_response=lambda r: r.data.lifecycle_state in states,
                               max_wait_seconds=module.params.get('wait_timeout', MAX_WAIT_TIMEOUT_IN_SECONDS))
     return response
+
+
+def get_backend_name(module):
+    return module.params['ip_address'] + ':' + str(module.params['port'])
 
 
 def get_existing_load_balancer(lb_client, module, load_balancer_id):
@@ -325,32 +330,6 @@ def create_path_routes(path_routes_list):
     return result_path_routes
 
 
-def check_and_return_component_list_difference(input_component_list, existing_components, purge_components):
-    if input_component_list:
-        existing_components, changed = get_component_list_difference(
-            input_component_list, existing_components, purge_components)
-    else:
-        existing_components = []
-        changed = True
-    return existing_components, changed
-
-
-def get_component_list_difference(input_component_list, existing_components, purge_components):
-    if existing_components is None:
-        return input_component_list, True
-    if purge_components:
-        components_differences = set(
-            input_component_list).symmetric_difference(set(existing_components))
-
-        if components_differences:
-            return input_component_list, True
-    components_differences = set(input_component_list).difference(
-        set(existing_components))
-    if components_differences:
-        return list(components_differences) + existing_components, True
-    return None, False
-
-
 def create_hostnames(hostnames_dicts):
     if hostnames_dicts is None:
         return None
@@ -381,6 +360,47 @@ def get_listener(**kwargs_get_listener):
     if name in existing_load_balancer.get('listeners'):
         listener = existing_load_balancer['listeners'][name]
     return listener
+
+
+def get_certificate(lb_client, module, lb_id, name):
+    existing_certificate = None
+    logger.debug(
+        "Trying to get Certificate %s in Load Balancer %s", name, lb_id)
+    try:
+        response = oci_utils.call_with_backoff(lb_client.list_certificates, load_balancer_id=lb_id)
+        certificates = response.data
+        certificate = next((certificate for certificate in certificates if certificate.certificate_name == name), None)
+        if certificate:
+            existing_certificate = certificate
+    except ServiceError as ex:
+        logger.error("Failed to perform checking existing Certificates", exc_info=True)
+        module.fail_json(msg=ex.message)
+    if existing_certificate is None:
+        logger.debug(
+            "Certificate %s does not exist in load balancer %s", name, lb_id)
+    return existing_certificate
+
+
+def get_create_certificate_details(module, name):
+    certificate_input_details = dict({'certificate_name': name,
+                                      'ca_certificate': module.params.get('ca_certificate'),
+                                      'passphrase': module.params.get('passphrase'),
+                                      'private_key': module.params.get('private_key'),
+                                      'public_certificate': module.params.get('public_certificate')})
+    certificate_details = create_certificates(dict({name: certificate_input_details})).get(name)
+    create_certificate_details = CreateCertificateDetails()
+    for attribute in create_certificate_details.attribute_map:
+        create_certificate_details.__setattr__(
+            attribute, getattr(certificate_details, attribute))
+    return create_certificate_details
+
+
+def is_same_certificate(create_certificate_details, certificate):
+    same_certificate = True
+    if next((attribute for attribute in certificate.attribute_map if
+             getattr(certificate, attribute) != getattr(create_certificate_details, attribute)), None):
+        same_certificate = False
+    return same_certificate
 
 
 def generic_hash(obj):

@@ -7,11 +7,13 @@ Oracle Cloud Infrastructure Ansible Modules provide an easy way to create and pr
 **Services supported**
 - Block Volume
 - Compute
+- Container Engine for Kubernetes Service (OKE)
+- Database
+- Domain Name System (DNS)
 - IAM
 - Load Balancing
 - Networking
 - Object Storage
-- Database
 
 The OCI Ansible modules are built using the [Oracle Cloud Infrastructure Python SDK](https://docs.us-phoenix-1.oraclecloud.com/Content/API/SDKDocs/pythonsdk.htm). The OCI Ansible modules honour the [SDK configuration](https://docs.us-phoenix-1.oraclecloud.com/Content/ToolsConfig.htm) when available.
 
@@ -24,6 +26,7 @@ See the [getting started guide](https://docs.cloud.oracle.com/iaas/Content/API/S
 This project includes a catalog of Oracle Cloud Infrastructure Ansible module samples that illustrate using the modules to carry out common infrastructure provisioning and configuration tasks in the `samples` directory. The samples are organized in groups associated with Oracle Cloud Infrastructure services:
 - Block Volume
 - Compute
+- Container Engine
 - Database
 - IAM
 - Load Balancing
