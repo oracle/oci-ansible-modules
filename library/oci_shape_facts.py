@@ -29,7 +29,9 @@ options:
     availability_domain:
         description: The name of the Availability Domain.
         required: false
-
+    image_id:
+        description: The OCID of an image.
+        required: false
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
 '''
@@ -80,6 +82,7 @@ def main():
     module_args.update(dict(
         compartment_id=dict(type='str', required=True),
         availability_domain=dict(type='str', required=False),
+        image_id=dict(type='str', required=False)
     ))
 
     module = AnsibleModule(
@@ -93,21 +96,14 @@ def main():
     compute_client = oci_utils.create_service_client(module, ComputeClient)
 
     compartment_id = module.params['compartment_id']
-    availability_domain = module.params['availability_domain']
-
     result = dict(changed=False)
 
     try:
-        if availability_domain:
-            shapes = oci_utils.list_all_resources(
-                compute_client.list_shapes,
-                compartment_id=compartment_id,
-                availability_domain=availability_domain)
-        else:
-            shapes = oci_utils.list_all_resources(
-                compute_client.list_shapes,
-                compartment_id=compartment_id)
-
+        optional_list_method_params = ['availability_domain', 'image_id']
+        optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                           if module.params.get(param) is not None}
+        shapes = oci_utils.list_all_resources(compute_client.list_shapes, compartment_id=compartment_id,
+                                              **optional_kwargs)
         result['shapes'] = to_dict(shapes)
     except ServiceError as ex:
         module.fail_json(msg=ex.message)

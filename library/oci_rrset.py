@@ -267,7 +267,7 @@ def modify_rrset(dns_client, module, modify_operation, modify_kwargs):
             rtype=module.params['rtype']).data.items
 
         # check if there is any change between the old and the new rrsets, and set changed accordingly
-        result['changed'] = not oci_utils.compare_list(rrset_old, rrset_new)
+        result['changed'] = not oci_utils.are_lists_equal(rrset_old, rrset_new)
     except ServiceError as ex:
         module.fail_json(msg=str(ex))
     return result

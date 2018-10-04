@@ -96,6 +96,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>availability_domain</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The name of the availability domain</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>compartment_id</b>
                                                                             </td>
                                 <td>

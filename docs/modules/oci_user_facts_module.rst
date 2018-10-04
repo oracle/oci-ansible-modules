@@ -96,6 +96,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>compartment_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the compartment (remember that the tenancy is simply the root compartment). If unspecified, the module automatically picks up tenancy information from your OCI SDK configuration.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>config_file_location</b>
                                                                             </td>
                                 <td>

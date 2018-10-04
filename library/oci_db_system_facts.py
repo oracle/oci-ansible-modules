@@ -30,6 +30,10 @@ options:
         description: Identifier of the DB System whose details needs to be fetched.
         required: false
         aliases: ['id']
+    backup_id:
+        description: The OCID of the backup. Specify a backupId to list only the DB Systems that support creating a
+                     database using this backup in this compartment.
+        required: false
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
@@ -254,14 +258,14 @@ def list_db_systems(db_client, module):
     try:
         if compartment_id:
             get_logger().debug("Listing all DB Systems under compartment %s", compartment_id)
-            existing_db_systems = oci_utils.list_all_resources(
-                db_client.list_db_systems,
-                compartment_id=compartment_id,
-                display_name=module.params['display_name'])
+            optional_list_method_params = ['backup_id', 'display_name']
+            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                               if module.params.get(param) is not None}
+            existing_db_systems = oci_utils.list_all_resources(db_client.list_db_systems, compartment_id=compartment_id,
+                                                               **optional_kwargs)
         elif db_system_id:
             get_logger().debug("Listing DB System %s", db_system_id)
-            response = oci_utils.call_with_backoff(
-                db_client.get_db_system, db_system_id=db_system_id)
+            response = oci_utils.call_with_backoff(db_client.get_db_system, db_system_id=db_system_id)
             existing_db_systems = [response.data]
     except ServiceError as ex:
         get_logger().error("Unable to list DB Systems due to %s", ex.message)
@@ -285,7 +289,8 @@ def main():
     module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
-        db_system_id=dict(type='str', required=False, aliases=['id'])
+        db_system_id=dict(type='str', required=False, aliases=['id']),
+        backup_id=dict(type='str', required=False)
     ))
     module = AnsibleModule(
         argument_spec=module_args,

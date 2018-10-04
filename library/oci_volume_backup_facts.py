@@ -31,6 +31,14 @@ options:
         description: The OCID of the volume backup.
         required: false
         aliases: [ 'id' ]
+    lifecycle_state:
+        description: A filter to only return resources that match the given lifecycle state.  The state value is
+                     case-insensitive. Allowed values are "CREATING", "AVAILABLE", "TERMINATING", "TERMINATED",
+                     "FAULTY", "REQUEST_RECEIVED".
+        required: false
+    volume_id:
+        description: The OCID of the volume
+        required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
@@ -142,7 +150,9 @@ def main():
     module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
-        volume_backup_id=dict(type='str', required=False, aliases=['id'])
+        volume_backup_id=dict(type='str', required=False, aliases=['id']),
+        volume_id=dict(type='str', required=False),
+        lifecycle_state=dict(type='str', required=False)
     ))
 
     module = AnsibleModule(
@@ -170,9 +180,12 @@ def main():
 
         else:
             compartment_id = module.params['compartment_id']
+            optional_list_method_params = ['display_name', 'lifecycle_state', 'volume_id']
+            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                               if module.params.get(param) is not None}
             result = to_dict(oci_utils.list_all_resources(block_storage_client.list_volume_backups,
                                                           compartment_id=compartment_id,
-                                                          display_name=module.params['display_name']))
+                                                          **optional_kwargs))
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 

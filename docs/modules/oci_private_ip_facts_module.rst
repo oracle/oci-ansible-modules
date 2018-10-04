@@ -117,12 +117,12 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>display_name</b>
+                    <b>ip_address</b>
                                                                             </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Use <em>display_name</em> along with the other options to return only resources that match the given display name exactly.</div>
+                                                                        <div>An IP address.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -164,6 +164,16 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>vnic_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the VNIC.</div>
                                                                                 </td>
             </tr>
                         </table>

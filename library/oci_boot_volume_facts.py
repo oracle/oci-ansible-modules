@@ -54,6 +54,9 @@ options:
         required: false
         default: no
         type: bool
+    volume_group_id:
+        description: The OCID of the volume group.
+        required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
@@ -228,7 +231,8 @@ def main():
         availability_domain=dict(type='str', required=False),
         compartment_id=dict(type='str', required=False),
         boot_volume_id=dict(type='str', required=False, aliases=['id']),
-        lookup_attached_instance=dict(type='bool', required=False, default='no')
+        lookup_attached_instance=dict(type='bool', required=False, default='no'),
+        volume_group_id=dict(type='str', required=False)
     ))
 
     module = AnsibleModule(
@@ -258,10 +262,13 @@ def main():
         else:
             availability_domain = module.params['availability_domain']
             compartment_id = module.params['compartment_id']
+            optional_list_method_params = ['display_name', 'volume_group_id']
+            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                               if module.params.get(param) is not None}
             result = to_dict(oci_utils.list_all_resources(block_storage_client.list_boot_volumes,
                                                           compartment_id=compartment_id,
                                                           availability_domain=availability_domain,
-                                                          display_name=module.params['display_name']))
+                                                          **optional_kwargs))
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)

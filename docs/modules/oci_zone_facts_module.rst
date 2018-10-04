@@ -127,6 +127,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>lifecycle_state</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The state of a resource. Allowed values are &quot;ACTIVE&quot;, &quot;CREATING&quot;, &quot;DELETED&quot;, &quot;DELETING&quot;, &quot;FAILED&quot;</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>name</b>
                                                                             </td>
                                 <td>
@@ -135,6 +145,16 @@ Parameters
                                                                         <div>A case-sensitive filter for zone names. Will match any zone with a name that equals the provided value.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: zone_name</div>
                                     </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>name_contains</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Search by zone name. Will match any zone whose name (case-insensitive) contains the provided value.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
@@ -154,6 +174,26 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>time_created_greater_than_or_equal_to</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>An <a href=' https://www.ietf.org/rfc/rfc3339.txt'>RFC 3339</a> timestamp that states all returned resources were created on or after the indicated time.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>time_created_less_than</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>An <a href=' https://www.ietf.org/rfc/rfc3339.txt'>RFC 3339</a> timestamp that states all returned resources were before the indicated time.</div>
                                                                                 </td>
             </tr>
                                 <tr>

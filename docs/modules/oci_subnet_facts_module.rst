@@ -137,6 +137,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>lifecycle_state</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A filter to only return resources that match the given lifecycle state.  The state value is case-insensitive. Allowed values are &quot;PROVISIONING&quot;, &quot;AVAILABLE&quot;, &quot;TERMINATING&quot;, &quot;TERMINATED&quot;</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>region</b>
                                                                             </td>
                                 <td>

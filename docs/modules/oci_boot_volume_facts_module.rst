@@ -191,6 +191,16 @@ Parameters
                                                                         <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
                                                                                 </td>
             </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>volume_group_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the volume group.</div>
+                                                                                </td>
+            </tr>
                         </table>
     <br/>
 

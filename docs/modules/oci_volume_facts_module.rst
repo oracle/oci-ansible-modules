@@ -147,6 +147,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>lifecycle_state</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A filter to only return resources that match the given lifecycle state.  The state value is case-insensitive. Allowed values are &quot;PROVISIONING&quot;, &quot;RESTORING&quot;, &quot;AVAILABLE&quot;, &quot;TERMINATING&quot;, &quot;TERMINATED&quot;, &quot;FAULTY&quot;.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>lookup_all_attached_instances</b>
                     <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
@@ -178,6 +188,16 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>volume_group_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the volume group.</div>
                                                                                 </td>
             </tr>
                                 <tr>

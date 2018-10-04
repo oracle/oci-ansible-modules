@@ -127,6 +127,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>fields</b>
+                    <br/><div style="font-size: small; color: red">list</div>                                                        </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>tags</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Bucket summary in list of buckets includes the 'namespace', 'name', 'compartmentId', 'createdBy', 'timeCreated', and 'etag' fields. This parameter can also include 'tags' (freeformTags and definedTags). The only supported value of this parameter is 'tags' for now.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>name</b>
                                                                             </td>
                                 <td>

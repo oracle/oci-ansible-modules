@@ -32,6 +32,11 @@ options:
         description: The OCID of the compartment. I(compartment_id) is required to list all the cluster objects in a
                      compartment.
         required: false
+    lifecycle_state:
+        description: A cluster lifecycle state to filter on. Can have multiple parameters of this name. Allowed values
+                     are "CREATING", "ACTIVE", "FAILED", "DELETING", "DELETED", "UPDATING".
+        required: false
+        type: list
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
 '''
@@ -163,7 +168,8 @@ def main():
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
     module_args.update(dict(
         cluster_id=dict(type='str', required=False, aliases=['id']),
-        compartment_id=dict(type='str', required=False)
+        compartment_id=dict(type='str', required=False),
+        lifecycle_state=dict(type='list', required=False)
     ))
 
     module = AnsibleModule(
@@ -183,9 +189,12 @@ def main():
             result = [to_dict(oci_utils.call_with_backoff(container_engine_client.get_cluster,
                                                           cluster_id=cluster_id).data)]
         else:
+            optional_list_method_params = ['name', 'lifecycle_state']
+            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                               if module.params.get(param) is not None}
             result = to_dict(oci_utils.list_all_resources(container_engine_client.list_clusters,
-                                                          name=module.params['name'],
-                                                          compartment_id=module.params['compartment_id']))
+                                                          compartment_id=module.params['compartment_id'],
+                                                          **optional_kwargs))
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 

@@ -34,6 +34,11 @@ options:
         description: The OCID of the instance. Required for retrieving information about a specific instance.
         required: false
         aliases: ['id']
+    lifecycle_state:
+        description: A filter to only return resources that match the given lifecycle state.  The state value is
+                     case-insensitive. Allowed values are "PROVISIONING", "RUNNING", "STARTING", "STOPPING",
+                     "STOPPED", "CREATING_IMAGE", "TERMINATING", "TERMINATED"
+        required: false
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
@@ -300,14 +305,10 @@ except ImportError:
 def list_instances(compute_client, module):
     try:
         cid = module.params['compartment_id']
-        availability_domain = module.params['availability_domain']
-        if availability_domain:
-            instances = oci_utils.list_all_resources(compute_client.list_instances, compartment_id=cid,
-                                                     availability_domain=availability_domain,
-                                                     display_name=module.params['display_name'])
-        else:
-            instances = oci_utils.list_all_resources(compute_client.list_instances, compartment_id=cid,
-                                                     display_name=module.params['display_name'])
+        optional_list_method_params = ['display_name', 'availability_domain', 'lifecycle_state']
+        optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                           if module.params.get(param) is not None}
+        instances = oci_utils.list_all_resources(compute_client.list_instances, compartment_id=cid, **optional_kwargs)
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
@@ -353,7 +354,8 @@ def main():
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
         availability_domain=dict(type='str', required=False),
-        instance_id=dict(type='str', required=False, aliases=['id'])
+        instance_id=dict(type='str', required=False, aliases=['id']),
+        lifecycle_state=dict(type='str', required=False)
     ))
 
     module = AnsibleModule(

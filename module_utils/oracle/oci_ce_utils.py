@@ -20,6 +20,8 @@ DEFAULT_READY_STATES = ["AVAILABLE", "ACTIVE", "RUNNING", "PROVISIONED", "ATTACH
 
 DEFAULT_TERMINATED_STATES = ["TERMINATED", "DETACHED", "DELETED"]
 
+FAILED_STATES = ["FAILED"]
+
 logger = oci_utils.get_logger("oci_ce_utils")
 
 
@@ -174,7 +176,8 @@ def create_and_wait(resource_type, create_fn, kwargs_create, client, get_fn, get
         result['changed'] = True
         if wait_applicable and module.params.get('wait', None):
             if states is None:
-                states = module.params.get('wait_until') or DEFAULT_READY_STATES
+                states = [module.params.get('wait_until')] + DEFAULT_READY_STATES
+            states = states + FAILED_STATES
             if resource_type == "cluster":
                 resource_affected = result['work_request']['resources'][0]
                 _debug("Affected resources:{0}".format(resource_affected))
@@ -185,6 +188,8 @@ def create_and_wait(resource_type, create_fn, kwargs_create, client, get_fn, get
                                                     states
                                                     ))
                 result[resource_type] = to_dict(resource)
+                if result[resource_type]['lifecycle_state'] == "FAILED":
+                    module.fail_json(msg="Cluster reached FAILED state during creation.")
             elif resource_type == "node_pool":
                 for resource in result['work_request']['resources']:
                     if resource['entity_type'] == "nodepool":

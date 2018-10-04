@@ -44,6 +44,11 @@ options:
                      to filter work requests related to the resource type in the specified compartment.
         required: false
         choices: ["CLUSTER", "NODEPOOL"]
+    status:
+        description: A work request status to filter on. Can have multiple parameters of this name. Allowed values are
+                     "ACCEPTED", "IN_PROGRESS", "FAILED", "SUCCEEDED", "CANCELING", "CANCELED".
+        required: false
+        type: list
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: oracle
 '''
@@ -148,7 +153,9 @@ def main():
         compartment_id=dict(type='str', required=False),
         cluster_id=dict(type='str', required=False),
         resource_id=dict(type='str', required=False),
-        resource_type=dict(type='str', required=False, choices=['CLUSTER', 'NODEPOOL'])
+        resource_type=dict(type='str', required=False, choices=['CLUSTER', 'NODEPOOL']),
+        status=dict(type='list', required=False)
+
     ))
 
     module = AnsibleModule(
@@ -172,7 +179,7 @@ def main():
                                                           work_request_id=work_request_id).data)]
         else:
             kwargs_list = {"compartment_id": module.params['compartment_id']}
-            list_args = ["cluster_id", "resource_id", "resource_type"]
+            list_args = ["cluster_id", "resource_id", "resource_type", "status"]
             for arg in list_args:
                 if module.params[arg]:
                     kwargs_list[arg] = module.params[arg]

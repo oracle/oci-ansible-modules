@@ -137,6 +137,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>lifecycle_state</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A filter to only return resources that match the given lifecycle state.  The state value is case-insensitive. Allowed values are &quot;CREATING&quot;, &quot;AVAILABLE&quot;, &quot;TERMINATING&quot;, &quot;TERMINATED&quot;, &quot;FAULTY&quot;, &quot;REQUEST_RECEIVED&quot;.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>region</b>
                                                                             </td>
                                 <td>
@@ -165,6 +175,16 @@ Parameters
                                                                         <div>The OCID of the volume backup.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>volume_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the volume</div>
+                                                                                </td>
             </tr>
                         </table>
     <br/>

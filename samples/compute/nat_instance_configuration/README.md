@@ -17,8 +17,11 @@ through the NAT instance in the public subnet.
 
 To run the sample, after ensuring that you have the pre-requisites for OCI 
 ansible cloud modules, please provide values (that are specific to your tenancy)
-for the following variables in the `vars` section of `sample.yaml`. 
-
+for the following variables in the `vars` section of `sample.yaml`: 
+- instance_ad
+- instance_compartment
+- instance_image
+ 
 Note: The sample, by default, sets up the topology, prints an information message, 
 runs a few tests to show it is working, and tears down the topology. If you want
 to experiment with the topology after it is setup, comment out the invocation 

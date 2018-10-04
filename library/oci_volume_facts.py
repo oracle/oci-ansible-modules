@@ -52,6 +52,14 @@ options:
                      exclusive with I(compartment_id).
         required: false
         aliases: [ 'id' ]
+    lifecycle_state:
+        description: A filter to only return resources that match the given lifecycle state.  The state value is
+                     case-insensitive. Allowed values are "PROVISIONING", "RESTORING", "AVAILABLE", "TERMINATING",
+                     "TERMINATED", "FAULTY".
+        required: false
+    volume_group_id:
+        description: The OCID of the volume group.
+        required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
@@ -290,7 +298,9 @@ def main():
         availability_domain=dict(type='str', required=False),
         compartment_id=dict(type='str', required=False),
         volume_id=dict(type='str', required=False, aliases=['id']),
-        lookup_all_attached_instances=dict(type='bool', required=False, default='no')
+        lookup_all_attached_instances=dict(type='bool', required=False, default='no'),
+        lifecycle_state=dict(type='str', required=False),
+        volume_group_id=dict(type='str', required=False)
     ))
 
     module = AnsibleModule(
@@ -317,17 +327,20 @@ def main():
                                                           volume_id=volume_id).data)]
 
         else:
-            availability_domain = module.params['availability_domain']
             compartment_id = module.params['compartment_id']
+            availability_domain = module.params['availability_domain']
             if availability_domain is not None:
                 result = to_dict(oci_utils.list_all_resources(block_storage_client.list_volumes,
                                                               compartment_id=compartment_id,
                                                               availability_domain=availability_domain,
                                                               display_name=module.params['display_name']))
             else:
+                optional_list_method_params = ['display_name', 'lifecycle_state', 'volume_group_id']
+                optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                                   if module.params.get(param) is not None}
                 result = to_dict(oci_utils.list_all_resources(block_storage_client.list_volumes,
                                                               compartment_id=compartment_id,
-                                                              display_name=module.params['display_name']))
+                                                              **optional_kwargs))
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)

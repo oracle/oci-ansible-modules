@@ -30,6 +30,10 @@ options:
         description: If provided, filters the results to the set of Database
                      versions which are supported for the given shape.
         required: false
+    db_system_id:
+        description: The DB system OCID. If provided, filters the results to the set of database versions which are
+                     supported for the DB system.
+        required: false
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
@@ -99,15 +103,14 @@ def list_db_versions(db_client, module):
         if db_system_shape:
             get_logger().debug("Listing all DB Versions under Compartment %s filtered by DB System Shape %s",
                                compartment_id, db_system_shape)
-            db_versions = oci_utils.list_all_resources(
-                db_client.list_db_versions,
-                compartment_id=compartment_id, db_system_shape=db_system_shape)
+            optional_list_method_params = ['db_system_shape', 'db_system_id']
+            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                               if module.params.get(param) is not None}
+            db_versions = oci_utils.list_all_resources(db_client.list_db_versions, compartment_id=compartment_id,
+                                                       **optional_kwargs)
         else:
-            get_logger().debug("Listing all DB Versions under Compartment %s",
-                               compartment_id)
-            db_versions = oci_utils.list_all_resources(
-                db_client.list_db_versions,
-                compartment_id=compartment_id)
+            get_logger().debug("Listing all DB Versions under Compartment %s", compartment_id)
+            db_versions = oci_utils.list_all_resources(db_client.list_db_versions, compartment_id=compartment_id)
     except ServiceError as ex:
         get_logger().error("Unable to list DB Versions due to %s", ex.message)
         module.fail_json(msg=ex.message)
@@ -131,7 +134,8 @@ def main():
     module_args = oci_utils.get_common_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=True),
-        db_system_shape=dict(type='str', required=False)
+        db_system_shape=dict(type='str', required=False),
+        db_system_id=dict(type='str', required=False)
     ))
     module = AnsibleModule(
         argument_spec=module_args

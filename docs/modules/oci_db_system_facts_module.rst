@@ -96,6 +96,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>backup_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the backup. Specify a backupId to list only the DB Systems that support creating a database using this backup in this compartment.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>compartment_id</b>
                                                                             </td>
                                 <td>

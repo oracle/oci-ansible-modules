@@ -252,7 +252,7 @@ def modify_domain_records(dns_client, module, modify_operation, modify_kwargs):
             domain=module.params['domain']).data.items
 
         # check if there is any change between the old and the new domain records, and set changed accordingly
-        result['changed'] = not oci_utils.compare_list(domain_records_old, domain_records_new)
+        result['changed'] = not oci_utils.are_lists_equal(domain_records_old, domain_records_new)
     except ServiceError as ex:
         module.fail_json(msg=str(ex))
     return result

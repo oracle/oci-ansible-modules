@@ -41,8 +41,23 @@ options:
                      value.
         required: false
         choices: ['PRIMARY', 'SECONDARY']
+    name_contains:
+        description: Search by zone name. Will match any zone whose name (case-insensitive) contains the provided
+                     value.
+        required: false
+    time_created_greater_than_or_equal_to:
+        description: An L(RFC 3339, https://www.ietf.org/rfc/rfc3339.txt) timestamp that states all returned resources
+                     were created on or after the indicated time.
+        required: false
+    time_created_less_than:
+        description: An L(RFC 3339, https://www.ietf.org/rfc/rfc3339.txt) timestamp that states all returned resources
+                     were before the indicated time.
+        required: false
+    lifecycle_state:
+        description: The state of a resource. Allowed values are "ACTIVE", "CREATING", "DELETED", "DELETING", "FAILED"
+        required: false
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [oracle]
 '''
 
 EXAMPLES = '''
@@ -145,8 +160,6 @@ zones:
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
-import six
-
 try:
     from oci.dns.dns_client import DnsClient
     from oci.util import to_dict
@@ -174,7 +187,11 @@ def main():
         zone_id=dict(type='str', required=False, aliases=['id']),
         name=dict(type='str', required=False, aliases=['zone_name']),
         compartment_id=dict(type='str', required=False),
-        zone_type=dict(type='str', required=False, choices=['PRIMARY', 'SECONDARY'])
+        zone_type=dict(type='str', required=False, choices=['PRIMARY', 'SECONDARY']),
+        name_contains=dict(type='str', required=False),
+        time_created_greater_than_or_equal_to=dict(type='str', required=False),
+        time_created_less_than=dict(type='str', required=False),
+        lifecycle_state=dict(type='str', required=False)
     ))
 
     module = AnsibleModule(
@@ -199,9 +216,13 @@ def main():
             result = [to_dict(oci_utils.call_with_backoff(dns_client.get_zone,
                                                           zone_name_or_id=get_zone_name_or_id(module)).data)]
         elif compartment_id is not None:
-            key_list = ['compartment_id', 'name', 'zone_type']
-            param_map = {k: v for (k, v) in six.iteritems(module.params) if k in key_list and v is not None}
-            zone_summaries = to_dict(oci_utils.list_all_resources(dns_client.list_zones, **param_map))
+            optional_list_method_params = ['compartment_id', 'name', 'zone_type', 'name_contains',
+                                           'time_created_greater_than_or_equal_to', 'time_created_less_than',
+                                           'lifecycle_state']
+            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                               if module.params.get(param) is not None}
+            zone_summaries = to_dict(oci_utils.list_all_resources(dns_client.list_zones, **optional_kwargs))
+
             # Get Zone model from zone-summaries returned by `list_zones`
             result = to_dict([oci_utils.call_with_backoff(dns_client.get_zone, zone_name_or_id=z['id']).data
                               for z in zone_summaries])

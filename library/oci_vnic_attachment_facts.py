@@ -40,6 +40,9 @@ options:
                      attachment
         required: false
         aliases: ['id']
+    vnic_id:
+        description: The OCID of the VNIC.
+        required: false
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
@@ -141,8 +144,6 @@ vnic_attachments:
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
-import six
-
 try:
     from oci.core.compute_client import ComputeClient
     from oci.util import to_dict
@@ -158,7 +159,8 @@ def main():
         compartment_id=dict(type='str', required=False),
         availability_domain=dict(type='str', required=False),
         instance_id=dict(type='str', required=False),
-        vnic_attachment_id=dict(type='str', required=False, aliases=['id'])
+        vnic_attachment_id=dict(type='str', required=False, aliases=['id']),
+        vnic_id=dict(type='str', required=False)
     ))
 
     module = AnsibleModule(
@@ -179,10 +181,11 @@ def main():
     try:
         if compartment_id:
             # filter and get only key:values that have been provided by the user
-            key_list = ['availability_domain', "instance_id", "compartment_id", "display_name"]
-            param_map = {k: v for (k, v) in six.iteritems(module.params) if k in key_list and v is not None}
-
-            inst = oci_utils.list_all_resources(compute_client.list_vnic_attachments, **param_map)
+            optional_list_method_params = ['availability_domain', "instance_id", "display_name", "vnic_id"]
+            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                               if module.params.get(param) is not None}
+            inst = oci_utils.list_all_resources(compute_client.list_vnic_attachments, compartment_id=compartment_id,
+                                                **optional_kwargs)
             result = to_dict(inst)
         else:
             inst = oci_utils.call_with_backoff(compute_client.get_vnic_attachment, vnic_attachment_id=id).data

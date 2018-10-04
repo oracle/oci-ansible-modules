@@ -34,6 +34,13 @@ options:
         description: Name of the bucket. Required to fetch details of a specific bucket.
         required: false
         aliases: [ 'bucket' ]
+    fields:
+        description: Bucket summary in list of buckets includes the 'namespace', 'name', 'compartmentId', 'createdBy',
+                     'timeCreated', and 'etag' fields. This parameter can also include 'tags' (freeformTags and
+                     definedTags). The only supported value of this parameter is 'tags' for now.
+        required: false
+        choices: ['tags']
+        type: 'list'
 author: "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
 '''
@@ -138,10 +145,13 @@ def list_buckets(object_storage_client, module):
         namespace_name = module.params['namespace_name']
         compartment_id = module.params['compartment_id']
 
-        buckets = oci_utils.list_all_resources(
-            object_storage_client.list_buckets,
-            namespace_name=namespace_name, compartment_id=compartment_id)
+        optional_list_method_params = ['fields']
+        optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                           if module.params.get(param) is not None}
 
+        buckets = oci_utils.list_all_resources(object_storage_client.list_buckets,
+                                               namespace_name=namespace_name, compartment_id=compartment_id,
+                                               **optional_kwargs)
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     return to_dict(buckets)
@@ -153,7 +163,8 @@ def main():
         dict(
             namespace_name=dict(type='str', required=True),
             compartment_id=dict(type='str', required=False),
-            name=dict(type='str', required=False, aliases=['bucket'])
+            name=dict(type='str', required=False, aliases=['bucket']),
+            fields=dict(type='list', required=False, choices=['tags'])
         )
     )
     module = AnsibleModule(

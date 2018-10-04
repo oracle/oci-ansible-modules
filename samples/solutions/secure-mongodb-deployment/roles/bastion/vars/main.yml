@@ -6,8 +6,8 @@
 # See LICENSE.TXT for details.
 
 bastion_image_ocid: "{{ lookup('env', 'SAMPLE_OEL_IMAGE_OCID') }}"
-bastion_shape: "VM.Standard1.2"
-bastion_availability_domain: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"
+bastion_shape: "VM.Standard1.1"
+bastion_availability_domain: "{{ lookup('env', 'SAMPLE_AD2_NAME') }}"
 
 demo_bastion_subnet_name: "{{demo_var_prefix}}_bastion_subnet"
 # no special chars, 1-15 chars only, start with alpha

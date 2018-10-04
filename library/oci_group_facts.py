@@ -28,6 +28,10 @@ options:
         description: Identifier of the group whose details should be fetched
         required: false
         aliases: ['id']
+    compartment_id:
+        description: The OCID of the compartment (remember that the tenancy is simply the root compartment). If
+                     unspecified, the module automatically picks up tenancy information from your OCI SDK configuration.
+        required: false
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
@@ -226,7 +230,8 @@ def main():
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
     module_args.update(
         dict(
-            group_id=dict(type='str', required=False, aliases=['id'])
+            group_id=dict(type='str', required=False, aliases=['id']),
+            compartment_id=dict(type='str', required=False)
         )
     )
     module = AnsibleModule(
@@ -239,8 +244,11 @@ def main():
     oci_config = oci_utils.get_oci_config(module)
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
-    compartment_id = oci_config['tenancy']
-    module.params.update(dict({'compartment_id': compartment_id}))
+    # automatically fill in compartment_id if it not specified by user
+    if module.params.get('compartment_id') is None:
+        compartment_id = oci_config['tenancy']
+        module.params.update(dict({'compartment_id': compartment_id}))
+
     result = list_user_groups(identity_client, module)
 
     module.exit_json(groups=result)

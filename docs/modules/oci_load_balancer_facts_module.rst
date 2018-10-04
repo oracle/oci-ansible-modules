@@ -127,12 +127,36 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>detail</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>full</li>
+                                                                                                                                                                                                <li>simple</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The level of detail to return for each result.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>display_name</b>
                                                                             </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>Use <em>display_name</em> along with the other options to return only resources that match the given display name exactly.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>lifecycle_state</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A filter to return only resources that match the given lifecycle state.</div>
                                                                                 </td>
             </tr>
                                 <tr>

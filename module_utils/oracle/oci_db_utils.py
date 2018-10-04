@@ -85,7 +85,8 @@ def execute_function_and_wait(resource_type, client, function, kwargs_function, 
                                      kwargs_create=kwargs_function,
                                      client=client,
                                      get_fn=get_fn,
-                                     get_param='db_node_id',
+                                     get_param=get_param,
                                      module=module,
-                                     kwargs_get=kwargs_get
+                                     kwargs_get=kwargs_get,
+                                     states=states
                                      )

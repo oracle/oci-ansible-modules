@@ -127,6 +127,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>db_system_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The DB system OCID. If provided, filters the results to the set of database versions which are supported for the DB system.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>db_system_shape</b>
                                                                             </td>
                                 <td>

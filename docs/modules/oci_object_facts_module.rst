@@ -128,6 +128,39 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>delimiter</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>/</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>When this parameter is set, only objects whose names do not contain the delimiter character (after an optionally specified prefix) are returned in the objects key of the response body. Scanned objects whose names contain the delimiter have the part of their name up to the first occurrence of the delimiter (including the optional prefix) returned as a set of prefixes. Note that only '/' is a supported delimiter character at this time.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>end</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Object names returned by a list query must be strictly less than this parameter.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>fields</b>
+                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Object summary in list of objects includes the 'name' field. This parameter can also include 'size' (object size in bytes), 'md5', and 'timeCreated' (object creation date and time) fields. Value of this parameter should be a comma-separated, case-insensitive list of those field names. For example 'name,timeCreated,md5'. Allowed values are &quot;name&quot;, &quot;size&quot;, &quot;timeCreated&quot;, &quot;md5&quot;</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>namespace_name</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
@@ -150,12 +183,32 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>prefix</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The string to use for matching against the start of object names in a list query.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>region</b>
                                                                             </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>start</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Object names returned by a list query must be greater or equal to this parameter.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -189,6 +242,12 @@ Examples
       oci_object_facts:
         namespace: mynamespace
         bucket: mybucket
+
+    - name: Get details of all the objects in namespace 'mynamespace' and bucket 'mybucket' and only retrieve name and md5
+      oci_object_facts:
+        namespace: mynamespace
+        bucket: mybucket
+        fields: "name,md5"
 
     - name: Get details of a specific object
       oci_object_facts:

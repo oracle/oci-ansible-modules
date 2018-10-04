@@ -40,6 +40,9 @@ options:
         description: The OCID of the volume. Use I(volume_id) with I(compartment_id) to get volume attachment
                      information related to I(volume_id).
         required: false
+    availability_domain:
+        description: The name of the availability domain
+        required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
@@ -181,7 +184,8 @@ def main():
         compartment_id=dict(type='str', required=False),
         instance_id=dict(type='str', required=False),
         volume_id=dict(type='str', required=False),
-        volume_attachment_id=dict(type='str', required=False, aliases=['id'])
+        volume_attachment_id=dict(type='str', required=False, aliases=['id']),
+        availability_domain=dict(type='str', required=False)
     ))
 
     module = AnsibleModule(
@@ -205,7 +209,7 @@ def main():
                                                           volume_attachment_id=volume_attachment_id).data)]
 
         else:
-            key_list = ["compartment_id", "instance_id", "volume_id", "display_name"]
+            key_list = ["compartment_id", "instance_id", "volume_id", "display_name", "availability_domain"]
             param_map = {k: v for (k, v) in six.iteritems(module.params) if k in key_list and v is not None}
 
             result = to_dict(oci_utils.list_all_resources(compute_client.list_volume_attachments, **param_map))

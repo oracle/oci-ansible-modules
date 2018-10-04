@@ -32,6 +32,13 @@ options:
         description: Identifier of the Load Balancer whose details needs to be fetched.
         required: false
         aliases: ['id']
+    detail:
+        description: The level of detail to return for each result.
+        choices: ['full', 'simple']
+        required: false
+    lifecycle_state:
+        description: A filter to return only resources that match the given lifecycle state.
+        required: false
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
@@ -239,15 +246,14 @@ def list_load_balancers(lb_client, module):
     )
     compartment_id = module.params.get('compartment_id')
     load_balancer_id = module.params.get('load_balancer_id')
-    display_name = module.params.get('display_name')
     try:
         if compartment_id:
-            get_logger().debug("Listing all load balancers under \
-            compartment %s", compartment_id)
-            existing_load_balancers = oci_utils.list_all_resources(
-                lb_client.list_load_balancers,
-                compartment_id=compartment_id,
-                display_name=display_name)
+            get_logger().debug("Listing all load balancers under compartment %s", compartment_id)
+            optional_list_method_params = ['display_name', 'detail', 'lifecycle_state']
+            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                               if module.params.get(param) is not None}
+            existing_load_balancers = oci_utils.list_all_resources(lb_client.list_load_balancers,
+                                                                   compartment_id=compartment_id, **optional_kwargs)
         elif load_balancer_id:
             get_logger().debug("Listing load balancer %s", load_balancer_id)
             response = lb_client.get_load_balancer(load_balancer_id)
@@ -274,7 +280,9 @@ def main():
     module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
-        load_balancer_id=dict(type='str', required=False, aliases=['id'])
+        load_balancer_id=dict(type='str', required=False, aliases=['id']),
+        lifecycle_state=dict(type='str', required=False),
+        detail=dict(type=str, required=False, choices=['full', 'simple'])
     ))
     module = AnsibleModule(
         argument_spec=module_args,

@@ -31,7 +31,20 @@ options:
         description: The OCID of the image. Required for retrieving information about a specific image
         required: false
         aliases: ['id']
-
+    operating_system:
+        description: The image's operating system.
+        required: false
+    operating_system_version:
+        description: The image's operating system version.
+        required: false
+    shape:
+        description: Shape name.
+        required: false
+    lifecycle_state:
+        description: A filter to only return resources that match the given lifecycle state.  The state value is
+                     case-insensitive. Allowed values are "PROVISIONING", "IMPORTING", "AVAILABLE", "EXPORTING",
+                     "DISABLED", "DELETED"
+        required: false
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 '''
@@ -128,7 +141,11 @@ def main():
     module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
-        image_id=dict(type='str', required=False, aliases=['id'])
+        image_id=dict(type='str', required=False, aliases=['id']),
+        operating_system=dict(type='str', required=False),
+        operating_system_version=dict(type='str', required=False),
+        lifecycle_state=dict(type='str', required=False),
+        shape=dict(type='str', required=False)
     ))
 
     module = AnsibleModule(
@@ -148,8 +165,11 @@ def main():
     result = dict(changed=False)
     try:
         if compartment_id:
+            optional_list_method_params = ['operating_system', 'operating_system_version', 'lifecycle_state', 'shape']
+            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                               if module.params.get(param) is not None}
             inst = oci_utils.list_all_resources(compute_client.list_images, compartment_id=compartment_id,
-                                                display_name=module.params['display_name'])
+                                                **optional_kwargs)
             result = to_dict(inst)
         else:
             inst = oci_utils.call_with_backoff(compute_client.get_image, image_id=id).data

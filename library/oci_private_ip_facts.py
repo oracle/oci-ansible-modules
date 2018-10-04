@@ -31,8 +31,14 @@ options:
     subnet_id:
         description: The OCID of the subnet. Required to list all the private IPs in a subnet.
         required: false
+    ip_address:
+        description: An IP address.
+        required: false
+    vnic_id:
+        description: The OCID of the VNIC.
+        required: false
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: [ oracle, oracle_display_name_option ]
+extends_documentation_fragment: [ oracle ]
 '''
 
 EXAMPLES = '''
@@ -150,10 +156,12 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_facts_module_arg_spec()
+    module_args = oci_utils.get_common_arg_spec()
     module_args.update(dict(
         private_ip_id=dict(type='str', required=False, aliases=['id']),
-        subnet_id=dict(type='str', required=False)
+        subnet_id=dict(type='str', required=False),
+        ip_address=dict(type='str', required=False),
+        vnic_id=dict(type='str', required=False),
     ))
 
     module = AnsibleModule(
@@ -173,9 +181,11 @@ def main():
             result = [to_dict(oci_utils.call_with_backoff(virtual_network_client.get_private_ip,
                                                           private_ip_id=private_ip_id).data)]
         else:
+            optional_list_method_params = ['ip_address', 'subnet_id', 'vnic_id']
+            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                               if module.params.get(param) is not None}
             result = to_dict(oci_utils.list_all_resources(virtual_network_client.list_private_ips,
-                                                          subnet_id=module.params['subnet_id'],
-                                                          display_name=module.params['display_name']))
+                                                          **optional_kwargs))
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 

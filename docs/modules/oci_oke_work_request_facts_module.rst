@@ -171,6 +171,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>status</b>
+                    <br/><div style="font-size: small; color: red">list</div>                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A work request status to filter on. Can have multiple parameters of this name. Allowed values are &quot;ACCEPTED&quot;, &quot;IN_PROGRESS&quot;, &quot;FAILED&quot;, &quot;SUCCEEDED&quot;, &quot;CANCELING&quot;, &quot;CANCELED&quot;.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>tenancy</b>
                                                                             </td>
                                 <td>

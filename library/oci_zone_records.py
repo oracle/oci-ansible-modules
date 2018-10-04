@@ -242,7 +242,7 @@ def modify_zone_records(dns_client, module, modify_operation, modify_kwargs):
             dns_client.get_zone_records, zone_name_or_id=get_zone_name_or_id(module)).data.items
 
         # check if there is any change between the old and the new zone records, and set changed accordingly
-        result['changed'] = not oci_utils.compare_list(zone_records_old, zone_records_new)
+        result['changed'] = not oci_utils.are_lists_equal(zone_records_old, zone_records_new)
     except ServiceError as ex:
         module.fail_json(msg=str(ex))
     return result

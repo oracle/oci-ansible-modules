@@ -25,7 +25,7 @@ from oci.util import to_dict, Sentinel
 
 from ansible.module_utils.basic import _load_params
 
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -232,7 +232,8 @@ def filter_resources(all_resources, filter_params):
 
 def list_all_resources(target_fn, **kwargs):
     """
-    Return all resources after paging through all results returned by target_fn.
+    Return all resources after paging through all results returned by target_fn. If a `display_name` or `name` is
+    provided as a kwarg, then only resources matching the specified name are returned.
     :param target_fn: The target OCI SDK paged function to call
     :param kwargs: All arguments that the OCI SDK paged function expects
     :return: List of all objects returned by target_fn
@@ -260,6 +261,8 @@ def list_all_resources(target_fn, **kwargs):
         response = call_with_backoff(target_fn, **kwargs)
         existing_resources += response.data
 
+    # If the underlying SDK Service list* method doesn't support filtering by name or display_name, filter the resources
+    # and return the matching list of resources
     return filter_resources(existing_resources, filter_params)
 
 
@@ -324,7 +327,8 @@ def check_and_update_attributes(target_instance, attr_name, input_value, existin
 
 
 def check_and_update_resource(resource_type, get_fn, kwargs_get, update_fn, primitive_params_update,
-                              kwargs_non_primitive_update, module, update_attributes):
+                              kwargs_non_primitive_update, module, update_attributes, client=None,
+                              sub_attributes_of_update_model=None):
     """
     This function handles update operation on a resource. It checks whether update is required and accordingly returns
     the resource and the changed status.
@@ -339,6 +343,8 @@ def check_and_update_resource(resource_type, get_fn, kwargs_get, update_fn, prim
      to the update function. e.g. {UpdatePrivateIpDetails: "update_private_ip_details"}
     :param module: Instance of AnsibleModule
     :param update_attributes: Attributes in update model.
+    :param sub_attributes_of_update_model: Dictionary of non-primitive sub-attributes of update model. for example,
+        {'services': [ServiceIdRequestDetails()]} as in UpdateServiceGatewayDetails.
     :return: Returns a dictionary containing the "changed" status and the resource.
     """
     try:
@@ -347,8 +353,11 @@ def check_and_update_resource(resource_type, get_fn, kwargs_get, update_fn, prim
 
         if attributes_to_update:
             kwargs_update = get_kwargs_update(attributes_to_update, kwargs_non_primitive_update, module,
-                                              primitive_params_update)
+                                              primitive_params_update, sub_attributes_of_update_model)
             resource = call_with_backoff(update_fn, **kwargs_update).data
+            if client is not None:
+                resource = wait_for_resource_lifecycle_state(
+                    client, module, True, kwargs_get, get_fn, None, resource, None)
             result['changed'] = True
         result[resource_type] = to_dict(resource)
         return result
@@ -356,7 +365,8 @@ def check_and_update_resource(resource_type, get_fn, kwargs_get, update_fn, prim
         module.fail_json(msg=ex.message)
 
 
-def get_kwargs_update(attributes_to_update, kwargs_non_primitive_update, module, primitive_params_update):
+def get_kwargs_update(attributes_to_update, kwargs_non_primitive_update, module, primitive_params_update,
+                      sub_attributes_of_update_model=None):
     kwargs_update = dict()
     for param in primitive_params_update:
         kwargs_update[param] = module.params[param]
@@ -364,23 +374,59 @@ def get_kwargs_update(attributes_to_update, kwargs_non_primitive_update, module,
         update_object = param()
         for key in update_object.attribute_map:
             if key in attributes_to_update:
-                setattr(update_object, key, module.params[key])
-
+                if sub_attributes_of_update_model and key in sub_attributes_of_update_model:
+                    setattr(update_object, key, sub_attributes_of_update_model[key])
+                else:
+                    setattr(update_object, key, module.params[key])
         kwargs_update[kwargs_non_primitive_update[param]] = update_object
     return kwargs_update
 
 
-def compare_list(s, t):
-    if s is None and t or t is None and s:
+def is_dictionary_subset(sub, super_dict):
+    """
+    This function checks if `sub` dictionary is a subset of `super` dictionary.
+    :param sub: subset dictionary, for example user_provided_attr_value.
+    :param super_dict: super dictionary, for example resources_attr_value.
+    :return: True if sub is contained in super.
+    """
+    for key in sub:
+        if sub[key] != super_dict[key]:
+            return False
+    return True
+
+
+def are_lists_equal(s, t):
+    if s is None and t is None:
+        return True
+
+    if (s is None and len(t) >= 0) or (t is None and len(s) >= 0) or (len(s) != len(t)):
         return False
+
+    if len(s) == 0:
+        return True
+
     s = to_dict(s)
     t = to_dict(t)
-    try:
-        for elem in s:
-            t.remove(elem)
-    except ValueError:
-        return False
-    return not t
+
+    if type(s[0]) == dict:
+        # Handle list of dicts. Dictionary returned by the API may have additional keys. For example, a get call on
+        # service gateway has an attribute `services` which is a list of `ServiceIdResponseDetails`. This has a key
+        # `service_name` which is not provided in the list of `services` by a user while making an update call; only
+        # `service_id` is provided by the user in the update call.
+        sorted_s = sort_list_of_dictionary(s)
+        sorted_t = sort_list_of_dictionary(t)
+        for index, d in enumerate(sorted_s):
+            if not is_dictionary_subset(d, sorted_t[index]):
+                return False
+        return True
+    else:
+        # Handle lists of primitive types.
+        try:
+            for elem in s:
+                t.remove(elem)
+        except ValueError:
+            return False
+        return not t
 
 
 def get_attr_to_update(get_fn, kwargs_get, module, update_attributes):
@@ -388,19 +434,24 @@ def get_attr_to_update(get_fn, kwargs_get, module, update_attributes):
         resource = call_with_backoff(get_fn, **kwargs_get).data
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
+
     attributes_to_update = []
+
     for attr in update_attributes:
         resources_attr_value = getattr(resource, attr, None)
         user_provided_attr_value = module.params.get(attr, None)
 
-        if (type(resources_attr_value) == list and not compare_list(resources_attr_value, user_provided_attr_value)) \
-                or (type(resources_attr_value) != list and to_dict(resources_attr_value) !=
-                    to_dict(user_provided_attr_value)):
+        unequal_list_attr = ((type(resources_attr_value) == list or type(user_provided_attr_value) == list) and
+                             not are_lists_equal(user_provided_attr_value, resources_attr_value))
+        unequal_attr = (type(resources_attr_value) != list and to_dict(resources_attr_value) !=
+                        to_dict(user_provided_attr_value))
+        if unequal_list_attr or unequal_attr:
             # only update if the user has explicitly provided a value for this attribute
             # otherwise, no update is necessary because the user hasn't expressed a particular
             # value for that attribute
             if has_user_provided_value_for_option(module, attr):
                 attributes_to_update.append(attr)
+
     return attributes_to_update, resource
 
 
@@ -682,24 +733,113 @@ def does_existing_resource_match_user_inputs(existing_resource, module, attribut
     return True
 
 
+def tuplize(d):
+    """
+    This function takes a dictionary and converts it to a list of tuples recursively.
+    :param d: A dictionary.
+    :return: List of tuples.
+    """
+    list_of_tuples = []
+    key_list = sorted(list(d.keys()))
+    for key in key_list:
+        if type(d[key]) == list:
+            # Convert a value which is itself a list of dict to a list of tuples.
+            if d[key] and type(d[key][0]) == dict:
+                sub_tuples = []
+                for sub_dict in d[key]:
+                    sub_tuples.append(tuplize(sub_dict))
+                # To handle comparing two None values, while creating a tuple for a {key: value}, make the first element
+                # in the tuple a boolean `True` if value is None so that attributes with None value are put at last
+                # in the sorted list.
+                list_of_tuples.append((sub_tuples is None, key, sub_tuples))
+            else:
+                list_of_tuples.append((d[key] is None, key, d[key]))
+        elif type(d[key]) == dict:
+            tupled_value = tuplize(d[key])
+            list_of_tuples.append((tupled_value is None, key, tupled_value))
+        else:
+            list_of_tuples.append((d[key] is None, key, d[key]))
+    return list_of_tuples
+
+
+def get_key_for_comparing_dict(d):
+    tuple_form_of_d = tuplize(d)
+    return tuple_form_of_d
+
+
+def sort_dictionary(d):
+    """
+    This function sorts values of a dictionary recursively.
+    :param d: A dictionary.
+    :return: Dictionary with sorted elements.
+    """
+    sorted_d = {}
+    for key in d:
+        if type(d[key]) == list:
+            if d[key] and type(d[key][0]) == dict:
+                sorted_value = sort_list_of_dictionary(d[key])
+                sorted_d[key] = sorted_value
+            else:
+                sorted_d[key] = sorted(d[key])
+        elif type(d[key]) == dict:
+            sorted_d[key] = sort_dictionary(d[key])
+        else:
+            sorted_d[key] = d[key]
+    return sorted_d
+
+
+def sort_list_of_dictionary(list_of_dict):
+    """
+    This functions sorts a list of dictionaries. It first sorts each value of the dictionary and then sorts the list of
+    individually sorted dictionaries. For sorting, each dictionary's tuple equivalent is used.
+    :param list_of_dict: List of dictionaries.
+    :return: A sorted dictionary.
+    """
+    list_with_sorted_dict = []
+    for d in list_of_dict:
+        sorted_d = sort_dictionary(d)
+        list_with_sorted_dict.append(sorted_d)
+    return sorted(list_with_sorted_dict, key=get_key_for_comparing_dict)
+
+
 def check_if_user_value_matches_resources_attr(attribute_name, resources_value_for_attr, user_provided_value_for_attr,
                                                exclude_attributes, default_attribute_values, res):
     if isinstance(default_attribute_values.get(attribute_name), dict):
         default_attribute_values = default_attribute_values.get(attribute_name)
     if isinstance(exclude_attributes.get(attribute_name), dict):
         exclude_attributes = exclude_attributes.get(attribute_name)
-    if isinstance(resources_value_for_attr, list):
-        user_provided_value_for_attr_copy = list(user_provided_value_for_attr)
-        if len(resources_value_for_attr) > len(user_provided_value_for_attr_copy):
-            for i in range(len(user_provided_value_for_attr_copy), len(resources_value_for_attr)):
-                user_provided_value_for_attr_copy.append(None)
-        elif len(user_provided_value_for_attr_copy) > len(resources_value_for_attr):
-            for i in range(len(resources_value_for_attr), len(user_provided_value_for_attr_copy)):
-                resources_value_for_attr.append(None)
-        for index, resources_value_for_attr_part in enumerate(resources_value_for_attr):
+
+    if isinstance(resources_value_for_attr, list) or isinstance(user_provided_value_for_attr, list):
+        # Perform a deep equivalence check for a List attribute
+        if resources_value_for_attr is None and user_provided_value_for_attr is None:
+            return
+
+        if resources_value_for_attr is None and len(user_provided_value_for_attr) >= 0 or \
+           user_provided_value_for_attr is None and len(resources_value_for_attr) >= 0:
+            res[0] = False
+            return
+
+        if resources_value_for_attr is not None and user_provided_value_for_attr is not None and \
+                len(resources_value_for_attr) != len(user_provided_value_for_attr):
+            res[0] = False
+            return
+
+        if user_provided_value_for_attr and type(user_provided_value_for_attr[0]) == dict:
+            # Process a list of dict
+            sorted_user_provided_value_for_attr = sort_list_of_dictionary(user_provided_value_for_attr)
+            sorted_resources_value_for_attr = sort_list_of_dictionary(resources_value_for_attr)
+
+        else:
+            sorted_user_provided_value_for_attr = sorted(user_provided_value_for_attr)
+            sorted_resources_value_for_attr = sorted(resources_value_for_attr)
+
+        # Walk through the sorted list values of the resource's value for this attribute, and compare against user
+        # provided values.
+        for index, resources_value_for_attr_part in enumerate(sorted_resources_value_for_attr):
             check_if_user_value_matches_resources_attr(attribute_name, resources_value_for_attr_part,
-                                                       user_provided_value_for_attr_copy[index],
+                                                       sorted_user_provided_value_for_attr[index],
                                                        exclude_attributes, default_attribute_values, res)
+
     elif isinstance(resources_value_for_attr, dict):
         # Perform a deep equivalence check for dict typed attributes
         if not resources_value_for_attr and user_provided_value_for_attr:
@@ -862,6 +1002,29 @@ def create_or_update_resource_and_wait(resource_type, function, kwargs_function,
     """
     result = create_resource(resource_type, function, kwargs_function, module)
     resource = result[resource_type]
+    result[resource_type] = wait_for_resource_lifecycle_state(client, module, wait_applicable, kwargs_get,
+                                                              get_fn, get_param,
+                                                              resource, states)
+    return result
+
+
+def wait_for_resource_lifecycle_state(client, module, wait_applicable, kwargs_get, get_fn, get_param,
+                                      resource, states):
+    """
+    A utility function to  wait for the resource to get into the state as specified in
+    the module options.
+    :param client: OCI service client instance to call the service periodically to retrieve data.
+                   e.g. VirtualNetworkClient
+    :param module: Instance of AnsibleModule.
+    :param wait_applicable: Specifies if wait for create is applicable for this resource
+    :param kwargs_get: Dictionary containing arguments to be used to call the get function which requires multiple arguments.
+    :param get_fn: Function in the SDK to get the resource. e.g. virtual_network_client.get_vcn
+    :param get_param: Name of the argument in the SDK get function. e.g. "vcn_id"
+    :param resource_type: Type of the resource to be created. e.g. "vcn"
+    :param states: List of lifecycle states to watch for while waiting after create_fn is called.
+                   e.g. [module.params['wait_until'], "FAULTY"]
+    :return: A dictionary containing the resource & the "changed" status. e.g. {"vcn":{x:y}, "changed":True}
+    """
     if wait_applicable and module.params.get('wait', None):
         if kwargs_get:
             response_get = call_with_backoff(get_fn, **kwargs_get)
@@ -874,8 +1037,7 @@ def create_or_update_resource_and_wait(resource_type, function, kwargs_function,
                                           evaluate_response=lambda r: r.data.lifecycle_state in states,
                                           max_wait_seconds=module.params.get('wait_timeout',
                                                                              MAX_WAIT_TIMEOUT_IN_SECONDS)).data)
-        result[resource_type] = resource
-    return result
+    return resource
 
 
 def delete_and_wait(resource_type, client, get_fn, kwargs_get, delete_fn, kwargs_delete, module, states=None,
@@ -936,7 +1098,8 @@ def delete_and_wait(resource_type, client, get_fn, kwargs_get, delete_fn, kwargs
 
             result[resource_type] = resource
         else:
-            _debug("Resource {0} with {1} already deleted. So returning changed=False".format(resource_type, kwargs_get))
+            _debug("Resource {0} with {1} already deleted. So returning changed=False".format(
+                resource_type, kwargs_get))
     except ServiceError as ex:
         # DNS API throws a 400 InvalidParameter when a zone id is provided for zone_name_or_id and if the zone
         # resource is not available, instead of the expected 404. So working around this for now.

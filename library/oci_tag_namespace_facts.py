@@ -31,7 +31,12 @@ options:
                      specific tag namespace needs to be obtained.
         required: false
         aliases: ['id']
-
+    include_subcompartments:
+        description: An optional boolean parameter indicating whether to retrieve all tag namespaces in subcompartments.
+                     If this parameter is not specified, only the tag namespaces defined in the specified compartment
+                     are retrieved.
+        required: false
+        type: bool
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
 '''
@@ -118,9 +123,11 @@ def list_tag_namespaces(identity_client, compartment_id, tag_namespace_id, modul
                                                  tag_namespace_id=tag_namespace_id).data
             return to_dict([tag_ns])
 
-        return to_dict(oci_utils.list_all_resources(identity_client.list_tag_namespaces,
-                                                    compartment_id=compartment_id,
-                                                    name=module.params['name']))
+        optional_list_method_params = ['include_subcompartments', 'name']
+        optional_kwargs = {param: module.params[param] for param in optional_list_method_params
+                           if module.params.get(param) is not None}
+        return to_dict(oci_utils.list_all_resources(identity_client.list_tag_namespaces, compartment_id=compartment_id,
+                                                    **optional_kwargs))
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
@@ -129,7 +136,8 @@ def main():
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
     module_args.update(dict(
         compartment_id=dict(type='str', required=False),
-        tag_namespace_id=dict(type='str', required=False, aliases=['id'])
+        tag_namespace_id=dict(type='str', required=False, aliases=['id']),
+        include_subcompartments=dict(type='bool', required=False)
     ))
 
     module = AnsibleModule(

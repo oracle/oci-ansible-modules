@@ -186,6 +186,16 @@ Parameters
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
             </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>vnic_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the VNIC.</div>
+                                                                                </td>
+            </tr>
                         </table>
     <br/>
 

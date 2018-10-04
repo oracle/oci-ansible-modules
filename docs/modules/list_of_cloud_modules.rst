@@ -16,6 +16,14 @@ Oracle
   * :ref:`oci_ad_facts_module` 
   * :ref:`oci_api_key_module` 
   * :ref:`oci_api_key_facts_module` 
+  * :ref:`oci_autonomous_data_warehouse_module` 
+  * :ref:`oci_autonomous_data_warehouse_backup_module` 
+  * :ref:`oci_autonomous_data_warehouse_backup_facts_module` 
+  * :ref:`oci_autonomous_data_warehouse_facts_module` 
+  * :ref:`oci_autonomous_database_module` 
+  * :ref:`oci_autonomous_database_backup_module` 
+  * :ref:`oci_autonomous_database_backup_facts_module` 
+  * :ref:`oci_autonomous_database_facts_module` 
   * :ref:`oci_backup_module` 
   * :ref:`oci_backup_facts_module` 
   * :ref:`oci_boot_volume_module` 
@@ -29,6 +37,8 @@ Oracle
   * :ref:`oci_cluster_options_facts_module` 
   * :ref:`oci_compartment_module` 
   * :ref:`oci_compartment_facts_module` 
+  * :ref:`oci_cpe_module` 
+  * :ref:`oci_cpe_facts_module` 
   * :ref:`oci_customer_secret_key_module` 
   * :ref:`oci_customer_secret_key_facts_module` 
   * :ref:`oci_data_guard_association_module` 
@@ -51,6 +61,10 @@ Oracle
   * :ref:`oci_dhcp_options_facts_module` 
   * :ref:`oci_domain_records_module` 
   * :ref:`oci_domain_records_facts_module` 
+  * :ref:`oci_drg_module` 
+  * :ref:`oci_drg_attachment_module` 
+  * :ref:`oci_drg_attachment_facts_module` 
+  * :ref:`oci_drg_facts_module` 
   * :ref:`oci_dynamic_group_module` 
   * :ref:`oci_dynamic_group_facts_module` 
   * :ref:`oci_fault_domain_facts_module` 
@@ -62,6 +76,10 @@ Oracle
   * :ref:`oci_instance_facts_module` 
   * :ref:`oci_internet_gateway_module` 
   * :ref:`oci_internet_gateway_facts_module` 
+  * :ref:`oci_ip_sec_connection_module` 
+  * :ref:`oci_ip_sec_connection_device_config_facts_module` 
+  * :ref:`oci_ip_sec_connection_device_status_facts_module` 
+  * :ref:`oci_ip_sec_connection_facts_module` 
   * :ref:`oci_kubeconfig_module` 
   * :ref:`oci_load_balancer_module` 
   * :ref:`oci_load_balancer_backend_module` 
@@ -87,6 +105,8 @@ Oracle
   * :ref:`oci_load_balancer_protocol_facts_module` 
   * :ref:`oci_load_balancer_shape_facts_module` 
   * :ref:`oci_load_balancer_work_request_facts_module` 
+  * :ref:`oci_local_peering_gateway_module` 
+  * :ref:`oci_local_peering_gateway_facts_module` 
   * :ref:`oci_node_pool_module` 
   * :ref:`oci_node_pool_facts_module` 
   * :ref:`oci_node_pool_options_facts_module` 
@@ -96,6 +116,7 @@ Oracle
   * :ref:`oci_oke_work_request_error_facts_module` 
   * :ref:`oci_oke_work_request_facts_module` 
   * :ref:`oci_oke_work_request_log_entry_facts_module` 
+  * :ref:`oci_peer_region_for_remote_peering_facts_module` 
   * :ref:`oci_policy_module` 
   * :ref:`oci_policy_facts_module` 
   * :ref:`oci_private_ip_module` 
@@ -104,12 +125,19 @@ Oracle
   * :ref:`oci_public_ip_facts_module` 
   * :ref:`oci_region_facts_module` 
   * :ref:`oci_region_subscription_facts_module` 
+  * :ref:`oci_remote_peering_connection_module` 
+  * :ref:`oci_remote_peering_connection_facts_module` 
+  * :ref:`oci_resource_type_facts_module` 
   * :ref:`oci_route_table_module` 
   * :ref:`oci_route_table_facts_module` 
   * :ref:`oci_rrset_module` 
   * :ref:`oci_rrset_facts_module` 
+  * :ref:`oci_search_resources_facts_module` 
   * :ref:`oci_security_list_module` 
   * :ref:`oci_security_list_facts_module` 
+  * :ref:`oci_service_facts_module` 
+  * :ref:`oci_service_gateway_module` 
+  * :ref:`oci_service_gateway_facts_module` 
   * :ref:`oci_shape_facts_module` 
   * :ref:`oci_subnet_module` 
   * :ref:`oci_subnet_facts_module` 

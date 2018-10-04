@@ -4,12 +4,13 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
+import logging
+
 import pytest
 from nose.plugins.skip import SkipTest
-import logging
-from ansible.modules.cloud.oracle import oci_db_version_facts
-from ansible.module_utils.oracle import oci_utils
 
+from ansible.module_utils.oracle import oci_utils
+from ansible.modules.cloud.oracle import oci_db_version_facts
 
 try:
     import oci
@@ -33,15 +34,18 @@ class FakeModule(object):
         self.exit_args = args
         self.exit_kwargs = kwargs
 
+
 @pytest.fixture()
 def db_client(mocker):
     mock_db_client = mocker.patch(
         'oci.database.database_client.DatabaseClient')
     return mock_db_client.return_value
 
+
 @pytest.fixture()
 def list_all_resources_patch(mocker):
     return mocker.patch.object(oci_utils, 'list_all_resources')
+
 
 def setUpModule():
     logging.basicConfig(filename='/tmp/oci_ansible_module.log',
@@ -55,8 +59,10 @@ def test_list_db_versions_compartments(db_client, list_all_resources_patch):
     result = oci_db_version_facts.list_db_versions(db_client, module)
     assert result['db_versions'][0]['version'] is get_db_versions().version
 
+
 def test_list_db_versions_db_system_shapes(db_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'db_system_shape': 'BM.DenseIO1.36'}))
+    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'db_system_shape': 'BM.DenseIO1.36',
+                              'db_system_id': None}))
     list_all_resources_patch.return_value = [get_db_versions()]
     result = oci_db_version_facts.list_db_versions(db_client, module)
     assert result['db_versions'][0]['version'] is get_db_versions().version
@@ -72,14 +78,17 @@ def test_list_db_versions_service_error(db_client, list_all_resources_patch):
     except Exception as ex:
         assert error_message in ex.args[0]
 
+
 def get_db_versions():
     db_version_summary = DbVersionSummary()
     db_version_summary.version = '11.0.0.1'
 
     return db_version_summary
 
+
 def get_response(status, header, data, request):
     return oci.Response(status, header, data, request)
+
 
 def get_module(additional_properties):
     params = dict()

@@ -9,9 +9,9 @@ The sample
 
 # Instructions
 
-To run the sample, after ensuring that you have the pre-requisites for OCI ansible cloud modules, please provide values (that are specific to your tenancy) for the following variables in the `vars` section of `sample.yaml`.
-Also ensure you have a valid DB system is provisioned and running whose id should be provided as part of db_system_id.
-
+To run the sample, after ensuring that you have the pre-requisites for OCI ansible cloud modules, please provide values (that are specific to your tenancy) for the following variables in the `vars` section of `sample.yaml`:
 - compartment_id
 - db_system_id
 - host_name
+
+Also ensure you have a valid DB system is provisioned and running whose id should be provided as part of db_system_id.
