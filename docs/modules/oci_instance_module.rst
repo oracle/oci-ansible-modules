@@ -205,6 +205,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>enable_parallel_requests</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Whether to scale up and down <em>exact_count</em> instances in parallel. By default, <em>exact_count</em> instances are launched or terminated in parallel.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>exact_count</b>
                                                                             </td>
                                 <td>
@@ -296,6 +310,16 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>The list of comma-separated attributes of this resource which should be used to uniquely identify an instance of the resource. By default, all the attributes of a resource except <em>freeform_tags</em> are used to uniquely identify a resource.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>max_thread_count</b>
+                    <br/><div style="font-size: small; color: red">int</div>                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>When <em>enable_parallel_requests=True</em>, indicates the number of maximum parallel operations that are used to launch or terminate <em>exact_count</em> instances. The default number of threads used is the number of cores in your machine.</div>
                                                                                 </td>
             </tr>
                                 <tr>

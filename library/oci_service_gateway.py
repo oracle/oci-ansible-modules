@@ -28,6 +28,7 @@ options:
                      traffic is not routed to any services, regardless of route rules.
         required: false
         default: false
+        type: bool
     compartment_id:
         description: The OCID of the compartment to contain the service gateway. Required when creating a service
                      gateway with I(state=present).
@@ -250,7 +251,7 @@ def handle_service_id_request(virtual_network_client, module, attach):
 def main():
     module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
     module_args.update(dict(
-        block_traffic=dict(type='str', required=False, default=False),
+        block_traffic=dict(type='bool', required=False, default=False),
         service_id=dict(type='str', required=False),
         vcn_id=dict(type='str', required=False),
         services=dict(type='list', required=False),

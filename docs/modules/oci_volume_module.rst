@@ -106,6 +106,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>backup_policy_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>ID of the volume backup policy to assign to the newly created volume. If omitted, no policy will be assigned. <em>backup_policy_id</em> can only be provided while creating a volume.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>compartment_id</b>
                                                                             </td>
                                 <td>

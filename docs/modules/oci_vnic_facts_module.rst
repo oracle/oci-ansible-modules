@@ -142,7 +142,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the VNIC. Required for retrieving information about a specific VNIC attachment.</div>
+                                                                        <div>The OCID of the VNIC. Required for retrieving information about a specific VNIC.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
             </tr>

@@ -17,7 +17,7 @@ oci_boot_volume - Manage boot volumes in OCI Block Volume service
 
 Synopsis
 --------
-- This module allows the user to perform delete & update operations on boot volumes in OCI Block Volume service.
+- This module allows the user to perform create, delete & update operations on boot volumes in OCI Block Volume service.
 
 
 
@@ -36,12 +36,12 @@ Parameters
 
     <table  border=0 cellpadding=0 class="documentation-table">
         <tr>
-            <th colspan="1">Parameter</th>
+            <th colspan="2">Parameter</th>
             <th>Choices/<font color="blue">Defaults</font></th>
                         <th width="100%">Comments</th>
         </tr>
                     <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>api_user</b>
                                                                             </td>
                                 <td>
@@ -51,7 +51,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>api_user_fingerprint</b>
                                                                             </td>
                                 <td>
@@ -61,7 +61,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>api_user_key_file</b>
                                                                             </td>
                                 <td>
@@ -71,7 +71,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>api_user_key_pass_phrase</b>
                                                                             </td>
                                 <td>
@@ -81,7 +81,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>auth_type</b>
                                                                             </td>
                                 <td>
@@ -95,9 +95,29 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
+                    <b>availability_domain</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The availability domain of the boot volume. <em>availability_domain</em> is required to create a boot volume.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>backup_policy_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>If provided, specifies the ID of the boot volume backup policy to assign to the newly created boot volume. If omitted, no policy will be assigned.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>boot_volume_id</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                                                            </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -106,7 +126,17 @@ Parameters
                                     </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
+                    <b>compartment_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the compartment that contains the boot volume. <em>compartment_id</em> is required to create a boot volume.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>config_file_location</b>
                                                                             </td>
                                 <td>
@@ -116,7 +146,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>config_profile_name</b>
                                                                             </td>
                                 <td>
@@ -127,7 +157,17 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
+                    <b>defined_tags</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>display_name</b>
                                                                             </td>
                                 <td>
@@ -138,7 +178,51 @@ Parameters
                                     </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
+                    <b>force_create</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn't create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>freeform_tags</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>key_by</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The list of comma-separated attributes of this resource which should be used to uniquely identify an instance of the resource. By default, all the attributes of a resource except <em>freeform_tags</em> are used to uniquely identify a resource.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>kms_key_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the KMS key to be used as the master encryption key for the boot volume.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>lookup_attached_instance</b>
                     <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
@@ -153,7 +237,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>region</b>
                                                                             </td>
                                 <td>
@@ -163,7 +247,81 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
+                    <b>size_in_gbs</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The size of the volume in GBs.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>source_details</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Specifies the boot volume source details for a new boot volume. The volume source is either another boot volume in the same availability domain or a boot volume backup. <em>source_details</em> is required to create a boot volume.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>wait_for_copy</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>Whether to wait for the operation of copying from source boot volume or backup to complete.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>type</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>bootVolumeBackup</li>
+                                                                                                                                                                                                <li>bootVolume</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>Type of boot volume source details.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The OCID of the boot volume backup when <em>source_details.type=bootVolumeBackup</em> or the OCID of the boot volume in the same availability domain when <em>source_details.type=bootVolume</em>.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>copy_timeout</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1800</div>
+                                    </td>
+                                                                <td>
+                                            <div>Time, in seconds, to wait for the operation to complete when <em>wait_for_copy=yes</em>.</div>
+                                                        </td>
+            </tr>
+                    
+                                                <tr>
+                                                                <td colspan="2">
                     <b>state</b>
                                                                             </td>
                                 <td>
@@ -177,7 +335,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>tenancy</b>
                                                                             </td>
                                 <td>
@@ -187,7 +345,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>wait</b>
                     <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
@@ -201,7 +359,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>wait_timeout</b>
                                                                             </td>
                                 <td>
@@ -212,7 +370,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="1">
+                                                                <td colspan="2">
                     <b>wait_until</b>
                                                                             </td>
                                 <td>
@@ -238,6 +396,15 @@ Examples
 .. code-block:: yaml+jinja
 
     
+    - name: Create a boot volume by cloning data from another boot volume in the same availability domain
+      oci_boot_volume:
+        name: sample_boot_volume
+        source_details:
+            id: ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx
+            type: 'bootVolume'
+        availability_domain: IwGV:US-ASHBURN-AD-2
+        compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
+
     - name: Update name of a boot volume
       oci_boot_volume:
         name: ansible_boot_volume

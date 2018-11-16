@@ -529,7 +529,7 @@ def launch_db_system(db_client, module):
     launch_db_system_details.ssh_public_keys = create_ssh_public_keys(
         module.params.get('ssh_public_keys', None))
     for attribute in launch_db_system_details.attribute_map:
-        if attribute != 'db_home' and attribute != 'ssh_public_keys':
+        if attribute not in ("db_home", "ssh_public_keys"):
             launch_db_system_details.__setattr__(
                 attribute, module.params.get(attribute))
     result = oci_utils.create_and_wait(resource_type='db_system',

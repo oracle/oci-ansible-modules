@@ -69,10 +69,10 @@ kubeconfig:
     }
 '''
 
-import os
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 from ansible.module_utils.oracle import oci_ce_utils
+import os
 
 try:
     from oci.container_engine.container_engine_client import ContainerEngineClient
@@ -82,11 +82,6 @@ try:
 
 except ImportError:
     HAS_OCI_PY_SDK = False
-
-
-def write_to_file(path, content):
-    with open(path, 'wb') as dest_file:
-        dest_file.write(content)
 
 
 def create_kubeconfig(container_engine_client, module):
@@ -109,9 +104,10 @@ def create_kubeconfig(container_engine_client, module):
                                                        cluster_id=module.params['cluster_id'],
                                                        create_cluster_kubeconfig_content_details=kubeconfig_details
                                                        ).data.content
-    if module.params['dest']:
-        if module.params['force'] or not os.path.isfile(module.params['dest']):
-            write_to_file(module.params['dest'], result['kubeconfig'])
+    if module.params.get('dest'):
+        dest = module.params.get('dest')
+        if module.params.get('force') or not os.path.isfile(dest):
+            oci_utils.write_to_file(dest, result['kubeconfig'])
             result['changed'] = True
 
     return result

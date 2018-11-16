@@ -16,6 +16,8 @@ Oracle
   * :ref:`oci_ad_facts_module` 
   * :ref:`oci_api_key_module` 
   * :ref:`oci_api_key_facts_module` 
+  * :ref:`oci_auth_token_module` 
+  * :ref:`oci_auth_token_facts_module` 
   * :ref:`oci_autonomous_data_warehouse_module` 
   * :ref:`oci_autonomous_data_warehouse_backup_module` 
   * :ref:`oci_autonomous_data_warehouse_backup_facts_module` 
@@ -37,6 +39,9 @@ Oracle
   * :ref:`oci_cluster_options_facts_module` 
   * :ref:`oci_compartment_module` 
   * :ref:`oci_compartment_facts_module` 
+  * :ref:`oci_console_history_module` 
+  * :ref:`oci_console_history_content_facts_module` 
+  * :ref:`oci_console_history_facts_module` 
   * :ref:`oci_cpe_module` 
   * :ref:`oci_cpe_facts_module` 
   * :ref:`oci_customer_secret_key_module` 
@@ -67,13 +72,26 @@ Oracle
   * :ref:`oci_drg_facts_module` 
   * :ref:`oci_dynamic_group_module` 
   * :ref:`oci_dynamic_group_facts_module` 
+  * :ref:`oci_export_module` 
+  * :ref:`oci_export_facts_module` 
+  * :ref:`oci_export_set_module` 
+  * :ref:`oci_export_set_facts_module` 
   * :ref:`oci_fault_domain_facts_module` 
+  * :ref:`oci_file_system_module` 
+  * :ref:`oci_file_system_facts_module` 
   * :ref:`oci_group_module` 
   * :ref:`oci_group_facts_module` 
   * :ref:`oci_image_module` 
   * :ref:`oci_image_facts_module` 
   * :ref:`oci_instance_module` 
+  * :ref:`oci_instance_configuration_module` 
+  * :ref:`oci_instance_configuration_facts_module` 
+  * :ref:`oci_instance_console_connection_module` 
+  * :ref:`oci_instance_console_connection_facts_module` 
   * :ref:`oci_instance_facts_module` 
+  * :ref:`oci_instance_pool_module` 
+  * :ref:`oci_instance_pool_facts_module` 
+  * :ref:`oci_instance_pool_instances_facts_module` 
   * :ref:`oci_internet_gateway_module` 
   * :ref:`oci_internet_gateway_facts_module` 
   * :ref:`oci_ip_sec_connection_module` 
@@ -107,6 +125,10 @@ Oracle
   * :ref:`oci_load_balancer_work_request_facts_module` 
   * :ref:`oci_local_peering_gateway_module` 
   * :ref:`oci_local_peering_gateway_facts_module` 
+  * :ref:`oci_mount_target_module` 
+  * :ref:`oci_mount_target_facts_module` 
+  * :ref:`oci_nat_gateway_module` 
+  * :ref:`oci_nat_gateway_facts_module` 
   * :ref:`oci_node_pool_module` 
   * :ref:`oci_node_pool_facts_module` 
   * :ref:`oci_node_pool_options_facts_module` 
@@ -135,12 +157,20 @@ Oracle
   * :ref:`oci_search_resources_facts_module` 
   * :ref:`oci_security_list_module` 
   * :ref:`oci_security_list_facts_module` 
+  * :ref:`oci_sender_module` 
+  * :ref:`oci_sender_facts_module` 
   * :ref:`oci_service_facts_module` 
   * :ref:`oci_service_gateway_module` 
   * :ref:`oci_service_gateway_facts_module` 
   * :ref:`oci_shape_facts_module` 
+  * :ref:`oci_smtp_credential_module` 
+  * :ref:`oci_smtp_credential_facts_module` 
+  * :ref:`oci_snapshot_module` 
+  * :ref:`oci_snapshot_facts_module` 
   * :ref:`oci_subnet_module` 
   * :ref:`oci_subnet_facts_module` 
+  * :ref:`oci_suppression_module` 
+  * :ref:`oci_suppression_facts_module` 
   * :ref:`oci_swift_password_module` 
   * :ref:`oci_swift_password_facts_module` 
   * :ref:`oci_tag_module` 
@@ -161,7 +191,14 @@ Oracle
   * :ref:`oci_volume_attachment_facts_module` 
   * :ref:`oci_volume_backup_module` 
   * :ref:`oci_volume_backup_facts_module` 
+  * :ref:`oci_volume_backup_policy_assignment_module` 
+  * :ref:`oci_volume_backup_policy_assignment_facts_module` 
+  * :ref:`oci_volume_backup_policy_facts_module` 
   * :ref:`oci_volume_facts_module` 
+  * :ref:`oci_volume_group_module` 
+  * :ref:`oci_volume_group_backup_module` 
+  * :ref:`oci_volume_group_backup_facts_module` 
+  * :ref:`oci_volume_group_facts_module` 
   * :ref:`oci_zone_module` 
   * :ref:`oci_zone_facts_module` 
   * :ref:`oci_zone_records_module` 

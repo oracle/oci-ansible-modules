@@ -23,8 +23,9 @@ The `oci_inventory.ini` configuration file can be optionally used to configure t
 The `oci_inventory.py` script accepts the following command line arguments:
 ```
 usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
-              [--profile PROFILE] [--compartment COMPARTMENT]
-              [--refresh-cache] [--debug]
+                        [--profile PROFILE] [--compartment COMPARTMENT]
+                        [--refresh-cache] [--debug]
+                        [--auth {api_key,instance_principal}]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -38,6 +39,13 @@ optional arguments:
   --refresh-cache, -r   Force refresh of cache by making API requests to OCI
                         (default: False - use cache files)
   --debug               Send debug messages to STDERR
+  --auth {api_key,instance_principal}
+                        The type of authentication to use for making API
+                        requests. By default, the API key in your config will
+                        be used. Set this option to `instance_principal` to
+                        use instance principal based authentication. This
+                        value can also be provided in the
+                        OCI_ANSIBLE_AUTH_TYPE environment variable.
 ```
 
 The `oci_inventory.py` script also accepts the following environment variables:
@@ -56,6 +64,7 @@ The `oci_inventory.py` script also accepts the following environment variables:
 | OCI_CACHE_DIR | Specifies the directory where cache files of the inventory script will reside. A file named "ansible-oci.cache" will be written to this directory. It is recommended that the directory pointed to by this environment variable be read-able and write-able (unix file permissions 600) only by the user running the inventory script. |
 | OCI_CACHE_MAX_AGE |  The number of seconds a cache file is considered valid. To disable caching and get the latest inventory from OCI, set this value to 0. |
 | OCI_HOSTNAME_FORMAT | Host naming format to use in the generated inventory. Use 'fqdn' to list hosts using the instance's Fully Qualified Domain Name (FQDN). Use 'public_ip' to list hosts using public IP address. Use 'private_ip' to list hosts using private IP address.|
+| OCI_ANSIBLE_AUTH_TYPE | Specifies the type of authentication to use for making API requests. By default, the API key in your config will be used. Set it to `instance_principal` to use instance principal based authentication.|
 
 The order of precedence for the configuration used by the inventory script is:
 1. command line arguments

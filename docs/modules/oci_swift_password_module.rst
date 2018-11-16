@@ -17,7 +17,7 @@ oci_swift_password - Create, update and delete Swift (OpenStack Object Store Ser
 
 Synopsis
 --------
-- This module allows the user to create, update and delete Swift passwords in OCI. Swift is the OpenStack object storage service. A SwiftPassword is an Oracle-provided password for using a Swift client with the Oracle Cloud Infrastructure Object Storage Service. This password is associated with the user's Console login. Swift passwords never expire. A user can have up to two Swift passwords at a time. Note: The password is always an Oracle-generated string; you can't change it to a string of your choice.
+- This module allows the user to create, update and delete Swift passwords in OCI. This module is deprecated. Please use :ref:`oci_auth_token <oci_auth_token_module>` instead. This module may be removed in a future release. Swift is the OpenStack object storage service. A SwiftPassword is an Oracle-provided password for using a Swift client with the Oracle Cloud Infrastructure Object Storage Service. This password is associated with the user's Console login. Swift passwords never expire. A user can have up to two Swift passwords at a time. Note - The password is always an Oracle-generated string; you can't change it to a string of your choice.
 
 
 
@@ -258,7 +258,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>oci_swift_password</b>
                     <br/><div style="font-size: small; color: red">dict</div>
                                     </td>
-                <td>On success</td>
+                <td>On success. The password is only returned only during creation.</td>
                 <td>
                                             <div>Details of the Swift password</div>
                                         <br/>
@@ -275,7 +275,7 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+This module is flagged as **deprecated** which means that .
 
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.

@@ -5,8 +5,8 @@
 .. _oci_ad_facts_module:
 
 
-oci_ad_facts - Retrieve details of availability domains in your tenancy
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_ad_facts - Retrieve details of availability domains in your tenancy for a given region
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,7 +17,7 @@ oci_ad_facts - Retrieve details of availability domains in your tenancy
 
 Synopsis
 --------
-- This module retrieves details of all availability domains in your tenancy.
+- This module retrieves details of all availability domains in your tenancy. By default, the region configured in your OCI SDK configuration is used. To retrieve details of all availability domains in your tenancy for a different region, use *region* to specify the region for which availability domains must be retrieved.
 
 
 
@@ -163,9 +163,14 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Get details of all the availability domains in your tenancy
+    - name: Get details of all the availability domains in your tenancy (default configured region)
       oci_ad_facts:
         compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq'
+
+    - name: Get details of all the availability domains in your tenancy for a specified non-default region
+      oci_ad_facts:
+        compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq'
+        region: 'us-phoenix-1'
 
 
 

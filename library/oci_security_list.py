@@ -55,8 +55,18 @@ options:
         suboptions:
             source:
                 description: The source CIDR block for the ingress rule. This is the range of IP addresses that a packet
-                             coming into the instance can come from.
+                             coming into the instance can come from. Allowed values are either IP address range in CIDR
+                             notation. For example 192.168.1.0/24 or the cidrBlock value for a Service, if you're
+                             setting up a security list rule for traffic coming from a particular service through a
+                             service gateway. For example oci-phx-objectstorage
                 required: true
+            source_type:
+                description: Type of source for the rule. If the rule's source is an IP address range
+                             in CIDR notation, then the value should be CIDR_BLOCK.  If the rule's source is
+                             the cidr block value for a Service, then the value is SERVICE_CIDR_BLOCK.
+                required: false
+                choices: ['CIDR_BLOCK', 'SERVICE_CIDR_BLOCK']
+                default: 'CIDR_BLOCK'
             icmp_options:
                 description: Valid only for ICMP. Use to specify a particular ICMP type and code as defined in
                              U(u'https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml').
@@ -98,8 +108,18 @@ options:
         suboptions:
             destination:
                 description: The destination CIDR block for the egress rule. This is the range of IP addresses
-                             that a packet originating from the instance can go to.
+                             that a packet originating from the instance can go to. Allowed values are either IP
+                             address range in CIDR notation. For example 192.168.1.0/24 or the cidrBlock value for a
+                             Service, if you're setting up a security list rule for traffic going to a particular
+                             service through a service gateway. For example oci-phx-objectstorage
                 required: true
+            destination_type:
+                description: Type of destination for the rule. If the rule's destination is an IP address range
+                             in CIDR notation, then the value should be CIDR_BLOCK.  If the rule's destination is
+                             the cidr block value for a Service, then the value is SERVICE_CIDR_BLOCK.
+                required: false
+                choices: ['CIDR_BLOCK', 'SERVICE_CIDR_BLOCK']
+                default: 'CIDR_BLOCK'
             icmp_options:
                 description: Valid only for ICMP. Use to specify a particular ICMP type and code as defined in
                              U(u'https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml').
@@ -154,8 +174,8 @@ EXAMPLES = '''
 - name: Create a security list with rules
   oci_security_list:
     name: 'ansible_sec_list'
-    compartment_id: 'ocid.comprtment..aa'
-    vcn_id: 'ocid1.vcn..aa'
+    compartment_id: 'ocid.compartment..xxxxxEXAMPLExxxxx'
+    vcn_id: 'ocid1.vcn..xxxxxEXAMPLExxxxx'
     state: 'present'
     freeform_tags:
         region: 'east'
@@ -170,6 +190,10 @@ EXAMPLES = '''
             destination_port_range:
                 min: '22'
                 max: '22'
+      - source: 'oci-iad-objectstorage'
+        source_type: 'SERVICE_CIDR_BLOCK'
+        is_stateless: False
+        protocol: '6'
       - source: '0.0.0.0/0'
         is_stateless: False
         protocol: '1'
@@ -182,7 +206,7 @@ EXAMPLES = '''
 
 - name: Update a security list by purging existing ingress rules
   oci_security_list:
-    security_list_id: 'ocid1.securitylist.aa'
+    security_list_id: 'ocid1.securitylist.xxxxxEXAMPLExxxxx'
     ingress_security_rules:
         - source: '10.0.0.0/8'
           is_stateless: False
@@ -197,7 +221,7 @@ EXAMPLES = '''
 # Delete a security list
 - name: Delete a security list
   oci_security_list:
-    id: 'ocid1.securitylist.aa'
+    id: 'ocid1.securitylist.xxxxxEXAMPLExxxxx'
     state: 'absent'
 '''
 
@@ -240,13 +264,13 @@ RETURN = '''
                 returned: always
                 type: list
                 sample: [{"icmp_options": null,"is_stateless": null,"protocol": "6",
-                "source": "0.0.0.0/0","tcp_options": {"destination_port_range":
+                "source": "0.0.0.0/0","source_type": "CIDR_BLOCK",tcp_options": {"destination_port_range":
                 {"max": 22,"min": 22},"source_port_range": null},"udp_options": null}]
             egress_security_rules:
                 description: Rules for allowing egress IP packets
                 returned: always
                 type: list
-                sample:   [{"destination": "0.0.0.0/0","icmp_options": null,
+                sample:   [{"destination": "0.0.0.0/0","destination_type": "CIDR_BLOCK","icmp_options": null,
                 "is_stateless": null,"protocol": "all","tcp_options": null,
                 "udp_options": null}]
             time_created:
@@ -263,6 +287,7 @@ RETURN = '''
                     "egress_security_rules":[
                                                 {
                                                     "destination":"0.0.0.0/0",
+                                                    "destination_type":"CIDR_BLOCK",
                                                     "icmp_options":null,
                                                     "is_stateless":null,
                                                     "protocol":"all",
@@ -277,6 +302,7 @@ RETURN = '''
                                                     "is_stateless":false,
                                                     "protocol":"6",
                                                     "source":"0.0.0.0/0",
+                                                    "source_type":"CIDR_BLOCK",
                                                     "tcp_options":{
                                                         "destination_port_range":{
                                                                                 "max":22,
@@ -294,6 +320,7 @@ RETURN = '''
                                                     "is_stateless":false,
                                                     "protocol":"1",
                                                     "source":"0.0.0.0/0",
+                                                    "source_type":"CIDR_BLOCK",
                                                     "tcp_options":null,
                                                     "udp_options":null
                                                 },
@@ -304,7 +331,8 @@ RETURN = '''
                                                     },
                                                     "is_stateless":false,
                                                     "protocol":"1",
-                                                    "source":"10.0.0.0/16",
+                                                    "source":"oci-iad-objectstorage",
+                                                    "source_type":"SERVICE_CIDR_BLOCK",
                                                     "tcp_options":null,
                                                     "udp_options":null
                                                 }
@@ -452,7 +480,8 @@ def update_security_list(virtual_network_client, existing_security_list, module)
 
 
 def get_hashed_security_rules(security_rules_type, security_rules):
-    supported_security_rule_simple_attributes = ['source', 'destination', 'is_stateless', 'protocol']
+    supported_security_rule_simple_attributes = ['source', 'source_type',
+                                                 'destination', 'destination_type', 'is_stateless', 'protocol']
     hashed_security_rules = []
     if security_rules is None:
         return hashed_security_rules
@@ -518,10 +547,12 @@ def get_security_rules(security_rule_type, input_security_rules):
             security_rule = oci_utils.create_hashed_instance(
                 IngressSecurityRule)
             security_rule.source = input_security_rule['source']
+            security_rule.source_type = input_security_rule.get('source_type', 'CIDR_BLOCK')
         elif security_rule_type == 'egress_security_rules':
             security_rule = oci_utils.create_hashed_instance(
                 EgressSecurityRule)
             security_rule.destination = input_security_rule['destination']
+            security_rule.destination_type = input_security_rule.get('destination_type', 'CIDR_BLOCK')
         input_icmp_options = input_security_rule.get('icmp_options', None)
         if input_icmp_options:
             icmp_options = oci_utils.create_hashed_instance(IcmpOptions)

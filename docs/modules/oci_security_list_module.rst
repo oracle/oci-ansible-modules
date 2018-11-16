@@ -184,16 +184,16 @@ Parameters
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
-                    <b>is_stateless</b>
+                    <b>destination_type</b>
                                                                             </td>
                                 <td>
                                                                                                                             <ul><b>Choices:</b>
-                                                                                                                                                                <li>yes</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                <li><div style="color: blue"><b>CIDR_BLOCK</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>SERVICE_CIDR_BLOCK</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                            <div>A stateless rule allows traffic in one direction. Remember to add a corresponding stateless rule in the other direction if you need to support bidirectional traffic. For example, if egress traffic allows TCP destination port 80, there should be an ingress rule to allow TCP source port 80. Defaults to false, which means the rule is stateful and a corresponding rule is not necessary for bidirectional traffic.</div>
+                                            <div>Type of destination for the rule. If the rule's destination is an IP address range in CIDR notation, then the value should be CIDR_BLOCK.  If the rule's destination is the cidr block value for a Service, then the value is SERVICE_CIDR_BLOCK.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -215,7 +215,22 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The destination CIDR block for the egress rule. This is the range of IP addresses that a packet originating from the instance can go to.</div>
+                                            <div>The destination CIDR block for the egress rule. This is the range of IP addresses that a packet originating from the instance can go to. Allowed values are either IP address range in CIDR notation. For example 192.168.1.0/24 or the cidrBlock value for a Service, if you're setting up a security list rule for traffic going to a particular service through a service gateway. For example oci-phx-objectstorage</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>is_stateless</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>yes</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>A stateless rule allows traffic in one direction. Remember to add a corresponding stateless rule in the other direction if you need to support bidirectional traffic. For example, if egress traffic allows TCP destination port 80, there should be an ingress rule to allow TCP source port 80. Defaults to false, which means the rule is stateful and a corresponding rule is not necessary for bidirectional traffic.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -272,12 +287,16 @@ Parameters
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
-                    <b>source</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <b>source_type</b>
+                                                                            </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>CIDR_BLOCK</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>SERVICE_CIDR_BLOCK</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
-                                            <div>The source CIDR block for the ingress rule. This is the range of IP addresses that a packet coming into the instance can come from.</div>
+                                            <div>Type of source for the rule. If the rule's source is an IP address range in CIDR notation, then the value should be CIDR_BLOCK.  If the rule's source is the cidr block value for a Service, then the value is SERVICE_CIDR_BLOCK.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -305,16 +324,12 @@ Parameters
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
-                    <b>is_stateless</b>
-                                                                            </td>
+                    <b>source</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li>yes</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
-                                                                                    </ul>
-                                                                            </td>
+                                                                                                                                                            </td>
                                                                 <td>
-                                            <div>A stateless rule allows traffic in one direction. Remember to add a corresponding stateless rule in the other direction if you need to support bidirectional traffic. For example, if ingress traffic allows TCP destination port 80, there should be an egress rule to allow TCP source port 80. Defaults to false, which means the rule is stateful and a corresponding rule is not necessary for bidirectional traffic.</div>
+                                            <div>The source CIDR block for the ingress rule. This is the range of IP addresses that a packet coming into the instance can come from. Allowed values are either IP address range in CIDR notation. For example 192.168.1.0/24 or the cidrBlock value for a Service, if you're setting up a security list rule for traffic coming from a particular service through a service gateway. For example oci-phx-objectstorage</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -326,6 +341,21 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                             <div>Valid only for TCP. Use to specify particular destination ports for TCP rules. If TCP specified as the protocol but omit this object, then all destination ports are allowed.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>is_stateless</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>yes</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>A stateless rule allows traffic in one direction. Remember to add a corresponding stateless rule in the other direction if you need to support bidirectional traffic. For example, if ingress traffic allows TCP destination port 80, there should be an egress rule to allow TCP source port 80. Defaults to false, which means the rule is stateful and a corresponding rule is not necessary for bidirectional traffic.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -481,8 +511,8 @@ Examples
     - name: Create a security list with rules
       oci_security_list:
         name: 'ansible_sec_list'
-        compartment_id: 'ocid.comprtment..aa'
-        vcn_id: 'ocid1.vcn..aa'
+        compartment_id: 'ocid.compartment..xxxxxEXAMPLExxxxx'
+        vcn_id: 'ocid1.vcn..xxxxxEXAMPLExxxxx'
         state: 'present'
         freeform_tags:
             region: 'east'
@@ -497,6 +527,10 @@ Examples
                 destination_port_range:
                     min: '22'
                     max: '22'
+          - source: 'oci-iad-objectstorage'
+            source_type: 'SERVICE_CIDR_BLOCK'
+            is_stateless: False
+            protocol: '6'
           - source: '0.0.0.0/0'
             is_stateless: False
             protocol: '1'
@@ -509,7 +543,7 @@ Examples
 
     - name: Update a security list by purging existing ingress rules
       oci_security_list:
-        security_list_id: 'ocid1.securitylist.aa'
+        security_list_id: 'ocid1.securitylist.xxxxxEXAMPLExxxxx'
         ingress_security_rules:
             - source: '10.0.0.0/8'
               is_stateless: False
@@ -524,7 +558,7 @@ Examples
     # Delete a security list
     - name: Delete a security list
       oci_security_list:
-        id: 'ocid1.securitylist.aa'
+        id: 'ocid1.securitylist.xxxxxEXAMPLExxxxx'
         state: 'absent'
 
 
@@ -552,7 +586,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created/updated Security List. For delete, deleted Security List description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'AVAILABLE', 'egress_security_rules': [{'icmp_options': None, 'udp_options': None, 'is_stateless': None, 'tcp_options': None, 'destination': '0.0.0.0/0', 'protocol': 'all'}], 'display_name': 'ansible_security_list_one', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'vcn_id': 'ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx', 'defined_tags': {'features': {'capacity': 'medium'}}, 'freeform_tags': {'region': 'east'}, 'time_created': '2017-11-24T05:33:44.779000+00:00', 'ingress_security_rules': [{'source': '0.0.0.0/0', 'icmp_options': None, 'udp_options': None, 'is_stateless': False, 'tcp_options': {'source_port_range': None, 'destination_port_range': {'max': 22, 'min': 22}}, 'protocol': '6'}, {'source': '0.0.0.0/0', 'icmp_options': {'code': 4, 'type': 3}, 'udp_options': None, 'is_stateless': False, 'tcp_options': None, 'protocol': '1'}, {'source': '10.0.0.0/16', 'icmp_options': {'code': None, 'type': 3}, 'udp_options': None, 'is_stateless': False, 'tcp_options': None, 'protocol': '1'}], 'id': 'ocid1.securitylist.oc1.phx.xxxxxEXAMPLExxxxx'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'AVAILABLE', 'egress_security_rules': [{'icmp_options': None, 'udp_options': None, 'destination_type': 'CIDR_BLOCK', 'tcp_options': None, 'destination': '0.0.0.0/0', 'is_stateless': None, 'protocol': 'all'}], 'display_name': 'ansible_security_list_one', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'vcn_id': 'ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx', 'defined_tags': {'features': {'capacity': 'medium'}}, 'freeform_tags': {'region': 'east'}, 'time_created': '2017-11-24T05:33:44.779000+00:00', 'ingress_security_rules': [{'source': '0.0.0.0/0', 'icmp_options': None, 'udp_options': None, 'source_type': 'CIDR_BLOCK', 'tcp_options': {'source_port_range': None, 'destination_port_range': {'max': 22, 'min': 22}}, 'is_stateless': False, 'protocol': '6'}, {'source': '0.0.0.0/0', 'icmp_options': {'code': 4, 'type': 3}, 'udp_options': None, 'source_type': 'CIDR_BLOCK', 'tcp_options': None, 'is_stateless': False, 'protocol': '1'}, {'source': 'oci-iad-objectstorage', 'icmp_options': {'code': None, 'type': 3}, 'udp_options': None, 'source_type': 'SERVICE_CIDR_BLOCK', 'tcp_options': None, 'is_stateless': False, 'protocol': '1'}], 'id': 'ocid1.securitylist.oc1.phx.xxxxxEXAMPLExxxxx'}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -580,7 +614,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Rules for allowing egress IP packets</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'icmp_options': None, 'udp_options': None, 'is_stateless': None, 'tcp_options': None, 'destination': '0.0.0.0/0', 'protocol': 'all'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'icmp_options': None, 'udp_options': None, 'destination_type': 'CIDR_BLOCK', 'tcp_options': None, 'destination': '0.0.0.0/0', 'is_stateless': None, 'protocol': 'all'}]</div>
                                     </td>
             </tr>
                                 <tr>
@@ -650,7 +684,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Rules for allowing ingress IP packets</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'source': '0.0.0.0/0', 'icmp_options': None, 'udp_options': None, 'is_stateless': None, 'tcp_options': {'source_port_range': None, 'destination_port_range': {'max': 22, 'min': 22}}, 'protocol': '6'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'source': '0.0.0.0/0', 'icmp_options': None, 'udp_options': None, 'source_type': 'CIDR_BLOCK', 'tcp_options&quot;': {'source_port_range': None, 'destination_port_range': {'max': 22, 'min': 22}}, 'protocol': '6', 'is_stateless': None}]</div>
                                     </td>
             </tr>
                                 <tr>

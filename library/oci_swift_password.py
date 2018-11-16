@@ -11,7 +11,7 @@ __metaclass__ = type
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
-    'status': ['preview'],
+    'status': ['deprecated'],
     'supported_by': 'community'
 }
 
@@ -20,11 +20,12 @@ DOCUMENTATION = '''
 module: oci_swift_password
 short_description: Create, update and delete Swift (OpenStack Object Store Service) passwords in OCI
 description:
-    - "This module allows the user to create, update and delete Swift passwords in OCI. Swift is the OpenStack object
-      storage service. A SwiftPassword is an Oracle-provided password for using a Swift client with the Oracle Cloud
-      Infrastructure Object Storage Service. This password is associated with the user's Console login. Swift passwords
-      never expire. A user can have up to two Swift passwords at a time. Note: The password is always an
-      Oracle-generated string; you can't change it to a string of your choice."
+    - This module allows the user to create, update and delete Swift passwords in OCI. This module is deprecated.
+      Please use M(oci_auth_token) instead. This module may be removed in a future release. Swift is the OpenStack
+      object storage service. A SwiftPassword is an Oracle-provided password for using a Swift client with the Oracle
+      Cloud Infrastructure Object Storage Service. This password is associated with the user's Console login. Swift
+      passwords never expire. A user can have up to two Swift passwords at a time. Note - The password is always an
+      Oracle-generated string; you can't change it to a string of your choice.
 version_added: "2.5"
 options:
     user_id:
@@ -74,7 +75,7 @@ EXAMPLES = '''
 RETURN = '''
 oci_swift_password:
     description: Details of the Swift password
-    returned: On success
+    returned: On success. The password is only returned only during creation.
     type: dict
     sample: {
             "description": "My first swift password description",
@@ -183,14 +184,14 @@ def create_swift_password(identity_client, user_id, description, module):
     try:
         cspd = CreateSwiftPasswordDetails()
         cspd.description = description
-        # create_response = oci_utils.call_with_backoff(identity_client.create_swift_password, user_id=user_id,
-        #                                               create_swift_password_details=cspd)
-        # sw_pass_id = create_response.data.id
+
         result = oci_utils.create_resource(resource_type=RESOURCE_NAME, create_fn=identity_client.create_swift_password,
                                            kwargs_create={"user_id": user_id, "create_swift_password_details": cspd},
                                            module=module)
         resource = result[RESOURCE_NAME]
         sw_pass_id = resource['id']
+        # cache the swift password's password as it is only provided during creation
+        cached_pass = resource['password']
         get_logger().info("Created Swift Password %s", to_dict(resource))
 
         response = identity_client.list_swift_passwords(user_id)
@@ -198,7 +199,10 @@ def create_swift_password(identity_client, user_id, description, module):
         oci.wait_until(identity_client, response,
                        evaluate_response=lambda resp: _is_swift_password_active(resp.data, sw_pass_id))
 
-        result[RESOURCE_NAME] = to_dict(_get_swift_password_from_id(identity_client, user_id, sw_pass_id, module))
+        sw_pass = _get_swift_password_from_id(identity_client, user_id, sw_pass_id, module)
+        # stuff the cached password in the returned swift_password model
+        sw_pass.password = cached_pass
+        result[RESOURCE_NAME] = to_dict(sw_pass)
         return result
     except ServiceError as ex:
         module.fail_json(msg=ex.message)

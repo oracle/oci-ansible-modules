@@ -36,24 +36,23 @@ Ansible also has an "batteries-included" approach, and bundles a lot of Modules 
 
 ### 6.1 Supported Services
 
-In the first version of the OCI Ansible modules, the following Services are supported:
+In the current version of the OCI Ansible modules, the following Services are supported:
+- Block Volume
 - Compute
-- Block Storage
-- Object Storage
+- Container Engine for Kubernetes Service (OKE)
+- Database (including support for Autonomous Transaction Processing and Autonomous Data Warehouse Services)
+- Domain Name System (DNS)
+- IAM
+- Load Balancing
 - Networking
-- Load Balancer
-- Database Service
-- Identity and Access Management
+- Object Storage
+- File Storage
+- Email Delivery
 
 Support for the following Services are not yet implemented. They would be implemented in future releases.
-- Email Delivery
-- File Storage
 - Audit
-- DNS
-- Networking B&C scenarios
-- Container Engine for Kubernetes
 - Archive Storage
-- Registry
+- Key Management Service
 
 ### 6.2 Prerequisites
 
@@ -62,6 +61,9 @@ Apart from Ansible, the OCI Ansible modules only require a properly configured i
 ### 6.3 Installation
 
 We recommend (though, not require) installation of these modules and its pre-requisites in a virtual-env. The ansible modules can be installed through an installer script (the installer script ensures that the various artifacts associated with the modules (such as documentation fragments, utility libraries and the modules) are placed in the right places for the Ansible implementation to pick up).
+
+
+![OCI ansible modules installation](quick-install.gif)
 
 ### 6.4 Dynamic Inventory
 

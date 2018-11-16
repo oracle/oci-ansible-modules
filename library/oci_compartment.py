@@ -140,15 +140,30 @@ def main():
 
     compartment_id = module.params['compartment_id']
 
+    # Check if the provided compartment_id is OCID of a tenancy(root compartment). If tenancy OCID is provided, it's
+    # supposed to be a call to create compartment in the tenancy else it's a call to update compartment.
     tenancy = None
     try:
         tenancy = oci_utils.call_with_backoff(identity_client.get_tenancy,
                                               tenancy_id=compartment_id).data
-    except ServiceError:
-        pass
+    except ServiceError as se:
+        if se.status == 404 and se.code == "TenantNotFound":
+            # the user has provided a compartment ocid, try to find a compartment with the provided value
+            try:
+                oci_utils.call_with_backoff(identity_client.get_compartment, compartment_id=compartment_id).data
+            except ServiceError as serr:
+                if serr.status == 404 and serr.code == "CompartmentNotFound":
+                    # If there exists no compartment, then it is likely a user error (an invalid compartment or tenancy
+                    # id)
+                    module.fail_json(msg="The provided compartment_id is an invalid tenancy or compartment ocid. Please"
+                                         "check the provided compartment_id")
+                else:
+                    # some other ServiceError trying to get compartment information
+                    module.fail_json(msg=se.message)
+        else:
+            # Some other ServiceError trying to get tenancy information
+            module.fail_json(msg=se.message)
 
-    # Check if the provided compartment_id is OCID of a tenancy(root compartment). If tenancy OCID is provided, it's
-    # supposed to be a call to create compartment in the tenancy else it's a call to update compartment.
     if tenancy is not None:
         result = oci_utils.check_and_create_resource(resource_type='compartment',
                                                      create_fn=create_compartment,

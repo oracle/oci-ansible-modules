@@ -93,7 +93,8 @@ RETURN = '''
                 description: The collection of rules for routing destination IPs to network devices.
                 returned: always
                 type: string
-                sample: [{'cidr_block': '0.0.0.0/0', 'network_entity_id': 'ocid1.internetgateway.aaa'}]
+                sample: [{'cidr_block': '0.0.0.0/0', 'destination': '0.0.0.0', 'destination_type': 'CIDR_BLOCK',
+                    'network_entity_id': 'ocid1.internetgateway.aaa'}]
             time_created:
                 description: Date and time when the Route Table was created, in
                              the format defined by RFC3339
@@ -111,11 +112,13 @@ RETURN = '''
                 "route_rules":[
                                 {
                                     "cidr_block":"0.0.0.0/0",
-                                    "network_entity_id":"ocid1.internetgateway.aaaa"
+                                    "network_entity_id":"ocid1.internetgateway.xxxxxEXAMPLExxxxx"
                                 },
                                 {
-                                    "cidr_block":"10.0.0.0/8",
-                                    "network_entity_id":"ocid1.internetgateway.aaaa"
+                                    "cidr_block": null,
+                                    "destination": "oci-phx-objectstorage",
+                                    "destination_type": "SERVICE_CIDR_BLOCK",
+                                    "network_entity_id":"ocid1.servicegateway.oc1.phx.xxxxxEXAMPLExxxxx"
                                 }
                             ],
                 "time_created":"2017-11-17T17:39:41.522000+00:00",
@@ -131,7 +134,7 @@ RETURN = '''
                 "route_rules":[
                                 {
                                     "cidr_block":"0.0.0.0/0",
-                                    "network_entity_id":"ocid1.internetgateway.aaaa"
+                                    "network_entity_id":"ocid1.internetgateway.xxxxxEXAMPLExxxxx"
                                 }
                             ],
                 "time_created":"2017-11-17T17:39:33.190000+00:00",

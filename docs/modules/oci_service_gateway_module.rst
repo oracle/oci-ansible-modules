@@ -97,10 +97,13 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>block_traffic</b>
-                                                                            </td>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
-                                    </td>
+                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
                                                                         <div>Whether the service gateway blocks all traffic through it. The default is false. When this is true, traffic is not routed to any services, regardless of route rules.</div>
                                                                                 </td>

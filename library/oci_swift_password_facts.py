@@ -10,7 +10,7 @@ __metaclass__ = type
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
-    'status': ['preview'],
+    'status': ['deprecated'],
     'supported_by': 'community'
 }
 
@@ -19,9 +19,10 @@ DOCUMENTATION = '''
 module: oci_swift_password_facts
 short_description: Retrieve details of swift passwords for a specified user
 description:
-    - This module retrieves details of swift passwords of a specified user. The returned object contains the swift
-      password's OCID, but not the password itself. The actual password is returned only upon creation of a swift
-      password using the M(oci_swift_password) module.
+    - This module retrieves details of swift passwords of a specified user. T This module is deprecated.
+      Please use M(oci_auth_token_facts) instead. This module may be removed in a future release. The returned object
+      contains the swift password's OCID, but not the password itself. The actual password is returned only upon
+      creation of a swift password using the M(oci_swift_password) module.
 version_added: "2.5"
 options:
     user_id:

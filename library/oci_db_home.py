@@ -300,7 +300,7 @@ def create_db_home(db_client, module):
         create_db_home_details.source = source
 
     for attribute in create_db_home_details.attribute_map.keys():
-        if attribute != 'database' and attribute != 'source':
+        if attribute not in ("database", "source"):
             create_db_home_details.__setattr__(
                 attribute, module.params.get(attribute))
     result = oci_utils.create_and_wait(resource_type='db_home',

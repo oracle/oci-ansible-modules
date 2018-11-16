@@ -4,7 +4,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.2.0] - 2018-10-04
+## [1.3.0] - 2018-11-16
+
+### Added
+- Modules to manage
+  - [NAT gateways](https://docs.cloud.oracle.com/iaas/Content/Network/Tasks/NATgateway.htm)
+  - [Volume groups](https://docs.cloud.oracle.com/iaas/Content/Block/Concepts/volumegroups.htm)
+  - [Volume group backups](https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/VolumeGroupBackup)
+  - [Policy-based volume backups](https://docs.cloud.oracle.com/iaas/Content/Block/Tasks/schedulingvolumebackups.htm)
+  - [Auth Tokens](https://docs.cloud.oracle.com/iaas/Content/Identity/Tasks/managingcredentials.htm?Highlight=Auth%20tokens#two)
+  - [Instance console connections](https://docs.cloud.oracle.com/iaas/Content/Compute/References/serialconsole.htm)
+  - [Serial console data/Console history](https://docs.cloud.oracle.com/iaas/Content/Compute/Tasks/displayingconsole.htm)
+  - [Instance Configurations and Instance Pools](https://docs.cloud.oracle.com/iaas/Content/Compute/Concepts/instancemanagement.htm)
+- Support for the following services:
+  - [Oracle Cloud Infrastructure File Storage Service](https://docs.cloud.oracle.com/iaas/Content/File/Concepts/filestorageoverview.htm)
+  - [Oracle Cloud Infrastructure Email Delivery Service](https://docs.cloud.oracle.com/iaas/Content/Email/Concepts/overview.htm)
+- Added the following features in existing modules:
+  - Options in `oci_boot_volume` module to support creating boot volumes
+  - Option in `oci_volume` module to support assigning a backup policy while creating a volume
+  - Enhanced wait support in `oci_node_pool` module
+  - Provision and terminate `exact_count` instances in parallel in the `oci_instance` module
+  - `oci_route_table` and `oci_security_list` supports the specification of a Service (via a Service Gateway) as a
+    destination/source for route and security rules.
+  - The `oci_inventory.py` dynamic inventory script supports Instance Principal authorization.
+- Samples to demonstrate:
+  - creating a File System and mounting it in a Compute instance and how to create a File system snapshot
+  - how a File System can be exported using two different export paths on two different mount targets
+  - how a Serial and VNC connection can be created for a compute instance
+  - how to create an instance pool to launch a set of compute instances based on an instance configuration
+
+### Changed
+- Minimum supported OCI Python SDK to `2.1.0`
+- Type of module option `block_traffic` in oci_service_gateway module changed to `bool`
+
+### Deprecated
+- The `oci_swift_password` and `oci_swift_password_facts` modules have been deprecated. Use `oci_auth_token` and `oci_auth_token_facts` instead.
+- The `cidr_block` sub-option in the `route_rules` option of `oci_route_rules` is deprecated. Use `destination` and `destination_type` (equal to `CIDR_BLOCK`) instead to specify a destination IP address in CIDR notation as the destination target for a route rule.
+
+## [1.2.0] - 2018-10-03
 
 ### Added
 - Modules to manage
@@ -57,5 +94,4 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
   - Database Service
   - Identity and Access Management
 - Provides a dynamic inventory script `oci_inventory.py` that helps you fetch the latest set of OCI compute instances and make them available for your playbooks to be executed upon.
-- Includes a catalog of Oracle Cloud Infrastructure Ansible module samples, in the [samples](samples) directory, that illustrate using the modules to carry out common infrastructure provisioning and configuration tasks. 
-
+- Includes a catalog of Oracle Cloud Infrastructure Ansible module samples, in the [samples](samples) directory, that illustrate using the modules to carry out common infrastructure provisioning and configuration tasks.
