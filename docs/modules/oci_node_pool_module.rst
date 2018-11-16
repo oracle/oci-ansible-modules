@@ -137,6 +137,17 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>count_of_nodes_to_wait</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>Number of nodes in the node pool to wait for getting into a lifecycle state specified using <em>wait_until</em> when <em>wait=yes</em> and <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>force_create</b>
                     <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
@@ -318,7 +329,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Whether to wait for create or delete operation to complete.</div>
+                                                                        <div>While creating or updating a node pool, whether to wait for a number of nodes specified using <em>count_of_nodes_to_wait</em> to be in a state specified using <em>wait_until</em>. While deleting a node pool, whether to wait for the associated work request to get into SUCCEEDED state.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -337,9 +348,10 @@ Parameters
                     <b>wait_until</b>
                                                                             </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">ACTIVE</div>
+                                    </td>
                                                                 <td>
-                                                                        <div>The lifecycle state to wait for the resource to transition into when <em>wait=yes</em>. By default, when <em>wait=yes</em>, we wait for the resource to get into ACTIVE/ATTACHED/AVAILABLE/PROVISIONED/ RUNNING applicable lifecycle state during create operation &amp; to get into DELETED/DETACHED/ TERMINATED lifecycle state during delete operation.</div>
+                                                                        <div>The lifecycle state of a node in node pool to wait for while creating or updating a node pool with <em>wait=yes</em>.</div>
                                                                                 </td>
             </tr>
                         </table>
@@ -359,7 +371,7 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Create a node pool
+    - name: Create a node pool and wait for atleast two nodes in the node pool to reach ACTIVE state before returning
       oci_node_pool:
         cluster_id: ocid1.cluster.oc1..xxxxxEXAMPLExxxxx
         compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
@@ -368,12 +380,16 @@ Examples
         node_image_name: "Oracle-Linux-7.4"
         node_shape: "VM.Standard1.1"
         quantity_per_subnet: 1
-        subnet_ids: ["ocid1.subnet.oc1..xxxxxEXAMPLExxxxx"]
+        subnet_ids:
+            - "ocid1.subnet.oc1..xxxxxEXAMPLExxxxx...abcd"
+            - "ocid1.subnet.oc1..xxxxxEXAMPLExxxxx...efgh"
+            - "ocid1.subnet.oc1..xxxxxEXAMPLExxxxx...ijkl"
         initial_node_labels:
           - key: "vm_type"
             value: "standard"
           - key: "stage"
             value: "dev"
+        count_of_nodes_to_wait: 2
 
     - name: Update node pool
       oci_node_pool:

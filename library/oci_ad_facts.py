@@ -17,9 +17,11 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = '''
 ---
 module: oci_ad_facts
-short_description: Retrieve details of availability domains in your tenancy
+short_description: Retrieve details of availability domains in your tenancy for a given region
 description:
-    - This module retrieves details of all availability domains in your tenancy.
+    - This module retrieves details of all availability domains in your tenancy. By default, the region configured
+      in your OCI SDK configuration is used. To retrieve details of all availability domains in your tenancy for a
+      different region, use I(region) to specify the region for which availability domains must be retrieved.
 version_added: "2.5"
 options:
     compartment_id:
@@ -32,9 +34,14 @@ extends_documentation_fragment: oracle
 '''
 
 EXAMPLES = '''
-- name: Get details of all the availability domains in your tenancy
+- name: Get details of all the availability domains in your tenancy (default configured region)
   oci_ad_facts:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq'
+
+- name: Get details of all the availability domains in your tenancy for a specified non-default region
+  oci_ad_facts:
+    compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq'
+    region: 'us-phoenix-1'
 '''
 
 RETURN = '''
@@ -105,6 +112,12 @@ def main():
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
+
+    # oci.identity.identity_client.IdentityClient#list_availability_domains uses the REGION in the config to get ADs
+    # for a specific region. So do not automatically redirect all
+    # oci.identity.identity_client.IdentityClient#list_availability_domains calls to the Home region while creating the
+    # service client
+    module.params['do_not_redirect_to_home_region'] = True
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 

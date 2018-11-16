@@ -17,7 +17,7 @@ oci_swift_password_facts - Retrieve details of swift passwords for a specified u
 
 Synopsis
 --------
-- This module retrieves details of swift passwords of a specified user. The returned object contains the swift password's OCID, but not the password itself. The actual password is returned only upon creation of a swift password using the :ref:`oci_swift_password <oci_swift_password_module>` module.
+- This module retrieves details of swift passwords of a specified user. T This module is deprecated. Please use :ref:`oci_auth_token_facts <oci_auth_token_facts_module>` instead. This module may be removed in a future release. The returned object contains the swift password's OCID, but not the password itself. The actual password is returned only upon creation of a swift password using the :ref:`oci_swift_password <oci_swift_password_module>` module.
 
 
 
@@ -316,7 +316,7 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+This module is flagged as **deprecated** which means that .
 
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.

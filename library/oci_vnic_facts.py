@@ -23,7 +23,7 @@ description:
 version_added: "2.5"
 options:
     vnic_id:
-        description: The OCID of the VNIC. Required for retrieving information about a specific VNIC attachment.
+        description: The OCID of the VNIC. Required for retrieving information about a specific VNIC.
         required: false
         aliases: ['id']
 

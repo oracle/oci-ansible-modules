@@ -49,13 +49,13 @@ EXAMPLES = '''
 # Get information about all Security List
 - name: Get information about all security list within a vcn and compartment
   oci_security_list_facts:
-    compartment_id: 'ocid.compartment..aa'
-    vcn_id: 'ocid.vcn..aa'
+    compartment_id: 'ocid.compartment..xxxxxEXAMPLExxxxx'
+    vcn_id: 'ocid.vcn..xxxxxEXAMPLExxxxx'
 
 # Get information about a specific Security List
 - name: Get information about security list by id
   oci_security_list_facts:
-    id: 'ocid1.securitylist.aa'
+    id: 'ocid1.securitylist.xxxxxEXAMPLExxxxx'
 '''
 
 RETURN = '''
@@ -118,6 +118,7 @@ RETURN = '''
                     "egress_security_rules":[
                                                 {
                                                     "destination":"0.0.0.0/0",
+                                                    "destination_type":"CIDR_BLOCK",
                                                     "icmp_options":null,
                                                     "is_stateless":null,
                                                     "protocol":"all",
@@ -132,6 +133,7 @@ RETURN = '''
                                                     "is_stateless":false,
                                                     "protocol":"6",
                                                     "source":"0.0.0.0/0",
+                                                    "source_type":"CIDR_BLOCK",
                                                     "tcp_options":{
                                                         "destination_port_range":{
                                                                                 "max":22,
@@ -149,6 +151,7 @@ RETURN = '''
                                                     "is_stateless":false,
                                                     "protocol":"1",
                                                     "source":"0.0.0.0/0",
+                                                    "source_type":"CIDR_BLOCK",
                                                     "tcp_options":null,
                                                     "udp_options":null
                                                 },
@@ -159,7 +162,8 @@ RETURN = '''
                                                     },
                                                     "is_stateless":false,
                                                     "protocol":"1",
-                                                    "source":"10.0.0.0/16",
+                                                    "source":"oci-iad-objectstorage",
+                                                    "source_type":"SERVICE_CIDR_BLOCK",
                                                     "tcp_options":null,
                                                     "udp_options":null
                                                 }
@@ -176,6 +180,7 @@ RETURN = '''
                     "egress_security_rules":[
                                                 {
                                                     "destination":"10.0.0.0/8",
+                                                    "destination_type":"CIDR_BLOCK",
                                                     "icmp_options":null,
                                                     "is_stateless":true,
                                                     "protocol":"all",
@@ -190,6 +195,7 @@ RETURN = '''
                                                     "is_stateless":false,
                                                     "protocol":"6",
                                                     "source":"0.0.0.0/0",
+                                                    "source_type":"CIDR_BLOCK",
                                                     "tcp_options":{
                                                         "destination_port_range":{
                                                                                 "max":45,
@@ -207,6 +213,7 @@ RETURN = '''
                                                     "is_stateless":false,
                                                     "protocol":"1",
                                                     "source":"0.0.0.0/0",
+                                                    "source_type":"CIDR_BLOCK",
                                                     "tcp_options":null,
                                                     "udp_options":null
                                                 }

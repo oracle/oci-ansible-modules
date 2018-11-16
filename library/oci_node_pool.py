@@ -71,12 +71,33 @@ options:
         required: false
         default: present
         choices: ['present', 'absent']
+    wait:
+        description: While creating or updating a node pool, whether to wait for a number of nodes specified using
+                     I(count_of_nodes_to_wait) to be in a state specified using I(wait_until). While deleting a node
+                     pool, whether to wait for the associated work request to get into SUCCEEDED state.
+        default: yes
+        required: false
+        type: bool
+    count_of_nodes_to_wait:
+        description: Number of nodes in the node pool to wait for getting into a lifecycle state specified using
+                     I(wait_until) when I(wait=yes) and I(state=present).
+        default: 1
+        required: false
+    wait_until:
+        description: The lifecycle state of a node in node pool to wait for while creating or updating a node pool with
+                     I(wait=yes).
+        required: false
+        default: ACTIVE
+    wait_timeout:
+        description: Time, in seconds, to wait when I(wait=yes).
+        required: false
+        default: 1200
 author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
+extends_documentation_fragment: [ oracle, oracle_creatable_resource ]
 '''
 
 EXAMPLES = '''
-- name: Create a node pool
+- name: Create a node pool and wait for atleast two nodes in the node pool to reach ACTIVE state before returning
   oci_node_pool:
     cluster_id: ocid1.cluster.oc1..xxxxxEXAMPLExxxxx
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
@@ -85,12 +106,16 @@ EXAMPLES = '''
     node_image_name: "Oracle-Linux-7.4"
     node_shape: "VM.Standard1.1"
     quantity_per_subnet: 1
-    subnet_ids: ["ocid1.subnet.oc1..xxxxxEXAMPLExxxxx"]
+    subnet_ids:
+        - "ocid1.subnet.oc1..xxxxxEXAMPLExxxxx...abcd"
+        - "ocid1.subnet.oc1..xxxxxEXAMPLExxxxx...efgh"
+        - "ocid1.subnet.oc1..xxxxxEXAMPLExxxxx...ijkl"
     initial_node_labels:
       - key: "vm_type"
         value: "standard"
       - key: "stage"
         value: "dev"
+    count_of_nodes_to_wait: 2
 
 - name: Update node pool
   oci_node_pool:
@@ -323,8 +348,7 @@ def update_node_pool(container_engine_client, module):
                                           kwargs_non_primitive_update={
                                               UpdateNodePoolDetails: "update_node_pool_details"},
                                           module=module,
-                                          update_attributes=UpdateNodePoolDetails().attribute_map.keys(),
-                                          wait_applicable=False
+                                          update_attributes=UpdateNodePoolDetails().attribute_map.keys()
                                           )
     return result
 
@@ -345,7 +369,9 @@ def create_node_pool(container_engine_client, module):
                 keyvalue.value = d.get("value")
                 initial_node_labels.append(keyvalue)
         create_node_pool_details.initial_node_labels = initial_node_labels
-
+    # Note: `wait` is "True" by default for `oci_node_pool`, unlike other resources because a node pool is only useful
+    # if atleast one node in the node pool reaches ACTIVE state (Installation of Helm components are delayed until a
+    # node is available).
     result = oci_ce_utils.create_and_wait(resource_type="node_pool",
                                           create_fn=container_engine_client.create_node_pool,
                                           kwargs_create={"create_node_pool_details": create_node_pool_details},
@@ -371,7 +397,9 @@ def main():
         node_image_name=dict(type='str', required=False),
         node_shape=dict(type='str', required=False),
         quantity_per_subnet=dict(type='int', required=False),
-        ssh_public_key=dict(type='str', required=False)
+        ssh_public_key=dict(type='str', required=False),
+        count_of_nodes_to_wait=dict(type=int, required=False, default=1),
+        wait_until=dict(type='str', required=False, default="ACTIVE")
     ))
 
     module = AnsibleModule(

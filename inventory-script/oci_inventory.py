@@ -18,8 +18,9 @@ name is specified.
 This script accepts following command line arguments:
 
 usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
-              [--profile PROFILE] [--compartment COMPARTMENT]
-              [--refresh-cache] [--debug]
+                        [--profile PROFILE] [--compartment COMPARTMENT]
+                        [--refresh-cache] [--debug]
+                        [--auth {api_key,instance_principal}]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -29,10 +30,19 @@ optional arguments:
                         OCI config file location
   --profile PROFILE     OCI config profile for connecting to OCI
   --compartment COMPARTMENT
-                        Name of the compartment
+                        Name of the compartment for which dynamic inventory must be generated. If you want to generate a
+                        dynamic inventory for the root compartment of the tenancy, specify the tenancy name as the name
+                        of the compartment.
   --refresh-cache, -r   Force refresh of cache by making API requests to OCI
                         (default: False - use cache files)
   --debug               Send debug messages to STDERR
+  --auth {api_key,instance_principal}
+                        The type of authentication to use for making API
+                        requests. By default, the API key in your config will
+                        be used. Set this option to `instance_principal` to
+                        use instance principal based authentication. This
+                        value can also be provided in the
+                        OCI_ANSIBLE_AUTH_TYPE environment variable.
 
 The script reads following environment variables:
 OCI_CONFIG_FILE,
@@ -47,6 +57,7 @@ OCI_USER_KEY_PASS_PHRASE,
 OCI_CACHE_DIR,
 OCI_CACHE_MAX_AGE,
 OCI_HOSTNAME_FORMAT
+OCI_ANSIBLE_AUTH_TYPE
 
 The inventory generated is by default grouped by each of the following:
 region
@@ -114,6 +125,7 @@ from six.moves import configparser
 
 try:
     import oci
+    from oci._vendor import requests
     from oci.retry import RetryStrategyBuilder
     from oci.constants import HEADER_NEXT_PAGE
     from oci.core.compute_client import ComputeClient
@@ -125,7 +137,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 
 
 def _get_retry_strategy():
@@ -169,10 +181,33 @@ def call_with_backoff(fn, **kwargs):
             return fn(**kwargs)
 
 
-class OCIInventory(object):
+def _is_instance_principal_auth(params):
+    # check if auth is set to `instance_principal`.
+    return params['auth'] == "instance_principal"
+
+
+def create_service_client(params, service_client_class):
+    kwargs = {}
+    if _is_instance_principal_auth(params):
+        try:
+            signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
+        except Exception as ex:
+            message = "Failed retrieving certificates from localhost. Instance principal based authentication is only" \
+                      "possible from within OCI compute instances. Exception: {0}".format(str(ex))
+            OCIInventory().log(message)
+            sys.exit()
+        kwargs['signer'] = signer
+
+    # Create service client class with the signer
+    client = service_client_class(params, **kwargs)
+
+    return client
+
+
+class OCIInventory:
     def __init__(self):
         self.inventory = {}  # Ansible Inventory
-        self.config = None
+        self.config = {}
 
         self.params = {
             "ini_file": os.path.join(os.path.dirname(os.path.realpath(__file__)), 'oci_inventory.ini'),
@@ -191,7 +226,8 @@ class OCIInventory(object):
             "debug": False,
             "hostname_format": "public_ip",
             "sanitize_names": True,
-            "replace_dash_in_names": False
+            "replace_dash_in_names": False,
+            "auth": "api_key"
         }
         self.parse_cli_args()
 
@@ -230,9 +266,13 @@ class OCIInventory(object):
         self.log("Using following parameters for OCI dynamic inventory:")
         self.log(self.params)
 
-        self.compute_client = ComputeClient(self.params)
-        self.identity_client = IdentityClient(self.params)
-        self.virtual_nw_client = VirtualNetworkClient(self.params)
+        self.compute_client = create_service_client(self.params, ComputeClient)
+        self.identity_client = create_service_client(self.params, IdentityClient)
+        self.virtual_nw_client = create_service_client(self.params, VirtualNetworkClient)
+
+        # For the case, when auth="instance_principal", tenancy_id is not available.
+        if self.params['auth'] == "instance_principal":
+            self.params['tenancy'] = self.get_tenancy_id()
 
         self.params['cache_file'] = os.path.join(self.params['cache_dir'], "ansible-oci.cache")
 
@@ -257,9 +297,20 @@ class OCIInventory(object):
         if self.params["debug"]:
             print(*args, file=sys.stderr, **kwargs)
 
+    def get_tenancy_id(self):
+        # Get the instance metadata using the HTTP endpoint.
+        GET_TENANCY_ID_URL = 'http://169.254.169.254/opc/v1/instance/compartmentId'
+        response = requests.get(GET_TENANCY_ID_URL)
+        compartment_id = response.text
+        # In case of nested compartments, the immediate compartment may not be the root compartment.
+        tenancy_id = call_with_backoff(self.identity_client.get_compartment,
+                                       compartment_id=compartment_id).data.compartment_id
+        return tenancy_id
+
     def read_config(self):
-        self.config = oci.config.from_file(file_location=self.params['config_file'],
-                                           profile_name=self.params['profile'])
+        if os.path.isfile(self.params['config_file']):
+            self.config = oci.config.from_file(file_location=self.params['config_file'],
+                                               profile_name=self.params['profile'])
 
         self.config["additional_user_agent"] = "Oracle-Ansible/{0}".format(__version__)
 
@@ -279,7 +330,8 @@ class OCIInventory(object):
             OCI_USER_FINGERPRINT='fingerprint',
             OCI_USER_KEY_FILE='key_file',
             OCI_USER_KEY_PASS_PHRASE='pass_phrase',
-            OCI_CONFIG_PROFILE='profile'
+            OCI_CONFIG_PROFILE='profile',
+            OCI_ANSIBLE_AUTH_TYPE='auth'
         )
 
         for env_var in os.environ:
@@ -330,12 +382,16 @@ class OCIInventory(object):
                                        call_with_backoff(self.virtual_nw_client.get_vcn,
                                                          vcn_id=subnet.vcn_id).data)
             oraclevcn_domain_name = ".oraclevcn.com"
-            return vnic.hostname_label + "." + subnet.dns_label + "." + vcn.dns_label + oraclevcn_domain_name
+            fqdn = vnic.hostname_label + "." + subnet.dns_label + "." + vcn.dns_label + oraclevcn_domain_name
+            self.log("FQDN for VNIC: {0} is {1}.".format(vnic.id, fqdn))
+            return fqdn
+
         elif self.params['hostname_format'] == 'private_ip':
+            self.log("Private IP for VNIC: {0} is {1}.".format(vnic.id, vnic.private_ip))
             return vnic.private_ip
-        if vnic.public_ip is not None:
-            return vnic.public_ip
-        return None
+
+        self.log("Public IP for VNIC: {0} is {1}.".format(vnic.id, vnic.public_ip))
+        return vnic.public_ip
 
     def build_inventory(self):
         self.log("Building inventory.")
@@ -351,28 +407,38 @@ class OCIInventory(object):
         self.vcns = {}
         self.subnets = {}
 
+        # Compartments(including the root compartment) from which the instances are to be retrieved.
         compartments = []
+        tenancy = call_with_backoff(self.identity_client.get_tenancy,
+                                    tenancy_id=self.params['tenancy']).data
         # If compartment name is specified.
         if self.params['compartment'] is not None:
-            # Get compartment with the specified name.
-            compartment = self.get_compartment(self.params['compartment'])
-            if compartment is not None:
-                compartments = [compartment]
+            # Check if the specified compartment name is same as tenancy's name.
+            if self.params['compartment'] == tenancy.name:
+                compartments = [tenancy]
+            else:
+                # Get compartment with the specified name.
+                compartment = self.get_compartment(self.params['compartment'])
+                if compartment is not None:
+                    compartments = [compartment]
 
         else:
             compartments = list_all_resources(target_fn=self.identity_client.list_compartments,
                                               compartment_id=self.params['tenancy'])
+            # Add root compartment to the compartment list as instance can also be launched in the root compartment.
+            compartments.append(tenancy)
 
         for compartment in compartments:
+            try:
+                vnic_attachments = list_all_resources(target_fn=self.compute_client.list_vnic_attachments,
+                                                      compartment_id=compartment.id)
 
-            vnic_attachments = list_all_resources(target_fn=self.compute_client.list_vnic_attachments,
-                                                  compartment_id=compartment.id)
+                for vnic_attachment in vnic_attachments:
+                    if vnic_attachment.lifecycle_state in ["ATTACHED"]:
 
-            for vnic_attachment in vnic_attachments:
-                if vnic_attachment.lifecycle_state in ["ATTACHED"]:
-                    try:
                         vnic = call_with_backoff(self.virtual_nw_client.get_vnic,
                                                  vnic_id=vnic_attachment.vnic_id).data
+                        self.log("VNIC {0} is attached to instance {1}.".format(vnic.id, vnic_attachment.instance_id))
 
                         host_name = self.get_host_name(vnic)
 
@@ -385,18 +451,10 @@ class OCIInventory(object):
 
                         self.inventory['all']['hosts'].append(host_name)
 
-                        # Group by region
-                        instance = call_with_backoff(self.compute_client.get_instance,
-                                                     instance_id=vnic_attachment.instance_id).data
-                        region_grp = self.sanitize("region_" + instance.region)
-                        self.inventory.setdefault(region_grp, {"hosts": []})
-                        self.inventory[region_grp]["hosts"].append(host_name)
-
                         # Group by availability domain
                         ad = self.sanitize(vnic_attachment.availability_domain)
                         self.inventory.setdefault(ad, {"hosts": []})
                         self.inventory[ad]["hosts"].append(host_name)
-                        self.add_child_group(region_grp, ad)
 
                         # Group by compartments
                         compartment_name = self.sanitize(compartment.name)
@@ -417,13 +475,22 @@ class OCIInventory(object):
                                                                      vcn_id=subnet.vcn_id).data)
                         self.inventory.setdefault(vcn.id, {"hosts": []})
                         self.inventory[vcn.id]["hosts"].append(host_name)
-                        self.add_child_group(region_grp, vcn.id)
                         self.add_child_group(vcn.id, subnet.id)
 
                         # Group by security list
                         for sec_list_id in subnet.security_list_ids:
                             self.inventory.setdefault(sec_list_id, {"hosts": []})
                             self.inventory[sec_list_id]["hosts"].append(host_name)
+
+                        # Group by region
+                        instance = call_with_backoff(self.compute_client.get_instance,
+                                                     instance_id=vnic_attachment.instance_id).data
+                        region_grp = self.sanitize("region_" + instance.region)
+                        self.inventory.setdefault(region_grp, {"hosts": []})
+                        self.inventory[region_grp]["hosts"].append(host_name)
+
+                        self.add_child_group(region_grp, ad)
+                        self.add_child_group(region_grp, vcn.id)
 
                         # Group by image OCID
                         if hasattr(instance.source_details, "image_id"):
@@ -444,7 +511,8 @@ class OCIInventory(object):
                         # Group by defined tags
                         for namespace in instance.defined_tags:
                             for key in instance.defined_tags[namespace]:
-                                defined_tag_group_name = self.sanitize(namespace + "#" + key + "=" + instance.defined_tags[namespace][key])
+                                defined_tag_group_name = self.sanitize(namespace + "#" + key + "=" +
+                                                                       instance.defined_tags[namespace][key])
                                 self.inventory.setdefault(defined_tag_group_name, {"hosts": []})
                                 self.inventory[defined_tag_group_name]["hosts"].append(host_name)
 
@@ -464,11 +532,11 @@ class OCIInventory(object):
 
                         self.inventory['_meta']['hostvars'][host_name] = to_dict(instance)
 
-                    except ServiceError as ex:
-                        if ex.status == 401:
-                            self.log(ex)
-                            sys.exit()
-                        self.log(ex)
+            except ServiceError as ex:
+                if ex.status == 401:
+                    self.log(ex)
+                    sys.exit()
+                self.log(ex)
 
     def parse_cli_args(self):
         parser = argparse.ArgumentParser(description='Produce an Ansible Inventory file based on OCI')
@@ -495,7 +563,9 @@ class OCIInventory(object):
 
         parser.add_argument('--compartment',
                             action='store',
-                            help='Name of the compartment')
+                            help='Name of the compartment for which dynamic inventory must be generated. If you want '
+                                 'to generate a dynamic inventory for the root compartment of the tenancy, specify the '
+                                 'tenancy name as the name of the compartment.')
 
         parser.add_argument('--refresh-cache',
                             '-r',
@@ -508,6 +578,14 @@ class OCIInventory(object):
                             action='store_true',
                             default=False,
                             help='Send debug messages to STDERR')
+
+        parser.add_argument('--auth',
+                            action='store',
+                            choices=['api_key', 'instance_principal'],
+                            help='The type of authentication to use for making API requests. By default, the API key '
+                                 'in your config will be used. Set this option to `instance_principal` to use instance '
+                                 'principal based authentication. This value can also be provided in the '
+                                 'OCI_ANSIBLE_AUTH_TYPE environment variable.')
 
         self.args = parser.parse_args()
 

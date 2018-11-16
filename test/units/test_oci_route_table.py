@@ -39,7 +39,6 @@ def virtual_network_client(mocker):
     return virtual_network_client.return_value
 
 
-
 @pytest.fixture()
 def update_route_table_patch(mocker):
     return mocker.patch.object(oci_route_table, 'update_route_table')
@@ -49,21 +48,26 @@ def update_route_table_patch(mocker):
 def get_existing_resource_patch(mocker):
     return mocker.patch.object(oci_utils, 'get_existing_resource')
 
+
 @pytest.fixture()
 def create_and_wait_patch(mocker):
     return mocker.patch.object(oci_utils, 'create_and_wait')
+
 
 @pytest.fixture()
 def update_and_wait_patch(mocker):
     return mocker.patch.object(oci_utils, 'update_and_wait')
 
+
 @pytest.fixture()
 def delete_and_wait_patch(mocker):
     return mocker.patch.object(oci_utils, 'delete_and_wait')
 
+
 @pytest.fixture()
 def check_and_create_resource_patch(mocker):
     return mocker.patch.object(oci_utils, 'check_and_create_resource')
+
 
 def test_create_or_update_route_table_create(virtual_network_client, check_and_create_resource_patch):
     route_table = get_route_table()
@@ -117,7 +121,6 @@ def test_create_route_table(virtual_network_client, create_and_wait_patch):
     assert result['route_table']['display_name'] == route_table.display_name
 
 
-
 def test_update_route_table_no_route_table_for_update(virtual_network_client):
     error_message = 'No Route Table'
     module = get_module(dict(rt_id='ocid1.routetable..xvdf'))
@@ -126,12 +129,14 @@ def test_update_route_table_no_route_table_for_update(virtual_network_client):
     except Exception as ex:
         assert error_message in str(ex.args)
 
+
 def test_update_route_table_name_changed(virtual_network_client, update_and_wait_patch):
     route_table = get_route_table()
     module = get_module(dict(display_name='updated_ansible_route_table'))
     update_and_wait_patch.return_value = dict(changed=True, route_table=route_table)
     result = oci_route_table.update_route_table(virtual_network_client, route_table, module)
     assert result['changed'] is True
+
 
 def test_update_route_table_freeform_tags_changed(virtual_network_client, update_and_wait_patch):
     route_table = get_route_table()
@@ -153,6 +158,17 @@ def test_update_route_table_input_route_rules_different(virtual_network_client, 
     route_table = get_route_table()
     route_rules = [{'cidr_block': '0.0.0.0/0', 'network_entity_id': 'oci1.internetgateway.abcd'},
                    {'cidr_block': '10.0.0.4/16', 'network_entity_id': 'oci1.internetgateway.efgh'}]
+    module = get_module(dict(route_rules=route_rules))
+    update_and_wait_patch.return_value = dict(changed=True, route_table=to_dict(route_table))
+    result = oci_route_table.update_route_table(virtual_network_client, route_table, module)
+    assert result['changed'] is True
+
+
+def test_update_route_table_service_cidr_input_route_rules_different(virtual_network_client, update_and_wait_patch):
+    route_table = get_route_table()
+    route_table.route_rules = [get_service_cidr_route_rule()]
+    route_rules = [{'destination': 'oci-ashburn-objectstorage', 'destination_type': RouteRule.DESTINATION_TYPE_SERVICE_CIDR_BLOCK,
+                    'network_entity_id': 'oci1.internetgateway.abcd'}]
     module = get_module(dict(route_rules=route_rules))
     update_and_wait_patch.return_value = dict(changed=True, route_table=to_dict(route_table))
     result = oci_route_table.update_route_table(virtual_network_client, route_table, module)
@@ -248,7 +264,7 @@ def get_route_table():
     route_table.time_created = '2017-11-15T16:48:06.784000+00:00'
     route_table.vcn_id = 'ocid1.vcn.oc1.phx.aa'
     route_table.freeform_tags = {'route_type': 'internet'}
-    route_table.defined_tags = {'admin_type': {'admin_role':'super_user'}}
+    route_table.defined_tags = {'admin_type': {'admin_role': 'super_user'}}
 
     return route_table
 
@@ -256,7 +272,17 @@ def get_route_table():
 def get_common_route_rule():
     route_rule = RouteRule()
     route_rule.cidr_block = '0.0.0.0/0'
+    route_rule.destination = '0.0.0.0/0'
+    route_rule.destination_type = RouteRule.DESTINATION_TYPE_CIDR_BLOCK
     route_rule.network_entity_id = 'oci1.internetgateway.abcd'
+    return route_rule
+
+
+def get_service_cidr_route_rule():
+    route_rule = RouteRule()
+    route_rule.destination = 'oci-phx-objectstorage'
+    route_rule.destination_type = RouteRule.DESTINATION_TYPE_SERVICE_CIDR_BLOCK
+    route_rule.network_entity_id = 'oci1.servicegateway.abcd'
     return route_rule
 
 
@@ -269,6 +295,7 @@ def get_route_rules():
     route_rule2.network_entity_id = 'oci1.internetgateway.efgh'
     return [route_rule1, route_rule2]
 
+
 def get_hashed_route_rules(route_rules):
     route_rules_reprs = []
     supported_route_rule_attributes = ['cidr_block', 'network_entity_id']
@@ -277,6 +304,7 @@ def get_hashed_route_rules(route_rules):
             RouteRule, route_rule, supported_attributes=supported_route_rule_attributes)
         route_rules_reprs.append(hashed_route_rule)
     return route_rules_reprs
+
 
 def get_module(additional_properties):
     params = {'display_name': 'ansible_route_table',

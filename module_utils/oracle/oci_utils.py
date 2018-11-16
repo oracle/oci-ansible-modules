@@ -25,7 +25,7 @@ from oci.util import to_dict, Sentinel
 
 from ansible.module_utils.basic import _load_params
 
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -34,7 +34,7 @@ DEAD_STATES = ["TERMINATING", "TERMINATED", "FAULTY", "FAILED", "DELETING", "DEL
                "DETACHING", "DETACHED"]
 
 # If a resource is in one of these states it would be considered available
-DEFAULT_READY_STATES = ["AVAILABLE", "ACTIVE", "RUNNING", "PROVISIONED", "ATTACHED", "ASSIGNED"]
+DEFAULT_READY_STATES = ["AVAILABLE", "ACTIVE", "RUNNING", "PROVISIONED", "ATTACHED", "ASSIGNED", "SUCCEEDED"]
 
 # If a resource is in one of these states, it would be considered deleted
 DEFAULT_TERMINATED_STATES = ["TERMINATED", "DETACHED", "DELETED"]
@@ -134,7 +134,8 @@ def get_oci_config(module, service_client_class=None):
                        env_var_name="OCI_REGION", config_attr_name="region")
 
     # Redirect calls to home region for IAM service.
-    if service_client_class == IdentityClient:
+    do_not_redirect = module.params.get('do_not_redirect_to_home_region', False)
+    if service_client_class == IdentityClient and not do_not_redirect:
         _debug("Region passed for module invocation - {0} ".format(config['region']))
         identity_client = IdentityClient(config)
         region_subscriptions = identity_client.list_region_subscriptions(config['tenancy']).data
@@ -328,7 +329,7 @@ def check_and_update_attributes(target_instance, attr_name, input_value, existin
 
 def check_and_update_resource(resource_type, get_fn, kwargs_get, update_fn, primitive_params_update,
                               kwargs_non_primitive_update, module, update_attributes, client=None,
-                              sub_attributes_of_update_model=None):
+                              sub_attributes_of_update_model=None, wait_applicable=True):
     """
     This function handles update operation on a resource. It checks whether update is required and accordingly returns
     the resource and the changed status.
@@ -355,7 +356,7 @@ def check_and_update_resource(resource_type, get_fn, kwargs_get, update_fn, prim
             kwargs_update = get_kwargs_update(attributes_to_update, kwargs_non_primitive_update, module,
                                               primitive_params_update, sub_attributes_of_update_model)
             resource = call_with_backoff(update_fn, **kwargs_update).data
-            if client is not None:
+            if wait_applicable and client is not None:
                 resource = wait_for_resource_lifecycle_state(
                     client, module, True, kwargs_get, get_fn, None, resource, None)
             result['changed'] = True
@@ -441,10 +442,10 @@ def get_attr_to_update(get_fn, kwargs_get, module, update_attributes):
         resources_attr_value = getattr(resource, attr, None)
         user_provided_attr_value = module.params.get(attr, None)
 
-        unequal_list_attr = ((type(resources_attr_value) == list or type(user_provided_attr_value) == list) and
-                             not are_lists_equal(user_provided_attr_value, resources_attr_value))
-        unequal_attr = (type(resources_attr_value) != list and to_dict(resources_attr_value) !=
-                        to_dict(user_provided_attr_value))
+        unequal_list_attr = (type(resources_attr_value) == list or type(user_provided_attr_value) == list) and \
+            not are_lists_equal(user_provided_attr_value, resources_attr_value)
+        unequal_attr = type(resources_attr_value) != list and to_dict(resources_attr_value) != \
+            to_dict(user_provided_attr_value)
         if unequal_list_attr or unequal_attr:
             # only update if the user has explicitly provided a value for this attribute
             # otherwise, no update is necessary because the user hasn't expressed a particular
@@ -505,7 +506,7 @@ def add_tags_to_model_class(model, freeform_tags, defined_tags):
 
 def check_and_create_resource(resource_type, create_fn, kwargs_create, list_fn, kwargs_list,
                               module, model, existing_resources=None, exclude_attributes=None, dead_states=None,
-                              default_attribute_values=None):
+                              default_attribute_values=None, supports_sort_by_time_created=True):
     """
     This function checks whether there is a resource with same attributes as specified in the module options. If not,
     it creates and returns the resource.
@@ -538,7 +539,8 @@ def check_and_create_resource(resource_type, create_fn, kwargs_create, list_fn, 
         default_attribute_values = {}
     try:
         if existing_resources is None:
-            kwargs_list["sort_by"] = "TIMECREATED"
+            if supports_sort_by_time_created:
+                kwargs_list["sort_by"] = "TIMECREATED"
             existing_resources = list_all_resources(list_fn, **kwargs_list)
     except ValueError:
         # list_fn doesn't support sort_by, so remove the sort_by key in kwargs_list and retry
@@ -557,6 +559,8 @@ def check_and_create_resource(resource_type, create_fn, kwargs_create, list_fn, 
     if "defined_tags" not in default_attribute_values:
         default_attribute_values["defined_tags"] = {}
     resource_matched = None
+    _debug("Trying to find a match within {0} existing resources".format(len(existing_resources)))
+
     for resource in existing_resources:
         if _is_resource_active(resource, dead_states):
             _debug("Comparing user specified values {0} against an existing resource's "
@@ -948,7 +952,7 @@ def create_and_wait(resource_type, client, create_fn, kwargs_create, get_fn, get
     """
     try:
         return create_or_update_resource_and_wait(resource_type, create_fn, kwargs_create, module, wait_applicable,
-                                                  get_fn, get_param, states, client, kwargs_get=None)
+                                                  get_fn, get_param, states, client, kwargs_get)
     except MaximumWaitTimeExceeded as ex:
         module.fail_json(msg=str(ex))
     except ServiceError as ex:
@@ -982,7 +986,9 @@ def update_and_wait(resource_type, client, update_fn, kwargs_update, get_fn, get
         module.fail_json(msg=ex.message)
 
 
-def create_or_update_resource_and_wait(resource_type, function, kwargs_function, module, wait_applicable, get_fn, get_param, states, client, kwargs_get=None):
+def create_or_update_resource_and_wait(resource_type, function, kwargs_function, module, wait_applicable, get_fn,
+                                       get_param, states, client, update_target_resource_id_in_get_param=False,
+                                       kwargs_get=None):
     """
     A utility function to create or update a resource and wait for the resource to get into the state as specified in
     the module options.
@@ -1008,8 +1014,7 @@ def create_or_update_resource_and_wait(resource_type, function, kwargs_function,
     return result
 
 
-def wait_for_resource_lifecycle_state(client, module, wait_applicable, kwargs_get, get_fn, get_param,
-                                      resource, states):
+def wait_for_resource_lifecycle_state(client, module, wait_applicable, kwargs_get, get_fn, get_param, resource, states):
     """
     A utility function to  wait for the resource to get into the state as specified in
     the module options.
@@ -1027,8 +1032,10 @@ def wait_for_resource_lifecycle_state(client, module, wait_applicable, kwargs_ge
     """
     if wait_applicable and module.params.get('wait', None):
         if kwargs_get:
+            _debug("Waiting for resource to reach READY state. get_args: {0}".format(kwargs_get))
             response_get = call_with_backoff(get_fn, **kwargs_get)
         else:
+            _debug("Waiting for resource with id {0} to reach READY state.".format(resource['id']))
             response_get = call_with_backoff(get_fn, **{get_param: resource['id']})
         if states is None:
             states = module.params.get('wait_until') or DEFAULT_READY_STATES
@@ -1059,6 +1066,7 @@ def delete_and_wait(resource_type, client, get_fn, kwargs_get, delete_fn, kwargs
     """
 
     result = dict(changed=False)
+    result[resource_type] = dict()
     try:
         resource = to_dict(call_with_backoff(get_fn, **kwargs_get).data)
         if resource:
@@ -1185,7 +1193,7 @@ def _get_retry_strategy():
                                                   retry_base_sleep_time_seconds=3,
                                                   backoff_type=oci.retry.BACKOFF_FULL_JITTER_EQUAL_ON_THROTTLE_VALUE)
     retry_strategy_builder.add_service_error_check(
-        service_error_retry_config={429: [], 400: ['QuotaExceeded', 'LimitExceeded']},
+        service_error_retry_config={429: [], 400: ['QuotaExceeded', 'LimitExceeded'], 409: ['Conflict']},
         service_error_retry_on_any_5xx=True)
     return retry_strategy_builder.get_retry_strategy()
 
@@ -1410,3 +1418,37 @@ def get_component_list_difference(input_component_list, existing_components, pur
     if components_differences:
         return list(components_differences) + existing_components, True
     return None, False
+
+
+def write_to_file(path, content):
+    with open(path, 'wb') as dest_file:
+        dest_file.write(content)
+
+
+def get_target_resource_from_list(module, list_resource_fn, target_resource_id=None, **kwargs):
+    """
+    Returns a resource filtered by identifer from a list of resources. This method should be
+    used as an alternative of 'get resource' method when 'get resource' is nor provided by
+    resource api. This method returns a wrapper of response object but that should not be
+    used as an input to 'wait_until' utility as this is only a partial wrapper of response object.
+    :param module The AnsibleModule representing the options provided by the user
+    :param list_resource_fn The function which lists all the resources
+    :param target_resource_id The identifier of the resource which should be filtered from the list
+    :param kwargs A map of arguments consisting of values based on which requested resource should be searched
+    :return: A custom wrapper which partially wraps a response object where the data field contains the target
+     resource, if found.
+    """
+    class ResponseWrapper:
+        def __init__(self, data):
+            self.data = data
+    try:
+        resources = list_all_resources(list_resource_fn, **kwargs)
+        if resources is not None:
+            for resource in resources:
+                if resource.id == target_resource_id:
+                    # Returning an object that mimics an OCI response as oci_utils methods assumes an Response-ish
+                    # object
+                    return ResponseWrapper(data=resource)
+        return ResponseWrapper(data=None)
+    except ServiceError as ex:
+        module.fail_json(msg=ex.message)

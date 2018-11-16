@@ -105,7 +105,7 @@ def main():
     print("Copying OCI Ansible modules from {} to {}".format(roles_library_path, oracle_module_dir_path))
     copy_files(os.listdir(roles_library_path), roles_library_path, oracle_module_dir_path)
 
-    print("oci-ansible-role installed successfully.")
+    print("OCI Ansible modules installed successfully.")
 
 
 def copy_files(files, src_dir, dest_dir):

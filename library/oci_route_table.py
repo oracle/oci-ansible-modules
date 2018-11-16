@@ -59,11 +59,28 @@ options:
         suboptions:
             cidr_block:
                 description: A destination IP address range in CIDR notation. Matching packets
-                             will be routed to the indicated network entity (the target).
-                required: true
+                             will be routed to the indicated network entity (the target). This
+                             option is deprecated, use destination and destination_type instead.
+                required: false
+            destination:
+                description: Conceptually, this is the range of IP addresses used for matching when
+                             routing traffic. Required if you provide a destination_type. Allowed
+                             values are, IP address range in CIDR notation (For example, 192.168.1.0/24)
+                             or The cidr_block value for a service, if you're setting up a route rule for
+                             traffic destined for a particular service through a service gateway
+                             (For example, oci-phx-objectstorage).
+
+                required: false
+            destination_type:
+                description: Type of destination for the rule. Required if you provide a destination. If the
+                             rule's destination is an IP address range in CIDR notation, the value should be
+                             CIDR_BLOCK.If the rule's destination is the cidr_block value for a service, the
+                             value should be SERVICE_CIDR_BLOCK.
+                required: false
+                choices: ['CIDR_BLOCK', 'SERVICE_CIDR_BLOCK']
             network_entity_id:
-                description: The identifier  for the target of route rules, such as identifier
-                             of the Internet Gateway.
+                description: The identifier for the target of route rules, such as identifier
+                             of the Internet Gateway or Service Gateway.
                 required: true
     purge_route_rules:
         description: Purge route rules in existing Route Table which are not present in the provided
@@ -89,12 +106,15 @@ EXAMPLES = '''
 # Create/update Route Table
 - name: Create a Route Table with a route rule
   oci_route_table:
-    compartment_id: 'ocid1.compartment..xdsc'
-    vcn_id: 'ocid1.vcn..aaaa'
+    compartment_id: 'ocid1.compartment..xxxxxEXAMPLExxxxx'
+    vcn_id: 'ocid1.vcn..xxxxxEXAMPLExxxxx'
     name: 'ansible_route_table'
     route_rules:
         - cidr_block: '10.0.0.0/8'
-          network_entity_id: 'ocid1.internetgateway..rrrr'
+          network_entity_id: 'ocid1.internetgateway..xxxxxEXAMPLExxxxx'
+        - destination: 'oci-phx-objectstorage'
+          destination_type: 'SERVICE_CIDR_BLOCK'
+          network_entity_id: 'ocid1.servicegateway..xxxxxEXAMPLExxxxx'
     freeform_tags:
         region: 'east'
     defined_tags:
@@ -105,7 +125,7 @@ EXAMPLES = '''
 # Update Route Table with rt id
 - name: Update the display name of a Route Table
   oci_route_table:
-    rt_id: 'ocid1.routetable..xdsc'
+    rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
     display_name: 'ansible_route_table_updated'
     state: 'present'
 
@@ -114,7 +134,7 @@ EXAMPLES = '''
 # specified set of route rules.
 - name: Update a Route Table with purge route rules
   oci_route_table:
-    rt_id: 'ocid1.routetable..xdsc'
+    rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
     purge_route_rules: 'yes'
     route_rules:
         - cidr_block: '10.0.0.0/12'
@@ -124,7 +144,7 @@ EXAMPLES = '''
 # Delete Route Table
 - name: Delete Route Table
   oci_route_table:
-    rt_id: 'ocid1.routetable..xdsc'
+    rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
     state: 'absent'
 '''
 
@@ -166,8 +186,8 @@ RETURN = '''
                 description: The collection of rules for routing destination IPs to network devices.
                 returned: always
                 type: string
-                sample: [{'cidr_block': '0.0.0.0/0',
-                    'network_entity_id': 'ocid1.internetgateway.aaa'}]
+                sample: [{'cidr_block': '0.0.0.0/0', 'destination': '0.0.0.0', 'destination_type': 'CIDR_BLOCK',
+                    'network_entity_id': 'ocid1.internetgateway.xxxxxEXAMPLExxxxx'}]
             time_created:
                 description: Date and time when the Route Table was created, in
                              the format defined by RFC3339
@@ -184,7 +204,15 @@ RETURN = '''
                     "route_rules":[
                                     {
                                         "cidr_block":"0.0.0.0/0",
+                                        "destination": "0.0.0.0",
+                                        "destination_type": "CIDR_BLOCK",
                                         "network_entity_id":"ocid1.internetgateway.oc1.phx.xxxxxEXAMPLExxxxx"
+                                    },
+                                    {
+                                        "cidr_block": null,
+                                        "destination": "oci-phx-objectstorage",
+                                        "destination_type": "SERVICE_CIDR_BLOCK",
+                                        "network_entity_id":"ocid1.servicegateway.oc1.phx.xxxxxEXAMPLExxxxx"
                                     }
                                 ],
                     "time_created":"2017-11-17T17:39:33.190000+00:00",
@@ -268,6 +296,20 @@ def get_route_rules(input_route_rules):
         route_rule = RouteRule()
         for attribute in route_rule.attribute_map:
             route_rule.__setattr__(attribute, route_rule_dict.get(attribute))
+
+        # This is a temporary fix till deprecated cidr_block parameter gets removed.
+        # Right now, the value of destination gets updated in cidr_block and vice-versa
+        # after route rule gets created. This causes problem in idempotency. So performing the same
+        # while creating input route table.
+        if route_rule_dict.get('destination') is None:
+            route_rule.__setattr__('destination', route_rule_dict.get('cidr_block'))
+        elif (route_rule_dict.get('cidr_block') is None and
+              route_rule_dict.get('destination_type') != RouteRule.DESTINATION_TYPE_SERVICE_CIDR_BLOCK):
+            route_rule.__setattr__('cidr_block', route_rule_dict.get('destination'))
+
+        if route_rule_dict.get('destination_type') is None:
+            route_rule.__setattr__('destination_type', RouteRule.DESTINATION_TYPE_CIDR_BLOCK)
+
         route_rules.append(route_rule)
     return route_rules
 
@@ -320,7 +362,7 @@ def update_route_table(virtual_network_client, existing_route_table, module):
 
 def get_hashed_route_rules(route_rules):
     route_rules_reprs = []
-    supported_route_rule_attributes = ['cidr_block', 'network_entity_id']
+    supported_route_rule_attributes = ['cidr_block', 'destination', 'destination_type', 'network_entity_id']
     for route_rule in route_rules:
         hashed_route_rule = oci_utils.get_hashed_object(
             RouteRule, route_rule, supported_attributes=supported_route_rule_attributes)

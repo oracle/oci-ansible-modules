@@ -222,11 +222,22 @@ Parameters
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
                     <b>cidr_block</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                                                            </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>A destination IP address range in CIDR notation. Matching packets will be routed to the indicated network entity (the target).</div>
+                                            <div>A destination IP address range in CIDR notation. Matching packets will be routed to the indicated network entity (the target). This option is deprecated, use destination and destination_type instead.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>destination</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Conceptually, this is the range of IP addresses used for matching when routing traffic. Required if you provide a destination_type. Allowed values are, IP address range in CIDR notation (For example, 192.168.1.0/24) or The cidr_block value for a service, if you're setting up a route rule for traffic destined for a particular service through a service gateway (For example, oci-phx-objectstorage).</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -237,7 +248,22 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The identifier  for the target of route rules, such as identifier of the Internet Gateway.</div>
+                                            <div>The identifier for the target of route rules, such as identifier of the Internet Gateway or Service Gateway.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>destination_type</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>CIDR_BLOCK</li>
+                                                                                                                                                                                                <li>SERVICE_CIDR_BLOCK</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>Type of destination for the rule. Required if you provide a destination. If the rule's destination is an IP address range in CIDR notation, the value should be CIDR_BLOCK.If the rule's destination is the cidr_block value for a service, the value should be SERVICE_CIDR_BLOCK.</div>
                                                         </td>
             </tr>
                     
@@ -342,12 +368,15 @@ Examples
     # Create/update Route Table
     - name: Create a Route Table with a route rule
       oci_route_table:
-        compartment_id: 'ocid1.compartment..xdsc'
-        vcn_id: 'ocid1.vcn..aaaa'
+        compartment_id: 'ocid1.compartment..xxxxxEXAMPLExxxxx'
+        vcn_id: 'ocid1.vcn..xxxxxEXAMPLExxxxx'
         name: 'ansible_route_table'
         route_rules:
             - cidr_block: '10.0.0.0/8'
-              network_entity_id: 'ocid1.internetgateway..rrrr'
+              network_entity_id: 'ocid1.internetgateway..xxxxxEXAMPLExxxxx'
+            - destination: 'oci-phx-objectstorage'
+              destination_type: 'SERVICE_CIDR_BLOCK'
+              network_entity_id: 'ocid1.servicegateway..xxxxxEXAMPLExxxxx'
         freeform_tags:
             region: 'east'
         defined_tags:
@@ -358,7 +387,7 @@ Examples
     # Update Route Table with rt id
     - name: Update the display name of a Route Table
       oci_route_table:
-        rt_id: 'ocid1.routetable..xdsc'
+        rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
         display_name: 'ansible_route_table_updated'
         state: 'present'
 
@@ -367,7 +396,7 @@ Examples
     # specified set of route rules.
     - name: Update a Route Table with purge route rules
       oci_route_table:
-        rt_id: 'ocid1.routetable..xdsc'
+        rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
         purge_route_rules: 'yes'
         route_rules:
             - cidr_block: '10.0.0.0/12'
@@ -377,7 +406,7 @@ Examples
     # Delete Route Table
     - name: Delete Route Table
       oci_route_table:
-        rt_id: 'ocid1.routetable..xdsc'
+        rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
         state: 'absent'
 
 
@@ -405,7 +434,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created/updated Route Table. For delete, deleted Route Table description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'AVAILABLE', 'display_name': 'ansible_route_table', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'vcn_id': 'ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx', 'route_rules': [{'cidr_block': '0.0.0.0/0', 'network_entity_id': 'ocid1.internetgateway.oc1.phx.xxxxxEXAMPLExxxxx'}], 'defined_tags': {'features': {'capacity': 'medium'}}, 'freeform_tags': {'region': 'east'}, 'time_created': '2017-11-17T17:39:33.190000+00:00', 'id': 'ocid1.routetable.oc1.phx.xxxxxEXAMPLExxxxx'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'AVAILABLE', 'display_name': 'ansible_route_table', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'vcn_id': 'ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx', 'route_rules': [{'cidr_block': '0.0.0.0/0', 'destination': '0.0.0.0', 'network_entity_id': 'ocid1.internetgateway.oc1.phx.xxxxxEXAMPLExxxxx', 'destination_type': 'CIDR_BLOCK'}, {'cidr_block': None, 'destination': 'oci-phx-objectstorage', 'network_entity_id': 'ocid1.servicegateway.oc1.phx.xxxxxEXAMPLExxxxx', 'destination_type': 'SERVICE_CIDR_BLOCK'}], 'defined_tags': {'features': {'capacity': 'medium'}}, 'freeform_tags': {'region': 'east'}, 'time_created': '2017-11-17T17:39:33.190000+00:00', 'id': 'ocid1.routetable.oc1.phx.xxxxxEXAMPLExxxxx'}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -475,7 +504,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The collection of rules for routing destination IPs to network devices.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'cidr_block': '0.0.0.0/0', 'network_entity_id': 'ocid1.internetgateway.aaa'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'cidr_block': '0.0.0.0/0', 'destination': '0.0.0.0', 'network_entity_id': 'ocid1.internetgateway.xxxxxEXAMPLExxxxx', 'destination_type': 'CIDR_BLOCK'}]</div>
                                     </td>
             </tr>
                                 <tr>

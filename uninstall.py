@@ -77,7 +77,7 @@ def main():
     oracle_module_dir_path = os.path.join(ansible_path, 'modules', 'cloud', 'oracle')
     delete(oracle_module_dir_path)
 
-    print("Uninstalled oci-ansible-role successfully.")
+    print("Uninstalled OCI Ansible modules successfully.")
 
 
 def delete(paths):

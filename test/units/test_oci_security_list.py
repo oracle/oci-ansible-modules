@@ -137,8 +137,8 @@ def test_create_or_update_security_list_timeout_error(virtual_network_client, ch
 
 def test_create_security_list(virtual_network_client, create_and_wait_patch):
     ingress_security_rules = [{"icmp_options": None, "is_stateless": None, "protocol": "6",
-                               "source": "0.0.0.0/0", "tcp_options": {"destination_port_range": {"max": 22, "min": 22},
-                                                                      "source_port_range": None}, "udp_options": None},
+                               "source": "0.0.0.0/0", "source_type": "CIDR_BLOCK", "tcp_options": {"destination_port_range": {"max": 22, "min": 22},
+                                                                                                   "source_port_range": None}, "udp_options": None},
                               {"icmp_options": {"code": 4, "type": 3}, "is_stateless": None, "protocol": "1",
                                "source": "0.0.0.0/0", "tcp_options": None, "udp_options": None}]
     egress_security_rules = [{"destination": "0.0.0.0/0", "protocol": "17",
@@ -365,7 +365,6 @@ def test_get_security_rules_difference_no_existing_rule():
     assert len(result) is 3
 
 
-
 def test_get_final_security_rules_empty_input_security_rule():
     existing_egress_rules = get_security_rules(
         'egress', 'hashed', None,  None, None,  False, '10.0.0.0/0', '0.0.0.0/0', '10.0.0.0/16', '3', None)
@@ -373,7 +372,6 @@ def test_get_final_security_rules_empty_input_security_rule():
     result, changed = oci_utils.check_and_return_component_list_difference(None, existing_egress_rules, False)
     assert changed is True
     assert not result
-
 
 
 def test_get_final_security_rules_rule_changed(get_security_rules_patch):

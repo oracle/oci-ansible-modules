@@ -173,7 +173,7 @@ def db_node_action(db_client, module, existing_db_node):
                  existing_db_node.lifecycle_state)
     if (existing_db_node.lifecycle_state != desired_lifecycle_states[
         input_action] and existing_db_node.lifecycle_state != intermediate_states[input_action]) or (
-            input_action == 'reset' or input_action == 'softreset'):
+            input_action in ("reset", "softreset")):
         logger.info("Changing state of DB Node %s from %s to %s", existing_db_node.id,
                     existing_db_node.lifecycle_state, desired_lifecycle_states[input_action])
         result = oci_db_utils.execute_function_and_wait(resource_type='db_node',

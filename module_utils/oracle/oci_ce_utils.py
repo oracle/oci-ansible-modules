@@ -14,6 +14,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
+
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
 DEFAULT_READY_STATES = ["AVAILABLE", "ACTIVE", "RUNNING", "PROVISIONED", "ATTACHED", "ASSIGNED"]
@@ -71,7 +72,8 @@ def wait_on_resource(client, module, get_fn, kwargs_get, states, evaluate_respon
         else:
             wait_response = oci.wait_until(client,
                                            get_fn(**kwargs_get),
-                                           evaluate_response=lambda r: r.data.lifecycle_state in states,
+                                           evaluate_response=lambda r: not hasattr(r.data, "lifecycle_state") or
+                                           r.data.lifecycle_state in states,
                                            max_wait_seconds=module.params.get(
                                                'wait_timeout',
                                                MAX_WAIT_TIMEOUT_IN_SECONDS)
@@ -144,6 +146,9 @@ def update_and_wait(resource_type, client, get_fn, kwargs_get, update_fn, primit
                 set_node_pool_kwargs_update(kwargs_update, module)
             resource = call_and_wait(client, result, wait_applicable, module, states, DEFAULT_READY_STATES,
                                      update_fn, kwargs_update, get_fn, kwargs_get)
+            # Wait for specified number of nodes to be ACTIVE after update operation.
+            if resource_type == "node_pool":
+                resource = wait_for_nodes(module, client, get_fn, "node_pool_id", resource['id'])
         result[resource_type] = to_dict(resource)
         return result
     except ServiceError as ex:
@@ -162,6 +167,30 @@ def set_node_pool_kwargs_update(kwargs_update, module):
                 initial_node_labels.append(keyvalue)
         kwargs_update["update_node_pool_details"].initial_node_labels = initial_node_labels
     return kwargs_update
+
+
+def wait_for_nodes(module, client, get_fn, get_param, node_pool_id):
+    state_to_wait_for = module.params['wait_until'] or "ACTIVE"
+    count_of_nodes_to_wait = module.params['count_of_nodes_to_wait']
+
+    def check_nodes(response):
+        nodes_in_desired_state = 0
+        if response.data.nodes is not None:
+            for node in response.data.nodes:
+                if getattr(node, 'lifecycle_state') == state_to_wait_for:
+                    nodes_in_desired_state += 1
+                    if nodes_in_desired_state == count_of_nodes_to_wait:
+                        return True
+        return False
+
+    wait_response = oci.wait_until(client,
+                                   get_fn(**{get_param: node_pool_id}),
+                                   evaluate_response=check_nodes,
+                                   max_wait_seconds=module.params.get(
+                                       'wait_timeout', MAX_WAIT_TIMEOUT_IN_SECONDS)
+                                   )
+
+    return wait_response.data
 
 
 def create_and_wait(resource_type, create_fn, kwargs_create, client, get_fn, get_param, module, wait_applicable=True,
@@ -195,20 +224,9 @@ def create_and_wait(resource_type, create_fn, kwargs_create, client, get_fn, get
                     if resource['entity_type'] == "nodepool":
                         node_pool_id = resource['identifier']
                         break
-                node_pool = oci_utils.call_with_backoff(get_fn, **{get_param: node_pool_id}).data
 
-                total_worker_nodes = node_pool.quantity_per_subnet * len(node_pool.subnet_ids)
-
-                # Wait till all nodes start to get provisioned so that node_id of all the nodes becomes available.
-                wait_response = oci.wait_until(client,
-                                               get_fn(**{get_param: node_pool_id}),
-                                               evaluate_response=lambda r: r.data.nodes is not None and
-                                               len(r.data.nodes) == total_worker_nodes,
-                                               max_wait_seconds=module.params.get(
-                                                   'wait_timeout', MAX_WAIT_TIMEOUT_IN_SECONDS)
-                                               )
-
-                result[resource_type] = to_dict(wait_response.data)
+                node_pool = wait_for_nodes(module, client, get_fn, get_param, node_pool_id)
+                result[resource_type] = to_dict(node_pool)
         return result
 
     except ServiceError as ex:

@@ -205,8 +205,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg='oci python sdk required for this module.')
 
-    config = oci_utils.get_oci_config(module)
-    dns_client = DnsClient(config)
+    dns_client = oci_utils.create_service_client(module, DnsClient)
 
     zone_id = module.params['zone_id']
     compartment_id = module.params['compartment_id']

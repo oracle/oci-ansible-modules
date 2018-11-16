@@ -26,6 +26,10 @@ options:
     availability_domain:
         description: The availability domain of the volume. Required when creating a volume with I(state=present).
         required: false
+    backup_policy_id:
+        description: ID of the volume backup policy to assign to the newly created volume. If omitted, no policy will be
+                     assigned. I(backup_policy_id) can only be provided while creating a volume.
+        required: false
     compartment_id:
         description: The OCID of the compartment that contains the volume. Required when creating a volume with
                      I(state=present).
@@ -350,11 +354,10 @@ def handle_delete_volume(block_storage_client, module):
 
 def handle_create_volume(block_storage_client, module):
     create_volume_details = CreateVolumeDetails()
-    create_volume_details.availability_domain = module.params['availability_domain']
-    create_volume_details.compartment_id = module.params['compartment_id']
-    create_volume_details.display_name = module.params['display_name']
-    create_volume_details.size_in_gbs = module.params['size_in_gbs']
-    oci_utils.add_tags_to_model_from_module(create_volume_details, module)
+
+    for attribute in create_volume_details.attribute_map.keys():
+        if attribute in module.params:
+            setattr(create_volume_details, attribute, module.params[attribute])
 
     if module.params['source_details']:
         source_details = module.params['source_details']
@@ -362,11 +365,11 @@ def handle_create_volume(block_storage_client, module):
         if 'type' in source_details:
             if source_details['type'] == "volume":
                 volume_source = VolumeSourceFromVolumeDetails()
-                volume_source.id = source_details["id"]
+                volume_source.id = source_details.get("id")
 
             elif source_details['type'] == "volumeBackup":
                 volume_source = VolumeSourceFromVolumeBackupDetails()
-                volume_source.id = source_details["id"]
+                volume_source.id = source_details.get("id")
 
             else:
                 module.fail_json(msg="value of state must be one of: volume, volumeBackup")
@@ -447,6 +450,7 @@ def main():
     module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
     module_args.update(dict(
         availability_domain=dict(type='str', required=False),
+        backup_policy_id=dict(type='str', required=False),
         compartment_id=dict(type='str', required=False),
         volume_id=dict(type='str', required=False, aliases=['id']),
         display_name=dict(type='str', required=False, aliases=['name']),
