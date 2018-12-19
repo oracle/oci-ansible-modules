@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_load_balancer_health_facts
 short_description: Fetch details of a Load Balancer Health
@@ -29,16 +30,16 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 #Fetch details of health of a load balancer
 - name: List a specific Load Balancer Health
   oci_load_balancer_health_facts:
       load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     load_balancer_health:
         description: Attributes of the Load Balancer Health
         returned: success
@@ -98,7 +99,7 @@ RETURN = '''
                     ]
                 }
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -107,6 +108,7 @@ try:
     from oci.load_balancer.load_balancer_client import LoadBalancerClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -115,14 +117,14 @@ logger = None
 
 
 def get_load_balancer_health(lb_client, module):
-    result = dict(
-        load_balancer_health=''
-    )
-    load_balancer_id = module.params.get('load_balancer_id')
-    get_logger().info('Retrieving Health for Load Balancer %s', load_balancer_id)
+    result = dict(load_balancer_health="")
+    load_balancer_id = module.params.get("load_balancer_id")
+    get_logger().info("Retrieving Health for Load Balancer %s", load_balancer_id)
     try:
-        response = oci_utils.call_with_backoff(lb_client.get_load_balancer_health, load_balancer_id=load_balancer_id)
-        result['load_balancer_health'] = to_dict(response.data)
+        response = oci_utils.call_with_backoff(
+            lb_client.get_load_balancer_health, load_balancer_id=load_balancer_id
+        )
+        result["load_balancer_health"] = to_dict(response.data)
     except ServiceError as ex:
         get_logger().error("Unable to get load balancer health due to: %s", ex.message)
         module.fail_json(msg=ex.message)
@@ -143,15 +145,13 @@ def main():
     logger = oci_utils.get_logger("oci_load_balancer_health_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        load_balancer_id=dict(type='str', required=True, aliases=['id'])
-    ))
-    module = AnsibleModule(
-        argument_spec=module_args,
+    module_args.update(
+        dict(load_balancer_id=dict(type="str", required=True, aliases=["id"]))
     )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
     lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
 
     result = get_load_balancer_health(lb_client, module)
@@ -159,5 +159,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

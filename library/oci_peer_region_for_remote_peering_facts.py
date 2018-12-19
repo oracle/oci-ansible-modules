@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_peer_region_for_remote_peering_facts
 short_description: Retrieve the regions that support remote VCN peering
@@ -24,14 +24,14 @@ description:
 version_added: "2.5"
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get details of the regions that supports remote VCN peering
   oci_peer_region_for_remote_peering_facts:
-'''
+"""
 
-RETURN = '''
+RETURN = """
 peer_region_for_remote_peering:
     description: Details of regions that support remote VCN peering
     returned: always
@@ -45,7 +45,7 @@ peer_region_for_remote_peering:
     sample: [{
             "name": us-phoenix-1
             }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -54,6 +54,7 @@ try:
     from oci.core.virtual_network_client import VirtualNetworkClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -63,24 +64,26 @@ except ImportError:
 def main():
     module_args = oci_utils.get_common_arg_spec()
 
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False
-    )
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
     try:
-        result = to_dict(oci_utils.call_with_backoff(
-            virtual_network_client.list_allowed_peer_regions_for_remote_peering).data)
+        result = to_dict(
+            oci_utils.call_with_backoff(
+                virtual_network_client.list_allowed_peer_regions_for_remote_peering
+            ).data
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(peer_region_for_remote_peering=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

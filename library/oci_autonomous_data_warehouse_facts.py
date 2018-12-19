@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_autonomous_data_warehouse_facts
 short_description: Fetches details of the OCI Autonomous Data Warehouse instances
@@ -33,9 +34,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Fetch Autonomous Data Warehouse
 - name: List all Autonomous Data Warehouse in a compartment
   oci_autonomous_data_warehouse_facts:
@@ -51,9 +52,9 @@ EXAMPLES = '''
 - name: List a specific Autonomous Data Warehouse
   oci_autonomous_data_warehouse_facts:
       autonomous_data_warehouse_id: 'ocid1.autonomousdwdatabase.oc1..xxxxxEXAMPLExxxxx'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     autonomous_data_warehouse:
         description: Attributes of the Fetched Autonomous Data Warehouse.
         returned: success
@@ -182,7 +183,7 @@ RETURN = '''
                                          &database_name=AUTODBWAREHOUS&service_type=ADW",
                   "time_created":"2018-09-22T16:31:47.181000+00:00"
                  }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -191,6 +192,7 @@ try:
     from oci.database.database_client import DatabaseClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -199,26 +201,35 @@ logger = None
 
 
 def list_autonomous_data_warehouses(db_client, module):
-    result = dict(
-        autonomous_data_warehouses=''
-    )
-    compartment_id = module.params.get('compartment_id')
-    autonomous_data_warehouse_id = module.params.get('autonomous_data_warehouse_id')
+    result = dict(autonomous_data_warehouses="")
+    compartment_id = module.params.get("compartment_id")
+    autonomous_data_warehouse_id = module.params.get("autonomous_data_warehouse_id")
     try:
         if compartment_id:
-            get_logger().debug("Listing all Autonomous Data Warehouses under compartment %s", compartment_id)
-            autonomous_data_warehouses = oci_utils.list_all_resources(db_client.list_autonomous_data_warehouses,
-                                                                      compartment_id=compartment_id,
-                                                                      display_name=module.params.get('display_name'))
+            get_logger().debug(
+                "Listing all Autonomous Data Warehouses under compartment %s",
+                compartment_id,
+            )
+            autonomous_data_warehouses = oci_utils.list_all_resources(
+                db_client.list_autonomous_data_warehouses,
+                compartment_id=compartment_id,
+                display_name=module.params.get("display_name"),
+            )
         elif autonomous_data_warehouse_id:
-            get_logger().debug("Listing Autonomous Data Warehouse %s", autonomous_data_warehouse_id)
-            response = oci_utils.call_with_backoff(db_client.get_autonomous_data_warehouse,
-                                                   autonomous_data_warehouse_id=autonomous_data_warehouse_id)
+            get_logger().debug(
+                "Listing Autonomous Data Warehouse %s", autonomous_data_warehouse_id
+            )
+            response = oci_utils.call_with_backoff(
+                db_client.get_autonomous_data_warehouse,
+                autonomous_data_warehouse_id=autonomous_data_warehouse_id,
+            )
             autonomous_data_warehouses = [response.data]
     except ServiceError as ex:
-        get_logger().error("Unable to list Autonomous Data Warehouse due to %s", ex.message)
+        get_logger().error(
+            "Unable to list Autonomous Data Warehouse due to %s", ex.message
+        )
         module.fail_json(msg=ex.message)
-    result['autonomous_data_warehouses'] = to_dict(autonomous_data_warehouses)
+    result["autonomous_data_warehouses"] = to_dict(autonomous_data_warehouses)
     return result
 
 
@@ -236,20 +247,22 @@ def main():
     set_logger(logger)
 
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        autonomous_data_warehouse_id=dict(type='str', required=False, aliases=['id'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            autonomous_data_warehouse_id=dict(
+                type="str", required=False, aliases=["id"]
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
-        mutually_exclusive=[
-            ['compartment_id', 'autonomous_data_warehouse_id']
-        ]
+        mutually_exclusive=[["compartment_id", "autonomous_data_warehouse_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_autonomous_data_warehouses(db_client, module)
@@ -257,5 +270,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

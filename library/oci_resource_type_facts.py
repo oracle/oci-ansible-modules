@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_resource_type_facts
 short_description: Retrieves facts of types of resource that you can find with a search or query
@@ -30,18 +30,18 @@ options:
         required: false
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get facts about all resource types that you can find with a search or query
   oci_resource_type_facts:
 
 - name: Get details of the Vcn resource type
   oci_resource_type_facts:
     name: "Vcn"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 resource_types:
     description: A type of resource that you can find with a search or query.
     returned: On successful operation
@@ -184,7 +184,7 @@ resource_types:
                 ],
                 "name": "Vcn"
               }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -199,30 +199,33 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        name=dict(type='str', required=False),
-    ))
+    module_args.update(dict(name=dict(type="str", required=False)))
 
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
-    )
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     result = dict(changed=False)
 
-    resource_search_client = oci_utils.create_service_client(module, ResourceSearchClient)
-    name = module.params.get('name')
+    resource_search_client = oci_utils.create_service_client(
+        module, ResourceSearchClient
+    )
+    name = module.params.get("name")
     res_coll = None
     if name is not None:
-        res_coll = [oci_utils.call_with_backoff(resource_search_client.get_resource_type, name=name).data]
+        res_coll = [
+            oci_utils.call_with_backoff(
+                resource_search_client.get_resource_type, name=name
+            ).data
+        ]
     else:
-        res_coll = oci_utils.call_with_backoff(resource_search_client.list_resource_types).data
-    result['resource_types'] = oci_utils.to_dict(res_coll)
+        res_coll = oci_utils.call_with_backoff(
+            resource_search_client.list_resource_types
+        ).data
+    result["resource_types"] = oci_utils.to_dict(res_coll)
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

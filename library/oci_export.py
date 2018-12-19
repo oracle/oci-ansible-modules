@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_export
 short_description: Create, update and delete a Export in OCI Filesystem Service.
@@ -70,7 +71,6 @@ options:
                      If I(purge_export_options=no), provided export options would be appended to existing
                      export options.
         required: false
-        required: false
         default: 'yes'
         type: bool
     path:
@@ -85,9 +85,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create Export
 - name: Create Export
@@ -130,9 +130,9 @@ EXAMPLES = '''
   oci_export:
     id: 'ocid1.export.oc1..xxxxxEXAMPLExxxxx'
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     export:
         description: Attributes of the created/updated Export. For delete, deleted Export
                      description will be returned.
@@ -206,41 +206,48 @@ RETURN = '''
                 }
 
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
+
 try:
     from oci.file_storage.file_storage_client import FileStorageClient
     from oci.exceptions import ServiceError, ClientError
     from oci.util import to_dict
-    from oci.file_storage.models import CreateExportDetails, UpdateExportDetails, ClientOptions
+    from oci.file_storage.models import (
+        CreateExportDetails,
+        UpdateExportDetails,
+        ClientOptions,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def create_or_update_export(file_storage_client, module):
-    result = dict(
-        changed=False,
-        export=''
-    )
-    export_id = module.params.get('export_id')
+    result = dict(changed=False, export="")
+    export_id = module.params.get("export_id")
     try:
         if export_id:
-            export = oci_utils.get_existing_resource(file_storage_client.get_export, module, export_id=export_id)
+            export = oci_utils.get_existing_resource(
+                file_storage_client.get_export, module, export_id=export_id
+            )
             result = update_export(file_storage_client, module, export)
         else:
-            result = oci_utils.check_and_create_resource(resource_type='export',
-                                                         create_fn=create_export,
-                                                         kwargs_create={'file_storage_client': file_storage_client,
-                                                                        'module': module},
-                                                         list_fn=file_storage_client.list_exports,
-                                                         kwargs_list={'file_system_id':
-                                                                      module.params.get('file_system_id')},
-                                                         module=module,
-                                                         model=CreateExportDetails()
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="export",
+                create_fn=create_export,
+                kwargs_create={
+                    "file_storage_client": file_storage_client,
+                    "module": module,
+                },
+                list_fn=file_storage_client.list_exports,
+                kwargs_list={"file_system_id": module.params.get("file_system_id")},
+                module=module,
+                model=CreateExportDetails(),
+            )
     except ServiceError as ex:
         get_logger().error("Unable to create/update Export due to: %s", ex.message)
         module.fail_json(msg=ex.message)
@@ -255,16 +262,18 @@ def create_export(file_storage_client, module):
     create_export_details = CreateExportDetails()
     for attribute in create_export_details.attribute_map:
         create_export_details.__setattr__(attribute, module.params.get(attribute))
-    create_export_details.export_options = get_export_options(module.params.get('export_options', None))
-    result = oci_utils.create_and_wait(resource_type='export',
-                                       create_fn=file_storage_client.create_export,
-                                       kwargs_create={
-                                           'create_export_details': create_export_details},
-                                       client=file_storage_client,
-                                       get_fn=file_storage_client.get_export,
-                                       get_param='export_id',
-                                       module=module
-                                       )
+    create_export_details.export_options = get_export_options(
+        module.params.get("export_options", None)
+    )
+    result = oci_utils.create_and_wait(
+        resource_type="export",
+        create_fn=file_storage_client.create_export,
+        kwargs_create={"create_export_details": create_export_details},
+        client=file_storage_client,
+        get_fn=file_storage_client.get_export,
+        get_param="export_id",
+        module=module,
+    )
     return result
 
 
@@ -275,14 +284,20 @@ def get_export_options(export_options):
     result_client_options = []
     for export_option_entry in export_options:
         client_options = HashedClientOptions()
-        if export_option_entry.get('source') is None:
-            raise ClientError('Export Options attribute source must contain a valid value')
-        client_options.source = export_option_entry.get('source')
-        client_options.require_privileged_source_port = export_option_entry.get('require_privileged_source_port', True)
-        client_options.access = export_option_entry.get('access', 'READ_ONLY')
-        client_options.identity_squash = export_option_entry.get('identity_squash', 'ROOT')
-        client_options.anonymous_uid = export_option_entry.get('anonymous_uid', 65534)
-        client_options.anonymous_gid = export_option_entry.get('anonymous_gid', 65534)
+        if export_option_entry.get("source") is None:
+            raise ClientError(
+                "Export Options attribute source must contain a valid value"
+            )
+        client_options.source = export_option_entry.get("source")
+        client_options.require_privileged_source_port = export_option_entry.get(
+            "require_privileged_source_port", True
+        )
+        client_options.access = export_option_entry.get("access", "READ_ONLY")
+        client_options.identity_squash = export_option_entry.get(
+            "identity_squash", "ROOT"
+        )
+        client_options.anonymous_uid = export_option_entry.get("anonymous_uid", 65534)
+        client_options.anonymous_gid = export_option_entry.get("anonymous_gid", 65534)
         result_client_options.append(client_options)
     return result_client_options
 
@@ -290,42 +305,46 @@ def get_export_options(export_options):
 def update_export(file_storage_client, module, export):
     result = dict(export=to_dict(export), changed=False)
     update_export_details = UpdateExportDetails()
-    purge_export_options = module.params.get('purge_export_options')
-    input_export_options = get_export_options(module.params.get('export_options', None))
-    existing_export_options = oci_utils.get_hashed_object_list(ClientOptions, export.export_options)
+    purge_export_options = module.params.get("purge_export_options")
+    input_export_options = get_export_options(module.params.get("export_options", None))
+    existing_export_options = oci_utils.get_hashed_object_list(
+        ClientOptions, export.export_options
+    )
     export_option_changed = False
     if input_export_options is not None:
         export_options, export_option_changed = oci_utils.check_and_return_component_list_difference(
-            input_export_options, existing_export_options, purge_export_options)
+            input_export_options, existing_export_options, purge_export_options
+        )
     if export_option_changed:
         update_export_details.export_options = export_options
     else:
         update_export_details.export_options = existing_export_options
     if export_option_changed:
-        result = oci_utils.update_and_wait(resource_type='export',
-                                           update_fn=file_storage_client.update_export,
-                                           kwargs_update={
-                                               'export_id': export.id,
-                                               'update_export_details': update_export_details},
-                                           client=file_storage_client,
-                                           get_fn=file_storage_client.get_export,
-                                           get_param='export_id',
-                                           module=module
-                                           )
+        result = oci_utils.update_and_wait(
+            resource_type="export",
+            update_fn=file_storage_client.update_export,
+            kwargs_update={
+                "export_id": export.id,
+                "update_export_details": update_export_details,
+            },
+            client=file_storage_client,
+            get_fn=file_storage_client.get_export,
+            get_param="export_id",
+            module=module,
+        )
     return result
 
 
 def delete_export(file_storage_client, module):
-    result = oci_utils.delete_and_wait(resource_type='export',
-                                       client=file_storage_client,
-                                       get_fn=file_storage_client.get_export,
-                                       kwargs_get={
-                                           'export_id': module.params['export_id']},
-                                       delete_fn=file_storage_client.delete_export,
-                                       kwargs_delete={
-                                           'export_id': module.params['export_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="export",
+        client=file_storage_client,
+        get_fn=file_storage_client.get_export,
+        kwargs_get={"export_id": module.params["export_id"]},
+        delete_fn=file_storage_client.delete_export,
+        kwargs_delete={"export_id": module.params["export_id"]},
+        module=module,
+    )
 
     return result
 
@@ -343,34 +362,41 @@ def main():
     logger = oci_utils.get_logger("oci_export")
     set_logger(logger)
 
-    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        export_options=dict(type=list, required=False),
-        export_set_id=dict(type='str', required=False),
-        file_system_id=dict(type='str', required=False),
-        export_id=dict(type='str', required=False, aliases=['id']),
-        path=dict(type='str', required=False),
-        purge_export_options=dict(type='bool', required=False, default=True),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args = oci_utils.get_common_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            export_options=dict(type=list, required=False),
+            export_set_id=dict(type="str", required=False),
+            file_system_id=dict(type="str", required=False),
+            export_id=dict(type="str", required=False, aliases=["id"]),
+            path=dict(type="str", required=False),
+            purge_export_options=dict(type="bool", required=False, default=True),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     file_storage_client = oci_utils.create_service_client(module, FileStorageClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_export(file_storage_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_export(file_storage_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

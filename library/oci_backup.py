@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_backup
 short_description: Create and Delete a Database Backup in OCI Database Cloud Service.
@@ -46,9 +47,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create Database Backup
 - name: Create Database Backup
@@ -62,9 +63,9 @@ EXAMPLES = '''
   oci_backup:
       backup_id: 'ocid1.backup.aaaa'
       state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     backup:
         description: Attributes of the Database Backup.
         returned: success
@@ -137,7 +138,7 @@ RETURN = '''
                     "time_started":"2018-02-23T06:37:58.669000+00:00",
                     "type":"FULL"
                 }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -145,6 +146,7 @@ from ansible.module_utils.oracle import oci_utils
 try:
     from oci.database.database_client import DatabaseClient
     from oci.database.models import CreateBackupDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -154,38 +156,33 @@ logger = None
 
 
 def create_backup(db_client, module):
-    result = dict(
-        changed=False,
-        backup=''
-    )
+    result = dict(changed=False, backup="")
     create_backup_details = CreateBackupDetails()
     for attribute in create_backup_details.attribute_map:
-        create_backup_details.__setattr__(
-            attribute, module.params.get(attribute))
-    result = oci_utils.create_and_wait(resource_type='backup',
-                                       create_fn=db_client.create_backup,
-                                       kwargs_create={
-                                           'create_backup_details': create_backup_details},
-                                       client=db_client,
-                                       get_fn=db_client.get_backup,
-                                       get_param='backup_id',
-                                       module=module
-                                       )
+        create_backup_details.__setattr__(attribute, module.params.get(attribute))
+    result = oci_utils.create_and_wait(
+        resource_type="backup",
+        create_fn=db_client.create_backup,
+        kwargs_create={"create_backup_details": create_backup_details},
+        client=db_client,
+        get_fn=db_client.get_backup,
+        get_param="backup_id",
+        module=module,
+    )
 
     return result
 
 
 def delete_backup(db_client, module):
-    result = oci_utils.delete_and_wait(resource_type='backup',
-                                       client=db_client,
-                                       get_fn=db_client.get_backup,
-                                       kwargs_get={
-                                           'backup_id': module.params['backup_id']},
-                                       delete_fn=db_client.delete_backup,
-                                       kwargs_delete={
-                                           'backup_id': module.params['backup_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="backup",
+        client=db_client,
+        get_fn=db_client.get_backup,
+        kwargs_get={"backup_id": module.params["backup_id"]},
+        delete_fn=db_client.delete_backup,
+        kwargs_delete={"backup_id": module.params["backup_id"]},
+        module=module,
+    )
 
     return result
 
@@ -203,40 +200,44 @@ def main():
     logger = oci_utils.get_logger("oci_backup")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec(
-        supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        backup_id=dict(type='str', required=False, aliases=['id']),
-        database_id=dict(type='str', required=False),
-        display_name=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            backup_id=dict(type="str", required=False, aliases=["id"]),
+            database_id=dict(type="str", required=False),
+            display_name=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
-    state = module.params['state']
-    if state == 'present':
-        result = oci_utils.check_and_create_resource(resource_type='backup',
-                                                     create_fn=create_backup,
-                                                     kwargs_create={'db_client': db_client,
-                                                                    'module': module},
-                                                     list_fn=db_client.list_backups,
-                                                     kwargs_list={
-                                                         'database_id': module.params.get('database_id')},
-                                                     module=module,
-                                                     model=CreateBackupDetails()
-                                                     )
-    elif state == 'absent':
+    state = module.params["state"]
+    if state == "present":
+        result = oci_utils.check_and_create_resource(
+            resource_type="backup",
+            create_fn=create_backup,
+            kwargs_create={"db_client": db_client, "module": module},
+            list_fn=db_client.list_backups,
+            kwargs_list={"database_id": module.params.get("database_id")},
+            module=module,
+            model=CreateBackupDetails(),
+        )
+    elif state == "absent":
         result = delete_backup(db_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_service_gateway
 short_description: Manage service gateways in OCI
@@ -63,9 +63,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a service gateway
   oci_service_gateway:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
@@ -116,9 +116,9 @@ EXAMPLES = '''
   oci_service_gateway:
     id: ocid1.servicegateway.oc1.phx.xxxxxEXAMPLExxxxx
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 service_gateway:
     description: Information about the service gateway
     returned: On successful operation
@@ -138,54 +138,61 @@ service_gateway:
             "time_created": "2017-11-13T20:22:40.626000+00:00",
             "vcn_id": ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
 try:
     from oci.core.virtual_network_client import VirtualNetworkClient
-    from oci.core.models import CreateServiceGatewayDetails, UpdateServiceGatewayDetails, ServiceIdRequestDetails
+    from oci.core.models import (
+        CreateServiceGatewayDetails,
+        UpdateServiceGatewayDetails,
+        ServiceIdRequestDetails,
+    )
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def delete_service_gateway(virtual_network_client, module):
-    result = oci_utils.delete_and_wait(resource_type="service_gateway",
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_service_gateway,
-                                       kwargs_get={"service_gateway_id": module.params["service_gateway_id"]},
-                                       delete_fn=virtual_network_client.delete_service_gateway,
-                                       kwargs_delete={"service_gateway_id": module.params["service_gateway_id"]},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="service_gateway",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_service_gateway,
+        kwargs_get={"service_gateway_id": module.params["service_gateway_id"]},
+        delete_fn=virtual_network_client.delete_service_gateway,
+        kwargs_delete={"service_gateway_id": module.params["service_gateway_id"]},
+        module=module,
+    )
     return result
 
 
 def update_service_gateway(virtual_network_client, module):
     serviceid_requests = None
-    if module.params['services'] is not None:
+    if module.params["services"] is not None:
         serviceid_requests = []
-        for service in module.params['services']:
+        for service in module.params["services"]:
             req = ServiceIdRequestDetails()
-            req.service_id = service['service_id']
+            req.service_id = service["service_id"]
             serviceid_requests.append(req)
-    result = oci_utils.check_and_update_resource(resource_type="service_gateway",
-                                                 get_fn=virtual_network_client.get_service_gateway,
-                                                 kwargs_get={"service_gateway_id": module.params["service_gateway_id"]},
-                                                 update_fn=virtual_network_client.update_service_gateway,
-                                                 primitive_params_update=['service_gateway_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateServiceGatewayDetails: "update_service_gateway_details"},
-                                                 module=module,
-                                                 update_attributes=UpdateServiceGatewayDetails().attribute_map.keys(),
-                                                 sub_attributes_of_update_model={
-                                                     'services': serviceid_requests
-                                                 }
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type="service_gateway",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_service_gateway,
+        kwargs_get={"service_gateway_id": module.params["service_gateway_id"]},
+        update_fn=virtual_network_client.update_service_gateway,
+        primitive_params_update=["service_gateway_id"],
+        kwargs_non_primitive_update={
+            UpdateServiceGatewayDetails: "update_service_gateway_details"
+        },
+        module=module,
+        update_attributes=UpdateServiceGatewayDetails().attribute_map.keys(),
+        sub_attributes_of_update_model={"services": serviceid_requests},
+    )
     return result
 
 
@@ -196,20 +203,23 @@ def create_service_gateway(virtual_network_client, module):
             setattr(create_service_gateway_details, attribute, module.params[attribute])
 
     list_of_request_details = []
-    if module.params['services'] is not None:
-        for req in module.params['services']:
+    if module.params["services"] is not None:
+        for req in module.params["services"]:
             req_details = ServiceIdRequestDetails()
-            req_details.service_id = req['service_id']
+            req_details.service_id = req["service_id"]
             list_of_request_details.append(req_details)
     create_service_gateway_details.services = list_of_request_details
-    result = oci_utils.create_and_wait(resource_type="service_gateway",
-                                       create_fn=virtual_network_client.create_service_gateway,
-                                       kwargs_create={"create_service_gateway_details": create_service_gateway_details},
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_service_gateway,
-                                       get_param="service_gateway_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="service_gateway",
+        create_fn=virtual_network_client.create_service_gateway,
+        kwargs_create={
+            "create_service_gateway_details": create_service_gateway_details
+        },
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_service_gateway,
+        get_param="service_gateway_id",
+        module=module,
+    )
     return result
 
 
@@ -221,14 +231,19 @@ def is_service_attached_to_gateway(service_gateway, svc_id):
 
 
 def handle_service_id_request(virtual_network_client, module, attach):
-    service_gateway_id = module.params['service_gateway_id']
+    service_gateway_id = module.params["service_gateway_id"]
     try:
-        service_gateway = oci_utils.call_with_backoff(virtual_network_client.get_service_gateway,
-                                                      service_gateway_id=service_gateway_id).data
+        service_gateway = oci_utils.call_with_backoff(
+            virtual_network_client.get_service_gateway,
+            service_gateway_id=service_gateway_id,
+        ).data
 
         # Check if the service is in desired state stated by `attach` boolean variable.
-        if is_service_attached_to_gateway(service_gateway, module.params['service_id']) == attach:
-            return {'service_gateway': to_dict(service_gateway), 'changed': False}
+        if (
+            is_service_attached_to_gateway(service_gateway, module.params["service_id"])
+            == attach
+        ):
+            return {"service_gateway": to_dict(service_gateway), "changed": False}
         else:
             # Enable service on the service gateway.
             service_details = ServiceIdRequestDetails()
@@ -236,53 +251,63 @@ def handle_service_id_request(virtual_network_client, module, attach):
                 if attribute in module.params:
                     setattr(service_details, attribute, module.params[attribute])
             if attach:
-                service_gateway = oci_utils.call_with_backoff(virtual_network_client.attach_service_id,
-                                                              service_gateway_id=service_gateway_id,
-                                                              attach_service_details=service_details).data
+                service_gateway = oci_utils.call_with_backoff(
+                    virtual_network_client.attach_service_id,
+                    service_gateway_id=service_gateway_id,
+                    attach_service_details=service_details,
+                ).data
             else:
-                service_gateway = oci_utils.call_with_backoff(virtual_network_client.detach_service_id,
-                                                              service_gateway_id=service_gateway_id,
-                                                              detach_service_details=service_details).data
-            return {'service_gateway': to_dict(service_gateway), 'changed': True}
+                service_gateway = oci_utils.call_with_backoff(
+                    virtual_network_client.detach_service_id,
+                    service_gateway_id=service_gateway_id,
+                    detach_service_details=service_details,
+                ).data
+            return {"service_gateway": to_dict(service_gateway), "changed": True}
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        block_traffic=dict(type='bool', required=False, default=False),
-        service_id=dict(type='str', required=False),
-        vcn_id=dict(type='str', required=False),
-        services=dict(type='list', required=False),
-        compartment_id=dict(type='str', required=False),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        service_gateway_id=dict(type='str', required=False, aliases=['id'])
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            block_traffic=dict(type="bool", required=False, default=False),
+            service_id=dict(type="str", required=False),
+            vcn_id=dict(type="str", required=False),
+            services=dict(type="list", required=False),
+            compartment_id=dict(type="str", required=False),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            service_gateway_id=dict(type="str", required=False, aliases=["id"]),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[
-            ('state', 'absent', ['service_gateway_id'])
-        ],
-        mutually_exclusive=[
-            ['service_id', 'services']
-        ]
-
+        required_if=[("state", "absent", ["service_gateway_id"])],
+        mutually_exclusive=[["service_id", "services"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
-    exclude_attributes = {'display_name': True}
-    state = module.params['state']
+    exclude_attributes = {"display_name": True}
+    state = module.params["state"]
 
-    if state == 'absent':
-        if module.params['service_id']:
+    if state == "absent":
+        if module.params["service_id"]:
             # Detach service from service gateway.
             result = handle_service_id_request(virtual_network_client, module, False)
         else:
@@ -290,31 +315,39 @@ def main():
             result = delete_service_gateway(virtual_network_client, module)
 
     else:
-        service_gateway_id = module.params['service_gateway_id']
+        service_gateway_id = module.params["service_gateway_id"]
         if service_gateway_id is not None:
             # Update service gateway details.
             result = update_service_gateway(virtual_network_client, module)
-            if module.params['service_id']:
+            if module.params["service_id"]:
                 # Attach/detach service to service gateway.
-                serviceid_request_result = handle_service_id_request(virtual_network_client, module, True)
-                result['changed'] = serviceid_request_result['changed'] or result['changed']
-                result['service_gateway'] = serviceid_request_result['service_gateway']
+                serviceid_request_result = handle_service_id_request(
+                    virtual_network_client, module, True
+                )
+                result["changed"] = (
+                    serviceid_request_result["changed"] or result["changed"]
+                )
+                result["service_gateway"] = serviceid_request_result["service_gateway"]
         else:
             # Create service gateway.
-            result = oci_utils.check_and_create_resource(resource_type='service_gateway',
-                                                         create_fn=create_service_gateway,
-                                                         kwargs_create={
-                                                             'virtual_network_client': virtual_network_client,
-                                                             'module': module},
-                                                         list_fn=virtual_network_client.list_service_gateways,
-                                                         kwargs_list={'compartment_id': module.params['compartment_id'],
-                                                                      'vcn_id': module.params['vcn_id']
-                                                                      },
-                                                         module=module,
-                                                         model=CreateServiceGatewayDetails(),
-                                                         exclude_attributes=exclude_attributes)
+            result = oci_utils.check_and_create_resource(
+                resource_type="service_gateway",
+                create_fn=create_service_gateway,
+                kwargs_create={
+                    "virtual_network_client": virtual_network_client,
+                    "module": module,
+                },
+                list_fn=virtual_network_client.list_service_gateways,
+                kwargs_list={
+                    "compartment_id": module.params["compartment_id"],
+                    "vcn_id": module.params["vcn_id"],
+                },
+                module=module,
+                model=CreateServiceGatewayDetails(),
+                exclude_attributes=exclude_attributes,
+            )
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

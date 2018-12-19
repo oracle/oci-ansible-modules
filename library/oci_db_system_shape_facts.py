@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_db_system_shape_facts
 short_description: Fetches details of all DB System Shapes
@@ -32,16 +33,16 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
-'''
-EXAMPLES = '''
+"""
+EXAMPLES = """
 #Fetch DB System Shapes
 - name: Fetch all DB System Shapes
   oci_db_system_shape_facts:
     compartment_id: 'ocid1.compartment.aaaa'
     availability_domain: 'AD2'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     db_system_shapes:
         description: Attributes of the DB System Shape.
         returned: success
@@ -75,7 +76,7 @@ RETURN = '''
                     "shape":"Exadata.Quarter1.84"
                 }]
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -84,6 +85,7 @@ try:
     from oci.database.database_client import DatabaseClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -92,23 +94,26 @@ logger = None
 
 
 def list_db_system_shapes(db_client, module):
-    result = dict(
-        db_system_shapes=''
-    )
-    compartment_id = module.params.get('compartment_id')
-    availability_domain = module.params.get('availability_domain')
+    result = dict(db_system_shapes="")
+    compartment_id = module.params.get("compartment_id")
+    availability_domain = module.params.get("availability_domain")
     try:
-        get_logger().debug("Listing all DB System Shapes under Availability Domain %s compartment %s",
-                           compartment_id, availability_domain)
+        get_logger().debug(
+            "Listing all DB System Shapes under Availability Domain %s compartment %s",
+            compartment_id,
+            availability_domain,
+        )
         db_system_shapes = oci_utils.list_all_resources(
             db_client.list_db_system_shapes,
-            availability_domain=availability_domain, compartment_id=compartment_id,
-            name=module.params['name'])
+            availability_domain=availability_domain,
+            compartment_id=compartment_id,
+            name=module.params["name"],
+        )
     except ServiceError as ex:
         get_logger().error("Unable to list DB System Shapes due to %s", ex.message)
         module.fail_json(msg=ex.message)
 
-    result['db_system_shapes'] = to_dict(db_system_shapes)
+    result["db_system_shapes"] = to_dict(db_system_shapes)
     return result
 
 
@@ -125,16 +130,16 @@ def main():
     logger = oci_utils.get_logger("oci_db_system_shape_facts")
     set_logger(logger)
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=True),
-        availability_domain=dict(type='str', required=True)
-    ))
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=True),
+            availability_domain=dict(type="str", required=True),
+        )
     )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_db_system_shapes(db_client, module)
@@ -142,5 +147,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -141,7 +141,15 @@ Parameters
                     <b>lifecycle_state</b>
                     <br/><div style="font-size: small; color: red">list</div>                                                        </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>CREATING</li>
+                                                                                                                                                                                                <li>ACTIVE</li>
+                                                                                                                                                                                                <li>FAILED</li>
+                                                                                                                                                                                                <li>DELETING</li>
+                                                                                                                                                                                                <li>DELETED</li>
+                                                                                                                                                                                                <li>UPDATING</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
                                                                         <div>A cluster lifecycle state to filter on. Can have multiple parameters of this name. Allowed values are &quot;CREATING&quot;, &quot;ACTIVE&quot;, &quot;FAILED&quot;, &quot;DELETING&quot;, &quot;DELETED&quot;, &quot;UPDATING&quot;.</div>
                                                                                 </td>

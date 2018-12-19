@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_object
 short_description: Manage objects in OCI Object Storage Service
@@ -73,6 +74,17 @@ options:
         description: The source file path when uploading an object. Use with I(state=present) to upload
                      an object. This option is mutually exclusive with I(dest).
         required: false
+    multipart_upload:
+        description: Use I(multipart_upload=True) to use multipart upload feature to upload an large object. Disable
+                     multipart upload feature with I(multipart_upload=False)
+        required: false
+        default: True
+    parallel_uploads:
+        description: Use I(parallel_uploads=True) to use parallel upload feature to upload an object. Disable
+                     parallel upload feature with I(parallel_uploads=False). Parallel upload feature works only
+                     when I(multipart_upload=True).
+        required: false
+        default: True
     state:
         description: The final state of the object after the task.
                      Use I(state=absent) with I(object) to delete a specific object.
@@ -83,16 +95,26 @@ options:
         choices: ['present', 'absent']
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
-- name: Create/upload an object
+EXAMPLES = """
+- name: Create/upload an object (with multipart and parallel upload)
   oci_object:
     namespace: mynamespace
     bucket: mybucket
     object: mydata.txt
     src: /usr/local/myfile.txt
     opc_meta: {language: english}
+
+- name: Create/upload an object without multipart and parallel upload
+  oci_object:
+    namespace: mynamespace
+    bucket: mybucket
+    object: mydata.txt
+    src: /usr/local/myfile.txt
+    opc_meta: {language: english}
+    multipart_upload: False
+    parallel_uploads: False
 
 - name: Get/download an object to a file
   oci_object:
@@ -116,9 +138,9 @@ EXAMPLES = '''
     bucket: mybucket
     object: key.txt
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
 object:
     description: OCI object details
     returned: On successful operation
@@ -137,19 +159,21 @@ object:
             "Date": "Tue, 10 Oct 2017 13:58:02 GMT",
             "ETag": "5B3287C054A51CB6E053824310AC257B",
             "Last-Modified": "Tue, 10 Oct 2017 13:57:20 GMT",
+            "opc-multipart-md5": "eoYNSi2Jkc2gMKksGkXOrQ",
             "opc-meta-author": "RC",
             "opc-request-id": "79bcd894-8a9d-fbfe-3717-fd92d518d0a1"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.oracle import oci_utils
 import base64
 import os
 
 try:
     from oci.object_storage.object_storage_client import ObjectStorageClient
     from oci.exceptions import ServiceError
-    from ansible.module_utils.oracle import oci_utils
+    from oci.object_storage import UploadManager
 
     HAS_OCI_PY_SDK = True
 except ImportError:
@@ -157,68 +181,79 @@ except ImportError:
 
 
 def delete_object(object_storage_client, module):
-    namespace = module.params['namespace_name']
-    bucket = module.params['bucket_name']
-    obj = module.params['object_name']
+    namespace = module.params["namespace_name"]
+    bucket = module.params["bucket_name"]
+    obj = module.params["object_name"]
     changed = False
     result = dict()
     head_obj = head_object(object_storage_client, module)
     if head_obj is not None:
         try:
-            oci_utils.call_with_backoff(object_storage_client.delete_object,
-                                        namespace_name=namespace,
-                                        bucket_name=bucket,
-                                        object_name=obj)
-            result['object'] = dict(head_obj.headers)
+            oci_utils.call_with_backoff(
+                object_storage_client.delete_object,
+                namespace_name=namespace,
+                bucket_name=bucket,
+                object_name=obj,
+            )
+            result["object"] = dict(head_obj.headers)
             changed = True
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
-    result['changed'] = changed
+    result["changed"] = changed
     return result
 
 
 def get_object(object_storage_client, module):
-    namespace = module.params['namespace_name']
-    bucket = module.params['bucket_name']
-    obj = module.params['object_name']
-    dest = module.params['dest']
+    namespace = module.params["namespace_name"]
+    bucket = module.params["bucket_name"]
+    obj = module.params["object_name"]
+    dest = module.params["dest"]
 
     result = dict()
 
     try:
-        response = oci_utils.call_with_backoff(object_storage_client.get_object,
-                                               namespace_name=namespace,
-                                               bucket_name=bucket,
-                                               object_name=obj)
+        response = oci_utils.call_with_backoff(
+            object_storage_client.get_object,
+            namespace_name=namespace,
+            bucket_name=bucket,
+            object_name=obj,
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     # Check if file exists with the same checksum. Get md5 hexdigest of the file content, convert it to binary and then
     #  get base-64 encoded MD5 hash.
-    dest_md5 = base64.b64encode(base64.b16decode(module.md5(dest), True)).decode('ascii')
-    if os.path.isfile(dest) and dest_md5 == response.headers['Content-MD5']:
+    dest_md5 = base64.b64encode(base64.b16decode(module.md5(dest), True)).decode(
+        "ascii"
+    )
+    if os.path.isfile(dest) and (
+        dest_md5 == response.headers.get("Content-MD5", None)
+        or dest_md5 == response.headers.get("opc-multipart-md5", None)
+    ):
         changed = False
     else:
-        with open(dest, 'wb') as dest_file:
+        with open(dest, "wb") as dest_file:
             dest_file.write(response.data.content)
             changed = True
-            result['object'] = dict(response.headers)
+            result["object"] = dict(response.headers)
 
-    result['changed'] = changed
+    result["changed"] = changed
 
     return result
 
 
 def head_object(object_storage_client, module):
-    namespace = module.params['namespace_name']
-    bucket = module.params['bucket_name']
-    obj = module.params['object_name']
+    namespace = module.params["namespace_name"]
+    bucket = module.params["bucket_name"]
+    obj = module.params["object_name"]
 
     try:
-        response = oci_utils.call_with_backoff(object_storage_client.head_object,
-                                               namespace_name=namespace,
-                                               bucket_name=bucket,
-                                               object_name=obj)
+        response = oci_utils.call_with_backoff(
+            object_storage_client.head_object,
+            namespace_name=namespace,
+            bucket_name=bucket,
+            object_name=obj,
+        )
     except ServiceError:
         return None
 
@@ -226,56 +261,76 @@ def head_object(object_storage_client, module):
 
 
 def put_object(object_storage_client, module):
-    namespace = module.params['namespace_name']
-    bucket = module.params['bucket_name']
-    obj = module.params['object_name']
-    src = module.params['src']
-    content_type = module.params['content_type']
-    content_length = module.params['content_length']
-    content_md5 = module.params['content_md5']
-    content_language = module.params['content_language']
-    content_encoding = module.params['content_encoding']
+    namespace = module.params["namespace_name"]
+    bucket = module.params["bucket_name"]
+    obj = module.params["object_name"]
+    src = module.params["src"]
+    content_type = module.params["content_type"]
+    content_length = module.params["content_length"]
+    content_md5 = module.params["content_md5"]
+    content_language = module.params["content_language"]
+    content_encoding = module.params["content_encoding"]
 
     opc_meta = dict()
 
-    if module.params['opc_meta'] is not None:
-        opc_meta = module.params['opc_meta']
+    if module.params["opc_meta"] is not None:
+        opc_meta = module.params["opc_meta"]
 
     result = dict(changed=False)
 
     # Check if the object exists with same checksum.
     remote_object = head_object(object_storage_client, module)
 
-    src_md5 = base64.b64encode(base64.b16decode(module.md5(src), True)).decode('ascii')
+    src_md5 = base64.b64encode(base64.b16decode(module.md5(src), True)).decode("ascii")
 
     # ENHANCEMENT_OVER_SDK: This is a EoU enhancement to make it easier for an Ansible user to provide
     # content for their object
-    #
-    if remote_object is not None and src_md5 == remote_object.headers['Content-MD5']:
+    if remote_object is not None and (
+        src_md5 == remote_object.headers.get("Content-MD5", None)
+        or src_md5 == remote_object.headers.get("opc-multipart-md5", None)
+    ):
         changed = False
+    elif module.params.get("multipart_upload"):
+        # Note: If the file size is less than 128 MB, UploadManager will automatically chose the upload strategy
+        # to be single-part upload.
+        upload_manager = UploadManager(
+            object_storage_client,
+            allow_parallel_uploads=module.params.get("parallel_uploads"),
+        )
+        response = oci_utils.call_with_backoff(
+            upload_manager.upload_file,
+            namespace_name=namespace,
+            bucket_name=bucket,
+            object_name=obj,
+            file_path=src,
+        )
+        changed = True
+        result["object"] = dict(response.headers)
     else:
-        with open(src, 'rb') as src_file:
+        with open(src, "rb") as src_file:
             put_object_body = src_file.read()
 
         try:
-            response = oci_utils.call_with_backoff(object_storage_client.put_object,
-                                                   namespace_name=namespace,
-                                                   bucket_name=bucket,
-                                                   object_name=obj,
-                                                   put_object_body=put_object_body,
-                                                   content_encoding=content_encoding,
-                                                   content_language=content_language,
-                                                   content_length=content_length,
-                                                   content_md5=content_md5,
-                                                   content_type=content_type,
-                                                   opc_meta=opc_meta)
+            response = oci_utils.call_with_backoff(
+                object_storage_client.put_object,
+                namespace_name=namespace,
+                bucket_name=bucket,
+                object_name=obj,
+                put_object_body=put_object_body,
+                content_encoding=content_encoding,
+                content_language=content_language,
+                content_length=content_length,
+                content_md5=content_md5,
+                content_type=content_type,
+                opc_meta=opc_meta,
+            )
             changed = True
-            result['object'] = dict(response.headers)
+            result["object"] = dict(response.headers)
 
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
 
-    result['changed'] = changed
+    result["changed"] = changed
     return result
 
 
@@ -284,8 +339,10 @@ def src_is_valid(module, src):
         module.fail_json(msg="The source path %s must be a file." % src)
 
     if not os.access(src, os.R_OK):
-        module.fail_json(msg="Failed to access %s. Make sure the file exists and that you have "
-                             "read access." % src)
+        module.fail_json(
+            msg="Failed to access %s. Make sure the file exists and that you have "
+            "read access." % src
+        )
 
     return True
 
@@ -294,57 +351,71 @@ def main():
     module_args = oci_utils.get_common_arg_spec()
     module_args.update(
         dict(
-            namespace_name=dict(type='str', required=True, aliases=['namespace']),
-            bucket_name=dict(type='str', required=True, aliases=['bucket']),
-            object_name=dict(type='str', required=True, aliases=['object', 'name']),
-            src=dict(type='str', required=False),
-            dest=dict(type='str', required=False),
-            state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-            force=dict(type='bool', required=False, default=True, aliases=['overwrite']),
-            content_length=dict(type='str', required=False),
-            opc_client_request_id=dict(type='str', required=False),
-            content_md5=dict(type='str', required=False),
-            content_type=dict(type='str', required=False, default="application/octet-stream"),
-            content_language=dict(type='str', required=False),
-            content_encoding=dict(type='str', required=False),
-            opc_meta=dict(type=dict, required=False, aliases=['metadata'])
+            namespace_name=dict(type="str", required=True, aliases=["namespace"]),
+            bucket_name=dict(type="str", required=True, aliases=["bucket"]),
+            object_name=dict(type="str", required=True, aliases=["object", "name"]),
+            src=dict(type="str", required=False),
+            dest=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            force=dict(
+                type="bool", required=False, default=True, aliases=["overwrite"]
+            ),
+            content_length=dict(type="str", required=False),
+            opc_client_request_id=dict(type="str", required=False),
+            content_md5=dict(type="str", required=False),
+            content_type=dict(
+                type="str", required=False, default="application/octet-stream"
+            ),
+            content_language=dict(type="str", required=False),
+            content_encoding=dict(type="str", required=False),
+            opc_meta=dict(type=dict, required=False, aliases=["metadata"]),
+            multipart_upload=dict(type=bool, required=False, default=True),
+            parallel_uploads=dict(type=bool, required=False, default=True),
         )
     )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['src', 'dest']
+        mutually_exclusive=["src", "dest"],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     object_storage_client = oci_utils.create_service_client(module, ObjectStorageClient)
 
-    state = module.params['state']
-    src = module.params['src']
-    dest = module.params['dest']
-    force = module.params['force']
-    obj = module.params['object_name']
-    result = dict(
-        changed=False
-    )
+    state = module.params["state"]
+    src = module.params["src"]
+    dest = module.params["dest"]
+    force = module.params["force"]
+    obj = module.params["object_name"]
+    result = dict(changed=False)
 
-    if state == 'present' and dest is not None:
+    if state == "present" and dest is not None:
         if force is True or not os.path.isfile(dest):
             result = get_object(object_storage_client, module)
         else:
-            result['msg'] = "Destination %s already exists. Use force option to overwrite." % dest
+            result["msg"] = (
+                "Destination %s already exists. Use force option to overwrite." % dest
+            )
 
-    elif state == 'present' and src is not None:
+    elif state == "present" and src is not None:
         if src_is_valid(module, src):
             if force is True or head_object(object_storage_client, module) is None:
                 result = put_object(object_storage_client, module)
             else:
-                result['msg'] = "Object %s already present in bucket. Use force option to overwrite." % obj
+                result["msg"] = (
+                    "Object %s already present in bucket. Use force option to overwrite."
+                    % obj
+                )
 
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_object(object_storage_client, module)
 
     else:
@@ -353,5 +424,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

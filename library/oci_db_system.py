@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_db_system
 short_description: Launch,update and terminate a DB System in OCI Database Cloud Service.
@@ -46,7 +47,7 @@ options:
     cluster_name:
         description: Cluster name for Exadata and 2-node RAC DB Systems. The cluster
                      name must begin with an an alphabetic character, and may contain
-                     hyphens (-). Underscores (_) are not permitted. The cluster name
+                     hyphens (-). Underscores are not permitted. The cluster name
                      can be no longer than 11 characters and is not case sensitive.
         required: false
     cpu_core_count:
@@ -182,9 +183,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Launch DB System
 - name: Create DB System
@@ -275,10 +276,10 @@ EXAMPLES = '''
   oci_db_system:
     db_system_id: "ocid1.dbsystem.aaaa"
     state: 'absent'
-'''
+"""
 
 
-RETURN = '''
+RETURN = """
     db_system:
         description: Attributes of the launched/updated DB System.
                     For delete, deleted DB System description will
@@ -462,20 +463,25 @@ RETURN = '''
                     "version":null,
                     "vip_ids":null
               }
-'''
+"""
 
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.facts.utils import get_file_content
 from ansible.module_utils.oracle import oci_utils, oci_db_utils
 import os
+
 try:
     import copy
     from oci.database.database_client import DatabaseClient
     from oci.exceptions import ServiceError, ClientError
     from oci.util import to_dict
-    from oci.database.models import LaunchDbSystemDetails, CreateDbHomeDetails, \
-        UpdateDbSystemDetails
+    from oci.database.models import (
+        LaunchDbSystemDetails,
+        CreateDbHomeDetails,
+        UpdateDbSystemDetails,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -485,38 +491,43 @@ logger = None
 
 
 def launch_or_update_db_system(db_client, module):
-    result = dict(
-        changed=False,
-        db_system=''
-    )
-    db_system_id = module.params.get('db_system_id')
-    exclude_attributes = {'display_name': True,
-                          'domain': True, 'node_count': True}
+    result = dict(changed=False, db_system="")
+    db_system_id = module.params.get("db_system_id")
+    exclude_attributes = {"display_name": True, "domain": True, "node_count": True}
     try:
         if db_system_id is not None:
-            result = update_db_system(
-                db_client, module, db_system_id)
+            result = update_db_system(db_client, module, db_system_id)
         else:
             module_copy = copy.deepcopy(module)
-            module_copy.params.update({'ssh_public_keys': to_dict(
-                create_ssh_public_keys(module_copy.params.get('ssh_public_keys')))})
-            result = oci_utils.check_and_create_resource(resource_type='db_system',
-                                                         create_fn=launch_db_system,
-                                                         kwargs_create={'db_client': db_client,
-                                                                        'module': module},
-                                                         list_fn=db_client.list_db_systems,
-                                                         kwargs_list={
-                                                             'compartment_id': module.params.get('compartment_id')},
-                                                         module=module_copy,
-                                                         exclude_attributes=exclude_attributes,
-                                                         model=LaunchDbSystemDetails()
-                                                         )
+            module_copy.params.update(
+                {
+                    "ssh_public_keys": to_dict(
+                        create_ssh_public_keys(
+                            module_copy.params.get("ssh_public_keys")
+                        )
+                    )
+                }
+            )
+            result = oci_utils.check_and_create_resource(
+                resource_type="db_system",
+                create_fn=launch_db_system,
+                kwargs_create={"db_client": db_client, "module": module},
+                list_fn=db_client.list_db_systems,
+                kwargs_list={"compartment_id": module.params.get("compartment_id")},
+                module=module_copy,
+                exclude_attributes=exclude_attributes,
+                model=LaunchDbSystemDetails(),
+            )
 
     except ServiceError as ex:
-        get_logger().error("Unable to launch/update database system due to: %s", ex.message)
+        get_logger().error(
+            "Unable to launch/update database system due to: %s", ex.message
+        )
         module.fail_json(msg=ex.message)
     except ClientError as ex:
-        get_logger().error("Unable to launch/update database system due to: %s", str(ex))
+        get_logger().error(
+            "Unable to launch/update database system due to: %s", str(ex)
+        )
         module.fail_json(msg=str(ex))
 
     return result
@@ -525,35 +536,42 @@ def launch_or_update_db_system(db_client, module):
 def launch_db_system(db_client, module):
     launch_db_system_details = LaunchDbSystemDetails()
     launch_db_system_details.db_home = create_db_home(
-        module.params.get('db_home', None))
+        module.params.get("db_home", None)
+    )
     launch_db_system_details.ssh_public_keys = create_ssh_public_keys(
-        module.params.get('ssh_public_keys', None))
+        module.params.get("ssh_public_keys", None)
+    )
     for attribute in launch_db_system_details.attribute_map:
         if attribute not in ("db_home", "ssh_public_keys"):
             launch_db_system_details.__setattr__(
-                attribute, module.params.get(attribute))
-    result = oci_utils.create_and_wait(resource_type='db_system',
-                                       create_fn=db_client.launch_db_system,
-                                       kwargs_create={
-                                           'launch_db_system_details': launch_db_system_details},
-                                       client=db_client,
-                                       get_fn=db_client.get_db_system,
-                                       get_param='db_system_id',
-                                       module=module
-                                       )
+                attribute, module.params.get(attribute)
+            )
+    result = oci_utils.create_and_wait(
+        resource_type="db_system",
+        create_fn=db_client.launch_db_system,
+        kwargs_create={"launch_db_system_details": launch_db_system_details},
+        client=db_client,
+        get_fn=db_client.get_db_system,
+        get_param="db_system_id",
+        module=module,
+    )
 
     return result
 
 
 def create_db_home(db_home_dict):
     if db_home_dict is None:
-        raise ClientError(Exception(
-            'Proper value for attribute db_home is mandatory for creating DB System'))
+        raise ClientError(
+            Exception(
+                "Proper value for attribute db_home is mandatory for creating DB System"
+            )
+        )
     create_db_home_details = CreateDbHomeDetails()
     create_db_home_details.database = oci_db_utils.create_database_details(
-        db_home_dict.get('database', None))
-    create_db_home_details.db_version = db_home_dict.get('db_version')
-    create_db_home_details.display_name = db_home_dict.get('display_name')
+        db_home_dict.get("database", None)
+    )
+    create_db_home_details.db_version = db_home_dict.get("db_version")
+    create_db_home_details.display_name = db_home_dict.get("display_name")
     return create_db_home_details
 
 
@@ -561,53 +579,73 @@ def update_db_system(db_client, module, db_system_id):
     result = dict()
     changed = False
     db_system = oci_utils.get_existing_resource(
-        db_client.get_db_system, module, db_system_id=module.params.get('db_system_id'))
+        db_client.get_db_system, module, db_system_id=module.params.get("db_system_id")
+    )
     if db_system is None:
-        raise ClientError(Exception("No DB System with id " +
-                                    db_system_id + " is found for update"))
-    primitive_attributes = ['cpu_core_count', 'data_storage_size_in_gbs', 'freeform_tags', 'defined_tags']
+        raise ClientError(
+            Exception("No DB System with id " + db_system_id + " is found for update")
+        )
+    primitive_attributes = [
+        "cpu_core_count",
+        "data_storage_size_in_gbs",
+        "freeform_tags",
+        "defined_tags",
+    ]
     existing_ssh_public_keys = db_system.ssh_public_keys
     last_patch_history_entry_id = db_system.last_patch_history_entry_id
-    purge_ssh_public_keys = module.params.get('purge_ssh_public_keys')
+    purge_ssh_public_keys = module.params.get("purge_ssh_public_keys")
     update_db_system_details = UpdateDbSystemDetails()
 
     for attribute in primitive_attributes:
         changed = oci_utils.check_and_update_attributes(
-            update_db_system_details, attribute, module.params.get(
-                attribute, None), getattr(db_system, attribute), changed)
+            update_db_system_details,
+            attribute,
+            module.params.get(attribute, None),
+            getattr(db_system, attribute),
+            changed,
+        )
 
     input_ssh_public_keys = create_ssh_public_keys(
-        module.params.get('ssh_public_keys', None))
+        module.params.get("ssh_public_keys", None)
+    )
     ssh_public_keys_changed = False
     if input_ssh_public_keys is not None:
         ssh_public_keys, ssh_public_keys_changed = oci_utils.get_component_list_difference(
-            input_ssh_public_keys, existing_ssh_public_keys, purge_ssh_public_keys)
+            input_ssh_public_keys, existing_ssh_public_keys, purge_ssh_public_keys
+        )
     if ssh_public_keys_changed:
         update_db_system_details.ssh_public_keys = ssh_public_keys
     else:
         update_db_system_details.ssh_public_keys = existing_ssh_public_keys
 
-    input_version_dict = module.params.get('version', None)
+    input_version_dict = module.params.get("version", None)
     version_changed, patch_details = oci_db_utils.is_version_changed(
-        db_client.get_db_system_patch_history_entry, db_client.get_db_system_patch,
-        db_system.version, input_version_dict, last_patch_history_entry_id, db_system_id=db_system_id)
+        db_client.get_db_system_patch_history_entry,
+        db_client.get_db_system_patch,
+        db_system.version,
+        input_version_dict,
+        last_patch_history_entry_id,
+        db_system_id=db_system_id,
+    )
     if version_changed:
         update_db_system_details.version = patch_details
     changed = changed or ssh_public_keys_changed or version_changed
     if changed:
-        result = oci_utils.update_and_wait(resource_type='db_system',
-                                           update_fn=db_client.update_db_system,
-                                           kwargs_update={
-                                               'db_system_id': db_system_id,
-                                               'update_db_system_details': update_db_system_details},
-                                           client=db_client,
-                                           get_fn=db_client.get_db_system,
-                                           get_param='db_system_id',
-                                           module=module
-                                           )
+        result = oci_utils.update_and_wait(
+            resource_type="db_system",
+            update_fn=db_client.update_db_system,
+            kwargs_update={
+                "db_system_id": db_system_id,
+                "update_db_system_details": update_db_system_details,
+            },
+            client=db_client,
+            get_fn=db_client.get_db_system,
+            get_param="db_system_id",
+            module=module,
+        )
     else:
-        result['db_system'] = to_dict(db_system)
-        result['changed'] = False
+        result["db_system"] = to_dict(db_system)
+        result["changed"] = False
     return result
 
 
@@ -621,16 +659,15 @@ def create_ssh_public_keys(ssh_public_keys):
 
 
 def delete_db_system(db_client, module):
-    result = oci_utils.delete_and_wait(resource_type='db_system',
-                                       client=db_client,
-                                       get_fn=db_client.get_db_system,
-                                       kwargs_get={
-                                           'db_system_id': module.params['db_system_id']},
-                                       delete_fn=db_client.terminate_db_system,
-                                       kwargs_delete={
-                                           'db_system_id': module.params['db_system_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="db_system",
+        client=db_client,
+        get_fn=db_client.get_db_system,
+        kwargs_get={"db_system_id": module.params["db_system_id"]},
+        delete_fn=db_client.terminate_db_system,
+        kwargs_delete={"db_system_id": module.params["db_system_id"]},
+        module=module,
+    )
 
     return result
 
@@ -648,58 +685,77 @@ def main():
     logger = oci_utils.get_logger("oci_db_system")
     set_logger(logger)
     module_args = oci_utils.get_taggable_arg_spec(
-        supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        db_system_id=dict(type='str', required=False, aliases=['id']),
-        availability_domain=dict(type='str', required=False),
-        backup_subnet_id=dict(type='str', required=False),
-        cluster_name=dict(type='str', required=False),
-        cpu_core_count=dict(type=int, required=False),
-        data_storage_percentage=dict(type=int, required=False),
-        database_edition=dict(type='str', required=False, choices=['STANDARD_EDITION', 'ENTERPRISE_EDITION', 'ENTERPRISE_EDITION_EXTREME_PERFORMANCE',
-                                                                   'ENTERPRISE_EDITION_HIGH_PERFORMANCE']),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent']),
-        db_home=dict(type=dict, required=False),
-        disk_redundancy=dict(type='str', required=False,
-                             choices=['HIGH', 'NORMAL']),
-        display_name=dict(type='str', required=False),
-        domain=dict(type='str', required=False),
-        hostname=dict(type='str', required=False),
-        initial_data_storage_size_in_gb=dict(type=int, required=False),
-        data_storage_size_in_gbs=dict(type=int, required=False),
-        license_model=dict(type='str', required=False, choices=[
-            'LICENSE_INCLUDED', 'BRING_YOUR_OWN_LICENSE']),
-        node_count=dict(type=int, required=False),
-        shape=dict(type='str', required=False),
-        ssh_public_keys=dict(type=list, required=False),
-        subnet_id=dict(type='str', required=False),
-        purge_ssh_public_keys=dict(type=bool, required=False, default=True,
-                                   choices=[True, False]),
-        version=dict(type=dict, required=False)
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            db_system_id=dict(type="str", required=False, aliases=["id"]),
+            availability_domain=dict(type="str", required=False),
+            backup_subnet_id=dict(type="str", required=False),
+            cluster_name=dict(type="str", required=False),
+            cpu_core_count=dict(type=int, required=False),
+            data_storage_percentage=dict(type=int, required=False),
+            database_edition=dict(
+                type="str",
+                required=False,
+                choices=[
+                    "STANDARD_EDITION",
+                    "ENTERPRISE_EDITION",
+                    "ENTERPRISE_EDITION_EXTREME_PERFORMANCE",
+                    "ENTERPRISE_EDITION_HIGH_PERFORMANCE",
+                ],
+            ),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+            db_home=dict(type=dict, required=False),
+            disk_redundancy=dict(
+                type="str", required=False, choices=["HIGH", "NORMAL"]
+            ),
+            display_name=dict(type="str", required=False),
+            domain=dict(type="str", required=False),
+            hostname=dict(type="str", required=False),
+            initial_data_storage_size_in_gb=dict(type=int, required=False),
+            data_storage_size_in_gbs=dict(type=int, required=False),
+            license_model=dict(
+                type="str",
+                required=False,
+                choices=["LICENSE_INCLUDED", "BRING_YOUR_OWN_LICENSE"],
+            ),
+            node_count=dict(type=int, required=False),
+            shape=dict(type="str", required=False),
+            ssh_public_keys=dict(type=list, required=False),
+            subnet_id=dict(type="str", required=False),
+            purge_ssh_public_keys=dict(
+                type=bool, required=False, default=True, choices=[True, False]
+            ),
+            version=dict(type=dict, required=False),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
-    if os.environ.get('OCI_DB_MOCK') is not None:
+    if os.environ.get("OCI_DB_MOCK") is not None:
         db_client.base_client.session.headers.update(
-            {'opc-host-serial': 'FakeHostSerial'})
-    state = module.params['state']
+            {"opc-host-serial": "FakeHostSerial"}
+        )
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = launch_or_update_db_system(db_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_db_system(db_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

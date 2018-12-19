@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_tag
 short_description: Create, retire and reactivate tag key definitions in OCI
@@ -46,6 +46,10 @@ options:
         required: false
         default: False
         type: bool
+    is_cost_tracking:
+        description: Indicates whether the tag is enabled for cost tracking.
+        required: false
+        type: bool
     state:
         description: The state of the tag key definition that must be asserted to. When I(state=present), and the
                      tag definition doesn't exist, the tag definition is created. When I(state=absent), the tag
@@ -56,9 +60,9 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a new tag key definition
   oci_tag:
     tag_namespace_id: "ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx"
@@ -77,14 +81,26 @@ EXAMPLES = '''
     name: "CostCenter"
     state: "absent"
 
+- name: Enable a tag key definition for cost-tracking
+  oci_tag:
+    tag_namespace_id: "ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx"
+    name: "CostCenter"
+    is_cost_tracking: "yes"
+
+- name: Disable a tag key definition for cost-tracking
+  oci_tag:
+    tag_namespace_id: "ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx"
+    name: "CostCenter"
+    is_cost_tracking: "no"
+
 - name: To reactivate a retired namespace
   oci_tag:
     tag_namespace_id: "ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx"
     name: "CostCenter"
     reactivate: "yes"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 tag:
     description: Details of the tag key definition
     returned: On successful create or update of a tag key definition
@@ -96,12 +112,13 @@ tag:
             "freeform_tags": {},
             "id": "ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx",
             "is_retired": false,
+            "is_cost_tracking": false,
             "name": "CostCenter",
             "tag_namespace_id": "ocid1.tagnamespace.oc1..xxxxxEXAMPLExxxxx",
             "tag_namespace_name": null,
             "time_created": "2018-01-16T04:55:22.600000+00:00"
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -131,61 +148,111 @@ def get_logger():
 
 def _get_tag_definition_from_id(identity_client, tag_namespace_id, tag_name):
     try:
-        resp = oci_utils.call_with_backoff(identity_client.get_tag, tag_namespace_id=tag_namespace_id,
-                                           tag_name=tag_name)
+        resp = oci_utils.call_with_backoff(
+            identity_client.get_tag,
+            tag_namespace_id=tag_namespace_id,
+            tag_name=tag_name,
+        )
         return resp.data
     except ServiceError:
         # ignore
         return None
 
 
-def update_tag_definition_state(identity_client, tag_namespace_id, tag_name, module, description, is_retired):
-    try:
+def handle_update_tag_definition(identity_client, tag, module):
+    result = dict(changed=False, tag=to_dict(tag))
+
+    description = module.params.get("description", None)
+    is_cost_tracking = module.params.get("is_cost_tracking", None)
+    reactivate = module.params.get("reactivate", None)
+
+    if description is None:
+        # if description is not provided by the user, set it to the tag's current description
+        # Update details requires a description and hence we have to do this.
+        description = tag.description
+    desc_change_needed = tag.description != description
+    cost_tracking_change_needed = (
+        is_cost_tracking is not None and tag.is_cost_tracking != is_cost_tracking
+    )
+    reactivate_needed = reactivate is not None and reactivate is True and tag.is_retired
+
+    change_needed = any(
+        [desc_change_needed, cost_tracking_change_needed, reactivate_needed]
+    )
+    if change_needed:
         utd = UpdateTagDetails()
-        utd.is_retired = is_retired
-        # even though only retired state needs to be updated, the
-        # details model class requires a valid description and so we
+        # The details model class requires a valid description always and so we
         # pass in the old description of the tag
         utd.description = description
+        if cost_tracking_change_needed:
+            utd.is_cost_tracking = is_cost_tracking
+        if reactivate_needed:
+            utd.is_retired = False
 
-        updated_tag = oci_utils.call_with_backoff(identity_client.update_tag, tag_namespace_id=tag_namespace_id,
-                                                  tag_name=tag_name, update_tag_details=utd).data
+        tag_namespace_id = module.params.get("tag_namespace_id", None)
+        tag_name = module.params.get("tag_name", None)
+        result["tag"] = to_dict(
+            _update_tag_definition(
+                identity_client, tag_namespace_id, tag_name, utd, module
+            )
+        )
+        result["changed"] = True
+    return result
 
-        get_logger().info("Retired tag definition %s", tag_name)
-        return updated_tag, True
+
+def _update_tag_definition(
+    identity_client, tag_namespace_id, tag_name, update_tag_details, module
+):
+    try:
+        updated_tag = oci_utils.call_with_backoff(
+            identity_client.update_tag,
+            tag_namespace_id=tag_namespace_id,
+            tag_name=tag_name,
+            update_tag_details=update_tag_details,
+        ).data
+
+        get_logger().info("Updated tag definition %s to %s", tag_name, updated_tag)
+        return updated_tag
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as mwte:
         module.fail_json(msg=str(mwte))
 
 
-def update_tag_namespace_description(identity_client, tag_namespace_id, tag_name, description, module):
-    try:
-        utd = UpdateTagDetails()
-        utd.description = description
+def retire_tag_definition(
+    identity_client, tag_namespace_id, tag_name, module, description, is_retired
+):
+    utd = UpdateTagDetails()
+    utd.is_retired = is_retired
+    # even though only retired state needs to be updated, the
+    # details model class requires a valid description and so we
+    # pass in the old description of the tag
+    utd.description = description
 
-        updated_tag = oci_utils.call_with_backoff(identity_client.update_tag, tag_namespace_id=tag_namespace_id,
-                                                  tag_name=tag_name, update_tag_details=utd).data
-
-        get_logger().info("Updated tag definition %s", to_dict(updated_tag))
-        return updated_tag, True
-    except ServiceError as ex:
-        module.fail_json(msg=ex.message)
+    return _update_tag_definition(
+        identity_client, tag_namespace_id, tag_name, utd, module
+    )
 
 
-def create_tag(identity_client, tag_namespace_id, name, description, module):
+def create_tag(
+    identity_client, tag_namespace_id, name, description, is_cost_tracking, module
+):
     result = {}
     try:
         ctd = CreateTagDetails()
         ctd.name = name
         ctd.description = description
+        ctd.is_cost_tracking = is_cost_tracking
 
-        create_response = oci_utils.call_with_backoff(identity_client.create_tag, tag_namespace_id=tag_namespace_id,
-                                                      create_tag_details=ctd)
+        create_response = oci_utils.call_with_backoff(
+            identity_client.create_tag,
+            tag_namespace_id=tag_namespace_id,
+            create_tag_details=ctd,
+        )
         get_logger().info("Created tag definition %s", to_dict(create_response.data))
 
-        result['tag'] = to_dict(create_response.data)
-        result['changed'] = True
+        result["tag"] = to_dict(create_response.data)
+        result["changed"] = True
         return result
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -197,76 +264,78 @@ def main():
     set_logger(oci_utils.get_logger("oci_tag"))
 
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        tag_namespace_id=dict(type='str', required=True),
-        tag_name=dict(type='str', required=True, aliases=['name']),
-        description=dict(type='str', required=False),
-        reactivate=dict(type='bool', required=False),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
+    module_args.update(
+        dict(
+            tag_namespace_id=dict(type="str", required=True),
+            tag_name=dict(type="str", required=True, aliases=["name"]),
+            description=dict(type="str", required=False),
+            reactivate=dict(type="bool", required=False),
+            is_cost_tracking=dict(type="bool", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
-    state = module.params['state']
+    state = module.params["state"]
 
     result = dict(changed=False)
 
     tag_namespace_id = module.params.get("tag_namespace_id", None)
     tag_name = module.params.get("tag_name", None)
-    name = module.params.get('name', None)
-    description = module.params.get('description', None)
+    name = module.params.get("name", None)
+    description = module.params.get("description", None)
+    is_cost_tracking = module.params.get("is_cost_tracking", None)
 
     get_logger().debug("tag key definition name is " + str(tag_name))
 
     tag = _get_tag_definition_from_id(identity_client, tag_namespace_id, tag_name)
 
-    if state == 'absent':
+    if state == "absent":
         get_logger().debug("Retire tag key definition %s requested", tag_name)
         if tag is not None:
-            retired = False
             if not tag.is_retired:
                 get_logger().debug("Retiring %s", tag.id)
-                tag, retired = update_tag_definition_state(identity_client, tag_namespace_id, tag_name, module,
-                                                           description=tag.description, is_retired=True)
+                tag = retire_tag_definition(
+                    identity_client,
+                    tag_namespace_id,
+                    tag_name,
+                    module,
+                    description=tag.description,
+                    is_retired=True,
+                )
+                result["changed"] = True
+            result["tag"] = to_dict(tag)
 
-            result['changed'] = retired
-            result['tag'] = to_dict(tag)
     # if the Tag doesn't exist, it is already deleted and so we return the default dict with changed as False
-    elif state == 'present':
+    elif state == "present":
         if tag is not None:
-            desc_changed = False
-            reactivated = False
-
-            if tag.description != description:
-                tag, desc_changed = update_tag_namespace_description(identity_client, tag_namespace_id, tag_name,
-                                                                     description, module)
-
-            reactivate = module.params.get('reactivate', None)
-            if reactivate:
-                get_logger().debug("Reactivate tag definition %s requested", tag_name)
-                if tag.is_retired:
-                    tag, reactivated = update_tag_definition_state(identity_client, tag_namespace_id, tag_name, module,
-                                                                   description=tag.description,
-                                                                   is_retired=False)
-
-            result['changed'] = desc_changed or reactivated
-            result['tag'] = to_dict(tag)
+            result = handle_update_tag_definition(identity_client, tag, module)
         else:
             # Unlike other OCI resources, if a user has provided `tag_namespace_id` and `name`, and the Tag is not
             # present already, we will attempt to create the Tag. This is because there is no special way to
             # differentiate a "create" from a "update" through the absence of a "tag" "id" option for OCI Tags.
             # Therefore, also, oci_tag doesn't include oracle_creatable_resource documentation fragment and options.
-            result = create_tag(identity_client, tag_namespace_id, name, description, module)
+            result = create_tag(
+                identity_client,
+                tag_namespace_id,
+                name,
+                description,
+                is_cost_tracking,
+                module,
+            )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

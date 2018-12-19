@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_volume_group_backup_facts
 short_description: Retrieve facts of volume group backups in OCI Block Volume service
@@ -36,9 +36,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get information of all the volume group backups in a compartment
   oci_volume_group_backup_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
@@ -46,9 +46,9 @@ EXAMPLES = '''
 - name: Get information of a volume group backup
   oci_volume_group_backup_facts:
     id: ocid1.volumegroupbackup.oc1.iad.xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 volume_group_backups:
     description: List of volume group backup information
     returned: on success
@@ -155,7 +155,7 @@ volume_group_backups:
             "volume_backup_ids": ["ocid1.volumebackup.oc1.iad.xxxxxEXAMPLExxxxx"],
             "volume_group_id": "ocid1.volumegroup.oc1.iad.xxxxxEXAMPLExxxxx"
     }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -164,6 +164,7 @@ try:
     from oci.core.blockstorage_client import BlockstorageClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -171,45 +172,58 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        volume_group_backup_id=dict(type='str', required=False, aliases=['id']),
-        volume_group_id=dict(type='str', required=False),
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            volume_group_backup_id=dict(type="str", required=False, aliases=["id"]),
+            volume_group_id=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[
-            ['compartment_id', 'volume_group_backup_id']
-        ]
+        required_one_of=[["compartment_id", "volume_group_backup_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
-    volume_group_backup_id = module.params['volume_group_backup_id']
+    volume_group_backup_id = module.params["volume_group_backup_id"]
 
     try:
         if volume_group_backup_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(block_storage_client.get_volume_group_backup,
-                                                          volume_group_backup_id=volume_group_backup_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        block_storage_client.get_volume_group_backup,
+                        volume_group_backup_id=volume_group_backup_id,
+                    ).data
+                )
+            ]
 
         else:
-            compartment_id = module.params['compartment_id']
-            optional_list_method_params = ['display_name', 'volume_group_id']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            result = to_dict(oci_utils.list_all_resources(block_storage_client.list_volume_group_backups,
-                                                          compartment_id=compartment_id,
-                                                          **optional_kwargs))
+            compartment_id = module.params["compartment_id"]
+            optional_list_method_params = ["display_name", "volume_group_id"]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    block_storage_client.list_volume_group_backups,
+                    compartment_id=compartment_id,
+                    **optional_kwargs
+                )
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(volume_group_backups=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

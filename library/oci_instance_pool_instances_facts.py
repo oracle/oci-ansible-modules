@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_instance_pool_instances_facts
 short_description: Retrieve facts of instance pool instances of an instance pool in OCI Compute Service
@@ -32,16 +32,16 @@ options:
         aliases: [ 'id' ]
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get information of all instances in the specified instance_pool_id
   oci_instance_pool_instances_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...abcd
     instance_pool_id: ocid1.instancepool.oc1.phx.xxxxxEXAMPLExxxxx...efgh
-'''
+"""
 
-RETURN = '''
+RETURN = """
 instance_pool_instances:
     description: List of instances in a specified instance pool
     returned: On success
@@ -273,7 +273,7 @@ instance_pool_instances:
                                 "volume_id": "ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx"
       }]
     }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -292,32 +292,42 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=True),
-        instance_pool_id=dict(type='str', required=True, aliases=['id'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=True),
+            instance_pool_id=dict(type="str", required=True, aliases=["id"]),
+        )
     )
 
-    if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
 
-    compute_management_client = oci_utils.create_service_client(module, ComputeManagementClient)
+    if not HAS_OCI_PY_SDK:
+        module.fail_json(msg="oci python sdk required for this module.")
+
+    compute_management_client = oci_utils.create_service_client(
+        module, ComputeManagementClient
+    )
     compute_client = oci_utils.create_service_client(module, ComputeClient)
 
     try:
-        compartment_id = module.params['compartment_id']
-        instance_pool_id = module.params['instance_pool_id']
+        compartment_id = module.params["compartment_id"]
+        instance_pool_id = module.params["instance_pool_id"]
         instance_summaries = to_dict(
-            oci_utils.list_all_resources(compute_management_client.list_instance_pool_instances,
-                                         compartment_id=compartment_id, instance_pool_id=instance_pool_id))
+            oci_utils.list_all_resources(
+                compute_management_client.list_instance_pool_instances,
+                compartment_id=compartment_id,
+                instance_pool_id=instance_pool_id,
+            )
+        )
         # Get model from summaries returned by `list_instance_pools_instances`
         result = to_dict(
-            [oci_utils.call_with_backoff(compute_client.get_instance, instance_id=inst_summ['id']).data for inst_summ in
-             instance_summaries])
+            [
+                oci_utils.call_with_backoff(
+                    compute_client.get_instance, instance_id=inst_summ["id"]
+                ).data
+                for inst_summ in instance_summaries
+            ]
+        )
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -325,5 +335,5 @@ def main():
     module.exit_json(instance_pool_instances=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

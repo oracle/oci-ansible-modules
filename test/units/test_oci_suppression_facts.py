@@ -16,8 +16,7 @@ try:
     from oci.email.models import Suppression
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_suppression_facts.py requires `oci` module")
+    raise SkipTest("test_oci_suppression_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,47 +35,54 @@ class FakeModule(object):
 
 @pytest.fixture()
 def email_client(mocker):
-    mock_email_client = mocker.patch(
-        'oci.email.email_client.EmailClient')
+    mock_email_client = mocker.patch("oci.email.email_client.EmailClient")
     return mock_email_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_suppression_facts.set_logger(logging)
 
 
 def test_list_suppressions_list_all(email_client, list_all_resources_patch):
-    module = get_module(dict(compartment_id='ocid1.compartment.aaaa',
-                             suppression_id='ocid1.suppression.aaaa'))
+    module = get_module(
+        dict(
+            compartment_id="ocid1.compartment.aaaa",
+            suppression_id="ocid1.suppression.aaaa",
+        )
+    )
     list_all_resources_patch.return_value = get_suppressions()
-    email_client.get_sernder.side_effect = [get_response(
-        200, None, get_suppression(), None), get_response(
-        200, None, get_suppression(), None)]
+    email_client.get_sernder.side_effect = [
+        get_response(200, None, get_suppression(), None),
+        get_response(200, None, get_suppression(), None),
+    ]
     result = oci_suppression_facts.list_suppressions(email_client, module)
-    assert len(result['suppressions']) is 2
+    assert len(result["suppressions"]) is 2
 
 
 def test_list_suppressions_list_specific(email_client):
-    module = get_module(dict({'suppression_id': 'ocid1.suppression.aaaa'}))
+    module = get_module(dict({"suppression_id": "ocid1.suppression.aaaa"}))
     suppression = get_suppression()
     email_client.get_suppression.return_value = get_response(
-        200, None, suppression, None)
+        200, None, suppression, None
+    )
     result = oci_suppression_facts.list_suppressions(email_client, module)
-    assert result['suppressions'][0]['email_address'] is suppression.email_address
+    assert result["suppressions"][0]["email_address"] is suppression.email_address
 
 
 def test_list_suppression_service_error(email_client):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'suppression_id': 'ocid1.suppression.aaaa'}))
+    error_message = "Internal Server Error"
+    module = get_module(dict({"suppression_id": "ocid1.suppression.aaaa"}))
     email_client.get_db_system.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_suppression_facts.list_suppressions(email_client, module)
     except Exception as ex:
@@ -86,11 +92,11 @@ def test_list_suppression_service_error(email_client):
 def get_suppressions():
     suppressions = []
     suppression1 = Suppression()
-    suppression1.id = 'ocid1.suppression.aaaa'
-    suppression1.email_address = 'ansible1@test.com'
+    suppression1.id = "ocid1.suppression.aaaa"
+    suppression1.email_address = "ansible1@test.com"
     suppression2 = Suppression()
-    suppression2.id = 'ocid1.suppression.abuw'
-    suppression2.email_address = 'ansible2@test.com'
+    suppression2.id = "ocid1.suppression.abuw"
+    suppression2.email_address = "ansible2@test.com"
     suppressions.append(suppression1)
     suppressions.append(suppression2)
     return suppressions
@@ -98,7 +104,7 @@ def get_suppressions():
 
 def get_suppression():
     suppression = Suppression()
-    suppression.email_address = 'ansible@host.com'
+    suppression.email_address = "ansible@host.com"
     return suppression
 
 

@@ -16,8 +16,7 @@ try:
     from oci.database.models import DbNode
     from oci.exceptions import ServiceError, ClientError
 except ImportError:
-    raise SkipTest(
-        "test_oci_db_node.py requires `oci` module")
+    raise SkipTest("test_oci_db_node.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,85 +35,103 @@ class FakeModule(object):
 
 @pytest.fixture()
 def db_client(mocker):
-    mock_db_client = mocker.patch(
-        'oci.database.database_client.DatabaseClient')
+    mock_db_client = mocker.patch("oci.database.database_client.DatabaseClient")
     return mock_db_client.return_value
 
 
 @pytest.fixture()
 def execute_function_and_wait_patch(mocker):
-    return mocker.patch.object(oci_db_utils, 'execute_function_and_wait')
+    return mocker.patch.object(oci_db_utils, "execute_function_and_wait")
 
 
 @pytest.fixture()
 def get_existing_resource_patch(mocker):
-    return mocker.patch.object(oci_utils, 'get_existing_resource')
+    return mocker.patch.object(oci_utils, "get_existing_resource")
+
 
 @pytest.fixture()
 def db_node_action_patch(mocker):
-    return mocker.patch.object(oci_db_node, 'db_node_action')
+    return mocker.patch.object(oci_db_node, "db_node_action")
+
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_db_node.set_logger(logging)
 
-def test_perform_db_node_action(db_client, get_existing_resource_patch, db_node_action_patch):
+
+def test_perform_db_node_action(
+    db_client, get_existing_resource_patch, db_node_action_patch
+):
     module = get_module(dict())
-    db_node = get_db_node('AVAILABLE')
+    db_node = get_db_node("AVAILABLE")
     get_existing_resource_patch.return_value = db_node
-    db_node_action_patch.return_value = {'db_node': to_dict(db_node), 'changed': True}
+    db_node_action_patch.return_value = {"db_node": to_dict(db_node), "changed": True}
     result = oci_db_node.perform_db_node_action(db_client, module)
-    assert result['db_node']['hostname'] is db_node.hostname
+    assert result["db_node"]["hostname"] is db_node.hostname
 
 
 def test_create_or_update_db_node_client_error(db_client, get_existing_resource_patch):
-    error_message = 'Db Node id is mandatory'
+    error_message = "Db Node id is mandatory"
     module = get_module(dict())
-    get_existing_resource_patch.side_effect = ClientError(
-        Exception(error_message))
+    get_existing_resource_patch.side_effect = ClientError(Exception(error_message))
     try:
         oci_db_node.perform_db_node_action(db_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
-def test_create_or_update_db_node_service_error(db_client, get_existing_resource_patch, db_node_action_patch):
-    error_message = 'Internal Server Error'
+
+def test_create_or_update_db_node_service_error(
+    db_client, get_existing_resource_patch, db_node_action_patch
+):
+    error_message = "Internal Server Error"
     module = get_module(dict())
-    db_node = get_db_node('AVAILABLE')
+    db_node = get_db_node("AVAILABLE")
     get_existing_resource_patch.return_value = db_node
     db_node_action_patch.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_db_node.perform_db_node_action(db_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
-
-def test_db_node_action_change_in_desired_state(db_client, execute_function_and_wait_patch):
-    module = get_module(dict({'state': 'stop'}))
-    db_node = get_db_node('AVAILABLE')
-    execute_function_and_wait_patch.return_value = {'db_node': to_dict(db_node), 'changed': True}
+def test_db_node_action_change_in_desired_state(
+    db_client, execute_function_and_wait_patch
+):
+    module = get_module(dict({"state": "stop"}))
+    db_node = get_db_node("AVAILABLE")
+    execute_function_and_wait_patch.return_value = {
+        "db_node": to_dict(db_node),
+        "changed": True,
+    }
     result = oci_db_node.db_node_action(db_client, module, db_node)
-    assert result['changed'] is True
+    assert result["changed"] is True
+
 
 def test_db_node_action_no_change_in_desired_state(db_client):
-    module = get_module(dict({'state': 'start'}))
-    db_node = get_db_node('AVAILABLE')
+    module = get_module(dict({"state": "start"}))
+    db_node = get_db_node("AVAILABLE")
     result = oci_db_node.db_node_action(db_client, module, db_node)
-    assert result['changed'] is False
+    assert result["changed"] is False
+
 
 def test_db_node_action_reset(db_client, execute_function_and_wait_patch):
-    module = get_module(dict({'state': 'reset'}))
-    db_node = get_db_node('AVAILABLE')
-    execute_function_and_wait_patch.return_value = {'db_node': to_dict(db_node), 'changed': True}
+    module = get_module(dict({"state": "reset"}))
+    db_node = get_db_node("AVAILABLE")
+    execute_function_and_wait_patch.return_value = {
+        "db_node": to_dict(db_node),
+        "changed": True,
+    }
     result = oci_db_node.db_node_action(db_client, module, db_node)
-    assert result['changed'] is True
+    assert result["changed"] is True
+
 
 def get_db_node(lifecycle_state):
     db_node = DbNode()
-    db_node.hostname = 'ansibledbnode'
+    db_node.hostname = "ansibledbnode"
     db_node.lifecycle_state = lifecycle_state
     return db_node
 
@@ -124,9 +141,7 @@ def get_response(status, header, data, request):
 
 
 def get_module(additional_properties):
-    params = {
-        "db_node_id": "ocid1.dbnode.aaaa"
-    }
+    params = {"db_node_id": "ocid1.dbnode.aaaa"}
     params.update(additional_properties)
     module = FakeModule(**params)
     return module

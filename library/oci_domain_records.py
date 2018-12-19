@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_domain_records
 short_description: Update or Patch a collection of records in the specified zone in OCI DNS Service
@@ -122,9 +122,9 @@ options:
         choices: ['present']
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Update a zone's domain records by adding a new record. This operation replaces domain records in the specified
         zone with the specified records. So ensure that you include the original domain records, if you want to retain
         existing records.
@@ -139,9 +139,9 @@ EXAMPLES = '''
     name: test_zone1.com
     patch_items: [ { domain: "test_zone_1.com", is_protected: false, rdata: 'some textual data',
                      rtype: "TXT", ttl: 30, operation: "REMOVE" }]
-'''
+"""
 
-RETURN = '''
+RETURN = """
 domain_records:
     description: Information about the zone's domain resource records
     returned: On successful update or patch of zone's domain resource records
@@ -194,15 +194,21 @@ domain_records:
                     "rtype": "NS",
                     "ttl": 86400
                 }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
 try:
     from oci.dns.dns_client import DnsClient
-    from oci.dns.models import PatchDomainRecordsDetails, RecordOperation, RecordDetails, UpdateDomainRecordsDetails
+    from oci.dns.models import (
+        PatchDomainRecordsDetails,
+        RecordOperation,
+        RecordDetails,
+        UpdateDomainRecordsDetails,
+    )
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -215,12 +221,12 @@ RESOURCE_NAME = "domain_records"
 # This is different from other resources.
 # XXX: for now only zone_name appears to work, and not OCID. Using an OCID gives an error "Invalid Domain Name".
 def get_zone_name_or_id(module):
-    if module.params['name'] is not None:
-        return module.params['name']
-    if module.params['zone_id'] is not None:
-        return module.params['zone_id']
-    if module.params['id'] is not None:
-        return module.params['id']
+    if module.params["name"] is not None:
+        return module.params["name"]
+    if module.params["zone_id"] is not None:
+        return module.params["zone_id"]
+    if module.params["id"] is not None:
+        return module.params["id"]
     return None
 
 
@@ -239,76 +245,104 @@ def modify_domain_records(dns_client, module, modify_operation, modify_kwargs):
         domain_records_old = oci_utils.call_with_backoff(
             dns_client.get_domain_records,
             zone_name_or_id=get_zone_name_or_id(module),
-            domain=module.params['domain']).data.items
+            domain=module.params["domain"],
+        ).data.items
 
         # update domain records
-        updated_rec_coll = oci_utils.call_with_backoff(modify_operation, **modify_kwargs).data
+        updated_rec_coll = oci_utils.call_with_backoff(
+            modify_operation, **modify_kwargs
+        ).data
         result[RESOURCE_NAME] = oci_utils.to_dict(updated_rec_coll.items)
 
         # get domain records after update
         domain_records_new = oci_utils.call_with_backoff(
             dns_client.get_domain_records,
             zone_name_or_id=get_zone_name_or_id(module),
-            domain=module.params['domain']).data.items
+            domain=module.params["domain"],
+        ).data.items
 
         # check if there is any change between the old and the new domain records, and set changed accordingly
-        result['changed'] = not oci_utils.are_lists_equal(domain_records_old, domain_records_new)
+        result["changed"] = not oci_utils.are_lists_equal(
+            domain_records_old, domain_records_new
+        )
     except ServiceError as ex:
         module.fail_json(msg=str(ex))
     return result
 
 
 def patch_domain_records(dns_client, module):
-    patch_items = module.params['patch_items']
+    patch_items = module.params["patch_items"]
     patch_domain_records_details = PatchDomainRecordsDetails()
-    patch_domain_records_details.items = [create_model(RecordOperation, item) for item in patch_items]
-    kwargs = {"patch_domain_records_details": patch_domain_records_details,
-              "zone_name_or_id": get_zone_name_or_id(module), "domain": module.params['domain']}
-    return modify_domain_records(dns_client, module, modify_operation=dns_client.patch_domain_records,
-                                 modify_kwargs=kwargs)
+    patch_domain_records_details.items = [
+        create_model(RecordOperation, item) for item in patch_items
+    ]
+    kwargs = {
+        "patch_domain_records_details": patch_domain_records_details,
+        "zone_name_or_id": get_zone_name_or_id(module),
+        "domain": module.params["domain"],
+    }
+    return modify_domain_records(
+        dns_client,
+        module,
+        modify_operation=dns_client.patch_domain_records,
+        modify_kwargs=kwargs,
+    )
 
 
 def update_domain_records(dns_client, module):
-    update_items = module.params['update_items']
+    update_items = module.params["update_items"]
     update_domain_records_details = UpdateDomainRecordsDetails()
-    update_domain_records_details.items = [create_model(RecordDetails, item) for item in update_items]
-    kwargs = {"update_domain_records_details": update_domain_records_details,
-              "zone_name_or_id": get_zone_name_or_id(module), "domain": module.params['domain']}
-    return modify_domain_records(dns_client, module, modify_operation=dns_client.update_domain_records,
-                                 modify_kwargs=kwargs)
+    update_domain_records_details.items = [
+        create_model(RecordDetails, item) for item in update_items
+    ]
+    kwargs = {
+        "update_domain_records_details": update_domain_records_details,
+        "zone_name_or_id": get_zone_name_or_id(module),
+        "domain": module.params["domain"],
+    }
+    return modify_domain_records(
+        dns_client,
+        module,
+        modify_operation=dns_client.update_domain_records,
+        modify_kwargs=kwargs,
+    )
 
 
 def main():
     module_args = oci_utils.get_common_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        zone_id=dict(type='str', required=False, aliases=['id']),
-        name=dict(type='str', required=False, aliases=['zone_name']),
-        domain=dict(type='str', required=True),
-        update_items=dict(type='list', required=False),
-        patch_items=dict(type='list', required=False),
-        state=dict(type='str', required=False, default='present', choices=['present'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            zone_id=dict(type="str", required=False, aliases=["id"]),
+            name=dict(type="str", required=False, aliases=["zone_name"]),
+            domain=dict(type="str", required=True),
+            update_items=dict(type="list", required=False),
+            patch_items=dict(type="list", required=False),
+            state=dict(
+                type="str", required=False, default="present", choices=["present"]
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[['update_items', 'patch_items'], ['zone_id', 'name']]
+        required_one_of=[["update_items", "patch_items"], ["zone_id", "name"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     dns_client = oci_utils.create_service_client(module, DnsClient)
 
-    state = module.params['state']
-    if state == 'present':
-        if module.params['update_items'] is not None:
+    state = module.params["state"]
+    if state == "present":
+        if module.params["update_items"] is not None:
             result = update_domain_records(dns_client, module)
         else:
             result = patch_domain_records(dns_client, module)
         module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

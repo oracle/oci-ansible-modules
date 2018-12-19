@@ -13,10 +13,17 @@ from ansible.module_utils.oracle import oci_utils, oci_lb_utils
 try:
     import oci
     from oci.util import to_dict
-    from oci.load_balancer.models import PathRoute, PathRouteSet, PathMatchType, WorkRequest
+    from oci.load_balancer.models import (
+        PathRoute,
+        PathRouteSet,
+        PathMatchType,
+        WorkRequest,
+    )
     from oci.exceptions import ServiceError, ClientError
 except ImportError:
-    raise SkipTest("test_oci_load_balancer_path_route_set_facts.py requires `oci` module")
+    raise SkipTest(
+        "test_oci_load_balancer_path_route_set_facts.py requires `oci` module"
+    )
 
 
 class FakeModule(object):
@@ -26,7 +33,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,18 +43,19 @@ class FakeModule(object):
 @pytest.fixture()
 def lb_client(mocker):
     mock_lb_client = mocker.patch(
-        'oci.load_balancer.load_balancer_client.LoadBalancerClient')
+        "oci.load_balancer.load_balancer_client.LoadBalancerClient"
+    )
     return mock_lb_client.return_value
 
 
 @pytest.fixture()
 def oci_wait_until_patch(mocker):
-    return mocker.patch.object(oci, 'wait_until')
+    return mocker.patch.object(oci, "wait_until")
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 @pytest.fixture()
@@ -56,53 +64,87 @@ def oci_utils_call_with_backoff_patch(mocker):
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
+    oci_load_balancer_path_route_set_facts.set_logger(logging)
+
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_load_balancer_path_route_set_facts.set_logger(logging)
 
 
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
-    oci_load_balancer_path_route_set_facts.set_logger(logging)
-
-
-def test_list_load_balancer_path_route_sets_specific_path_route_set(lb_client, oci_utils_call_with_backoff_patch):
-    module = get_module(dict({'path_route_set_name': 'path_route_set1',
-                              'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+def test_list_load_balancer_path_route_sets_specific_path_route_set(
+    lb_client, oci_utils_call_with_backoff_patch
+):
+    module = get_module(
+        dict(
+            {
+                "path_route_set_name": "path_route_set1",
+                "load_balancer_id": "ocid1.lodbalancer.xcds",
+            }
+        )
+    )
     path_route_set = create_default_path_route_set()
     lb_client.get_path_route_set.return_value = get_response(
-        200, None, path_route_set, None)
-    oci_utils_call_with_backoff_patch.return_value = get_response(200, None, path_route_set, None)
-    result = oci_load_balancer_path_route_set_facts.list_load_balancer_path_route_sets(lb_client, module)
-    assert result['path_route_sets'][0]['name'] is path_route_set.name
+        200, None, path_route_set, None
+    )
+    oci_utils_call_with_backoff_patch.return_value = get_response(
+        200, None, path_route_set, None
+    )
+    result = oci_load_balancer_path_route_set_facts.list_load_balancer_path_route_sets(
+        lb_client, module
+    )
+    assert result["path_route_sets"][0]["name"] is path_route_set.name
 
-def test_list_load_balancer_path_routes_all_path_routes(lb_client, list_all_resources_patch):
-    module = get_module(dict({'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+
+def test_list_load_balancer_path_routes_all_path_routes(
+    lb_client, list_all_resources_patch
+):
+    module = get_module(dict({"load_balancer_id": "ocid1.lodbalancer.xcds"}))
     path_route_set = create_default_path_route_set()
     list_all_resources_patch.return_value = [path_route_set]
-    result = oci_load_balancer_path_route_set_facts.list_load_balancer_path_route_sets(lb_client, module)
-    assert result['path_route_sets'][0]['name'] is path_route_set.name
+    result = oci_load_balancer_path_route_set_facts.list_load_balancer_path_route_sets(
+        lb_client, module
+    )
+    assert result["path_route_sets"][0]["name"] is path_route_set.name
 
-def test_list_load_balancer_path_route_sets_service_error(lb_client, list_all_resources_patch):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'path_route_set_name': 'path_route_set1',
-                              'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+
+def test_list_load_balancer_path_route_sets_service_error(
+    lb_client, list_all_resources_patch
+):
+    error_message = "Internal Server Error"
+    module = get_module(
+        dict(
+            {
+                "path_route_set_name": "path_route_set1",
+                "load_balancer_id": "ocid1.lodbalancer.xcds",
+            }
+        )
+    )
     list_all_resources_patch.side_effect = ServiceError(
-        500, 'InternalServerError', dict(), error_message)
+        500, "InternalServerError", dict(), error_message
+    )
     try:
-        oci_load_balancer_path_route_set_facts.list_load_balancer_path_route_sets(lb_client, module)
+        oci_load_balancer_path_route_set_facts.list_load_balancer_path_route_sets(
+            lb_client, module
+        )
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
-
 def create_default_path_route_set():
-    path_routes = [{
-        "path_route_set_name": "test_back_end",
-        "path": "/test_resource/catalog",
-                "path_match_type": PathMatchType(match_type=PathMatchType.MATCH_TYPE_EXACT_MATCH)
-    }]
-    path_route_set = get_path_route_set('path_route_set1', path_routes)
+    path_routes = [
+        {
+            "path_route_set_name": "test_back_end",
+            "path": "/test_resource/catalog",
+            "path_match_type": PathMatchType(
+                match_type=PathMatchType.MATCH_TYPE_EXACT_MATCH
+            ),
+        }
+    ]
+    path_route_set = get_path_route_set("path_route_set1", path_routes)
     return path_route_set
 
 

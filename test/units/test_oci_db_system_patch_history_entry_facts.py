@@ -17,7 +17,8 @@ try:
     from oci.exceptions import ServiceError
 except ImportError:
     raise SkipTest(
-        "test_oci_db_system_patch_history_entry_facts.py requires `oci` module")
+        "test_oci_db_system_patch_history_entry_facts.py requires `oci` module"
+    )
 
 
 class FakeModule(object):
@@ -27,7 +28,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,56 +37,76 @@ class FakeModule(object):
 
 @pytest.fixture()
 def db_client(mocker):
-    mock_db_client = mocker.patch(
-        'oci.database.database_client.DatabaseClient')
+    mock_db_client = mocker.patch("oci.database.database_client.DatabaseClient")
     return mock_db_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_db_system_patch_history_entry_facts.set_logger(logging)
 
 
-def test_list_db_system_patch_history_entries_with_only_db_system(db_client, list_all_resources_patch):
-    module = get_module(dict({'db_system_id': 'ocid1.dbsystem.aaaa'}))
+def test_list_db_system_patch_history_entries_with_only_db_system(
+    db_client, list_all_resources_patch
+):
+    module = get_module(dict({"db_system_id": "ocid1.dbsystem.aaaa"}))
     list_all_resources_patch.return_value = [get_patch_history_entries()]
     result = oci_db_system_patch_history_entry_facts.list_db_system_patch_history_entries(
-        db_client, module)
-    assert result['db_system_patch_history_entries'][0]['patch_id'] is get_patch_history_entries(
-    ).patch_id
+        db_client, module
+    )
+    assert (
+        result["db_system_patch_history_entries"][0]["patch_id"]
+        is get_patch_history_entries().patch_id
+    )
 
 
 def test_list_db_system_patch_history_entries_with_patch_history_entry_id(db_client):
     module = get_module(
-        dict({'db_system_id': 'ocid1.dbsystem.aaaa', 'patch_history_entry_id': 'ocid1.dbpatchhistory.oc1.iad.abuwc'}))
+        dict(
+            {
+                "db_system_id": "ocid1.dbsystem.aaaa",
+                "patch_history_entry_id": "ocid1.dbpatchhistory.oc1.iad.abuwc",
+            }
+        )
+    )
     db_client.get_db_system_patch_history_entry.return_value = get_response(
-        200, None, get_patch_history_entries(), None)
+        200, None, get_patch_history_entries(), None
+    )
     result = oci_db_system_patch_history_entry_facts.list_db_system_patch_history_entries(
-        db_client, module)
-    assert result['db_system_patch_history_entries'][0]['patch_id'] is get_patch_history_entries(
-    ).patch_id
+        db_client, module
+    )
+    assert (
+        result["db_system_patch_history_entries"][0]["patch_id"]
+        is get_patch_history_entries().patch_id
+    )
 
 
-def test_list_db_system_patch_history_entries_service_error(db_client, list_all_resources_patch):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'db_system_id': 'ocid1.dbsystem.aaaa'}))
+def test_list_db_system_patch_history_entries_service_error(
+    db_client, list_all_resources_patch
+):
+    error_message = "Internal Server Error"
+    module = get_module(dict({"db_system_id": "ocid1.dbsystem.aaaa"}))
     list_all_resources_patch.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
-        oci_db_system_patch_history_entry_facts.list_db_system_patch_history_entries(db_client, module)
+        oci_db_system_patch_history_entry_facts.list_db_system_patch_history_entries(
+            db_client, module
+        )
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
 def get_patch_history_entries():
     patch_history_entry_summary = PatchHistoryEntrySummary()
-    patch_history_entry_summary.patch_id = 'ocid1.dbpatch.aaaa'
+    patch_history_entry_summary.patch_id = "ocid1.dbpatch.aaaa"
 
     return patch_history_entry_summary
 

@@ -19,8 +19,7 @@ try:
     from oci.database.models import AutonomousDatabase
     from oci.exceptions import ServiceError, ClientError
 except ImportError:
-    raise SkipTest(
-        "test_oci_autonomous_database.py requires `oci` module")
+    raise SkipTest("test_oci_autonomous_database.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -30,7 +29,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -39,86 +38,110 @@ class FakeModule(object):
 
 @pytest.fixture()
 def db_client(mocker):
-    mock_db_client = mocker.patch(
-        'oci.database.database_client.DatabaseClient')
+    mock_db_client = mocker.patch("oci.database.database_client.DatabaseClient")
     return mock_db_client.return_value
 
 
 @pytest.fixture()
 def check_and_create_resource_patch(mocker):
-    return mocker.patch.object(oci_utils, 'check_and_create_resource')
+    return mocker.patch.object(oci_utils, "check_and_create_resource")
 
 
 @pytest.fixture()
 def update_autonomous_database_patch(mocker):
-    return mocker.patch.object(oci_autonomous_database, 'update_autonomous_database')
+    return mocker.patch.object(oci_autonomous_database, "update_autonomous_database")
 
 
 @pytest.fixture()
 def check_and_update_resource_patch(mocker):
-    return mocker.patch.object(oci_utils, 'check_and_update_resource')
+    return mocker.patch.object(oci_utils, "check_and_update_resource")
 
 
 @pytest.fixture()
 def create_and_wait_patch(mocker):
-    return mocker.patch.object(oci_utils, 'create_and_wait')
+    return mocker.patch.object(oci_utils, "create_and_wait")
 
 
 @pytest.fixture()
 def get_existing_resource_patch(mocker):
-    return mocker.patch.object(oci_utils, 'get_existing_resource')
+    return mocker.patch.object(oci_utils, "get_existing_resource")
 
 
 @pytest.fixture()
 def delete_and_wait_patch(mocker):
-    return mocker.patch.object(oci_utils, 'delete_and_wait')
+    return mocker.patch.object(oci_utils, "delete_and_wait")
 
 
 @pytest.fixture()
 def execute_function_and_wait_patch(mocker):
-    return mocker.patch.object(oci_db_utils, 'execute_function_and_wait')
+    return mocker.patch.object(oci_db_utils, "execute_function_and_wait")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_autonomous_database.set_logger(logging)
 
 
-def test_create_or_update_autonomous_database_create(db_client, check_and_create_resource_patch):
+def test_create_or_update_autonomous_database_create(
+    db_client, check_and_create_resource_patch
+):
     module = get_module()
     autonomous_database = get_autonomous_database()
     check_and_create_resource_patch.return_value = {
-        'autonomous_database': to_dict(autonomous_database), 'changed': True}
-    result = oci_autonomous_database.create_or_update_autonomous_database(db_client, module)
-    assert result['autonomous_database']['display_name'] is autonomous_database.display_name
+        "autonomous_database": to_dict(autonomous_database),
+        "changed": True,
+    }
+    result = oci_autonomous_database.create_or_update_autonomous_database(
+        db_client, module
+    )
+    assert (
+        result["autonomous_database"]["display_name"]
+        is autonomous_database.display_name
+    )
 
 
-def test_create_or_update_autonomous_database_update(db_client, update_autonomous_database_patch):
-    module = get_module(dict({'autonomous_database_id': 'ocid1.autonomous_database.aaa'}))
+def test_create_or_update_autonomous_database_update(
+    db_client, update_autonomous_database_patch
+):
+    module = get_module(
+        dict({"autonomous_database_id": "ocid1.autonomous_database.aaa"})
+    )
     autonomous_database = get_autonomous_database()
     update_autonomous_database_patch.return_value = {
-        'autonomous_database': to_dict(autonomous_database), 'changed': True}
-    result = oci_autonomous_database.create_or_update_autonomous_database(db_client, module)
-    assert result['autonomous_database']['display_name'] is autonomous_database.display_name
+        "autonomous_database": to_dict(autonomous_database),
+        "changed": True,
+    }
+    result = oci_autonomous_database.create_or_update_autonomous_database(
+        db_client, module
+    )
+    assert (
+        result["autonomous_database"]["display_name"]
+        is autonomous_database.display_name
+    )
 
 
-def test_launch_or_update_autonomous_databasee_client_error(db_client, check_and_create_resource_patch):
-    error_message = 'databse attribute has no value'
+def test_launch_or_update_autonomous_databasee_client_error(
+    db_client, check_and_create_resource_patch
+):
+    error_message = "databse attribute has no value"
     module = get_module()
-    check_and_create_resource_patch.side_effect = ClientError(
-        Exception(error_message))
+    check_and_create_resource_patch.side_effect = ClientError(Exception(error_message))
     try:
         oci_autonomous_database.create_or_update_autonomous_database(db_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
-def test_launch_or_update_autonomous_databasee_service_error(db_client, check_and_create_resource_patch):
-    error_message = 'Internal Server Error'
+def test_launch_or_update_autonomous_databasee_service_error(
+    db_client, check_and_create_resource_patch
+):
+    error_message = "Internal Server Error"
     module = get_module()
     check_and_create_resource_patch.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_autonomous_database.create_or_update_autonomous_database(db_client, module)
     except Exception as ex:
@@ -128,103 +151,159 @@ def test_launch_or_update_autonomous_databasee_service_error(db_client, check_an
 def test_create_autonomous_database(db_client, create_and_wait_patch):
     module = get_module()
     autonomous_database = get_autonomous_database()
-    create_and_wait_patch.return_value = {'autonomous_database': to_dict(autonomous_database), 'changed': True}
+    create_and_wait_patch.return_value = {
+        "autonomous_database": to_dict(autonomous_database),
+        "changed": True,
+    }
     result = oci_autonomous_database.create_autonomous_database(db_client, module)
-    assert result['autonomous_database']['display_name'] is autonomous_database.display_name
+    assert (
+        result["autonomous_database"]["display_name"]
+        is autonomous_database.display_name
+    )
 
 
-def test_update_autonomous_database_cpu_core_count(db_client, check_and_update_resource_patch):
+def test_update_autonomous_database_cpu_core_count(
+    db_client, check_and_update_resource_patch
+):
     autonomous_database = get_autonomous_database()
     autonomous_database.cpu_core_count = 4
-    module = get_module(dict({'autonomous_database_id': 'ocid1.autonomousdatabase.aaa'}))
+    module = get_module(
+        dict({"autonomous_database_id": "ocid1.autonomousdatabase.aaa"})
+    )
     check_and_update_resource_patch.return_value = {
-        'autonomous_database': to_dict(autonomous_database), 'changed': True}
+        "autonomous_database": to_dict(autonomous_database),
+        "changed": True,
+    }
     result = oci_autonomous_database.update_autonomous_database(db_client, module)
-    assert result['changed'] is True
+    assert result["changed"] is True
 
 
-def test_update_autonomous_database_freeform_tags(db_client, check_and_update_resource_patch):
+def test_update_autonomous_database_freeform_tags(
+    db_client, check_and_update_resource_patch
+):
     autonomous_database = get_autonomous_database()
-    module = get_module(dict(freeform_tags=dict(system_type='oracledb'),
-                             autonomous_database_id='ocid1.autonomousdatabase.aaa'))
+    module = get_module(
+        dict(
+            freeform_tags=dict(system_type="oracledb"),
+            autonomous_database_id="ocid1.autonomousdatabase.aaa",
+        )
+    )
     check_and_update_resource_patch.return_value = {
-        'autonomous_database': to_dict(autonomous_database), 'changed': True}
+        "autonomous_database": to_dict(autonomous_database),
+        "changed": True,
+    }
     result = oci_autonomous_database.update_autonomous_database(db_client, module)
-    assert result['changed'] is True
+    assert result["changed"] is True
 
 
-def test_update_autonomous_database_defined_tags(db_client, check_and_update_resource_patch):
+def test_update_autonomous_database_defined_tags(
+    db_client, check_and_update_resource_patch
+):
     autonomous_database = get_autonomous_database()
-    module = get_module(dict(defined_tags=dict(system_strength=dict(shape='medium')),
-                             autonomous_database_id='ocid1.autonomousdatabase.aaa'))
+    module = get_module(
+        dict(
+            defined_tags=dict(system_strength=dict(shape="medium")),
+            autonomous_database_id="ocid1.autonomousdatabase.aaa",
+        )
+    )
     check_and_update_resource_patch.return_value = {
-        'autonomous_database': to_dict(autonomous_database), 'changed': True}
+        "autonomous_database": to_dict(autonomous_database),
+        "changed": True,
+    }
     result = oci_autonomous_database.update_autonomous_database(db_client, module)
-    assert result['changed'] is True
+    assert result["changed"] is True
 
 
 def test_delete_db_system(db_client, delete_and_wait_patch):
-    module = get_module(dict(autonomous_database_id='ocid1.autonomousdatabase.aaa'))
+    module = get_module(dict(autonomous_database_id="ocid1.autonomousdatabase.aaa"))
     autonomous_database = get_autonomous_database()
-    delete_and_wait_patch.return_value = {'autonomous_database': to_dict(autonomous_database), 'changed': True}
+    delete_and_wait_patch.return_value = {
+        "autonomous_database": to_dict(autonomous_database),
+        "changed": True,
+    }
     result = oci_autonomous_database.delete_autonomous_database(db_client, module)
-    assert result['autonomous_database']['display_name'] is autonomous_database.display_name
+    assert (
+        result["autonomous_database"]["display_name"]
+        is autonomous_database.display_name
+    )
 
 
 def test_restore_autonomous_database(db_client, execute_function_and_wait_patch):
     autonomous_database = get_autonomous_database()
     module = get_module()
     execute_function_and_wait_patch.return_value = {
-        'autonomous_database': to_dict(autonomous_database), 'changed': True}
+        "autonomous_database": to_dict(autonomous_database),
+        "changed": True,
+    }
     result = oci_autonomous_database.restore_autonomous_database(db_client, module)
-    assert result['changed'] is True
+    assert result["changed"] is True
 
 
-def test_start_or_stop_autonomous_database_start(db_client, get_existing_resource_patch, execute_function_and_wait_patch):
+def test_start_or_stop_autonomous_database_start(
+    db_client, get_existing_resource_patch, execute_function_and_wait_patch
+):
     autonomous_database = get_autonomous_database()
-    autonomous_database.lifecycle_state = 'STOPPED'
+    autonomous_database.lifecycle_state = "STOPPED"
     get_existing_resource_patch.return_value = autonomous_database
-    module = get_module(dict(state='start'))
+    module = get_module(dict(state="start"))
     execute_function_and_wait_patch.return_value = {
-        'autonomous_database': to_dict(autonomous_database), 'changed': True}
-    result = oci_autonomous_database.start_or_stop_autonomous_database(db_client, module)
-    assert result['changed'] is True
+        "autonomous_database": to_dict(autonomous_database),
+        "changed": True,
+    }
+    result = oci_autonomous_database.start_or_stop_autonomous_database(
+        db_client, module
+    )
+    assert result["changed"] is True
 
 
-def test_start_or_stop_autonomous_database_start_idempotent(db_client, get_existing_resource_patch):
+def test_start_or_stop_autonomous_database_start_idempotent(
+    db_client, get_existing_resource_patch
+):
     autonomous_database = get_autonomous_database()
-    autonomous_database.lifecycle_state = 'AVAILABLE'
+    autonomous_database.lifecycle_state = "AVAILABLE"
     get_existing_resource_patch.return_value = autonomous_database
-    module = get_module(dict(state='start'))
-    result = oci_autonomous_database.start_or_stop_autonomous_database(db_client, module)
-    assert result['changed'] is False
+    module = get_module(dict(state="start"))
+    result = oci_autonomous_database.start_or_stop_autonomous_database(
+        db_client, module
+    )
+    assert result["changed"] is False
 
 
-def test_start_or_stop_autonomous_database_stop(db_client, get_existing_resource_patch, execute_function_and_wait_patch):
+def test_start_or_stop_autonomous_database_stop(
+    db_client, get_existing_resource_patch, execute_function_and_wait_patch
+):
     autonomous_database = get_autonomous_database()
-    autonomous_database.lifecycle_state = 'AVAILABLE'
+    autonomous_database.lifecycle_state = "AVAILABLE"
     get_existing_resource_patch.return_value = autonomous_database
-    module = get_module(dict(state='stop'))
+    module = get_module(dict(state="stop"))
     execute_function_and_wait_patch.return_value = {
-        'autonomous_database': to_dict(autonomous_database), 'changed': True}
-    result = oci_autonomous_database.start_or_stop_autonomous_database(db_client, module)
-    assert result['changed'] is True
+        "autonomous_database": to_dict(autonomous_database),
+        "changed": True,
+    }
+    result = oci_autonomous_database.start_or_stop_autonomous_database(
+        db_client, module
+    )
+    assert result["changed"] is True
 
 
-def test_start_or_stop_autonomous_database_stop_idempotent(db_client, get_existing_resource_patch):
+def test_start_or_stop_autonomous_database_stop_idempotent(
+    db_client, get_existing_resource_patch
+):
     autonomous_database = get_autonomous_database()
-    autonomous_database.lifecycle_state = 'STOPPED'
+    autonomous_database.lifecycle_state = "STOPPED"
     get_existing_resource_patch.return_value = autonomous_database
-    module = get_module(dict(state='stop'))
-    result = oci_autonomous_database.start_or_stop_autonomous_database(db_client, module)
-    assert result['changed'] is False
+    module = get_module(dict(state="stop"))
+    result = oci_autonomous_database.start_or_stop_autonomous_database(
+        db_client, module
+    )
+    assert result["changed"] is False
 
 
 def get_autonomous_database():
     autonomous_database = AutonomousDatabase()
-    autonomous_database.display_name = 'ansible_autonomous_databasee'
-    autonomous_database.freeform_tags = {'system_type': 'exadata'}
-    autonomous_database.defined_tags = {'system_strength': {'shape': 'small'}}
+    autonomous_database.display_name = "ansible_autonomous_databasee"
+    autonomous_database.freeform_tags = {"system_type": "exadata"}
+    autonomous_database.defined_tags = {"system_strength": {"shape": "small"}}
     return autonomous_database
 
 
@@ -242,7 +321,7 @@ def get_module(additional_properties=None):
         "display_name": "ansibleautodb",
         "license_model": "LICENSE_INCLUDED",
         "wait": False,
-        "freeform_tags": {"db_type": "test"}
+        "freeform_tags": {"db_type": "test"},
     }
     if additional_properties:
         params.update(additional_properties)

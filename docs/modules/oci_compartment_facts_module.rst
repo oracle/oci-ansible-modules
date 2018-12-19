@@ -5,8 +5,8 @@
 .. _oci_compartment_facts_module:
 
 
-oci_compartment_facts - Retrieve details of a compartment or all the compartments in a tenancy in OCI
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_compartment_facts - Retrieve details of a compartment or all the subcompartments in the specified compartment in OCI
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,7 +17,7 @@ oci_compartment_facts - Retrieve details of a compartment or all the compartment
 
 Synopsis
 --------
-- This module allows the user to retrieve details of a specific compartment in a tenancy or all the compartments in a tenancy in OCI.
+- This module allows the user to retrieve information of a specific compartment or all the subcompartments in a specified compartment in OCI.
 
 
 
@@ -101,7 +101,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>OCID of a compartment. Use OCID of a tenancy to get details of all the compartments in the tenancy. Use OCID of a compartment in a tenancy to get details of the compartment.</div>
+                                                                        <div>OCID of a compartment. Use OCID of a root compartment with <em>depth</em> to get details of all the subcompartments which are upto <em>depth</em> deep in the root compartment. Use OCID of a root compartment with <em>fetch_subcompartments=False</em> to retrieve information of only the root compartment. Use OCID of a non-root compartment to get details of only the compartment. Use OCID of a non-root compartment with <em>fetch_subcompartments=True</em> and <em>depth</em> to retrieve information of all the subcompartments which are upto <em>depth</em> deep in the non-root compartment.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -123,6 +123,31 @@ Parameters
                                     </td>
                                                                 <td>
                                                                         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>depth</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>Specify the hierarchy level upto which subcompartments under <em>compartment_id</em> should be retrieved. Use this option with <em>fetch_subcompartments=True</em> to fetch details of all the subcompartments which are upto <em>depth</em> deep under <em>compartment_id</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>fetch_subcompartments</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Whether to fetch information of subcompartments under <em>compartment_id</em>. When <em>compartment_id</em> is set to OCID of a root compartment, <em>fetch_subcompartments</em> defaults to True. When <em>compartment_id</em> is set to OCID of a non-root compartment, <em>fetch_subcompartments</em> defaults to False.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -172,17 +197,44 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Get details of all the compartments in a tenancy by specifying OCID of the tenancy
+    - name: Get details of all the first-level child compartments of a root compartment
       oci_compartment_facts:
-        compartment_id: 'ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx:aaaaaaaamx5hilztihors5wfsn2akuyty4'
+        compartment_id: 'ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx'
 
-    - name: Get details of a compartment by specifying OCID of the compartment
+    - name: Get details of a root compartment
+      oci_compartment_facts:
+        compartment_id: 'ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx'
+        fetch_subcompartments: False
+
+    - name: Get details of all the compartments in a tenancy
+      oci_compartment_facts:
+        compartment_id: 'ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx'
+        depth: 100
+
+    - name: Get details of all first-level child compartments of a non-root compartment
+      oci_compartment_facts:
+        compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+        fetch_subcompartments: True
+
+    - name: Get details of a non-root compartment
       oci_compartment_facts:
         compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
 
-    - name: Get details of a compartment in a tenancy using the compartment's name
+    - name: Get details of all the subcompartments under a non-root compartment
       oci_compartment_facts:
-        compartment_id: 'ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx:aaaaaaaamx5hilztihors5wfsn2akuyty4'
+        compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+        fetch_subcompartments: True
+        depth: 100
+
+    - name: Filter subcompartments by name under a root compartment
+      oci_compartment_facts:
+        compartment_id: 'ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx'
+        name: test_compartment
+
+    - name: Filter subcompartments by name under a non-root compartment
+      oci_compartment_facts:
+        compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+        fetch_subcompartments: True
         name: test_compartment
 
 
@@ -210,7 +262,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of compartment details</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'lifecycle_state': 'ACTIVE', 'inactive_status': None, 'name': 'Project-Ansible', 'compartment_id': 'ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx:aaaabcaamx5hilzhdwvds5wfsn2akuyty4', 'id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'time_created': '2017-02-01T03:20:22.160000+00:00', 'description': 'Compartment for Project-Ansible'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'lifecycle_state': 'ACTIVE', 'inactive_status': None, 'name': 'Project-Ansible', 'compartment_id': 'ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx', 'id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'time_created': '2017-02-01T03:20:22.160000+00:00', 'description': 'Compartment for Project-Ansible'}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -264,7 +316,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The OCID of the tenancy containing the compartment</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx:aaaabcaamx5hilzhdwvds5wfsn2akuyty4</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx</div>
                                     </td>
             </tr>
                                 <tr>

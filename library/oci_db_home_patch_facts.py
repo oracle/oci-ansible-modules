@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_db_home_patch_facts
 short_description: Fetches details of one or more  DB Home Patches
@@ -32,8 +33,8 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
-'''
-EXAMPLES = '''
+"""
+EXAMPLES = """
 #Fetch all DB Home Patches
 - name: List DB Home Patches
   oci_db_home_patch_facts:
@@ -43,9 +44,9 @@ EXAMPLES = '''
   oci_db_home_patch_facts:
     db_home_id: "ocid1.dbhome.aaaa"
     patch_id: "ocid1.dbpatch.aaaa"
-'''
+"""
 
-RETURN = '''
+RETURN = """
     db_home_patches:
         description: Attributes of the DB Home Patch.
         returned: success
@@ -107,7 +108,7 @@ RETURN = '''
                     "version":"12.2.0.1.171017"
                 }]
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -116,6 +117,7 @@ try:
     from oci.database.database_client import DatabaseClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -124,30 +126,30 @@ logger = None
 
 
 def list_db_home_patches(db_client, module):
-    result = dict(
-        db_home_patches=''
-    )
-    db_home_id = module.params.get('db_home_id')
-    patch_id = module.params.get('patch_id')
+    result = dict(db_home_patches="")
+    db_home_id = module.params.get("db_home_id")
+    patch_id = module.params.get("patch_id")
     try:
         if patch_id:
-            get_logger().debug("Listing DB Home Patch for Patch ID %s of DB Home %s",
-                               patch_id, db_home_id)
+            get_logger().debug(
+                "Listing DB Home Patch for Patch ID %s of DB Home %s",
+                patch_id,
+                db_home_id,
+            )
             response = oci_utils.call_with_backoff(
-                db_client.get_db_home_patch,
-                db_home_id=db_home_id, patch_id=patch_id)
+                db_client.get_db_home_patch, db_home_id=db_home_id, patch_id=patch_id
+            )
             db_home_patches = [response.data]
         else:
-            get_logger().debug("Listing all DB Home Patches of DB Home %s",
-                               db_home_id)
+            get_logger().debug("Listing all DB Home Patches of DB Home %s", db_home_id)
             db_home_patches = oci_utils.list_all_resources(
-                db_client.list_db_home_patches,
-                db_home_id=db_home_id)
+                db_client.list_db_home_patches, db_home_id=db_home_id
+            )
     except ServiceError as ex:
         get_logger().error("Unable to list DB Home Patches due to %s", ex.message)
         module.fail_json(msg=ex.message)
 
-    result['db_home_patches'] = to_dict(db_home_patches)
+    result["db_home_patches"] = to_dict(db_home_patches)
     return result
 
 
@@ -164,16 +166,16 @@ def main():
     logger = oci_utils.get_logger("oci_db_home_patch_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        db_home_id=dict(type='str', required=True),
-        patch_id=dict(type='str', required=False)
-    ))
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args.update(
+        dict(
+            db_home_id=dict(type="str", required=True),
+            patch_id=dict(type="str", required=False),
+        )
     )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_db_home_patches(db_client, module)
@@ -181,5 +183,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

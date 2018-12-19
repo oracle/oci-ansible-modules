@@ -16,8 +16,7 @@ try:
     from oci.email.models import Suppression
     from oci.exceptions import ServiceError, ClientError
 except ImportError:
-    raise SkipTest(
-        "test_oci_suppression.py requires `oci` module")
+    raise SkipTest("test_oci_suppression.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,43 +35,46 @@ class FakeModule(object):
 
 @pytest.fixture()
 def email_client(mocker):
-    mock_email_client = mocker.patch(
-        'oci.email.email_client.EmailClient')
+    mock_email_client = mocker.patch("oci.email.email_client.EmailClient")
     return mock_email_client.return_value
 
 
 @pytest.fixture()
 def create_resource_patch(mocker):
-    return mocker.patch.object(oci_utils, 'create_resource')
+    return mocker.patch.object(oci_utils, "create_resource")
 
 
 @pytest.fixture()
 def delete_and_wait_patch(mocker):
-    return mocker.patch.object(oci_utils, 'delete_and_wait')
+    return mocker.patch.object(oci_utils, "delete_and_wait")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_suppression.set_logger(logging)
 
 
 def test_create_suppression(email_client, create_resource_patch):
-    module = get_module(dict(email_address='ansible@test.com'))
+    module = get_module(dict(email_address="ansible@test.com"))
     suppression = get_suppression()
     create_resource_patch.return_value = {
-        'suppression': to_dict(suppression), 'changed': True}
+        "suppression": to_dict(suppression),
+        "changed": True,
+    }
     result = oci_suppression.create_suppression(email_client, module)
-    assert result['suppression']['email_address'] is suppression.email_address
+    assert result["suppression"]["email_address"] is suppression.email_address
 
 
 def test_delete_suppression(email_client, delete_and_wait_patch):
-    module = get_module(dict({'suppression_id': '{ocid1.suppression..aa}'}))
+    module = get_module(dict({"suppression_id": "{ocid1.suppression..aa}"}))
     suppression = get_suppression()
-    delete_and_wait_patch.return_value = dict({'suppression': to_dict(suppression), 'changed': True})
+    delete_and_wait_patch.return_value = dict(
+        {"suppression": to_dict(suppression), "changed": True}
+    )
     result = oci_suppression.delete_suppression(email_client, module)
-    assert result['changed'] is True
-
+    assert result["changed"] is True
 
 
 def get_suppression():
@@ -86,9 +88,7 @@ def get_response(status, header, data, request):
 
 
 def get_module(additional_properties):
-    params = {
-        "compartment_id": "ocid1.compartment.oc1"
-    }
+    params = {"compartment_id": "ocid1.compartment.oc1"}
     params.update(additional_properties)
     module = FakeModule(**params)
     return module

@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_image
 short_description: Create, import, update and delete OCI Compute images
@@ -90,9 +90,9 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a new image from a specified instance
   oci_image:
     name: my_custom_image_1
@@ -129,9 +129,9 @@ EXAMPLES = '''
   oci_image:
         id: "ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx...lxiggdq"
         state: "absent"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 oci_image:
     description: Details of the image
     returned: On success
@@ -146,15 +146,19 @@ oci_image:
               "operating_system_version": "16.04",
               "time_created": "2017-11-24T13:18:31.579000+00:00"
            }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
 try:
     from oci.core.compute_client import ComputeClient
-    from oci.core.models import UpdateImageDetails, ImageSourceViaObjectStorageTupleDetails, \
-        ImageSourceViaObjectStorageUriDetails, CreateImageDetails
+    from oci.core.models import (
+        UpdateImageDetails,
+        ImageSourceViaObjectStorageTupleDetails,
+        ImageSourceViaObjectStorageUriDetails,
+        CreateImageDetails,
+    )
     from oci.util import to_dict
     from oci.exceptions import ServiceError
 
@@ -173,10 +177,15 @@ def _get_image_from_id(compute_client, id, module):
 
 
 def delete_image(compute_client, id, module):
-    return oci_utils.delete_and_wait(resource_type=RESOURCE_NAME, client=compute_client,
-                                     get_fn=compute_client.get_image, kwargs_get={"image_id": id},
-                                     delete_fn=compute_client.delete_image, kwargs_delete={"image_id": id},
-                                     module=module)
+    return oci_utils.delete_and_wait(
+        resource_type=RESOURCE_NAME,
+        client=compute_client,
+        get_fn=compute_client.get_image,
+        kwargs_get={"image_id": id},
+        delete_fn=compute_client.delete_image,
+        kwargs_delete={"image_id": id},
+        module=module,
+    )
 
 
 def update_image(compute_client, id, display_name, module):
@@ -187,29 +196,36 @@ def update_image(compute_client, id, display_name, module):
         uid.display_name = display_name
         oci_utils.add_tags_to_model_from_module(uid, module)
         debug("Instance " + id + " - updating with new name: " + display_name)
-        response = oci_utils.call_with_backoff(compute_client.update_image, image_id=id, update_image_details=uid)
-        result['image'] = to_dict(response.data)
+        response = oci_utils.call_with_backoff(
+            compute_client.update_image, image_id=id, update_image_details=uid
+        )
+        result["image"] = to_dict(response.data)
         changed = True
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    result['changed'] = changed
+    result["changed"] = changed
     return result
 
 
 def create_image(compute_client, module):
     cid = _get_create_image_details(module)
-    return oci_utils.create_and_wait(resource_type=RESOURCE_NAME, client=compute_client,
-                                     create_fn=compute_client.create_image,
-                                     kwargs_create={"create_image_details": cid}, get_fn=compute_client.get_image,
-                                     get_param="image_id", module=module)
+    return oci_utils.create_and_wait(
+        resource_type=RESOURCE_NAME,
+        client=compute_client,
+        create_fn=compute_client.create_image,
+        kwargs_create={"create_image_details": cid},
+        get_fn=compute_client.get_image,
+        get_param="image_id",
+        module=module,
+    )
 
 
 def _get_create_image_details(module):
-    comp_id = module.params['compartment_id']
-    name = module.params['name']
-    instance_id = module.params['instance_id']
-    image_source_details = module.params['image_source_details']
+    comp_id = module.params["compartment_id"]
+    name = module.params["name"]
+    instance_id = module.params["instance_id"]
+    image_source_details = module.params["image_source_details"]
 
     cid = CreateImageDetails()
     cid.compartment_id = comp_id
@@ -220,22 +236,24 @@ def _get_create_image_details(module):
     if instance_id:
         cid.instance_id = instance_id
     elif image_source_details:
-        source_type = image_source_details['source_type']
+        source_type = image_source_details["source_type"]
         isd = None
         # The exported image can be provided as a tuple(namespace,bucket,object) or a URI
-        if source_type == 'objectStorageTuple':
+        if source_type == "objectStorageTuple":
             isd = ImageSourceViaObjectStorageTupleDetails()
             isd.source_type = source_type
-            isd.namespace_name = image_source_details['namespace']
-            isd.bucket_name = image_source_details['bucket']
-            isd.object_name = image_source_details['object']
-        elif source_type == 'objectStorageUri':
+            isd.namespace_name = image_source_details["namespace"]
+            isd.bucket_name = image_source_details["bucket"]
+            isd.object_name = image_source_details["object"]
+        elif source_type == "objectStorageUri":
             isd = ImageSourceViaObjectStorageUriDetails()
             isd.source_type = source_type
-            isd.source_uri = image_source_details['source_uri']
+            isd.source_uri = image_source_details["source_uri"]
         cid.image_source_details = isd
     else:
-        module.fail_json(msg="Specify instance_id or image_source_id while creating an instance.")
+        module.fail_json(
+            msg="Specify instance_id or image_source_id while creating an instance."
+        )
 
     return cid
 
@@ -257,62 +275,75 @@ def main():
     my_logger = oci_utils.get_logger("oci_instance")
     set_logger(my_logger)
 
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        name=dict(type='str', required=False, aliases=['display_name']),
-        image_id=dict(type='str', required=False, aliases=['id']),
-        instance_id=dict(type='str', required=False),
-        image_source_details=dict(type='dict', required=False),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            name=dict(type="str", required=False, aliases=["display_name"]),
+            image_id=dict(type="str", required=False, aliases=["id"]),
+            instance_id=dict(type="str", required=False),
+            image_source_details=dict(type="dict", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['instance_id', 'image_source_details'],
-        required_if=[('state', 'absent', ['image_id'])],
+        mutually_exclusive=["instance_id", "image_source_details"],
+        required_if=[("state", "absent", ["image_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
-    state = module.params['state']
+    state = module.params["state"]
 
     result = dict(changed=False)
 
     id = module.params.get("image_id", None)
-    exclude_attributes = {'display_name': True, 'launch_mode': True}
+    exclude_attributes = {"display_name": True, "launch_mode": True}
     debug("Id is " + str(id))
     if id is not None:
         image_resp = _get_image_from_id(compute_client, id, module)
 
-        if state == 'absent':
+        if state == "absent":
             debug("Delete " + id + " requested")
             if image_resp.data is not None:
                 debug("Deleting " + image_resp.data.id)
                 result = delete_image(compute_client, id, module)
             else:
                 debug("Image " + id + " already deleted.")
-        elif state == 'present':
-            display_name = module.params['name']
+        elif state == "present":
+            display_name = module.params["name"]
             current_image = image_resp.data
-            attrs_equal = oci_utils.are_attrs_equal(current_image, module,
-                                                    ["display_name", "freeform_tags", "defined_tags"])
+            attrs_equal = oci_utils.are_attrs_equal(
+                current_image, module, ["display_name", "freeform_tags", "defined_tags"]
+            )
             if not attrs_equal:
                 result = update_image(compute_client, id, display_name, module)
     else:
-        result = oci_utils.check_and_create_resource(resource_type="image", create_fn=create_image,
-                                                     kwargs_create={"compute_client": compute_client,
-                                                                    "module": module},
-                                                     list_fn=compute_client.list_images,
-                                                     kwargs_list={"compartment_id": module.params['compartment_id']},
-                                                     module=module, model=CreateImageDetails(),
-                                                     exclude_attributes=exclude_attributes)
+        result = oci_utils.check_and_create_resource(
+            resource_type="image",
+            create_fn=create_image,
+            kwargs_create={"compute_client": compute_client, "module": module},
+            list_fn=compute_client.list_images,
+            kwargs_list={"compartment_id": module.params["compartment_id"]},
+            module=module,
+            model=CreateImageDetails(),
+            exclude_attributes=exclude_attributes,
+        )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

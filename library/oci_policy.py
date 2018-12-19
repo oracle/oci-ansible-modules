@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_policy
 short_description: Manage policies in OCI Identity and Access Management
@@ -60,9 +61,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_tags, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a policy
   oci_policy:
     name: mypolicy
@@ -81,9 +82,9 @@ EXAMPLES = '''
   oci_policy:
     id: ocid1.policy.oc1..xxxxxEXAMPLExxxxx
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
 policy:
     description: OCI policy details
     returned: On successful operation
@@ -101,7 +102,7 @@ policy:
             "time_created": "2017-11-01T19:19:36.700000+00:00",
             "version_date": "2017-11-01T00:00:00+00:00"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -112,6 +113,7 @@ try:
     from oci.identity.models import CreatePolicyDetails
     from oci.identity.models import UpdatePolicyDetails
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
     from oci.exceptions import ServiceError
 except ImportError:
@@ -119,7 +121,7 @@ except ImportError:
 
 
 def get_policy_statements(file_path):
-    with open(file_path, 'r') as policy_file:
+    with open(file_path, "r") as policy_file:
         policy_statements = policy_file.readlines()
     policy_statements = [x.strip() for x in policy_statements]
     return policy_statements
@@ -131,33 +133,33 @@ def create_policy(identity_client, module):
         if attribute in module.params:
             setattr(create_policy_details, attribute, module.params[attribute])
 
-    if module.params['policy_document'] is not None:
+    if module.params["policy_document"] is not None:
         create_policy_details.statements = get_policy_statements(
-            module.params['policy_document'])
+            module.params["policy_document"]
+        )
 
-    result = oci_utils.create_and_wait(resource_type="policy",
-                                       create_fn=identity_client.create_policy,
-                                       kwargs_create={
-                                           "create_policy_details": create_policy_details},
-                                       client=identity_client,
-                                       get_fn=identity_client.get_policy,
-                                       get_param="policy_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="policy",
+        create_fn=identity_client.create_policy,
+        kwargs_create={"create_policy_details": create_policy_details},
+        client=identity_client,
+        get_fn=identity_client.get_policy,
+        get_param="policy_id",
+        module=module,
+    )
     return result
 
 
 def delete_policy(identity_client, module):
-    result = oci_utils.delete_and_wait(resource_type="policy",
-                                       client=identity_client,
-                                       get_fn=identity_client.get_policy,
-                                       kwargs_get={
-                                           "policy_id": module.params["policy_id"]},
-                                       delete_fn=identity_client.delete_policy,
-                                       kwargs_delete={
-                                           "policy_id": module.params["policy_id"]},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="policy",
+        client=identity_client,
+        get_fn=identity_client.get_policy,
+        kwargs_get={"policy_id": module.params["policy_id"]},
+        delete_fn=identity_client.delete_policy,
+        kwargs_delete={"policy_id": module.params["policy_id"]},
+        module=module,
+    )
     return result
 
 
@@ -171,86 +173,96 @@ def update_policy(identity_client, module):
     changed = False
     try:
         update_policy_details = UpdatePolicyDetails()
-        existing_policy = oci_utils.call_with_backoff(identity_client.get_policy,
-                                                      policy_id=module.params['policy_id']).data
-        if not oci_utils.are_attrs_equal(current_resource=existing_policy,
-                                         module=module, attributes=update_policy_details.attribute_map.keys()):
-            update_policy_details = oci_utils.update_model_with_user_options(curr_model=existing_policy,
-                                                                             update_model=update_policy_details,
-                                                                             module=module)
+        existing_policy = oci_utils.call_with_backoff(
+            identity_client.get_policy, policy_id=module.params["policy_id"]
+        ).data
+        if not oci_utils.are_attrs_equal(
+            current_resource=existing_policy,
+            module=module,
+            attributes=update_policy_details.attribute_map.keys(),
+        ):
+            update_policy_details = oci_utils.update_model_with_user_options(
+                curr_model=existing_policy,
+                update_model=update_policy_details,
+                module=module,
+            )
             # If policy statements are provided using policy document option
-            if module.params['policy_document'] is not None:
+            if module.params["policy_document"] is not None:
                 update_policy_details.statements = get_policy_statements(
-                    module.params['policy_document'])
+                    module.params["policy_document"]
+                )
 
-            response = oci_utils.call_with_backoff(identity_client.update_policy, policy_id=existing_policy.id,
-                                                   update_policy_details=update_policy_details)
+            response = oci_utils.call_with_backoff(
+                identity_client.update_policy,
+                policy_id=existing_policy.id,
+                update_policy_details=update_policy_details,
+            )
             changed = True
-            result['policy'] = to_dict(response.data)
+            result["policy"] = to_dict(response.data)
         else:
             # No change needed, return the exising policy
-            result['policy'] = to_dict(existing_policy)
+            result["policy"] = to_dict(existing_policy)
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    result['changed'] = changed
+    result["changed"] = changed
     return result
 
 
 def main():
     module_args = oci_utils.get_taggable_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        description=dict(type='str', required=False),
-        name=dict(type='str', required=False),
-        policy_document=dict(type='str', required=False),
-        policy_id=dict(type='str', required=False, aliases=['id']),
-        state=dict(type='str', required=False, default='present',
-                   choices=['absent', 'present']),
-        statements=dict(type='list', required=False),
-        version_date=dict(type='datetime', required=False)
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            description=dict(type="str", required=False),
+            name=dict(type="str", required=False),
+            policy_document=dict(type="str", required=False),
+            policy_id=dict(type="str", required=False, aliases=["id"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            statements=dict(type="list", required=False),
+            version_date=dict(type="datetime", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=[
-            ['policy_document', 'statements']
-        ],
-        required_if=[
-            ['state', 'absent', ['policy_id']]
-        ]
+        mutually_exclusive=[["policy_document", "statements"]],
+        required_if=[["state", "absent", ["policy_id"]]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
-    state = module.params['state']
-    policy_id = module.params['policy_id']
-    exclude_attributes = {'version_date': True}
-    if state == 'absent':
+    state = module.params["state"]
+    policy_id = module.params["policy_id"]
+    exclude_attributes = {"version_date": True}
+    if state == "absent":
         result = delete_policy(identity_client, module)
 
     else:
         if policy_id is not None:
             result = update_policy(identity_client, module)
         else:
-            result = oci_utils.check_and_create_resource(resource_type='policy',
-                                                         create_fn=create_policy,
-                                                         kwargs_create={
-                                                             'identity_client': identity_client,
-                                                             'module': module},
-                                                         list_fn=identity_client.list_policies,
-                                                         kwargs_list={"compartment_id": module.params['compartment_id']
-                                                                      },
-                                                         module=module,
-                                                         model=CreatePolicyDetails(),
-                                                         exclude_attributes=exclude_attributes
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="policy",
+                create_fn=create_policy,
+                kwargs_create={"identity_client": identity_client, "module": module},
+                list_fn=identity_client.list_policies,
+                kwargs_list={"compartment_id": module.params["compartment_id"]},
+                module=module,
+                model=CreatePolicyDetails(),
+                exclude_attributes=exclude_attributes,
+            )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

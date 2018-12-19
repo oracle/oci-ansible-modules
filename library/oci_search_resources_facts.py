@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_search_resources_facts
 short_description: Finds resources in your cloud network
@@ -45,9 +45,9 @@ options:
         required: false
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Perform a free-text search
   oci_search_resources_facts:
     type: 'FreeText'
@@ -58,9 +58,9 @@ EXAMPLES = '''
   oci_search_resources_facts:
     type: "Structured"
     query: "query user resources where displayName = 'jane'"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 search_resources:
     description: A resource that exists in the user's cloud network.
     returned: On successful operation
@@ -151,14 +151,17 @@ search_resources:
               }
             }
         ]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
 try:
     from oci.resource_search.resource_search_client import ResourceSearchClient
-    from oci.resource_search.models import FreeTextSearchDetails, StructuredSearchDetails
+    from oci.resource_search.models import (
+        FreeTextSearchDetails,
+        StructuredSearchDetails,
+    )
 
     HAS_OCI_PY_SDK = True
 except ImportError:
@@ -167,50 +170,58 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        type=dict(type='str', required=True, choices=['FreeText', 'Structured']),
-        matching_context_type=dict(type='str', required=False, choices=['NONE', 'HIGHLIGHTS'], default='NONE'),
-        query=dict(type='str', required=False),
-        text=dict(type='str', required=False),
-    ))
+    module_args.update(
+        dict(
+            type=dict(type="str", required=True, choices=["FreeText", "Structured"]),
+            matching_context_type=dict(
+                type="str",
+                required=False,
+                choices=["NONE", "HIGHLIGHTS"],
+                default="NONE",
+            ),
+            query=dict(type="str", required=False),
+            text=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[
-            ('type', 'FreeText', ['text']),
-            ('type', 'Structured', ['query'])
-        ]
+        required_if=[("type", "FreeText", ["text"]), ("type", "Structured", ["query"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     result = dict(changed=False)
 
-    resource_search_client = oci_utils.create_service_client(module, ResourceSearchClient)
-    matching_context_type = module.params.get('matching_context_type')
+    resource_search_client = oci_utils.create_service_client(
+        module, ResourceSearchClient
+    )
+    matching_context_type = module.params.get("matching_context_type")
 
     search_details = None
-    if module.params['type'] == 'FreeText':
+    if module.params["type"] == "FreeText":
         ftsd = FreeTextSearchDetails()
-        ftsd.type = 'FreeText'
+        ftsd.type = "FreeText"
         if matching_context_type is not None:
             ftsd.matching_context_type = matching_context_type
-        ftsd.text = module.params['text']
+        ftsd.text = module.params["text"]
         search_details = ftsd
     else:
         ssd = StructuredSearchDetails()
         if matching_context_type is not None:
-            ssd.type = 'Structured'
+            ssd.type = "Structured"
         ssd.matching_context_type = matching_context_type
-        ssd.query = module.params['query']
+        ssd.query = module.params["query"]
         search_details = ssd
 
-    res_coll = oci_utils.call_with_backoff(resource_search_client.search_resources, search_details=search_details).data
-    result['search_resources'] = oci_utils.to_dict(res_coll.items)
+    res_coll = oci_utils.call_with_backoff(
+        resource_search_client.search_resources, search_details=search_details
+    ).data
+    result["search_resources"] = oci_utils.to_dict(res_coll.items)
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

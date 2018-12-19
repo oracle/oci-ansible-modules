@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_database_facts
 short_description: Fetches details of one or more Databases
@@ -35,8 +36,8 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
-'''
-EXAMPLES = '''
+"""
+EXAMPLES = """
 #Fetch Databases
 - name: Fetch all Databases under a DB Home
   oci_database_facts:
@@ -46,9 +47,9 @@ EXAMPLES = '''
 - name: List a specific DB Node
   oci_database_facts:
       database_id: 'ocid1.database..xcds'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     databases:
         description: Attributes of the Database.
         returned: success
@@ -169,7 +170,7 @@ RETURN = '''
                    "time_created":"2018-02-20T08:42:26.060000+00:00"
                 }]
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -178,6 +179,7 @@ try:
     from oci.database.database_client import DatabaseClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -186,29 +188,33 @@ logger = None
 
 
 def list_databases(db_client, module):
-    result = dict(
-        databases=''
-    )
-    compartment_id = module.params.get('compartment_id')
-    db_home_id = module.params.get('db_home_id')
-    database_id = module.params.get('database_id')
+    result = dict(databases="")
+    compartment_id = module.params.get("compartment_id")
+    db_home_id = module.params.get("db_home_id")
+    database_id = module.params.get("database_id")
     try:
         if database_id:
             get_logger().debug("Listing Databases %s", database_id)
             response = oci_utils.call_with_backoff(
-                db_client.get_database, database_id=database_id)
+                db_client.get_database, database_id=database_id
+            )
             existing_databases = [response.data]
         elif compartment_id and db_home_id:
-            get_logger().debug("Listing all Databases under compartment %s and DB Home %s",
-                               compartment_id, db_home_id)
+            get_logger().debug(
+                "Listing all Databases under compartment %s and DB Home %s",
+                compartment_id,
+                db_home_id,
+            )
             existing_databases = oci_utils.list_all_resources(
                 db_client.list_databases,
-                compartment_id=compartment_id, db_home_id=db_home_id)
+                compartment_id=compartment_id,
+                db_home_id=db_home_id,
+            )
     except ServiceError as ex:
         get_logger().error("Unable to list Databases due to %s", ex.message)
         module.fail_json(msg=ex.message)
 
-    result['databases'] = to_dict(existing_databases)
+    result["databases"] = to_dict(existing_databases)
     return result
 
 
@@ -225,21 +231,23 @@ def main():
     logger = oci_utils.get_logger("oci_database_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        db_home_id=dict(type='str', required=False),
-        database_id=dict(type='str', required=False, aliases=['id'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            db_home_id=dict(type="str", required=False),
+            database_id=dict(type="str", required=False, aliases=["id"]),
+        )
+    )
     module = AnsibleModule(
         argument_spec=module_args,
         mutually_exclusive=[
-            ['compartment_id', 'database_id'],
-            ['db_home_id', 'database_id']
-        ]
+            ["compartment_id", "database_id"],
+            ["db_home_id", "database_id"],
+        ],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_databases(db_client, module)
@@ -247,5 +255,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

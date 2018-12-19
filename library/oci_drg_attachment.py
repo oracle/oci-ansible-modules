@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_drg_attachment
 short_description: Manage Dynamic Routing Gateways(DRG) attachments in OCI
@@ -47,9 +47,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Attach a DRG to a VCN
   oci_drg_attachment:
     drg_id: ocid1.drg.oc1.phx.xxxxxEXAMPLExxxxx
@@ -65,9 +65,9 @@ EXAMPLES = '''
   oci_drg_attachment:
     id: ocid1.drgatttachment.oc1.phx.xxxxxEXAMPLExxxxx
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 drg_attachment:
     description: Information about the DRG attachment
     returned: On successful operation
@@ -81,7 +81,7 @@ drg_attachment:
             "time_created": "2017-11-13T20:22:40.626000+00:00",
             "vcn_id": "ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -90,34 +90,39 @@ try:
     from oci.core.virtual_network_client import VirtualNetworkClient
     from oci.core.models import CreateDrgAttachmentDetails
     from oci.core.models import UpdateDrgAttachmentDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def delete_drg_attachment(virtual_network_client, module):
-    result = oci_utils.delete_and_wait(resource_type="drg_attachment",
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_drg_attachment,
-                                       kwargs_get={"drg_attachment_id": module.params["drg_attachment_id"]},
-                                       delete_fn=virtual_network_client.delete_drg_attachment,
-                                       kwargs_delete={"drg_attachment_id": module.params["drg_attachment_id"]},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="drg_attachment",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_drg_attachment,
+        kwargs_get={"drg_attachment_id": module.params["drg_attachment_id"]},
+        delete_fn=virtual_network_client.delete_drg_attachment,
+        kwargs_delete={"drg_attachment_id": module.params["drg_attachment_id"]},
+        module=module,
+    )
     return result
 
 
 def update_drg_attachment(virtual_network_client, module):
-    result = oci_utils.check_and_update_resource(resource_type="drg_attachment",
-                                                 get_fn=virtual_network_client.get_drg_attachment,
-                                                 kwargs_get={"drg_attachment_id": module.params["drg_attachment_id"]},
-                                                 update_fn=virtual_network_client.update_drg_attachment,
-                                                 primitive_params_update=['drg_attachment_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateDrgAttachmentDetails: "update_drg_attachment_details"},
-                                                 module=module,
-                                                 update_attributes=UpdateDrgAttachmentDetails().attribute_map.keys()
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type="drg_attachment",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_drg_attachment,
+        kwargs_get={"drg_attachment_id": module.params["drg_attachment_id"]},
+        update_fn=virtual_network_client.update_drg_attachment,
+        primitive_params_update=["drg_attachment_id"],
+        kwargs_non_primitive_update={
+            UpdateDrgAttachmentDetails: "update_drg_attachment_details"
+        },
+        module=module,
+        update_attributes=UpdateDrgAttachmentDetails().attribute_map.keys(),
+    )
     return result
 
 
@@ -127,73 +132,87 @@ def create_drg_attachment(virtual_network_client, module):
         if attribute in module.params:
             setattr(create_drg_attachment_details, attribute, module.params[attribute])
 
-    result = oci_utils.create_and_wait(resource_type="drg_attachment",
-                                       create_fn=virtual_network_client.create_drg_attachment,
-                                       kwargs_create={"create_drg_attachment_details": create_drg_attachment_details},
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_drg_attachment,
-                                       get_param="drg_attachment_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="drg_attachment",
+        create_fn=virtual_network_client.create_drg_attachment,
+        kwargs_create={"create_drg_attachment_details": create_drg_attachment_details},
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_drg_attachment,
+        get_param="drg_attachment_id",
+        module=module,
+    )
     return result
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        drg_attachment_id=dict(type='str', required=False, aliases=['id']),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        drg_id=dict(type='str', required=False),
-        vcn_id=dict(type='str', required=False)
-    ))
+    module_args = oci_utils.get_common_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            drg_attachment_id=dict(type="str", required=False, aliases=["id"]),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            drg_id=dict(type="str", required=False),
+            vcn_id=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[
-            ('state', 'absent', ['drg_attachment_id'])
-        ]
+        required_if=[("state", "absent", ["drg_attachment_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
-    exclude_attributes = {'display_name': True}
-    state = module.params['state']
+    exclude_attributes = {"display_name": True}
+    state = module.params["state"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_drg_attachment(virtual_network_client, module)
 
     else:
-        drg_attachment_id = module.params['drg_attachment_id']
+        drg_attachment_id = module.params["drg_attachment_id"]
         if drg_attachment_id is not None:
             result = update_drg_attachment(virtual_network_client, module)
         else:
             # To list existing DRG attachments, compartment_id is required.
             # DRG attachment is created in same compartment as the VCN. Retrieve VCN details to get compartment_id.
-            compartment_id = oci_utils.call_with_backoff(virtual_network_client.get_vcn,
-                                                         vcn_id=module.params['vcn_id']
-                                                         ).data.compartment_id
+            compartment_id = oci_utils.call_with_backoff(
+                virtual_network_client.get_vcn, vcn_id=module.params["vcn_id"]
+            ).data.compartment_id
 
-            result = oci_utils.check_and_create_resource(resource_type='drg_attachment',
-                                                         create_fn=create_drg_attachment,
-                                                         kwargs_create={
-                                                             'virtual_network_client': virtual_network_client,
-                                                             'module': module},
-                                                         list_fn=virtual_network_client.list_drg_attachments,
-                                                         kwargs_list={'compartment_id': compartment_id,
-                                                                      'vcn_id': module.params['vcn_id'],
-                                                                      'drg_id': module.params['drg_id']
-                                                                      },
-                                                         module=module,
-                                                         model=CreateDrgAttachmentDetails(),
-                                                         exclude_attributes=exclude_attributes)
+            result = oci_utils.check_and_create_resource(
+                resource_type="drg_attachment",
+                create_fn=create_drg_attachment,
+                kwargs_create={
+                    "virtual_network_client": virtual_network_client,
+                    "module": module,
+                },
+                list_fn=virtual_network_client.list_drg_attachments,
+                kwargs_list={
+                    "compartment_id": compartment_id,
+                    "vcn_id": module.params["vcn_id"],
+                    "drg_id": module.params["drg_id"],
+                },
+                module=module,
+                model=CreateDrgAttachmentDetails(),
+                exclude_attributes=exclude_attributes,
+            )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

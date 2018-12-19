@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_mount_target
 short_description: Create, update and delete a Mount Target in OCI Filesystem Service.
@@ -62,9 +63,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create Mount Target
 - name: Create Mount Target
@@ -111,9 +112,9 @@ EXAMPLES = '''
   oci_mount_target:
     id: 'ocid1.mounttarget.oc1..xxxxxEXAMPLExxxxx'
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     mount_target:
         description: Attributes of the created/updated Mount Target. For delete, deleted Mount Target
                      description will be returned.
@@ -211,7 +212,7 @@ RETURN = '''
                    "time_created":"2018-10-16T09:42:33.673000+00:00"
                 }
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -219,36 +220,42 @@ from ansible.module_utils.oracle import oci_utils
 try:
     from oci.file_storage.file_storage_client import FileStorageClient
     from oci.exceptions import ServiceError, ClientError
-    from oci.file_storage.models import CreateMountTargetDetails, UpdateMountTargetDetails
+    from oci.file_storage.models import (
+        CreateMountTargetDetails,
+        UpdateMountTargetDetails,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def create_or_update_mount_target(file_storage_client, module):
-    result = dict(
-        changed=False,
-        mount_target=''
-    )
-    mount_target_id = module.params.get('mount_target_id')
+    result = dict(changed=False, mount_target="")
+    mount_target_id = module.params.get("mount_target_id")
     try:
         if mount_target_id:
             result = update_mount_target(file_storage_client, module)
         else:
-            result = oci_utils.check_and_create_resource(resource_type='mount_target',
-                                                         create_fn=create_mount_target,
-                                                         kwargs_create={'file_storage_client': file_storage_client,
-                                                                        'module': module},
-                                                         list_fn=file_storage_client.list_mount_targets,
-                                                         kwargs_list={'compartment_id':
-                                                                      module.params.get('compartment_id'),
-                                                                      'availability_domain':
-                                                                      module.params.get('availability_domain')},
-                                                         module=module,
-                                                         model=CreateMountTargetDetails()
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="mount_target",
+                create_fn=create_mount_target,
+                kwargs_create={
+                    "file_storage_client": file_storage_client,
+                    "module": module,
+                },
+                list_fn=file_storage_client.list_mount_targets,
+                kwargs_list={
+                    "compartment_id": module.params.get("compartment_id"),
+                    "availability_domain": module.params.get("availability_domain"),
+                },
+                module=module,
+                model=CreateMountTargetDetails(),
+            )
     except ServiceError as ex:
-        get_logger().error("Unable to create/update Mount Target due to: %s", ex.message)
+        get_logger().error(
+            "Unable to create/update Mount Target due to: %s", ex.message
+        )
         module.fail_json(msg=ex.message)
     except ClientError as ex:
         get_logger().error("Unable to launch/update Mount Target due to: %s", str(ex))
@@ -262,47 +269,45 @@ def create_mount_target(file_storage_client, module):
     for attribute in create_mount_target_details.attribute_map:
         create_mount_target_details.__setattr__(attribute, module.params.get(attribute))
 
-    result = oci_utils.create_and_wait(resource_type='mount_target',
-                                       create_fn=file_storage_client.create_mount_target,
-                                       kwargs_create={
-                                           'create_mount_target_details': create_mount_target_details},
-                                       client=file_storage_client,
-                                       get_fn=file_storage_client.get_mount_target,
-                                       get_param='mount_target_id',
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="mount_target",
+        create_fn=file_storage_client.create_mount_target,
+        kwargs_create={"create_mount_target_details": create_mount_target_details},
+        client=file_storage_client,
+        get_fn=file_storage_client.get_mount_target,
+        get_param="mount_target_id",
+        module=module,
+    )
     return result
 
 
 def update_mount_target(file_storage_client, module):
-    result = oci_utils.check_and_update_resource(resource_type="mount_target",
-                                                 get_fn=file_storage_client.get_mount_target,
-                                                 kwargs_get={
-                                                     "mount_target_id":
-                                                     module.params["mount_target_id"]},
-                                                 update_fn=file_storage_client.update_mount_target,
-                                                 client=file_storage_client,
-                                                 primitive_params_update=['mount_target_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateMountTargetDetails:
-                                                     "update_mount_target_details"},
-                                                 module=module,
-                                                 update_attributes=UpdateMountTargetDetails().attribute_map
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type="mount_target",
+        get_fn=file_storage_client.get_mount_target,
+        kwargs_get={"mount_target_id": module.params["mount_target_id"]},
+        update_fn=file_storage_client.update_mount_target,
+        client=file_storage_client,
+        primitive_params_update=["mount_target_id"],
+        kwargs_non_primitive_update={
+            UpdateMountTargetDetails: "update_mount_target_details"
+        },
+        module=module,
+        update_attributes=UpdateMountTargetDetails().attribute_map,
+    )
     return result
 
 
 def delete_mount_target(file_storage_client, module):
-    result = oci_utils.delete_and_wait(resource_type='mount_target',
-                                       client=file_storage_client,
-                                       get_fn=file_storage_client.get_mount_target,
-                                       kwargs_get={
-                                           'mount_target_id': module.params['mount_target_id']},
-                                       delete_fn=file_storage_client.delete_mount_target,
-                                       kwargs_delete={
-                                           'mount_target_id': module.params['mount_target_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="mount_target",
+        client=file_storage_client,
+        get_fn=file_storage_client.get_mount_target,
+        kwargs_get={"mount_target_id": module.params["mount_target_id"]},
+        delete_fn=file_storage_client.delete_mount_target,
+        kwargs_delete={"mount_target_id": module.params["mount_target_id"]},
+        module=module,
+    )
 
     return result
 
@@ -320,35 +325,42 @@ def main():
     logger = oci_utils.get_logger("oci_mount_target")
     set_logger(logger)
 
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        availability_domain=dict(type='str', required=False),
-        mount_target_id=dict(type='str', required=False, aliases=['id']),
-        hostname_label=dict(type='str', required=False),
-        display_name=dict(type='str', required=False),
-        ip_address=dict(type='str', required=False),
-        subnet_id=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            availability_domain=dict(type="str", required=False),
+            mount_target_id=dict(type="str", required=False, aliases=["id"]),
+            hostname_label=dict(type="str", required=False),
+            display_name=dict(type="str", required=False),
+            ip_address=dict(type="str", required=False),
+            subnet_id=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     file_storage_client = oci_utils.create_service_client(module, FileStorageClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_mount_target(file_storage_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_mount_target(file_storage_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

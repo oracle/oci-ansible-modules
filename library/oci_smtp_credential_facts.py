@@ -5,18 +5,18 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_smtp_credential_facts
 short_description: Retrieve facts of SMTP credentials in OCI Identity and Access Management Service
@@ -30,17 +30,17 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle ]
-'''
+"""
 
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get information of all the SMTP credentials for a specific user
   oci_smtp_credential_facts:
     user_id: ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq
-'''
+"""
 
 
-RETURN = '''
+RETURN = """
 smtp_credentials:
     description: Attributes of the fetched SMTP credential
     returned: On successful operation
@@ -99,7 +99,7 @@ smtp_credentials:
               "user_id":"ocid1.user.oc1..xxxxxEXAMPLExxxxx",
               "username":"ocid1.user.oc1..xxxxxEXAMPLExxxxx@ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx.za.com"
              }]
-'''
+"""
 
 
 from ansible.module_utils.basic import AnsibleModule
@@ -117,18 +117,19 @@ except ImportError:
 
 
 def list_smtp_credentials(identity_client, module):
-    result = dict(
-        smtp_credentials=''
-    )
-    user_id = module.params.get('user_id')
+    result = dict(smtp_credentials="")
+    user_id = module.params.get("user_id")
     try:
         get_logger().debug("Listing all SMTP credentials for User %s", user_id)
-        existing_smtp_credentials = to_dict(oci_utils.list_all_resources(
-            identity_client.list_smtp_credentials, user_id=user_id))
+        existing_smtp_credentials = to_dict(
+            oci_utils.list_all_resources(
+                identity_client.list_smtp_credentials, user_id=user_id
+            )
+        )
     except ServiceError as ex:
         get_logger().error("Unable to list SMTP credentials due to %s", ex.message)
         module.fail_json(msg=ex.message)
-    result['smtp_credentials'] = to_dict(existing_smtp_credentials)
+    result["smtp_credentials"] = to_dict(existing_smtp_credentials)
     return result
 
 
@@ -145,17 +146,12 @@ def main():
     logger = oci_utils.get_logger("oci_smtp_credential_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        user_id=dict(type='str', required=True)
-    ))
+    module_args.update(dict(user_id=dict(type="str", required=True)))
 
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
-    )
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
@@ -164,5 +160,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_file_system
 short_description: Create, update and delete a File System in OCI Filesystem Service.
@@ -49,9 +50,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create File System
 - name: Create File System
@@ -95,9 +96,9 @@ EXAMPLES = '''
   oci_file_system:
     id: 'ocid1.filesystem.oc1..xxxxxEXAMPLExxxxx'
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     file_system:
         description: Attributes of the created/updated File System. For delete, deleted File System
                      description will be returned.
@@ -175,7 +176,7 @@ RETURN = '''
                    "time_created":"2018-10-16T09:43:00.051000+00:00"
                 }
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -184,33 +185,34 @@ try:
     from oci.file_storage.file_storage_client import FileStorageClient
     from oci.exceptions import ServiceError, ClientError
     from oci.file_storage.models import CreateFileSystemDetails, UpdateFileSystemDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def create_or_update_file_system(file_storage_client, module):
-    result = dict(
-        changed=False,
-        file_system=''
-    )
-    file_system_id = module.params.get('file_system_id')
+    result = dict(changed=False, file_system="")
+    file_system_id = module.params.get("file_system_id")
     try:
         if file_system_id:
             result = update_file_system(file_storage_client, module)
         else:
-            result = oci_utils.check_and_create_resource(resource_type='file_system',
-                                                         create_fn=create_file_system,
-                                                         kwargs_create={'file_storage_client': file_storage_client,
-                                                                        'module': module},
-                                                         list_fn=file_storage_client.list_file_systems,
-                                                         kwargs_list={'compartment_id':
-                                                                      module.params.get('compartment_id'),
-                                                                      'availability_domain':
-                                                                      module.params.get('availability_domain')},
-                                                         module=module,
-                                                         model=CreateFileSystemDetails()
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="file_system",
+                create_fn=create_file_system,
+                kwargs_create={
+                    "file_storage_client": file_storage_client,
+                    "module": module,
+                },
+                list_fn=file_storage_client.list_file_systems,
+                kwargs_list={
+                    "compartment_id": module.params.get("compartment_id"),
+                    "availability_domain": module.params.get("availability_domain"),
+                },
+                module=module,
+                model=CreateFileSystemDetails(),
+            )
     except ServiceError as ex:
         get_logger().error("Unable to create/update File System due to: %s", ex.message)
         module.fail_json(msg=ex.message)
@@ -226,47 +228,45 @@ def create_file_system(file_storage_client, module):
     for attribute in create_file_system_details.attribute_map:
         create_file_system_details.__setattr__(attribute, module.params.get(attribute))
 
-    result = oci_utils.create_and_wait(resource_type='file_system',
-                                       create_fn=file_storage_client.create_file_system,
-                                       kwargs_create={
-                                           'create_file_system_details': create_file_system_details},
-                                       client=file_storage_client,
-                                       get_fn=file_storage_client.get_file_system,
-                                       get_param='file_system_id',
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="file_system",
+        create_fn=file_storage_client.create_file_system,
+        kwargs_create={"create_file_system_details": create_file_system_details},
+        client=file_storage_client,
+        get_fn=file_storage_client.get_file_system,
+        get_param="file_system_id",
+        module=module,
+    )
     return result
 
 
 def update_file_system(file_storage_client, module):
-    result = oci_utils.check_and_update_resource(resource_type="file_system",
-                                                 get_fn=file_storage_client.get_file_system,
-                                                 kwargs_get={
-                                                     "file_system_id":
-                                                     module.params["file_system_id"]},
-                                                 update_fn=file_storage_client.update_file_system,
-                                                 client=file_storage_client,
-                                                 primitive_params_update=['file_system_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateFileSystemDetails:
-                                                     "update_file_system_details"},
-                                                 module=module,
-                                                 update_attributes=UpdateFileSystemDetails().attribute_map
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type="file_system",
+        get_fn=file_storage_client.get_file_system,
+        kwargs_get={"file_system_id": module.params["file_system_id"]},
+        update_fn=file_storage_client.update_file_system,
+        client=file_storage_client,
+        primitive_params_update=["file_system_id"],
+        kwargs_non_primitive_update={
+            UpdateFileSystemDetails: "update_file_system_details"
+        },
+        module=module,
+        update_attributes=UpdateFileSystemDetails().attribute_map,
+    )
     return result
 
 
 def delete_file_system(file_storage_client, module):
-    result = oci_utils.delete_and_wait(resource_type='file_system',
-                                       client=file_storage_client,
-                                       get_fn=file_storage_client.get_file_system,
-                                       kwargs_get={
-                                           'file_system_id': module.params['file_system_id']},
-                                       delete_fn=file_storage_client.delete_file_system,
-                                       kwargs_delete={
-                                           'file_system_id': module.params['file_system_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="file_system",
+        client=file_storage_client,
+        get_fn=file_storage_client.get_file_system,
+        kwargs_get={"file_system_id": module.params["file_system_id"]},
+        delete_fn=file_storage_client.delete_file_system,
+        kwargs_delete={"file_system_id": module.params["file_system_id"]},
+        module=module,
+    )
 
     return result
 
@@ -284,32 +284,39 @@ def main():
     logger = oci_utils.get_logger("oci_file_system")
     set_logger(logger)
 
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        availability_domain=dict(type='str', required=False),
-        file_system_id=dict(type='str', required=False, aliases=['id']),
-        display_name=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            availability_domain=dict(type="str", required=False),
+            file_system_id=dict(type="str", required=False, aliases=["id"]),
+            display_name=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     file_storage_client = oci_utils.create_service_client(module, FileStorageClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_file_system(file_storage_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_file_system(file_storage_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

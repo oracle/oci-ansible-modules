@@ -26,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,92 +36,131 @@ class FakeModule(object):
 @pytest.fixture()
 def lb_client(mocker):
     mock_lb_client = mocker.patch(
-        'oci.load_balancer.load_balancer_client.LoadBalancerClient')
+        "oci.load_balancer.load_balancer_client.LoadBalancerClient"
+    )
     return mock_lb_client.return_value
+
 
 @pytest.fixture()
 def create_backend_patch(mocker):
-    return mocker.patch.object(oci_load_balancer_backend, 'create_backend')
+    return mocker.patch.object(oci_load_balancer_backend, "create_backend")
+
 
 @pytest.fixture()
 def update_backend_patch(mocker):
-    return mocker.patch.object(oci_load_balancer_backend, 'update_backend')
+    return mocker.patch.object(oci_load_balancer_backend, "update_backend")
+
 
 @pytest.fixture()
 def create_or_update_lb_resources_and_wait_patch(mocker):
-    return mocker.patch.object(oci_lb_utils, 'create_or_update_lb_resources_and_wait')
+    return mocker.patch.object(oci_lb_utils, "create_or_update_lb_resources_and_wait")
+
 
 @pytest.fixture()
 def delete_lb_resources_and_wait_patch(mocker):
-    return mocker.patch.object(oci_lb_utils, 'delete_lb_resources_and_wait')
+    return mocker.patch.object(oci_lb_utils, "delete_lb_resources_and_wait")
+
 
 @pytest.fixture()
 def check_and_create_resource_patch(mocker):
-    return mocker.patch.object(oci_utils, 'check_and_create_resource')
+    return mocker.patch.object(oci_utils, "check_and_create_resource")
+
 
 @pytest.fixture()
 def get_existing_resource_patch(mocker):
-    return mocker.patch.object(oci_utils, 'get_existing_resource')
+    return mocker.patch.object(oci_utils, "get_existing_resource")
+
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_load_balancer_backend.set_logger(logging)
 
-def test_create_or_update_backend_create(lb_client, check_and_create_resource_patch, get_existing_resource_patch):
+
+def test_create_or_update_backend_create(
+    lb_client, check_and_create_resource_patch, get_existing_resource_patch
+):
     module = get_module()
     backend = get_backend()
     get_existing_resource_patch.return_value = None
-    check_and_create_resource_patch.return_value = {'backend': to_dict(backend), 'changed': True}
+    check_and_create_resource_patch.return_value = {
+        "backend": to_dict(backend),
+        "changed": True,
+    }
     result = oci_load_balancer_backend.create_or_update_backend(lb_client, module)
-    assert result['backend']['ip_address'] is backend.ip_address
+    assert result["backend"]["ip_address"] is backend.ip_address
 
-def test_create_or_update_backend_update(lb_client, update_backend_patch, get_existing_resource_patch):
+
+def test_create_or_update_backend_update(
+    lb_client, update_backend_patch, get_existing_resource_patch
+):
     module = get_module()
     backend = get_backend()
     get_existing_resource_patch.return_value = backend
-    update_backend_patch.return_value = {'backend': to_dict(backend), 'changed': True}
+    update_backend_patch.return_value = {"backend": to_dict(backend), "changed": True}
     result = oci_load_balancer_backend.create_or_update_backend(lb_client, module)
-    assert result['backend']['ip_address'] is backend.ip_address
+    assert result["backend"]["ip_address"] is backend.ip_address
 
 
-def test_create_or_update_backend_service_error(lb_client, check_and_create_resource_patch, get_existing_resource_patch):
+def test_create_or_update_backend_service_error(
+    lb_client, check_and_create_resource_patch, get_existing_resource_patch
+):
     module = get_module()
     error_message = "Internal Server Error"
     check_and_create_resource_patch.side_effect = ServiceError(
-        500, 'InternalServerError', dict(), error_message)
+        500, "InternalServerError", dict(), error_message
+    )
     get_existing_resource_patch.return_value = None
     try:
         oci_load_balancer_backend.create_or_update_backend(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
-def test_create_or_update_backend_client_error(lb_client, check_and_create_resource_patch, get_existing_resource_patch):
+
+def test_create_or_update_backend_client_error(
+    lb_client, check_and_create_resource_patch, get_existing_resource_patch
+):
     module = get_module()
-    error_message = 'Work Request Failed'
-    check_and_create_resource_patch.side_effect = ClientError(Exception('Work Request Failed'))
+    error_message = "Work Request Failed"
+    check_and_create_resource_patch.side_effect = ClientError(
+        Exception("Work Request Failed")
+    )
     get_existing_resource_patch.return_value = None
     try:
         oci_load_balancer_backend.create_or_update_backend(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
+
 
 def test_create_backend(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module()
     backend = get_backend()
-    create_or_update_lb_resources_and_wait_patch.return_value = {'backend': to_dict(backend), 'changed': True}
+    create_or_update_lb_resources_and_wait_patch.return_value = {
+        "backend": to_dict(backend),
+        "changed": True,
+    }
     result = oci_load_balancer_backend.create_backend(
-        lb_client, module, 'ocid1.loadbalancer.oc1.iad.aaaaa', "10.159.34.21:8181")
-    assert result['backend']['name'] == backend.name
+        lb_client, module, "ocid1.loadbalancer.oc1.iad.aaaaa", "10.159.34.21:8181"
+    )
+    assert result["backend"]["name"] == backend.name
 
 
 def test_update_backend(lb_client, create_or_update_lb_resources_and_wait_patch):
     module = get_module()
     backend = get_backend()
-    create_or_update_lb_resources_and_wait_patch.return_value = {'backend': to_dict(backend), 'changed': True}
+    create_or_update_lb_resources_and_wait_patch.return_value = {
+        "backend": to_dict(backend),
+        "changed": True,
+    }
     result = oci_load_balancer_backend.update_backend(
-        lb_client, module, backend, 'ocid1.loadbalancer.oc1.iad.aaaaa', "10.159.34.21:8181")
-    assert result['changed'] is True
+        lb_client,
+        module,
+        backend,
+        "ocid1.loadbalancer.oc1.iad.aaaaa",
+        "10.159.34.21:8181",
+    )
+    assert result["changed"] is True
 
 
 def test_update_backend_no_update(lb_client):
@@ -129,17 +168,28 @@ def test_update_backend_no_update(lb_client):
     backend = get_backend()
     backend.offline = False
     result = oci_load_balancer_backend.update_backend(
-        lb_client, module, backend, 'ocid1.loadbalancer.oc1.iad.aaaaa', "10.159.34.21:8181")
-    assert result['changed'] is False
+        lb_client,
+        module,
+        backend,
+        "ocid1.loadbalancer.oc1.iad.aaaaa",
+        "10.159.34.21:8181",
+    )
+    assert result["changed"] is False
+
 
 def test_delete_backend(lb_client, delete_lb_resources_and_wait_patch):
     module = get_module()
     backend = get_backend()
     delete_lb_resources_and_wait_patch.return_value = get_response(
-        204, None, backend, None)
-    delete_lb_resources_and_wait_patch.return_value = {'backend': to_dict(backend), 'changed': True}
+        204, None, backend, None
+    )
+    delete_lb_resources_and_wait_patch.return_value = {
+        "backend": to_dict(backend),
+        "changed": True,
+    }
     result = oci_load_balancer_backend.delete_backend(lb_client, module)
-    assert result['changed'] is True
+    assert result["changed"] is True
+
 
 def get_backend():
     backend = Backend()
@@ -166,7 +216,7 @@ def get_module():
         "backup": True,
         "offline": False,
         "drain": True,
-        "weight": 5
+        "weight": 5,
     }
     module = FakeModule(**params)
     return module

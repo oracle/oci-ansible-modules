@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_db_system_patch_history_entry_facts
 short_description: Fetches details of one or more DB System Patch History Entries
@@ -32,8 +33,8 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
-'''
-EXAMPLES = '''
+"""
+EXAMPLES = """
 #Fetch all DB System Patch History Entries
 - name: List DB System Patch History Entries
   oci_db_system_patch_history_entry_facts:
@@ -43,9 +44,9 @@ EXAMPLES = '''
   oci_db_system_patch_history_entry_facts:
     db_system_id: 'ocid1.dbSystem.aaaa'
     patch_history_entry_id: 'ocid1.dbpatchhistory.oc1.ad.abu'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     db_system_patch_history_entries:
         description: Attributes of the DB System Patch History Entry
         returned: success
@@ -98,7 +99,7 @@ RETURN = '''
                     "time_started":"2018-02-24T18:25:06.151000+00:00"
                 }]
 
-'''
+"""
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
@@ -106,6 +107,7 @@ try:
     from oci.database.database_client import DatabaseClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -114,30 +116,38 @@ logger = None
 
 
 def list_db_system_patch_history_entries(db_client, module):
-    result = dict(
-        db_system_patch_history_entries=''
-    )
-    db_system_id = module.params.get('db_system_id')
-    patch_history_entry_id = module.params.get('patch_history_entry_id')
+    result = dict(db_system_patch_history_entries="")
+    db_system_id = module.params.get("db_system_id")
+    patch_history_entry_id = module.params.get("patch_history_entry_id")
     try:
         if patch_history_entry_id:
-            get_logger().debug("Listing DB System Patch History Entry for ID  %s of DB System %s",
-                               patch_history_entry_id, db_system_id)
+            get_logger().debug(
+                "Listing DB System Patch History Entry for ID  %s of DB System %s",
+                patch_history_entry_id,
+                db_system_id,
+            )
             response = oci_utils.call_with_backoff(
                 db_client.get_db_system_patch_history_entry,
-                db_system_id=db_system_id, patch_history_entry_id=patch_history_entry_id)
+                db_system_id=db_system_id,
+                patch_history_entry_id=patch_history_entry_id,
+            )
             db_system_patch_history_entries = [response.data]
         else:
-            get_logger().debug("Listing all DB System Patch History Entries of DB System %s",
-                               db_system_id)
+            get_logger().debug(
+                "Listing all DB System Patch History Entries of DB System %s",
+                db_system_id,
+            )
             db_system_patch_history_entries = oci_utils.list_all_resources(
                 db_client.list_db_system_patch_history_entries,
-                db_system_id=db_system_id)
+                db_system_id=db_system_id,
+            )
     except ServiceError as ex:
-        get_logger().error("Unable to list DB System Patch History Entries due to %s", ex.message)
+        get_logger().error(
+            "Unable to list DB System Patch History Entries due to %s", ex.message
+        )
         module.fail_json(msg=ex.message)
 
-    result['db_system_patch_history_entries'] = to_dict(db_system_patch_history_entries)
+    result["db_system_patch_history_entries"] = to_dict(db_system_patch_history_entries)
     return result
 
 
@@ -154,16 +164,16 @@ def main():
     logger = oci_utils.get_logger("oci_db_system_patch_history_entry_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        db_system_id=dict(type='str', required=True),
-        patch_history_entry_id=dict(type='str', required=False)
-    ))
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args.update(
+        dict(
+            db_system_id=dict(type="str", required=True),
+            patch_history_entry_id=dict(type="str", required=False),
+        )
     )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_db_system_patch_history_entries(db_client, module)
@@ -171,5 +181,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

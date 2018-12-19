@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_image_facts
 short_description: Retrieve details about one or more Compute images in OCI Compute Service
@@ -45,11 +46,12 @@ options:
                      case-insensitive. Allowed values are "PROVISIONING", "IMPORTING", "AVAILABLE", "EXPORTING",
                      "DISABLED", "DELETED"
         required: false
+        choices: ["PROVISIONING", "IMPORTING", "AVAILABLE", "EXPORTING", "DISABLED", "DELETED"]
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get details of all the images of a specified compartment
   oci_image_facts:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq'
@@ -57,9 +59,9 @@ EXAMPLES = '''
 - name: Get details of a specific image
   oci_image_facts:
     id:"ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx...lxiggdq"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 images:
     description: Information about one or more images
     returned: on success
@@ -123,7 +125,7 @@ images:
       "operating-system-version": "7.4",
       "time-created": "2017-11-16T01:16:41.409000+00:00"
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -132,6 +134,7 @@ try:
     from oci.core.compute_client import ComputeClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -139,40 +142,66 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        image_id=dict(type='str', required=False, aliases=['id']),
-        operating_system=dict(type='str', required=False),
-        operating_system_version=dict(type='str', required=False),
-        lifecycle_state=dict(type='str', required=False),
-        shape=dict(type='str', required=False)
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            image_id=dict(type="str", required=False, aliases=["id"]),
+            operating_system=dict(type="str", required=False),
+            operating_system_version=dict(type="str", required=False),
+            lifecycle_state=dict(
+                type="str",
+                required=False,
+                choices=[
+                    "PROVISIONING",
+                    "IMPORTING",
+                    "AVAILABLE",
+                    "EXPORTING",
+                    "DISABLED",
+                    "DELETED",
+                ],
+            ),
+            shape=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['id', 'compartment_id']
+        mutually_exclusive=["id", "compartment_id"],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
 
-    compartment_id = module.params['compartment_id']
-    id = module.params['image_id']
+    compartment_id = module.params["compartment_id"]
+    id = module.params["image_id"]
 
     result = dict(changed=False)
     try:
         if compartment_id:
-            optional_list_method_params = ['operating_system', 'operating_system_version', 'lifecycle_state', 'shape']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            inst = oci_utils.list_all_resources(compute_client.list_images, compartment_id=compartment_id,
-                                                **optional_kwargs)
+            optional_list_method_params = [
+                "operating_system",
+                "operating_system_version",
+                "lifecycle_state",
+                "shape",
+            ]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            inst = oci_utils.list_all_resources(
+                compute_client.list_images,
+                compartment_id=compartment_id,
+                **optional_kwargs
+            )
             result = to_dict(inst)
         else:
-            inst = oci_utils.call_with_backoff(compute_client.get_image, image_id=id).data
+            inst = oci_utils.call_with_backoff(
+                compute_client.get_image, image_id=id
+            ).data
             result = to_dict([inst])
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -182,5 +211,5 @@ def main():
     module.exit_json(images=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

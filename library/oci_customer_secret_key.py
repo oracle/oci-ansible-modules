@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_customer_secret_key
 short_description: Create, update and delete Customer Secret Keys for the specified user in OCI.
@@ -50,9 +50,9 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a new customer secret key
   oci_customer_secret_key:
     user_id: "ocid1.user.oc1..xxxxxEXAMPLExxxxx"
@@ -69,9 +69,9 @@ EXAMPLES = '''
     id: "ocid1.credential.oc1..xxxxxEXAMPLExxxxx"
     user_id: "ocid1.user.oc1..xxxxxEXAMPLExxxxx"
     state: "absent"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 oci_customer_secret_key:
     description: Details of the Customer Secret Key. The "key" attribute is returned only during creation of the
                  customer secret key.
@@ -87,15 +87,18 @@ oci_customer_secret_key:
         'user_id': 'ocid1.user.oc1..xxxxxEXAMPLExxxxx',
         'inactive_status': None
     }
-'''
+"""
 
-import oci
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
 try:
+    import oci
     from oci.identity.identity_client import IdentityClient
-    from oci.identity.models import CreateCustomerSecretKeyDetails, UpdateCustomerSecretKeyDetails
+    from oci.identity.models import (
+        CreateCustomerSecretKeyDetails,
+        UpdateCustomerSecretKeyDetails,
+    )
     from oci.util import to_dict
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
 
@@ -118,7 +121,9 @@ def get_logger():
 
 def _get_customer_secret_key_from_id(identity_client, user_id, id, module):
     try:
-        response = oci_utils.call_with_backoff(identity_client.list_customer_secret_keys, user_id=user_id)
+        response = oci_utils.call_with_backoff(
+            identity_client.list_customer_secret_keys, user_id=user_id
+        )
         if response is not None:
             for sk in response.data:
                 if sk.id == id:
@@ -132,9 +137,14 @@ def delete_customer_secret_key(identity_client, user_id, id, module):
     result = {}
     changed = False
     try:
-        secret_key = _get_customer_secret_key_from_id(identity_client, user_id, id, module)
-        oci_utils.call_with_backoff(identity_client.delete_customer_secret_key, user_id=user_id,
-                                    customer_secret_key_id=id)
+        secret_key = _get_customer_secret_key_from_id(
+            identity_client, user_id, id, module
+        )
+        oci_utils.call_with_backoff(
+            identity_client.delete_customer_secret_key,
+            user_id=user_id,
+            customer_secret_key_id=id,
+        )
         get_logger().info("Deleted customer secret key %s", id)
         changed = True
         # The Customer Secret Key is not returned by list customer secret keys after it
@@ -147,32 +157,45 @@ def delete_customer_secret_key(identity_client, user_id, id, module):
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    result['changed'] = changed
+    result["changed"] = changed
     return result
 
 
-def update_customer_secret_key(identity_client, user_id, secret_key_id, display_name, module):
+def update_customer_secret_key(
+    identity_client, user_id, secret_key_id, display_name, module
+):
     result = dict()
     changed = False
     try:
         uskd = UpdateCustomerSecretKeyDetails()
         uskd.display_name = display_name
-        get_logger().debug("Customer Secret Key %s - updating with new display name: %s", secret_key_id, display_name)
-        response = oci_utils.call_with_backoff(identity_client.update_customer_secret_key, user_id=user_id,
-                                               customer_secret_key_id=secret_key_id,
-                                               update_customer_secret_key_details=uskd)
+        get_logger().debug(
+            "Customer Secret Key %s - updating with new display name: %s",
+            secret_key_id,
+            display_name,
+        )
+        response = oci_utils.call_with_backoff(
+            identity_client.update_customer_secret_key,
+            user_id=user_id,
+            customer_secret_key_id=secret_key_id,
+            update_customer_secret_key_details=uskd,
+        )
         get_logger().info("Updated Customer Secret Key %s", to_dict(response.data))
         result[RESOURCE_NAME] = to_dict(response.data)
         changed = True
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    result['changed'] = changed
+    result["changed"] = changed
     return result
 
 
 def _is_customer_secret_key_active(customer_secret_keys, csk_id):
-    result = [csk for csk in customer_secret_keys if csk.id == csk_id and csk.lifecycle_state == "ACTIVE"]
+    result = [
+        csk
+        for csk in customer_secret_keys
+        if csk.id == csk_id and csk.lifecycle_state == "ACTIVE"
+    ]
     return len(result) == 1
 
 
@@ -181,19 +204,28 @@ def create_customer_secret_key(identity_client, user_id, display_name, module):
     try:
         cskd = CreateCustomerSecretKeyDetails()
         cskd.display_name = display_name
-        result = oci_utils.create_resource(resource_type=RESOURCE_NAME,
-                                           create_fn=identity_client.create_customer_secret_key,
-                                           kwargs_create={"user_id": user_id,
-                                                          "create_customer_secret_key_details": cskd},
-                                           module=module)
+        result = oci_utils.create_resource(
+            resource_type=RESOURCE_NAME,
+            create_fn=identity_client.create_customer_secret_key,
+            kwargs_create={
+                "user_id": user_id,
+                "create_customer_secret_key_details": cskd,
+            },
+            module=module,
+        )
         resource = result[RESOURCE_NAME]
         csk_id = resource["id"]
         get_logger().info("Created Customer Secret Key %s", to_dict(resource))
 
         response = identity_client.list_customer_secret_keys(user_id)
         # wait until the created Customer Secret Key reaches Active state
-        oci.wait_until(identity_client, response,
-                       evaluate_response=lambda resp: _is_customer_secret_key_active(resp.data, csk_id))
+        oci.wait_until(
+            identity_client,
+            response,
+            evaluate_response=lambda resp: _is_customer_secret_key_active(
+                resp.data, csk_id
+            ),
+        )
 
         # Reuse the CSK object returned by "create" API call as only that object has the "key" attribute defined.
         # Update the lifecycle_status to "ACTIVE"
@@ -209,61 +241,85 @@ def main():
     set_logger(oci_utils.get_logger("oci_customer_secret_key"))
 
     module_args = oci_utils.get_common_arg_spec(supports_create=True)
-    module_args.update(dict(
-        user_id=dict(type='str', required=True),
-        customer_secret_key_id=dict(type='str', required=False, aliases=['id']),
-        name=dict(type='str', required=False, aliases=['display_name']),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
+    module_args.update(
+        dict(
+            user_id=dict(type="str", required=True),
+            customer_secret_key_id=dict(type="str", required=False, aliases=["id"]),
+            name=dict(type="str", required=False, aliases=["display_name"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[('state', 'absent', ['customer_secret_key_id'])],
+        required_if=[("state", "absent", ["customer_secret_key_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
-    state = module.params['state']
+    state = module.params["state"]
 
     result = dict(changed=False)
 
     user_id = module.params.get("user_id", None)
     secret_key_id = module.params.get("customer_secret_key_id", None)
-    name = module.params.get('name', None)
+    name = module.params.get("name", None)
     get_logger().debug("Id is " + str(secret_key_id))
 
     if secret_key_id is not None:
-        secret_key = _get_customer_secret_key_from_id(identity_client, user_id, secret_key_id, module)
+        secret_key = _get_customer_secret_key_from_id(
+            identity_client, user_id, secret_key_id, module
+        )
 
-        if state == 'absent':
-            get_logger().debug("Delete Customer Secret Key %s for user %s requested", secret_key_id, user_id)
+        if state == "absent":
+            get_logger().debug(
+                "Delete Customer Secret Key %s for user %s requested",
+                secret_key_id,
+                user_id,
+            )
             if secret_key is not None:
                 get_logger().debug("Deleting %s", secret_key.id)
-                result = delete_customer_secret_key(identity_client, user_id, secret_key_id, module)
+                result = delete_customer_secret_key(
+                    identity_client, user_id, secret_key_id, module
+                )
             else:
-                get_logger().debug("Customer secret key %s already deleted.", secret_key_id)
-        elif state == 'present':
+                get_logger().debug(
+                    "Customer secret key %s already deleted.", secret_key_id
+                )
+        elif state == "present":
             if secret_key.display_name != name:
-                result = update_customer_secret_key(identity_client, user_id, secret_key_id, name, module)
+                result = update_customer_secret_key(
+                    identity_client, user_id, secret_key_id, name, module
+                )
             else:
                 # No change needed, return existing customer secret key details
                 result[RESOURCE_NAME] = to_dict(secret_key)
     else:
-        result = oci_utils.check_and_create_resource(resource_type=RESOURCE_NAME,
-                                                     create_fn=create_customer_secret_key,
-                                                     kwargs_create={"identity_client": identity_client,
-                                                                    "user_id": user_id, "display_name": name,
-                                                                    "module": module},
-                                                     list_fn=identity_client.list_customer_secret_keys,
-                                                     kwargs_list={"user_id": user_id},
-                                                     module=module,
-                                                     model=CreateCustomerSecretKeyDetails())
+        result = oci_utils.check_and_create_resource(
+            resource_type=RESOURCE_NAME,
+            create_fn=create_customer_secret_key,
+            kwargs_create={
+                "identity_client": identity_client,
+                "user_id": user_id,
+                "display_name": name,
+                "module": module,
+            },
+            list_fn=identity_client.list_customer_secret_keys,
+            kwargs_list={"user_id": user_id},
+            module=module,
+            model=CreateCustomerSecretKeyDetails(),
+        )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

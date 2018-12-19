@@ -10,7 +10,8 @@ import logging
 from nose.plugins.skip import SkipTest
 
 from ansible.modules.cloud.oracle import oci_instance
-#from ansible.module_utils.oracle.oci_utils import OCIRetry
+
+# from ansible.module_utils.oracle.oci_utils import OCIRetry
 from ansible.module_utils.oracle.oci_utils import to_dict
 
 try:
@@ -29,7 +30,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -37,14 +38,15 @@ class FakeModule(object):
 
 
 def setup_module():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_instance.set_logger(logging)
 
 
 @pytest.fixture()
 def compute_client(mocker):
-    mock_cc = mocker.patch('oci.core.compute_client.ComputeClient')
+    mock_cc = mocker.patch("oci.core.compute_client.ComputeClient")
     return mock_cc.return_value
 
 
@@ -53,39 +55,42 @@ def get_response(status, header, data, request):
 
 
 def get_module():
-    params = {'name': 'myinstance1',
-              'availability_domain': 'BnQb:PHX-AD-1',
-              'compartment_id': 'ocid1.compartment.oc1.....vm62xq',
-              'image_id': 'ocid1.image.oc1.phx....sa7klnoa',
-              'fault_domain': 'FAULT-DOMAIN-1',
-              'shape': 'BM.Standard1.36',
-              'metadata': {'foo': 'bar'},
-              'extended_metadata': {'baz': 'quux'},
-              'ipxe_script': "",
-              'vnic': {
-                  'hostname_label': 'myinstance1',
-                  'private_ip': '10.0.0.5',
-                  'subnet_id': 'ocid1.subnet.oc1.phx....5iddusmpqpaoa'
-              },
-              "wait": True,
-              "wait_timeout": 1200}
+    params = {
+        "name": "myinstance1",
+        "availability_domain": "BnQb:PHX-AD-1",
+        "compartment_id": "ocid1.compartment.oc1.....vm62xq",
+        "image_id": "ocid1.image.oc1.phx....sa7klnoa",
+        "fault_domain": "FAULT-DOMAIN-1",
+        "shape": "BM.Standard1.36",
+        "metadata": {"foo": "bar"},
+        "extended_metadata": {"baz": "quux"},
+        "ipxe_script": "",
+        "vnic": {
+            "hostname_label": "myinstance1",
+            "private_ip": "10.0.0.5",
+            "subnet_id": "ocid1.subnet.oc1.phx....5iddusmpqpaoa",
+        },
+        "wait": True,
+        "wait_timeout": 1200,
+    }
     module = FakeModule(**params)
     return module
 
 
 @pytest.fixture()
 def get_call_with_backoff(mocker):
-    return mocker.patch.object(oci_utils, 'call_with_backoff')
+    return mocker.patch.object(oci_utils, "call_with_backoff")
 
 
 @pytest.fixture()
 def get_oci_wait_until_patch(mocker):
-    return mocker.patch.object(oci, 'wait_until')
+    return mocker.patch.object(oci, "wait_until")
 
 
 @pytest.fixture()
 def get_ociretry_found_patch(mocker):
     return mocker.patch.object(OCIRetry, "found")
+
 
 @pytest.fixture()
 def get_oci_utils_create_and_wait_patch(mocker):
@@ -96,13 +101,16 @@ def test_launch_instance_success(compute_client, get_oci_utils_create_and_wait_p
     module = get_module()
 
     inst_created = oci.core.models.Instance()
-    inst_created.display_name = module.params['name']
+    inst_created.display_name = module.params["name"]
     inst_created.id = "XYZ"
     inst_created.lifecycle_state = "RUNNING"
-    get_oci_utils_create_and_wait_patch.return_value = {"changed": True, "instance": to_dict(inst_created)}
+    get_oci_utils_create_and_wait_patch.return_value = {
+        "changed": True,
+        "instance": to_dict(inst_created),
+    }
 
     resp = oci_instance.launch_instance(compute_client, module, None)
-    assert resp['instance']['lifecycle_state'] == "RUNNING"
+    assert resp["instance"]["lifecycle_state"] == "RUNNING"
 
 
 # XXX write a new UT to test the new RetryStrategy based retry logic
@@ -157,23 +165,32 @@ def _get_stopped(inst):
     return stopped_resp
 
 
-def test_stop_running_instance_clean_first_response(compute_client, get_call_with_backoff, get_oci_wait_until_patch):
+def test_stop_running_instance_clean_first_response(
+    compute_client, get_call_with_backoff, get_oci_wait_until_patch
+):
     inst = oci.core.models.Instance()
     running_resp = _get_running(inst)
     stopped_resp = _get_stopped(inst)
 
     # The last call to get_instance must return 'stopped'
-    get_call_with_backoff.side_effect = [running_resp, running_resp, stopped_resp, stopped_resp]
+    get_call_with_backoff.side_effect = [
+        running_resp,
+        running_resp,
+        stopped_resp,
+        stopped_resp,
+    ]
     compute_client.get_instance.side_effect = [running_resp, running_resp, stopped_resp]
     get_oci_wait_until_patch.return_value = None
 
     # The 'state' option would be set to "stopped"
-    res = oci_instance.power_action_on_instance(compute_client, inst.id, "stopped", get_module())
+    res = oci_instance.power_action_on_instance(
+        compute_client, inst.id, "stopped", get_module()
+    )
 
     # the action to take to reach the desired state must be STOP
     # compute_client.instance_action.assert_called_once_with(inst.id, "STOP")
-    assert res['changed']  # there must be a change in state
+    assert res["changed"]  # there must be a change in state
 
-    ret_inst = res['instance']
+    ret_inst = res["instance"]
     # the desired state must be reached
-    assert ret_inst['lifecycle_state'] == 'STOPPED'
+    assert ret_inst["lifecycle_state"] == "STOPPED"

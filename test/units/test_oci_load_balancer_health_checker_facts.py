@@ -16,7 +16,8 @@ try:
     from oci.exceptions import ServiceError
 except ImportError:
     raise SkipTest(
-        "test_oci_load_balancer_health_checker_facts.py requires `oci` module")
+        "test_oci_load_balancer_health_checker_facts.py requires `oci` module"
+    )
 
 
 class FakeModule(object):
@@ -26,7 +27,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,59 +37,88 @@ class FakeModule(object):
 @pytest.fixture()
 def lb_client(mocker):
     mock_lb_client = mocker.patch(
-        'oci.load_balancer.load_balancer_client.LoadBalancerClient')
+        "oci.load_balancer.load_balancer_client.LoadBalancerClient"
+    )
     return mock_lb_client.return_value
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_load_balancer_health_checker_facts.set_logger(logging)
 
 
 def test_list_load_balancer_health_checker_list_specific_health_checker(lb_client):
-    module = get_module(dict({'backend_set_name': 'backend_set',
-                              'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+    module = get_module(
+        dict(
+            {
+                "backend_set_name": "backend_set",
+                "load_balancer_id": "ocid1.lodbalancer.xcds",
+            }
+        )
+    )
     health_checker = get_health_checker()
-    lb_client.get_health_checker.return_value = get_response(200, None, health_checker, None)
-    result = oci_load_balancer_health_checker_facts.list_load_balancer_health_checker(lb_client, module)
-    assert result['health_checkers'][0]['protocol'] == health_checker.protocol
+    lb_client.get_health_checker.return_value = get_response(
+        200, None, health_checker, None
+    )
+    result = oci_load_balancer_health_checker_facts.list_load_balancer_health_checker(
+        lb_client, module
+    )
+    assert result["health_checkers"][0]["protocol"] == health_checker.protocol
+
 
 def test_list_load_balancer_health_checker_list_all_health_checkers(lb_client):
-    module = get_module(dict({'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+    module = get_module(dict({"load_balancer_id": "ocid1.lodbalancer.xcds"}))
     health_checker = get_health_checker()
     load_balancer = LoadBalancer()
     backend_set = BackendSet()
     health_checker = get_health_checker()
     backend_set.health_checker = health_checker
-    load_balancer.backend_sets = dict({'backend_set': backend_set})
-    lb_client.get_load_balancer.return_value = get_response(200, None, load_balancer, None)
-    result = oci_load_balancer_health_checker_facts.list_load_balancer_health_checker(lb_client, module)
-    assert result['health_checkers'][0]['protocol'] == health_checker.protocol
+    load_balancer.backend_sets = dict({"backend_set": backend_set})
+    lb_client.get_load_balancer.return_value = get_response(
+        200, None, load_balancer, None
+    )
+    result = oci_load_balancer_health_checker_facts.list_load_balancer_health_checker(
+        lb_client, module
+    )
+    assert result["health_checkers"][0]["protocol"] == health_checker.protocol
+
 
 def test_list_load_balancer_health_checker_service_error(lb_client):
     error_message = "Internal Server Error"
-    module = get_module(dict({'backend_set_name': 'backend_set',
-                              'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+    module = get_module(
+        dict(
+            {
+                "backend_set_name": "backend_set",
+                "load_balancer_id": "ocid1.lodbalancer.xcds",
+            }
+        )
+    )
     health_checker = get_health_checker()
     lb_client.get_health_checker.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
-        oci_load_balancer_health_checker_facts.list_load_balancer_health_checker(lb_client, module)
+        oci_load_balancer_health_checker_facts.list_load_balancer_health_checker(
+            lb_client, module
+        )
     except Exception as ex:
         assert error_message in ex.args[0]
+
 
 def get_health_checker():
     health_checker = HealthChecker()
     health_checker.interval_in_millis = 30000
     health_checker.port = 82
-    health_checker.protocol = 'HTTP'
-    health_checker.response_body_regex = '^(500|40[1348])$'
+    health_checker.protocol = "HTTP"
+    health_checker.response_body_regex = "^(500|40[1348])$"
     health_checker.retries = 3
     health_checker.return_code = 200
     health_checker.timeout_in_millis = 6000
-    health_checker.url_path = '/healthcheck'
+    health_checker.url_path = "/healthcheck"
     return health_checker
+
 
 def get_response(status, header, data, request):
     return oci.Response(status, header, data, request)

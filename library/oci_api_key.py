@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_api_key
 short_description: Upload and delete API signing key of a user in OCI
@@ -52,9 +52,9 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Upload a new api signing key for the specified user
   oci_api_key:
     user_id: "ocid1.user.oc1..xxxxxEXAMPLExxxxx"
@@ -65,9 +65,9 @@ EXAMPLES = '''
         user_id: "ocid1.user.oc1..xxxxxEXAMPLExxxxx"
         "id": "ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx/ocid1.user.oc1..xxxxxEXAMPLExxxxx/08:07:a6:7d:06:b4:73:91:e9:2c:da"
         state: "absent"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 oci_api_key:
     description: Details of the API signing key
     returned: On success
@@ -81,13 +81,13 @@ oci_api_key:
         "time_created": "2018-01-08T09:33:59.705000+00:00",
         "user_id": "ocid1.user.oc1..xxxxxEXAMPLExxxxx"
      }
-'''
+"""
 
-import oci
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
 try:
+    import oci
     from oci.identity.identity_client import IdentityClient
     from oci.identity.models import CreateApiKeyDetails
     from oci.util import to_dict
@@ -113,7 +113,9 @@ def get_logger():
 
 def _get_api_key_from_id(identity_client, user_id, api_key_id, module):
     try:
-        resp = oci_utils.call_with_backoff(identity_client.list_api_keys, user_id=user_id)
+        resp = oci_utils.call_with_backoff(
+            identity_client.list_api_keys, user_id=user_id
+        )
         if resp is not None:
             for api_key in resp.data:
                 if api_key.key_id == api_key_id:
@@ -128,7 +130,11 @@ def delete_api_key(identity_client, user_id, id, module):
     changed = False
     try:
         api_key = _get_api_key_from_id(identity_client, user_id, id, module)
-        oci_utils.call_with_backoff(identity_client.delete_api_key, user_id=user_id, fingerprint=api_key.fingerprint)
+        oci_utils.call_with_backoff(
+            identity_client.delete_api_key,
+            user_id=user_id,
+            fingerprint=api_key.fingerprint,
+        )
         get_logger().info("Deleted api password %s", id)
         changed = True
 
@@ -142,12 +148,16 @@ def delete_api_key(identity_client, user_id, id, module):
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    result['changed'] = changed
+    result["changed"] = changed
     return result
 
 
 def _is_api_key_active(api_keys, api_key_id):
-    result = [api_key for api_key in api_keys if api_key.key_id == api_key_id and api_key.lifecycle_state == "ACTIVE"]
+    result = [
+        api_key
+        for api_key in api_keys
+        if api_key.key_id == api_key_id and api_key.lifecycle_state == "ACTIVE"
+    ]
     return len(result) == 1
 
 
@@ -155,12 +165,12 @@ def create_api_key(identity_client, user_id, key, module):
     try:
         cakd = CreateApiKeyDetails()
         cakd.key = key
-        result = oci_utils.create_resource(resource_type=RESOURCE_NAME, create_fn=identity_client.upload_api_key,
-                                           kwargs_create={
-                                               "user_id": user_id,
-                                               "create_api_key_details": cakd
-                                           },
-                                           module=module)
+        result = oci_utils.create_resource(
+            resource_type=RESOURCE_NAME,
+            create_fn=identity_client.upload_api_key,
+            kwargs_create={"user_id": user_id, "create_api_key_details": cakd},
+            module=module,
+        )
         resource = result[RESOURCE_NAME]
         api_key_id = resource["key_id"]
         get_logger().info("Created API signing key %s", to_dict(resource))
@@ -169,10 +179,15 @@ def create_api_key(identity_client, user_id, key, module):
         # The following logic manually checks if the API key in `list_api_keys` has reached the desired ACTIVE state
         response = identity_client.list_api_keys(user_id)
         # wait until the created API Key reaches Active state
-        oci.wait_until(identity_client, response,
-                       evaluate_response=lambda resp: _is_api_key_active(resp.data, api_key_id))
+        oci.wait_until(
+            identity_client,
+            response,
+            evaluate_response=lambda resp: _is_api_key_active(resp.data, api_key_id),
+        )
 
-        result[RESOURCE_NAME] = to_dict(_get_api_key_from_id(identity_client, user_id, api_key_id, module))
+        result[RESOURCE_NAME] = to_dict(
+            _get_api_key_from_id(identity_client, user_id, api_key_id, module)
+        )
         return result
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -183,25 +198,34 @@ def create_api_key(identity_client, user_id, key, module):
 def main():
     set_logger(oci_utils.get_logger("oci_api_key"))
 
-    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        user_id=dict(type='str', required=True),
-        api_key_id=dict(type='str', required=False, aliases=['id']),
-        api_signing_key=dict(type='str', required=False, aliases=['key']),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
+    module_args = oci_utils.get_common_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            user_id=dict(type="str", required=True),
+            api_key_id=dict(type="str", required=False, aliases=["id"]),
+            api_signing_key=dict(type="str", required=False, aliases=["key"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[('state', 'absent', ['api_key_id'])],
+        required_if=[("state", "absent", ["api_key_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
-    state = module.params['state']
+    state = module.params["state"]
 
     result = dict(changed=False)
 
@@ -212,28 +236,35 @@ def main():
     if api_key_id is not None:
         api_key = _get_api_key_from_id(identity_client, user_id, api_key_id, module)
 
-        if state == 'absent':
-            get_logger().debug("Delete api password %s for user %s requested", api_key_id, user_id)
+        if state == "absent":
+            get_logger().debug(
+                "Delete api password %s for user %s requested", api_key_id, user_id
+            )
             if api_key is not None:
                 get_logger().debug("Deleting %s", api_key.key_id)
                 result = delete_api_key(identity_client, user_id, api_key_id, module)
             else:
                 get_logger().debug("API Signing Key %s already deleted.", api_key_id)
-        elif state == 'present':
+        elif state == "present":
             module.fail_json(msg="API signing key cannot be updated.")
     else:
-        result = oci_utils.check_and_create_resource(resource_type=RESOURCE_NAME, create_fn=create_api_key,
-                                                     kwargs_create={"identity_client": identity_client,
-                                                                    "user_id": user_id, "key": public_key,
-                                                                    "module": module},
-                                                     list_fn=identity_client.list_api_keys,
-                                                     kwargs_list={"user_id": user_id},
-                                                     module=module,
-                                                     model=CreateApiKeyDetails()
-                                                     )
+        result = oci_utils.check_and_create_resource(
+            resource_type=RESOURCE_NAME,
+            create_fn=create_api_key,
+            kwargs_create={
+                "identity_client": identity_client,
+                "user_id": user_id,
+                "key": public_key,
+                "module": module,
+            },
+            list_fn=identity_client.list_api_keys,
+            kwargs_list={"user_id": user_id},
+            module=module,
+            model=CreateApiKeyDetails(),
+        )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

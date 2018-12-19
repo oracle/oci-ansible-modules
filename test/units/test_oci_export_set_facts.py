@@ -16,8 +16,7 @@ try:
     from oci.file_storage.models import ExportSet
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_export_set_facts.py requires `oci` module")
+    raise SkipTest("test_oci_export_set_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -37,44 +36,56 @@ class FakeModule(object):
 @pytest.fixture()
 def file_storage_client(mocker):
     mock_file_storage_client = mocker.patch(
-        'oci.file_storage.file_storage_client.FileStorageClient')
+        "oci.file_storage.file_storage_client.FileStorageClient"
+    )
     return mock_file_storage_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_export_set_facts.set_logger(logging)
 
 
 def test_list_export_sets_list_all(file_storage_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'availability_domain': 'EXAMPLE-AD'}))
+    module = get_module(
+        dict(
+            {
+                "compartment_id": "ocid1.compartment.aaaa",
+                "availability_domain": "EXAMPLE-AD",
+            }
+        )
+    )
     list_all_resources_patch.return_value = get_export_sets()
-    file_storage_client.get_export_set.side_effect = [get_response(
-        200, None, get_export_set(), None), get_response(
-        200, None, get_export_set(), None)]
+    file_storage_client.get_export_set.side_effect = [
+        get_response(200, None, get_export_set(), None),
+        get_response(200, None, get_export_set(), None),
+    ]
     result = oci_export_set_facts.list_export_sets(file_storage_client, module)
-    assert len(result['export_sets']) is 2
+    assert len(result["export_sets"]) is 2
 
 
 def test_list_export_sets_list_specific(file_storage_client):
-    module = get_module(dict({'export_set_id': 'ocid1.exportset.aaaa'}))
+    module = get_module(dict({"export_set_id": "ocid1.exportset.aaaa"}))
     file_storage_client.get_export_set.return_value = get_response(
-        200, None, get_export_set(), None)
+        200, None, get_export_set(), None
+    )
     result = oci_export_set_facts.list_export_sets(file_storage_client, module)
-    assert result['export_sets'][0]['display_name'] is 'ansible_export_set'
+    assert result["export_sets"][0]["display_name"] is "ansible_export_set"
 
 
 def test_list_export_sets_service_error(file_storage_client):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'export_set_id': 'ocid1.exportset.aaaa'}))
+    error_message = "Internal Server Error"
+    module = get_module(dict({"export_set_id": "ocid1.exportset.aaaa"}))
     file_storage_client.get_export_set.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_export_set_facts.list_export_sets(file_storage_client, module)
     except Exception as ex:
@@ -84,9 +95,9 @@ def test_list_export_sets_service_error(file_storage_client):
 def get_export_sets():
     export_sets = []
     export_set1 = ExportSet()
-    export_set1.display_name = 'ansible_export_set1'
+    export_set1.display_name = "ansible_export_set1"
     export_set2 = ExportSet()
-    export_set2.display_name = 'ansible_export_set2'
+    export_set2.display_name = "ansible_export_set2"
     export_sets.append(export_set1)
     export_sets.append(export_set2)
     return export_sets
@@ -94,7 +105,7 @@ def get_export_sets():
 
 def get_export_set():
     export_set = ExportSet()
-    export_set.display_name = 'ansible_export_set'
+    export_set.display_name = "ansible_export_set"
     return export_set
 
 

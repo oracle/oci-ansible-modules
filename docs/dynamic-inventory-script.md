@@ -24,8 +24,13 @@ The `oci_inventory.py` script accepts the following command line arguments:
 ```
 usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
                         [--profile PROFILE] [--compartment COMPARTMENT]
-                        [--refresh-cache] [--debug]
-                        [--auth {api_key,instance_principal}]
+                        [--parent-compartment-ocid PARENT_COMPARTMENT_OCID]
+                        [--fetch-hosts-from-subcompartments] [--refresh-cache]
+                        [--debug] [--auth {api_key,instance_principal}]
+                        [--enable-parallel-processing]
+                        [--max-thread-count MAX_THREAD_COUNT]
+                        [--freeform-tags FREEFORM_TAGS]
+                        [--defined-tags DEFINED_TAGS]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -35,9 +40,19 @@ optional arguments:
                         OCI config file location
   --profile PROFILE     OCI config profile for connecting to OCI
   --compartment COMPARTMENT
-                        Name of the compartment
-  --refresh-cache, -r   Force refresh of cache by making API requests to OCI
-                        (default: False - use cache files)
+                        Name of the compartment for which dynamic inventory must be generated. If you want to generate a
+                        dynamic inventory for the root compartment of the tenancy, specify the tenancy name as the name
+                        of the compartment.
+  --parent-compartment-ocid
+                        Only valid when --compartment is set. Parent compartment ocid of the specified compartment.
+                        Defaults to tenancy ocid.
+  --fetch-hosts-from-subcompartments
+                        Only valid when --compartment is set. Default is false. When set to true, inventory
+                        is built with the entire hierarchy of the given compartment.
+  --refresh-cache, -r   Force refresh of cache by making API requests to OCI.
+                        Use this option whenever you are building inventory
+                        with new filter options to avoid reading cached
+                        inventory. (default: False - use cache files)
   --debug               Send debug messages to STDERR
   --auth {api_key,instance_principal}
                         The type of authentication to use for making API
@@ -46,6 +61,27 @@ optional arguments:
                         use instance principal based authentication. This
                         value can also be provided in the
                         OCI_ANSIBLE_AUTH_TYPE environment variable.
+  --enable-parallel-processing
+                        Inventory generation for tenants with huge number of instances might take a long time.
+                        When this flag is set, the inventory script uses thread pools to parallelise the
+                        inventory generation.
+  --max-thread-count
+                        Only valid when --enable-parallel-processing is set. When set, this script uses threads to
+                        improve the performance of building the inventory. This option specifies the maximum number of
+                        threads to use. Defaults to 50. This value can also be provided in the settings config file.
+  --freeform-tags FREEFORM_TAGS
+                        Freeform tags provided as a string in valid JSON
+                        format. Example: { "stage": "dev", "app": "demo"} Use
+                        this option to build inventory of only those hosts
+                        which are tagged with all the specified key-value
+                        pairs.
+  --defined-tags DEFINED_TAGS
+                        Defined tags provided as a string in valid JSON
+                        format. Example: {"namespace1": {"key1": "value1",
+                        "key2": "value2"}, "namespace2": {"key": "value"}} Use
+                        this option to build inventory of only those hosts
+                        which are tagged with all the specified key-value
+                        pairs.
 ```
 
 The `oci_inventory.py` script also accepts the following environment variables:

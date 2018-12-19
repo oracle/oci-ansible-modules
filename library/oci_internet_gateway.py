@@ -6,16 +6,17 @@
 # See LICENSE.TXT for details.
 
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_internet_gateway
 short_description: Create,update and delete OCI Internet Gateway
@@ -58,9 +59,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 #Note: These examples do not set authentication details.
 #Create/update Internet Gateway
 - name : Create new Internet Gateway in OCI
@@ -97,9 +98,9 @@ EXAMPLES = '''
             state: 'absent'
 
 
-'''
+"""
 
-RETURN = '''
+RETURN = """
     internet_gateway:
         description: Attributes of the created/updated Internet Gateway.
                     For delete, deleted Internet Gateway description will
@@ -151,7 +152,7 @@ RETURN = '''
                     "vcn_id":"ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx"
                 }
 
-'''
+"""
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
@@ -159,34 +160,40 @@ from ansible.module_utils.oracle import oci_utils
 try:
     from oci.core import VirtualNetworkClient
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
-    from oci.core.models import CreateInternetGatewayDetails, \
-        UpdateInternetGatewayDetails
+    from oci.core.models import (
+        CreateInternetGatewayDetails,
+        UpdateInternetGatewayDetails,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def create_or_update_internet_gateway(virtual_network_client, module):
-    result = dict(
-        changed=False,
-        internet_gateway=''
-    )
-    ig_id = module.params.get('ig_id')
-    exclude_attributes = {'display_name': True}
+    result = dict(changed=False, internet_gateway="")
+    ig_id = module.params.get("ig_id")
+    exclude_attributes = {"display_name": True}
     try:
         if ig_id:
             result = update_internet_gateway(virtual_network_client, module)
         else:
-            result = oci_utils.check_and_create_resource(resource_type='internet_gateway',
-                                                         create_fn=create_internet_gateway,
-                                                         kwargs_create={'virtual_network_client': virtual_network_client,
-                                                                        'module': module},
-                                                         list_fn=virtual_network_client.list_internet_gateways,
-                                                         kwargs_list={'compartment_id': module.params.get('compartment_id'),
-                                                                      'vcn_id': module.params.get('vcn_id')},
-                                                         module=module,
-                                                         exclude_attributes=exclude_attributes,
-                                                         model=CreateInternetGatewayDetails())
+            result = oci_utils.check_and_create_resource(
+                resource_type="internet_gateway",
+                create_fn=create_internet_gateway,
+                kwargs_create={
+                    "virtual_network_client": virtual_network_client,
+                    "module": module,
+                },
+                list_fn=virtual_network_client.list_internet_gateways,
+                kwargs_list={
+                    "compartment_id": module.params.get("compartment_id"),
+                    "vcn_id": module.params.get("vcn_id"),
+                },
+                module=module,
+                exclude_attributes=exclude_attributes,
+                model=CreateInternetGatewayDetails(),
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as ex:
@@ -199,73 +206,85 @@ def create_internet_gateway(virtual_network_client, module):
     create_internet_gateway_details = CreateInternetGatewayDetails()
     for attribute in create_internet_gateway_details.attribute_map:
         attribute_value = module.params.get(attribute)
-        create_internet_gateway_details.__setattr__(
-            attribute, attribute_value)
-    result = oci_utils.create_and_wait(resource_type='internet_gateway',
-                                       create_fn=virtual_network_client.create_internet_gateway,
-                                       kwargs_create={
-                                           'create_internet_gateway_details': create_internet_gateway_details},
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_internet_gateway,
-                                       get_param='ig_id',
-                                       module=module
-                                       )
+        create_internet_gateway_details.__setattr__(attribute, attribute_value)
+    result = oci_utils.create_and_wait(
+        resource_type="internet_gateway",
+        create_fn=virtual_network_client.create_internet_gateway,
+        kwargs_create={
+            "create_internet_gateway_details": create_internet_gateway_details
+        },
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_internet_gateway,
+        get_param="ig_id",
+        module=module,
+    )
     return result
 
 
 def update_internet_gateway(virtual_network_client, module):
-    return oci_utils.check_and_update_resource(resource_type='internet_gateway',
-                                               get_fn=virtual_network_client.get_internet_gateway,
-                                               kwargs_get={'ig_id': module.params['ig_id']},
-                                               update_fn=virtual_network_client.update_internet_gateway,
-                                               primitive_params_update=['ig_id'],
-                                               kwargs_non_primitive_update={
-                                                   UpdateInternetGatewayDetails: "update_internet_gateway_details"},
-                                               module=module,
-                                               update_attributes=UpdateInternetGatewayDetails().attribute_map.keys()
-                                               )
+    return oci_utils.check_and_update_resource(
+        resource_type="internet_gateway",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_internet_gateway,
+        kwargs_get={"ig_id": module.params["ig_id"]},
+        update_fn=virtual_network_client.update_internet_gateway,
+        primitive_params_update=["ig_id"],
+        kwargs_non_primitive_update={
+            UpdateInternetGatewayDetails: "update_internet_gateway_details"
+        },
+        module=module,
+        update_attributes=UpdateInternetGatewayDetails().attribute_map.keys(),
+    )
 
 
 def delete_internet_gateway(virtual_network_client, module):
-    return oci_utils.delete_and_wait(resource_type='internet_gateway',
-                                     client=virtual_network_client,
-                                     get_fn=virtual_network_client.get_internet_gateway,
-                                     kwargs_get={
-                                         'ig_id': module.params['ig_id']},
-                                     delete_fn=virtual_network_client.delete_internet_gateway,
-                                     kwargs_delete={
-                                         'ig_id': module.params['ig_id']},
-                                     module=module
-                                     )
+    return oci_utils.delete_and_wait(
+        resource_type="internet_gateway",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_internet_gateway,
+        kwargs_get={"ig_id": module.params["ig_id"]},
+        delete_fn=virtual_network_client.delete_internet_gateway,
+        kwargs_delete={"ig_id": module.params["ig_id"]},
+        module=module,
+    )
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        vcn_id=dict(type='str', required=False),
-        ig_id=dict(type='str', required=False, aliases=['id']),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent']),
-        is_enabled=dict(type='bool', required=False, aliases=['enabled'])
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            vcn_id=dict(type="str", required=False),
+            ig_id=dict(type="str", required=False, aliases=["id"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+            is_enabled=dict(type="bool", required=False, aliases=["enabled"]),
+        )
+    )
     module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
-    state = module.params['state']
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
+    state = module.params["state"]
 
-    if state == 'present':
-        result = create_or_update_internet_gateway(
-            virtual_network_client, module)
-    elif state == 'absent':
+    if state == "present":
+        result = create_or_update_internet_gateway(virtual_network_client, module)
+    elif state == "absent":
         result = delete_internet_gateway(virtual_network_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

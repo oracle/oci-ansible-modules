@@ -16,8 +16,7 @@ try:
     from oci.database.models import DataGuardAssociationSummary
     from oci.exceptions import ServiceError, ClientError
 except ImportError:
-    raise SkipTest(
-        "test_oci_data_guard_association_facts.py requires `oci` module")
+    raise SkipTest("test_oci_data_guard_association_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,72 +26,92 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
 
+
 @pytest.fixture()
 def db_client(mocker):
-    mock_db_client = mocker.patch(
-        'oci.database.database_client.DatabaseClient')
+    mock_db_client = mocker.patch("oci.database.database_client.DatabaseClient")
     return mock_db_client.return_value
+
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
+
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_data_guard_association_facts.set_logger(logging)
 
+
 def test_list_data_guard_associations_all(db_client, list_all_resources_patch):
-    module = get_module(dict({'database_id': 'ocid1.database.aaaa'}))
+    module = get_module(dict({"database_id": "ocid1.database.aaaa"}))
     list_all_resources_patch.return_value = get_data_guard_associations()
-    result = oci_data_guard_association_facts.list_data_guard_associations(db_client, module)
-    assert len(result['data_guard_associations']) is 2
+    result = oci_data_guard_association_facts.list_data_guard_associations(
+        db_client, module
+    )
+    assert len(result["data_guard_associations"]) is 2
 
 
 def test_list_data_guard_associations_specific(db_client):
-    module = get_module(dict({'database_id': 'ocid1.database.aaaa', 'data_guard_association_id': 'ocid1.dataguardassociation.aaaa'}))
+    module = get_module(
+        dict(
+            {
+                "database_id": "ocid1.database.aaaa",
+                "data_guard_association_id": "ocid1.dataguardassociation.aaaa",
+            }
+        )
+    )
     db_client.get_data_guard_association.return_value = get_response(
-        200, None, get_data_guard_association(), None)
-    result = oci_data_guard_association_facts.list_data_guard_associations(db_client, module)
-    assert result['data_guard_associations'][0]['role'] is 'PRIMARY'
+        200, None, get_data_guard_association(), None
+    )
+    result = oci_data_guard_association_facts.list_data_guard_associations(
+        db_client, module
+    )
+    assert result["data_guard_associations"][0]["role"] is "PRIMARY"
 
 
-def test_list_data_guard_associations_service_error(db_client, list_all_resources_patch):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'database_id': 'ocid1.database.aaaa'}))
+def test_list_data_guard_associations_service_error(
+    db_client, list_all_resources_patch
+):
+    error_message = "Internal Server Error"
+    module = get_module(dict({"database_id": "ocid1.database.aaaa"}))
     list_all_resources_patch.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_data_guard_association_facts.list_data_guard_associations(db_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
-
-
 def get_data_guard_associations():
     data_guard_associations = []
     data_guard_association1 = DataGuardAssociationSummary()
-    data_guard_association1.role = 'PRIMARY'
+    data_guard_association1.role = "PRIMARY"
     data_guard_association2 = DataGuardAssociationSummary()
-    data_guard_association2.role = 'STANDBY'
+    data_guard_association2.role = "STANDBY"
     data_guard_associations.append(data_guard_association1)
     data_guard_associations.append(data_guard_association2)
     return data_guard_associations
 
+
 def get_data_guard_association():
     data_guard_association = DataGuardAssociationSummary()
-    data_guard_association.role = 'PRIMARY'
+    data_guard_association.role = "PRIMARY"
     return data_guard_association
+
 
 def get_response(status, header, data, request):
     return oci.Response(status, header, data, request)
+
 
 def get_module(additional_properties):
     params = dict()

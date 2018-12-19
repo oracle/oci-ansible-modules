@@ -154,7 +154,14 @@ Parameters
                     <b>lifecycle_state</b>
                                                                             </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>CREATING</li>
+                                                                                                                                                                                                <li>FAILED</li>
+                                                                                                                                                                                                <li>ACTIVE</li>
+                                                                                                                                                                                                <li>DELETING</li>
+                                                                                                                                                                                                <li>DELETED</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
                                                                         <div>A filter to return only resources that match the given lifecycle state.</div>
                                                                                 </td>

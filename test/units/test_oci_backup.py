@@ -16,8 +16,7 @@ try:
     from oci.database.models import Backup
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_backup.py requires `oci` module")
+    raise SkipTest("test_backup.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,57 +35,62 @@ class FakeModule(object):
 
 @pytest.fixture()
 def db_client(mocker):
-    mock_db_client = mocker.patch(
-        'oci.database.database_client.DatabaseClient')
+    mock_db_client = mocker.patch("oci.database.database_client.DatabaseClient")
     return mock_db_client.return_value
 
 
 @pytest.fixture()
 def create_and_wait_patch(mocker):
-    return mocker.patch.object(oci_utils, 'create_and_wait')
+    return mocker.patch.object(oci_utils, "create_and_wait")
+
 
 @pytest.fixture()
 def update_and_wait_patch(mocker):
-    return mocker.patch.object(oci_utils, 'update_and_wait')
+    return mocker.patch.object(oci_utils, "update_and_wait")
+
 
 @pytest.fixture()
 def delete_and_wait_patch(mocker):
-    return mocker.patch.object(oci_utils, 'delete_and_wait')
+    return mocker.patch.object(oci_utils, "delete_and_wait")
+
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_backup.set_logger(logging)
 
 
 def test_create_backup(db_client, create_and_wait_patch):
     module = get_module(dict())
     backup = get_backup()
-    create_and_wait_patch.return_value = {'backup': to_dict(backup), 'changed': True}
+    create_and_wait_patch.return_value = {"backup": to_dict(backup), "changed": True}
     result = oci_backup.create_backup(db_client, module)
-    assert result['backup']['display_name'] is backup.display_name
+    assert result["backup"]["display_name"] is backup.display_name
+
 
 def test_delete_backup(db_client, delete_and_wait_patch):
-    module = get_module(dict({'backup_id': 'ocid1.backup.aaa'}))
+    module = get_module(dict({"backup_id": "ocid1.backup.aaa"}))
     backup = get_backup()
-    delete_and_wait_patch.return_value = {'backup': to_dict(backup), 'changed': True}
+    delete_and_wait_patch.return_value = {"backup": to_dict(backup), "changed": True}
     result = oci_backup.delete_backup(db_client, module)
-    assert result['backup']['display_name'] is backup.display_name
-
+    assert result["backup"]["display_name"] is backup.display_name
 
 
 def get_backup():
     backup = Backup()
-    backup.display_name = 'ansible-backup'
+    backup.display_name = "ansible-backup"
     return backup
+
 
 def get_response(status, header, data, request):
     return oci.Response(status, header, data, request)
 
+
 def get_module(additional_properties):
     params = {
         "database_id": "ocid1.database.oc1.iad.abuw",
-        "display_name": "ansible-backup"
+        "display_name": "ansible-backup",
     }
     params.update(additional_properties)
     module = FakeModule(**params)

@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_load_balancer_health_checker_facts
 short_description: Fetch details of all health checker details of load balancer backend sets of a load balancer
@@ -32,9 +33,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 #Fetch details of all health checker details of load balancer backends of a load balancer
 - name: List a specific Health Checker Details of a Backend Set
   oci_load_balancer_health_checker_facts:
@@ -45,9 +46,9 @@ EXAMPLES = '''
 - name: List all Health Checker Details
   oci_load_balancer_health_checker_facts:
       load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     health_checkers:
         description: Attributes of the health checker
         returned: success
@@ -115,17 +116,18 @@ RETURN = '''
                     "url_path": "/healthcheck"
                  }
                 ]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils, oci_lb_utils
 
-import six
+from ansible.module_utils import six
 
 try:
     from oci.load_balancer.load_balancer_client import LoadBalancerClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -134,32 +136,40 @@ logger = None
 
 
 def list_load_balancer_health_checker(lb_client, module):
-    result = dict(
-        health_checkers=''
-    )
-    load_balancer_id = module.params.get('load_balancer_id')
-    backend_set_name = module.params.get('backend_set_name')
+    result = dict(health_checkers="")
+    load_balancer_id = module.params.get("load_balancer_id")
+    backend_set_name = module.params.get("backend_set_name")
     try:
         if backend_set_name is not None or backend_set_name:
-            get_logger().info("Listing all attributes of health checker for backendset %s \
-                               in load balancer %s", backend_set_name,
-                              load_balancer_id)
-            response = oci_utils.call_with_backoff(lb_client.get_health_checker, load_balancer_id=load_balancer_id,
-                                                   backend_set_name=backend_set_name)
+            get_logger().info(
+                "Listing all attributes of health checker for backendset %s \
+                               in load balancer %s",
+                backend_set_name,
+                load_balancer_id,
+            )
+            response = oci_utils.call_with_backoff(
+                lb_client.get_health_checker,
+                load_balancer_id=load_balancer_id,
+                backend_set_name=backend_set_name,
+            )
             health_checkers = [response.data]
         else:
-            get_logger().info("Listing all attributes of  all health checkers \
-                               in load balancer %s", load_balancer_id)
+            get_logger().info(
+                "Listing all attributes of  all health checkers \
+                               in load balancer %s",
+                load_balancer_id,
+            )
             load_balancer = oci_lb_utils.get_existing_load_balancer(
-                lb_client, module, load_balancer_id)
+                lb_client, module, load_balancer_id
+            )
             health_checkers = []
-            for _, value in six.iteritems(load_balancer.backend_sets):
+            for key, value in six.iteritems(load_balancer.backend_sets):
                 health_checkers.append(value.health_checker)
-            result['health_checkers'] = health_checkers
+            result["health_checkers"] = health_checkers
     except ServiceError as ex:
         get_logger().error("Unable to list health checkers due to: %s", ex.message)
         module.fail_json(msg=ex.message)
-    result['health_checkers'] = to_dict(health_checkers)
+    result["health_checkers"] = to_dict(health_checkers)
     return result
 
 
@@ -176,21 +186,21 @@ def main():
     logger = oci_utils.get_logger("oci_load_balancer_health_checker_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        load_balancer_id=dict(type='str', required=True, aliases=['id']),
-        backend_set_name=dict(type='str', required=False)
-    ))
-    module = AnsibleModule(
-        argument_spec=module_args,
+    module_args.update(
+        dict(
+            load_balancer_id=dict(type="str", required=True, aliases=["id"]),
+            backend_set_name=dict(type="str", required=False),
+        )
     )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
     lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
     result = list_load_balancer_health_checker(lb_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

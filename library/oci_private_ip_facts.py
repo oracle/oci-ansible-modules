@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_private_ip_facts
 short_description: Retrieve facts of private IPs
@@ -39,9 +39,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get all the private IPs
   oci_private_ip_facts:
     subnet_id: ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx
@@ -49,9 +49,9 @@ EXAMPLES = '''
 - name: Get a specific private IP
   oci_private_ip_facts:
     private_ip_id: ocid1.privateip.oc1.iad.xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 private_ips:
     description: List of private IP details
     returned: always
@@ -139,7 +139,7 @@ private_ips:
             "time_created": "2018-03-28T18:37:56.190000+00:00",
             "vnic_id": "ocid1.vnic.oc1.iad.xxxxxEXAMPLExxxxx"
         }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -149,6 +149,7 @@ try:
     from oci.core.virtual_network_client import VirtualNetworkClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -157,40 +158,53 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        private_ip_id=dict(type='str', required=False, aliases=['id']),
-        subnet_id=dict(type='str', required=False),
-        ip_address=dict(type='str', required=False),
-        vnic_id=dict(type='str', required=False),
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False
+    module_args.update(
+        dict(
+            private_ip_id=dict(type="str", required=False, aliases=["id"]),
+            subnet_id=dict(type="str", required=False),
+            ip_address=dict(type="str", required=False),
+            vnic_id=dict(type="str", required=False),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
-    private_ip_id = module.params['private_ip_id']
+    private_ip_id = module.params["private_ip_id"]
 
     try:
         if private_ip_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(virtual_network_client.get_private_ip,
-                                                          private_ip_id=private_ip_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        virtual_network_client.get_private_ip,
+                        private_ip_id=private_ip_id,
+                    ).data
+                )
+            ]
         else:
-            optional_list_method_params = ['ip_address', 'subnet_id', 'vnic_id']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            result = to_dict(oci_utils.list_all_resources(virtual_network_client.list_private_ips,
-                                                          **optional_kwargs))
+            optional_list_method_params = ["ip_address", "subnet_id", "vnic_id"]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    virtual_network_client.list_private_ips, **optional_kwargs
+                )
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(private_ips=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

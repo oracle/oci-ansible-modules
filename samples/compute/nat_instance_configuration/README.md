@@ -13,6 +13,9 @@ subnet.
 - After the setup, the private instance would have outbound internet access
 through the NAT instance in the public subnet.
 
+<b>Note</b>: NAT gateway is available as a reliable and highly available solution in OCI 
+networking service. Please refer to the sample [here](../nat_gateway_configuration) for more details.
+
 # Instructions
 
 To run the sample, after ensuring that you have the pre-requisites for OCI 

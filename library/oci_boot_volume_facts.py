@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_boot_volume_facts
 short_description: Retrieve facts of boot volumes in OCI Block Volume service
@@ -59,9 +59,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get information of all the boot volumes for a specific availability domain & compartment_id
   oci_boot_volume_facts:
     availability_domain: BnQb:PHX-AD-1
@@ -70,9 +70,9 @@ EXAMPLES = '''
 - name: Get information of a boot volume
   oci_boot_volume_facts:
     boot_volume_id: ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 boot_volumes:
     description: List of boot volume information
     returned: On success
@@ -189,7 +189,7 @@ boot_volumes:
                 "size_in_mbs": 47694,
                 "time_created": "2018-01-14T19:02:49.042000+00:00"
     }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -213,13 +213,17 @@ def add_attached_instance_info(module, boot_volumes, lookup_attached_instance):
     if boot_volumes:
         for boot_volume in boot_volumes:
             try:
-                boot_volume['attached_instance_information'] = oci_utils.get_attached_instance_info(
+                boot_volume[
+                    "attached_instance_information"
+                ] = oci_utils.get_attached_instance_info(
                     module,
                     lookup_attached_instance,
                     list_attachments_fn=compute_client.list_boot_volume_attachments,
-                    list_attachments_args={"boot_volume_id": boot_volume["id"],
-                                           "availability_domain": boot_volume['availability_domain'],
-                                           "compartment_id": boot_volume['compartment_id']}
+                    list_attachments_args={
+                        "boot_volume_id": boot_volume["id"],
+                        "availability_domain": boot_volume["availability_domain"],
+                        "compartment_id": boot_volume["compartment_id"],
+                    },
                 )
             except ServiceError as ex:
                 module.fail_json(msg=ex.message)
@@ -227,56 +231,71 @@ def add_attached_instance_info(module, boot_volumes, lookup_attached_instance):
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        availability_domain=dict(type='str', required=False),
-        compartment_id=dict(type='str', required=False),
-        boot_volume_id=dict(type='str', required=False, aliases=['id']),
-        lookup_attached_instance=dict(type='bool', required=False, default='no'),
-        volume_group_id=dict(type='str', required=False)
-    ))
+    module_args.update(
+        dict(
+            availability_domain=dict(type="str", required=False),
+            compartment_id=dict(type="str", required=False),
+            boot_volume_id=dict(type="str", required=False, aliases=["id"]),
+            lookup_attached_instance=dict(type="bool", required=False, default="no"),
+            volume_group_id=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=[
-            ['availability_domain', 'boot_volume_id']
-        ],
+        mutually_exclusive=[["availability_domain", "boot_volume_id"]],
         required_one_of=[
-            ['compartment_id', 'boot_volume_id'],
-            ['availability_domain', 'boot_volume_id']
-        ]
+            ["compartment_id", "boot_volume_id"],
+            ["availability_domain", "boot_volume_id"],
+        ],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
-    boot_volume_id = module.params['boot_volume_id']
+    boot_volume_id = module.params["boot_volume_id"]
 
     try:
         if boot_volume_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(block_storage_client.get_boot_volume,
-                                                          boot_volume_id=boot_volume_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        block_storage_client.get_boot_volume,
+                        boot_volume_id=boot_volume_id,
+                    ).data
+                )
+            ]
 
         else:
-            availability_domain = module.params['availability_domain']
-            compartment_id = module.params['compartment_id']
-            optional_list_method_params = ['display_name', 'volume_group_id']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            result = to_dict(oci_utils.list_all_resources(block_storage_client.list_boot_volumes,
-                                                          compartment_id=compartment_id,
-                                                          availability_domain=availability_domain,
-                                                          **optional_kwargs))
+            availability_domain = module.params["availability_domain"]
+            compartment_id = module.params["compartment_id"]
+            optional_list_method_params = ["display_name", "volume_group_id"]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    block_storage_client.list_boot_volumes,
+                    compartment_id=compartment_id,
+                    availability_domain=availability_domain,
+                    **optional_kwargs
+                )
+            )
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    add_attached_instance_info(module, result, module.params['lookup_attached_instance'])
+    add_attached_instance_info(
+        module, result, module.params["lookup_attached_instance"]
+    )
 
     module.exit_json(boot_volumes=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

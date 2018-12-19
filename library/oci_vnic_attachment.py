@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_vnic_attachment
 short_description: Create a secondary VNIC and attach it to a compute instance, detach or delete VNIC attachments from
@@ -105,9 +105,9 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a new secondary VNIC and attach it to the specified compute instance
   oci_vnic_attachment:
     name: sec-vnic1-to-instance1
@@ -122,9 +122,9 @@ EXAMPLES = '''
   oci_vnic_attachment:
         id: "ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...lxasdsadgdq"
         state: "absent"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 vnic_attachment:
     description: Details of the VNIC attachment
     returned: On success
@@ -193,7 +193,7 @@ vnic_attachment:
               "vlan_tag": 41,
               "vnic_id": "ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...mv2beqa"
               }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -212,21 +212,23 @@ RESOURCE_NAME = "vnic_attachment"
 
 
 def get_vnic_details(module):
-    vnic_details = module.params.get('vnic', None)
+    vnic_details = module.params.get("vnic", None)
     if not vnic_details:
         # Primary VNIC details(especially subnet_id is required)
-        module.fail_json(msg="state is present and instance_id is not specified, but the following are missing: "
-                             "create_vnic_details")
+        module.fail_json(
+            msg="state is present and instance_id is not specified, but the following are missing: "
+            "create_vnic_details"
+        )
 
     cvd = CreateVnicDetails()
-    cvd.display_name = vnic_details.get('display_name', None)
-    cvd.assign_public_ip = vnic_details.get('assign_public_ip', None)
-    cvd.hostname_label = vnic_details.get('hostname_label', None)
-    cvd.private_ip = vnic_details.get('private_ip', None)
-    cvd.skip_source_dest_check = vnic_details.get('skip_source_dest_check', None)
-    cvd.subnet_id = vnic_details['subnet_id']
-    cvd.defined_tags = vnic_details.get('defined_tags', None)
-    cvd.freeform_tags = vnic_details.get('freeform_tags', None)
+    cvd.display_name = vnic_details.get("display_name", None)
+    cvd.assign_public_ip = vnic_details.get("assign_public_ip", None)
+    cvd.hostname_label = vnic_details.get("hostname_label", None)
+    cvd.private_ip = vnic_details.get("private_ip", None)
+    cvd.skip_source_dest_check = vnic_details.get("skip_source_dest_check", None)
+    cvd.subnet_id = vnic_details["subnet_id"]
+    cvd.defined_tags = vnic_details.get("defined_tags", None)
+    cvd.freeform_tags = vnic_details.get("freeform_tags", None)
     return cvd
 
 
@@ -237,12 +239,15 @@ def attach_vnic(compute_client, module):
     avd.create_vnic_details = get_vnic_details(module)
     avd.nic_index = module.params.get("nic_index", None)
 
-    result = oci_utils.create_and_wait(resource_type=RESOURCE_NAME, client=compute_client,
-                                       create_fn=compute_client.attach_vnic,
-                                       kwargs_create={"attach_vnic_details": avd},
-                                       get_fn=compute_client.get_vnic_attachment,
-                                       get_param="vnic_attachment_id",
-                                       module=module)
+    result = oci_utils.create_and_wait(
+        resource_type=RESOURCE_NAME,
+        client=compute_client,
+        create_fn=compute_client.attach_vnic,
+        kwargs_create={"attach_vnic_details": avd},
+        get_fn=compute_client.get_vnic_attachment,
+        get_param="vnic_attachment_id",
+        module=module,
+    )
     return result
 
 
@@ -264,66 +269,90 @@ def main():
     set_logger(my_logger)
 
     module_args = oci_utils.get_common_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        display_name=dict(type='str', required=False, aliases=['name']),
-        instance_id=dict(type='str', required=False),
-        vnic_attachment_id=dict(type='str', required=False, aliases=['id']),
-        nic_index=dict(type='int', required=False, default=0),
-        create_vnic_details=dict(type='dict', required=False, aliases=['vnic']),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
+    module_args.update(
+        dict(
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            instance_id=dict(type="str", required=False),
+            vnic_attachment_id=dict(type="str", required=False, aliases=["id"]),
+            nic_index=dict(type="int", required=False, default=0),
+            create_vnic_details=dict(type="dict", required=False, aliases=["vnic"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['id', 'create_vnic_details'],
-        required_if=[('state', 'absent', ['vnic_attachment_id'])],
+        mutually_exclusive=["id", "create_vnic_details"],
+        required_if=[("state", "absent", ["vnic_attachment_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
 
-    state = module.params['state']
+    state = module.params["state"]
 
     result = dict(changed=False)
 
-    vna_id = module.params['vnic_attachment_id']
+    vna_id = module.params["vnic_attachment_id"]
     debug("VNIC attachment Id provided by user is " + str(vna_id))
 
     try:
         if vna_id is not None:
-            vna = oci_utils.get_existing_resource(compute_client.get_vnic_attachment, module, vnic_attachment_id=vna_id)
+            vna = oci_utils.get_existing_resource(
+                compute_client.get_vnic_attachment, module, vnic_attachment_id=vna_id
+            )
 
-            if state == 'absent':
+            if state == "absent":
                 if vna is not None:
                     debug("Deleting " + vna.id)
-                    result = oci_utils.delete_and_wait(resource_type=RESOURCE_NAME, client=compute_client,
-                                                       get_fn=compute_client.get_vnic_attachment,
-                                                       kwargs_get={"vnic_attachment_id": vna_id},
-                                                       delete_fn=compute_client.detach_vnic,
-                                                       kwargs_delete={"vnic_attachment_id": vna_id},
-                                                       module=module, wait_applicable=True)
+                    result = oci_utils.delete_and_wait(
+                        resource_type=RESOURCE_NAME,
+                        client=compute_client,
+                        get_fn=compute_client.get_vnic_attachment,
+                        kwargs_get={"vnic_attachment_id": vna_id},
+                        delete_fn=compute_client.detach_vnic,
+                        kwargs_delete={"vnic_attachment_id": vna_id},
+                        module=module,
+                        wait_applicable=True,
+                    )
                 else:
-                    debug("VNIC attachment " + vna_id + " already detached. So returning changed=False.")
+                    debug(
+                        "VNIC attachment "
+                        + vna_id
+                        + " already detached. So returning changed=False."
+                    )
             else:
                 module.fail_json("To delete a VNIC attachment, set state=absent")
         else:
             # Create a secondary VNIC and attach it to an instance
             instance_id = module.params.get("instance_id")
-            exclude_attributes = {'display_name': True}
+            exclude_attributes = {"display_name": True}
             default_attribute_values = {"nic_index": 0}
-            compartment_id = compute_client.get_instance(instance_id=instance_id).data.compartment_id
-            result = oci_utils.check_and_create_resource(resource_type=RESOURCE_NAME, create_fn=attach_vnic,
-                                                         kwargs_create={"compute_client": compute_client,
-                                                                        "module": module},
-                                                         list_fn=compute_client.list_vnic_attachments,
-                                                         kwargs_list={"compartment_id": compartment_id,
-                                                                      "instance_id": instance_id},
-                                                         module=module, model=AttachVnicDetails(),
-                                                         exclude_attributes=exclude_attributes,
-                                                         default_attribute_values=default_attribute_values)
+            compartment_id = compute_client.get_instance(
+                instance_id=instance_id
+            ).data.compartment_id
+            result = oci_utils.check_and_create_resource(
+                resource_type=RESOURCE_NAME,
+                create_fn=attach_vnic,
+                kwargs_create={"compute_client": compute_client, "module": module},
+                list_fn=compute_client.list_vnic_attachments,
+                kwargs_list={
+                    "compartment_id": compartment_id,
+                    "instance_id": instance_id,
+                },
+                module=module,
+                model=AttachVnicDetails(),
+                exclude_attributes=exclude_attributes,
+                default_attribute_values=default_attribute_values,
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as mwte:
@@ -332,5 +361,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

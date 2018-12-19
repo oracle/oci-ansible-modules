@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_autonomous_database
 short_description: Create,update and terminate an Autonomous Database in OCI Database Cloud Service.
@@ -74,9 +75,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create Autonomous Database
 - name: Create Autonomous Database
@@ -129,9 +130,9 @@ EXAMPLES = '''
   oci_autonomous_database:
     autonomous_database_id: 'ocid1.autonomousdatabase.oc1..xxxxxEXAMPLExxxxx..qndq'
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     autonomous_database:
         description: Attributes of the launched/updated Autonomous Database. For delete, deleted Autonomous Database
                      description will be returned.
@@ -235,49 +236,54 @@ RETURN = '''
                         &database_name=ANSIBLEAUTODB&service_type=ATP",
                   "time_created":"2018-09-22T15:06:55.426000+00:00"
               }
-'''
+"""
 
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 from ansible.module_utils.oracle import oci_db_utils
 import os
+
 try:
     from oci.database.database_client import DatabaseClient
     from oci.exceptions import ServiceError, ClientError
     from oci.util import to_dict
-    from oci.database.models import CreateAutonomousDatabaseDetails, UpdateAutonomousDatabaseDetails,\
-        RestoreAutonomousDatabaseDetails
+    from oci.database.models import (
+        CreateAutonomousDatabaseDetails,
+        UpdateAutonomousDatabaseDetails,
+        RestoreAutonomousDatabaseDetails,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def create_or_update_autonomous_database(db_client, module):
-    result = dict(
-        changed=False,
-        autonomous_database=''
-    )
-    autonomous_database_id = module.params.get('autonomous_database_id')
+    result = dict(changed=False, autonomous_database="")
+    autonomous_database_id = module.params.get("autonomous_database_id")
     try:
         if autonomous_database_id:
             result = update_autonomous_database(db_client, module)
         else:
-            result = oci_utils.check_and_create_resource(resource_type='autonomous_database',
-                                                         create_fn=create_autonomous_database,
-                                                         kwargs_create={'db_client': db_client,
-                                                                        'module': module},
-                                                         list_fn=db_client.list_autonomous_databases,
-                                                         kwargs_list={'compartment_id':
-                                                                      module.params.get('compartment_id')},
-                                                         module=module,
-                                                         model=CreateAutonomousDatabaseDetails()
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="autonomous_database",
+                create_fn=create_autonomous_database,
+                kwargs_create={"db_client": db_client, "module": module},
+                list_fn=db_client.list_autonomous_databases,
+                kwargs_list={"compartment_id": module.params.get("compartment_id")},
+                module=module,
+                model=CreateAutonomousDatabaseDetails(),
+            )
     except ServiceError as ex:
-        get_logger().error("Unable to create/update autonomous database due to: %s", ex.message)
+        get_logger().error(
+            "Unable to create/update autonomous database due to: %s", ex.message
+        )
         module.fail_json(msg=ex.message)
     except ClientError as ex:
-        get_logger().error("Unable to launch/update autonomous database due to: %s", str(ex))
+        get_logger().error(
+            "Unable to launch/update autonomous database due to: %s", str(ex)
+        )
         module.fail_json(msg=str(ex))
 
     return result
@@ -286,118 +292,135 @@ def create_or_update_autonomous_database(db_client, module):
 def create_autonomous_database(db_client, module):
     create_autonomous_database_details = CreateAutonomousDatabaseDetails()
     for attribute in create_autonomous_database_details.attribute_map:
-        create_autonomous_database_details.__setattr__(attribute, module.params.get(attribute))
+        create_autonomous_database_details.__setattr__(
+            attribute, module.params.get(attribute)
+        )
 
-    result = oci_utils.create_and_wait(resource_type='autonomous_database',
-                                       create_fn=db_client.create_autonomous_database,
-                                       kwargs_create={
-                                           'create_autonomous_database_details': create_autonomous_database_details},
-                                       client=db_client,
-                                       get_fn=db_client.get_autonomous_database,
-                                       get_param='autonomous_database_id',
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="autonomous_database",
+        create_fn=db_client.create_autonomous_database,
+        kwargs_create={
+            "create_autonomous_database_details": create_autonomous_database_details
+        },
+        client=db_client,
+        get_fn=db_client.get_autonomous_database,
+        get_param="autonomous_database_id",
+        module=module,
+    )
     return result
 
 
 def update_autonomous_database(db_client, module):
-    result = oci_utils.check_and_update_resource(resource_type="autonomous_database",
-                                                 get_fn=db_client.get_autonomous_database,
-                                                 kwargs_get={
-                                                     "autonomous_database_id":
-                                                     module.params["autonomous_database_id"]},
-                                                 update_fn=db_client.update_autonomous_database,
-                                                 client=db_client,
-                                                 primitive_params_update=['autonomous_database_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateAutonomousDatabaseDetails:
-                                                     "update_autonomous_database_details"},
-                                                 module=module,
-                                                 update_attributes=UpdateAutonomousDatabaseDetails().attribute_map
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type="autonomous_database",
+        get_fn=db_client.get_autonomous_database,
+        kwargs_get={"autonomous_database_id": module.params["autonomous_database_id"]},
+        update_fn=db_client.update_autonomous_database,
+        client=db_client,
+        primitive_params_update=["autonomous_database_id"],
+        kwargs_non_primitive_update={
+            UpdateAutonomousDatabaseDetails: "update_autonomous_database_details"
+        },
+        module=module,
+        update_attributes=UpdateAutonomousDatabaseDetails().attribute_map,
+    )
     return result
 
 
 def delete_autonomous_database(db_client, module):
-    result = oci_utils.delete_and_wait(resource_type='autonomous_database',
-                                       client=db_client,
-                                       get_fn=db_client.get_autonomous_database,
-                                       kwargs_get={
-                                           'autonomous_database_id': module.params['autonomous_database_id']},
-                                       delete_fn=db_client.delete_autonomous_database,
-                                       kwargs_delete={
-                                           'autonomous_database_id': module.params['autonomous_database_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="autonomous_database",
+        client=db_client,
+        get_fn=db_client.get_autonomous_database,
+        kwargs_get={"autonomous_database_id": module.params["autonomous_database_id"]},
+        delete_fn=db_client.delete_autonomous_database,
+        kwargs_delete={
+            "autonomous_database_id": module.params["autonomous_database_id"]
+        },
+        module=module,
+    )
 
     return result
 
 
 def restore_autonomous_database(db_client, module):
-    result = dict(
-        changed=True,
-        autonomous_database=''
-    )
-    autonomous_database_id = module.params.get('autonomous_database_id')
+    result = dict(changed=True, autonomous_database="")
+    autonomous_database_id = module.params.get("autonomous_database_id")
     restore_autonomous_database_details = RestoreAutonomousDatabaseDetails()
     for attribute in restore_autonomous_database_details.attribute_map:
-        restore_autonomous_database_details.__setattr__(attribute, module.params.get(attribute))
+        restore_autonomous_database_details.__setattr__(
+            attribute, module.params.get(attribute)
+        )
 
-    result = oci_db_utils.execute_function_and_wait(resource_type='autonomous_database',
-                                                    function=db_client.restore_autonomous_database,
-                                                    kwargs_function={
-                                                        'autonomous_database_id': autonomous_database_id,
-                                                        'restore_autonomous_database_details': restore_autonomous_database_details},
-                                                    client=db_client,
-                                                    get_fn=db_client.get_autonomous_database,
-                                                    get_param='autonomous_database_id',
-                                                    module=module,
-                                                    states=['AVAILABLE', 'FAILED']
-                                                    )
+    result = oci_db_utils.execute_function_and_wait(
+        resource_type="autonomous_database",
+        function=db_client.restore_autonomous_database,
+        kwargs_function={
+            "autonomous_database_id": autonomous_database_id,
+            "restore_autonomous_database_details": restore_autonomous_database_details,
+        },
+        client=db_client,
+        get_fn=db_client.get_autonomous_database,
+        get_param="autonomous_database_id",
+        module=module,
+        states=["AVAILABLE", "FAILED"],
+    )
     return result
 
 
 def start_or_stop_autonomous_database(db_client, module):
-    autonomous_database_id = module.params.get('autonomous_database_id')
+    autonomous_database_id = module.params.get("autonomous_database_id")
     autonomous_database = oci_utils.get_existing_resource(
-        db_client.get_autonomous_database, module, autonomous_database_id=autonomous_database_id)
+        db_client.get_autonomous_database,
+        module,
+        autonomous_database_id=autonomous_database_id,
+    )
     if autonomous_database is None:
-        raise ClientError(Exception("No Autonomous Database with id " +
-                                    autonomous_database_id + " is found for update"))
+        raise ClientError(
+            Exception(
+                "No Autonomous Database with id "
+                + autonomous_database_id
+                + " is found for update"
+            )
+        )
 
-    return perform_start_or_stop(db_client, autonomous_database, autonomous_database_id, module)
+    return perform_start_or_stop(
+        db_client, autonomous_database, autonomous_database_id, module
+    )
 
 
-def perform_start_or_stop(db_client, autonomous_database, autonomous_database_id, module):
+def perform_start_or_stop(
+    db_client, autonomous_database, autonomous_database_id, module
+):
     result = dict()
     idempotent_lifecycle_state = []
     target_state = []
 
     lifecycle_func = None
-    state = module.params.get('state')
-    if state == 'start':
-        idempotent_lifecycle_state = ['AVAILABLE', 'STARTING']
-        target_state = ['AVAILABLE']
+    state = module.params.get("state")
+    if state == "start":
+        idempotent_lifecycle_state = ["AVAILABLE", "STARTING"]
+        target_state = ["AVAILABLE"]
         lifecycle_func = db_client.start_autonomous_database
-    elif state == 'stop':
-        idempotent_lifecycle_state = ['STOPPED', 'STOPPING']
-        target_state = ['STOPPED']
+    elif state == "stop":
+        idempotent_lifecycle_state = ["STOPPED", "STOPPING"]
+        target_state = ["STOPPED"]
         lifecycle_func = db_client.stop_autonomous_database
 
     if autonomous_database.lifecycle_state not in idempotent_lifecycle_state:
-        result = oci_db_utils.execute_function_and_wait(resource_type='autonomous_database',
-                                                        function=lifecycle_func,
-                                                        kwargs_function={
-                                                            'autonomous_database_id': autonomous_database_id},
-                                                        client=db_client,
-                                                        get_fn=db_client.get_autonomous_database,
-                                                        get_param='autonomous_database_id',
-                                                        module=module,
-                                                        states=target_state
-                                                        )
+        result = oci_db_utils.execute_function_and_wait(
+            resource_type="autonomous_database",
+            function=lifecycle_func,
+            kwargs_function={"autonomous_database_id": autonomous_database_id},
+            client=db_client,
+            get_fn=db_client.get_autonomous_database,
+            get_param="autonomous_database_id",
+            module=module,
+            states=target_state,
+        )
     else:
-        result['autonomous_database'] = to_dict(autonomous_database)
-        result['changed'] = False
+        result["autonomous_database"] = to_dict(autonomous_database)
+        result["changed"] = False
     return result
 
 
@@ -414,38 +437,50 @@ def main():
     logger = oci_utils.get_logger("oci_autonomous_database")
     set_logger(logger)
 
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        admin_password=dict(type='str', required=False, no_log=True),
-        autonomous_database_id=dict(type='str', required=False, aliases=['id']),
-        cpu_core_count=dict(type=int, required=False),
-        data_storage_size_in_tbs=dict(type=int, required=False),
-        db_name=dict(type='str', required=False),
-        display_name=dict(type='str', required=False),
-        license_model=dict(type='str', required=False, choices=['LICENSE_INCLUDED', 'BRING_YOUR_OWN_LICENSE']),
-        timestamp=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent', 'restore', 'start', 'stop'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            admin_password=dict(type="str", required=False, no_log=True),
+            autonomous_database_id=dict(type="str", required=False, aliases=["id"]),
+            cpu_core_count=dict(type=int, required=False),
+            data_storage_size_in_tbs=dict(type=int, required=False),
+            db_name=dict(type="str", required=False),
+            display_name=dict(type="str", required=False),
+            license_model=dict(
+                type="str",
+                required=False,
+                choices=["LICENSE_INCLUDED", "BRING_YOUR_OWN_LICENSE"],
+            ),
+            timestamp=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent", "restore", "start", "stop"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
-    if os.environ.get('OCI_DB_MOCK') is not None:
-        db_client.base_client.session.headers.update({'opc-host-serial': 'FakeHostSerial'})
-    state = module.params['state']
+    if os.environ.get("OCI_DB_MOCK") is not None:
+        db_client.base_client.session.headers.update(
+            {"opc-host-serial": "FakeHostSerial"}
+        )
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_autonomous_database(db_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_autonomous_database(db_client, module)
-    elif state == 'restore':
+    elif state == "restore":
         result = restore_autonomous_database(db_client, module)
     else:
         result = start_or_stop_autonomous_database(db_client, module)
@@ -453,5 +488,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -16,8 +16,7 @@ try:
     from oci.email.models import Sender
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_sender_facts.py requires `oci` module")
+    raise SkipTest("test_oci_sender_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,47 +35,49 @@ class FakeModule(object):
 
 @pytest.fixture()
 def email_client(mocker):
-    mock_email_client = mocker.patch(
-        'oci.email.email_client.EmailClient')
+    mock_email_client = mocker.patch("oci.email.email_client.EmailClient")
     return mock_email_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_sender_facts.set_logger(logging)
 
 
 def test_list_senders_list_all(email_client, list_all_resources_patch):
-    module = get_module(dict(compartment_id='ocid1.compartment.aaaa',
-                             sender_id='ocid1.sender.aaaa'))
+    module = get_module(
+        dict(compartment_id="ocid1.compartment.aaaa", sender_id="ocid1.sender.aaaa")
+    )
     list_all_resources_patch.return_value = get_senders()
-    email_client.get_sernder.side_effect = [get_response(
-        200, None, get_sender(), None), get_response(
-        200, None, get_sender(), None)]
+    email_client.get_sernder.side_effect = [
+        get_response(200, None, get_sender(), None),
+        get_response(200, None, get_sender(), None),
+    ]
     result = oci_sender_facts.list_senders(email_client, module)
-    assert len(result['senders']) is 2
+    assert len(result["senders"]) is 2
 
 
 def test_list_senders_list_specific(email_client):
-    module = get_module(dict({'sender_id': 'ocid1.sender.aaaa'}))
+    module = get_module(dict({"sender_id": "ocid1.sender.aaaa"}))
     sender = get_sender()
-    email_client.get_sender.return_value = get_response(
-        200, None, sender, None)
+    email_client.get_sender.return_value = get_response(200, None, sender, None)
     result = oci_sender_facts.list_senders(email_client, module)
-    assert result['senders'][0]['email_address'] is sender.email_address
+    assert result["senders"][0]["email_address"] is sender.email_address
 
 
 def test_list_sender_service_error(email_client):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'sender_id': 'ocid1.sender.aaaa'}))
+    error_message = "Internal Server Error"
+    module = get_module(dict({"sender_id": "ocid1.sender.aaaa"}))
     email_client.get_db_system.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_sender_facts.list_senders(email_client, module)
     except Exception as ex:
@@ -86,11 +87,11 @@ def test_list_sender_service_error(email_client):
 def get_senders():
     senders = []
     sender1 = Sender()
-    sender1.id = 'ocid1.sender.aaaa'
-    sender1.email_address = 'ansible1@test.com'
+    sender1.id = "ocid1.sender.aaaa"
+    sender1.email_address = "ansible1@test.com"
     sender2 = Sender()
-    sender2.id = 'ocid1.sender.abuw'
-    sender2.email_address = 'ansible2@test.com'
+    sender2.id = "ocid1.sender.abuw"
+    sender2.email_address = "ansible2@test.com"
     senders.append(sender1)
     senders.append(sender2)
     return senders
@@ -98,7 +99,7 @@ def get_senders():
 
 def get_sender():
     sender = Sender()
-    sender.email_address = 'ansible@host.com'
+    sender.email_address = "ansible@host.com"
     return sender
 
 

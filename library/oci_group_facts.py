@@ -6,16 +6,17 @@
 # See LICENSE.TXT for details.
 
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_group_facts
 short_description: Fetches details of all the OCI groups of a tenancy and the users
@@ -35,9 +36,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 #Fetch a specific group details
 - name : List OCI user group facts
   oci_group_facts:
@@ -47,9 +48,9 @@ EXAMPLES = '''
 - name : List all OCI user groups
   oci_group_facts:
 
-'''
+"""
 
-RETURN = '''
+RETURN = """
 groups:
     description: List of group details
     returned: always
@@ -112,8 +113,6 @@ groups:
       "inactive_status":null,
       "freeform_tags":{"group_name":"designer"},
       "defined_tags":{"product":{"type":"server"}},
-      "freeform_tags":{"group_name":"designer"},
-      "defined_tags":{"product":{"type":"server"}},
       "lifecycle_state":"ACTIVE",
       "members":[
          {
@@ -144,7 +143,7 @@ groups:
    }
 ]
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -153,15 +152,16 @@ try:
     from oci.identity.identity_client import IdentityClient
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def list_user_groups(identity_client, module):
-    group_id = module.params.get('group_id')
-    compartment_id = module.params.get('compartment_id')
-    name = module.params['name']
+    group_id = module.params.get("group_id")
+    compartment_id = module.params.get("compartment_id")
+    name = module.params["name"]
     try:
         if group_id:
             result = get_group(identity_client, group_id, module)
@@ -176,53 +176,65 @@ def list_user_groups(identity_client, module):
 
 def get_group(identity_client, group_id, module):
     group_dict_list = []
-    compartment_id = module.params.get('compartment_id')
+    compartment_id = module.params.get("compartment_id")
     group = oci_utils.call_with_backoff(
-        identity_client.get_group, group_id=group_id).data
+        identity_client.get_group, group_id=group_id
+    ).data
     append_group_with_associated_users(
-        identity_client, group, compartment_id, group_dict_list)
+        identity_client, group, compartment_id, group_dict_list
+    )
     return group_dict_list
 
 
 def get_all_groups(identity_client, compartment_id, name=None):
     group_dict_list = []
     group_list = oci_utils.list_all_resources(
-        identity_client.list_groups, compartment_id=compartment_id, name=name)
+        identity_client.list_groups, compartment_id=compartment_id, name=name
+    )
     for group in group_list:
         append_group_with_associated_users(
-            identity_client, group, compartment_id, group_dict_list)
+            identity_client, group, compartment_id, group_dict_list
+        )
     return group_dict_list
 
 
-def append_group_with_associated_users(identity_client, group, compartment_id, group_dict_list):
+def append_group_with_associated_users(
+    identity_client, group, compartment_id, group_dict_list
+):
     group_dict = to_dict(group)
-    group_dict.update(get_associated_users(
-        identity_client, compartment_id, group.id))
+    group_dict.update(get_associated_users(identity_client, compartment_id, group.id))
     group_dict_list.append(group_dict)
 
 
 def get_existing_group_members(identity_client, compartment_id, existing_group_id):
-    user_group_memberships = oci_utils.list_all_resources(identity_client.list_user_group_memberships,
-                                                          **dict(compartment_id=compartment_id,
-                                                                 group_id=existing_group_id))
-    existing_group_user_ids = [user_group_membership.user_id for user_group_membership in user_group_memberships]
+    user_group_memberships = oci_utils.list_all_resources(
+        identity_client.list_user_group_memberships,
+        **dict(compartment_id=compartment_id, group_id=existing_group_id)
+    )
+    existing_group_user_ids = [
+        user_group_membership.user_id
+        for user_group_membership in user_group_memberships
+    ]
     return existing_group_user_ids
 
 
 def get_associated_users(identity_client, compartment_id, group_id):
     existing_group_member_dict = dict()
     existing_user_list = []
-    existing_group_members = get_existing_group_members(identity_client, compartment_id, group_id)
+    existing_group_members = get_existing_group_members(
+        identity_client, compartment_id, group_id
+    )
     for existing_group_member in existing_group_members:
         try:
             response = oci_utils.call_with_backoff(
-                identity_client.get_user, user_id=existing_group_member)
+                identity_client.get_user, user_id=existing_group_member
+            )
             user = response.data
             existing_user_list.append(to_dict(user))
         except ServiceError as ex:
             if ex.status != 404:
                 raise ex
-    existing_group_member_dict['members'] = existing_user_list
+    existing_group_member_dict["members"] = existing_user_list
     return existing_group_member_dict
 
 
@@ -230,29 +242,27 @@ def main():
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
     module_args.update(
         dict(
-            group_id=dict(type='str', required=False, aliases=['id']),
-            compartment_id=dict(type='str', required=False)
+            group_id=dict(type="str", required=False, aliases=["id"]),
+            compartment_id=dict(type="str", required=False),
         )
     )
-    module = AnsibleModule(
-        argument_spec=module_args
-    )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     oci_config = oci_utils.get_oci_config(module)
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
     # automatically fill in compartment_id if it not specified by user
-    if module.params.get('compartment_id') is None:
-        compartment_id = oci_config['tenancy']
-        module.params.update(dict({'compartment_id': compartment_id}))
+    if module.params.get("compartment_id") is None:
+        compartment_id = oci_config["tenancy"]
+        module.params.update(dict({"compartment_id": compartment_id}))
 
     result = list_user_groups(identity_client, module)
 
     module.exit_json(groups=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

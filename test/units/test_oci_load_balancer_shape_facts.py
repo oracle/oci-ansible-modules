@@ -15,8 +15,7 @@ try:
     from oci.load_balancer.models import LoadBalancerShape
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_load_balancer_shape_facts.py requires `oci` module")
+    raise SkipTest("test_oci_load_balancer_shape_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -26,7 +25,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,18 +35,20 @@ class FakeModule(object):
 @pytest.fixture()
 def lb_client(mocker):
     mock_lb_client = mocker.patch(
-        'oci.load_balancer.load_balancer_client.LoadBalancerClient')
+        "oci.load_balancer.load_balancer_client.LoadBalancerClient"
+    )
     return mock_lb_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_load_balancer_shape_facts.set_logger(logging)
 
 
@@ -55,26 +56,25 @@ def test_list_load_balancer_shapes(lb_client, list_all_resources_patch):
     module = get_module()
     load_balancer_shape = get_load_balancer_shape()
     list_all_resources_patch.return_value = [load_balancer_shape]
-    result = oci_load_balancer_shape_facts.list_load_balancer_shapes(
-        lb_client, module)
-    assert result['load_balancer_shapes'][0]['name'] == 'HTTP'
+    result = oci_load_balancer_shape_facts.list_load_balancer_shapes(lb_client, module)
+    assert result["load_balancer_shapes"][0]["name"] == "HTTP"
 
 
 def test_list_load_balancer_shapes_service_error(lb_client, list_all_resources_patch):
     error_message = "Internal Server Error"
     module = get_module()
     list_all_resources_patch.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
-        oci_load_balancer_shape_facts.list_load_balancer_shapes(
-            lb_client, module)
+        oci_load_balancer_shape_facts.list_load_balancer_shapes(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
 def get_load_balancer_shape():
     load_balancer_shape = LoadBalancerShape()
-    load_balancer_shape.name = 'HTTP'
+    load_balancer_shape.name = "HTTP"
     return load_balancer_shape
 
 
@@ -83,7 +83,6 @@ def get_response(status, header, data, request):
 
 
 def get_module():
-    params = {'compartment_id': 'ocid1.compartment.xcds'}
+    params = {"compartment_id": "ocid1.compartment.xcds"}
     module = FakeModule(**params)
     return module
-

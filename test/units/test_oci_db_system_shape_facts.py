@@ -16,8 +16,7 @@ try:
     from oci.database.models import DbSystemShapeSummary
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_db_system_shape_facts.py requires `oci` module")
+    raise SkipTest("test_oci_db_system_shape_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,54 +26,77 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
 
+
 @pytest.fixture()
 def db_client(mocker):
-    mock_db_client = mocker.patch(
-        'oci.database.database_client.DatabaseClient')
+    mock_db_client = mocker.patch("oci.database.database_client.DatabaseClient")
     return mock_db_client.return_value
+
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
+
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_db_system_shape_facts.set_logger(logging)
 
 
 def test_list_db_system_shapes(db_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'availability_domain': 'AD2', 'name': None}))
+    module = get_module(
+        dict(
+            {
+                "compartment_id": "ocid1.compartment.aaaa",
+                "availability_domain": "AD2",
+                "name": None,
+            }
+        )
+    )
     list_all_resources_patch.return_value = [get_db_system_shapes()]
     result = oci_db_system_shape_facts.list_db_system_shapes(db_client, module)
-    assert result['db_system_shapes'][0]['name'] is get_db_system_shapes().name
+    assert result["db_system_shapes"][0]["name"] is get_db_system_shapes().name
 
 
 def test_list_db_system_shapes_service_error(db_client, list_all_resources_patch):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'availability_domain': 'AD2', 'name': None}))
+    error_message = "Internal Server Error"
+    module = get_module(
+        dict(
+            {
+                "compartment_id": "ocid1.compartment.aaaa",
+                "availability_domain": "AD2",
+                "name": None,
+            }
+        )
+    )
     list_all_resources_patch.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_db_system_shape_facts.list_db_system_shapes(db_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
+
 def get_db_system_shapes():
     db_system_shape_summary = DbSystemShapeSummary()
-    db_system_shape_summary.name = 'VM.Standard1.4'
-    db_system_shape_summary.shape = 'VM.Standard1.4'
+    db_system_shape_summary.name = "VM.Standard1.4"
+    db_system_shape_summary.shape = "VM.Standard1.4"
 
     return db_system_shape_summary
 
+
 def get_response(status, header, data, request):
     return oci.Response(status, header, data, request)
+
 
 def get_module(additional_properties):
     params = dict()

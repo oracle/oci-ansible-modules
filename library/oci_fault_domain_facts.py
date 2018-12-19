@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_fault_domain_facts
 short_description: Retrieve details of fault domains in your tenancy
@@ -32,16 +33,16 @@ options:
         required: true
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get details of all the fault domains in AD1 in your tenancy
   oci_fault_domain_facts:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq'
     availability_domain: "IwGV:US-ASHBURN-AD-2"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 fault_domains:
     description: Information about one or more fault domains in your tenancy
     returned: on success
@@ -89,7 +90,7 @@ fault_domains:
             }
           ]
        }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -99,6 +100,7 @@ try:
     from oci.identity.identity_client import IdentityClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -106,15 +108,23 @@ except ImportError:
 
 def list_fault_domains(identity_client, module):
     try:
-        cid = module.params['compartment_id']
-        ad = module.params['availability_domain']
-        name = module.params['name']
-        fault_domains = oci_utils.list_all_resources(identity_client.list_fault_domains, compartment_id=cid,
-                                                     availability_domain=ad, name=name)
+        cid = module.params["compartment_id"]
+        ad = module.params["availability_domain"]
+        name = module.params["name"]
+        fault_domains = oci_utils.list_all_resources(
+            identity_client.list_fault_domains,
+            compartment_id=cid,
+            availability_domain=ad,
+            name=name,
+        )
     except AttributeError as ae:
         # list_fault_domains is not available
-        module.fail_json(msg="Exception: {0}. OCI Python SDK 2.0.1 or above is required to use "
-                             "`oci_fault_domain_facts`. The local SDK version is {1}".format(str(ae), oci.__version__))
+        module.fail_json(
+            msg="Exception: {0}. OCI Python SDK 2.0.1 or above is required to use "
+            "`oci_fault_domain_facts`. The local SDK version is {1}".format(
+                str(ae), oci.__version__
+            )
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     return to_dict(fault_domains)
@@ -122,18 +132,17 @@ def list_fault_domains(identity_client, module):
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=True),
-        availability_domain=dict(type=str, required=True)
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=True),
+            availability_domain=dict(type=str, required=True),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
@@ -141,5 +150,5 @@ def main():
     module.exit_json(fault_domains=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

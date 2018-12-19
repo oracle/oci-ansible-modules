@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_data_guard_association
 short_description: Create a Data Guard Association and, perform various Database role transitions
@@ -75,9 +75,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_wait_options, oracle_creatable_resource ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create Data Guard Association
 - name: Create Data Guard Association
@@ -114,9 +114,9 @@ EXAMPLES = '''
       data_guard_association_id: 'ocid1.dgassociation.abuw'
       database_admin_password: 'pasword#_'
       state: 'reinstate'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     data_guard_association:
         description: Attributes of the Data Guard Association.
         returned: success
@@ -212,7 +212,7 @@ RETURN = '''
                     "time_created":"2018-03-03T06:55:49.463000+00:00",
                     "transport_type":"ASYNC"
                 }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils, oci_db_utils
@@ -220,9 +220,12 @@ from ansible.module_utils.oracle import oci_utils, oci_db_utils
 try:
     from oci.database.database_client import DatabaseClient
     from oci.exceptions import ServiceError
-    from oci.database.models import CreateDataGuardAssociationToExistingDbSystemDetails, \
-        SwitchoverDataGuardAssociationDetails, FailoverDataGuardAssociationDetails, \
-        ReinstateDataGuardAssociationDetails
+    from oci.database.models import (
+        CreateDataGuardAssociationToExistingDbSystemDetails,
+        SwitchoverDataGuardAssociationDetails,
+        FailoverDataGuardAssociationDetails,
+        ReinstateDataGuardAssociationDetails,
+    )
     from oci.util import to_dict
 
     HAS_OCI_PY_SDK = True
@@ -231,31 +234,33 @@ except ImportError:
 
 logger = None
 
-state_to_object_details_dict = dict({'switchover': SwitchoverDataGuardAssociationDetails(),
-                                     'failover': FailoverDataGuardAssociationDetails(),
-                                     'reinstate': ReinstateDataGuardAssociationDetails()})
-
 
 def create_data_guard_association(db_client, module):
-    result = dict(changed=False, data_guard_association='')
-    database_id = module.params.get('database_id')
+    result = dict(changed=False, data_guard_association="")
+    database_id = module.params.get("database_id")
 
     try:
-        create_data_guard_assoc_details = get_create_data_guard_association_from_creation_type(module)
+        create_data_guard_assoc_details = get_create_data_guard_association_from_creation_type(
+            module
+        )
 
-        result = oci_utils.create_and_wait(resource_type='data_guard_association',
-                                           create_fn=db_client.create_data_guard_association,
-                                           kwargs_create={
-                                               'database_id': database_id,
-                                               'create_data_guard_association_details': create_data_guard_assoc_details},
-                                           client=db_client,
-                                           get_fn=db_client.get_data_guard_association,
-                                           get_param='database_id',
-                                           module=module
-                                           )
+        result = oci_utils.create_and_wait(
+            resource_type="data_guard_association",
+            create_fn=db_client.create_data_guard_association,
+            kwargs_create={
+                "database_id": database_id,
+                "create_data_guard_association_details": create_data_guard_assoc_details,
+            },
+            client=db_client,
+            get_fn=db_client.get_data_guard_association,
+            get_param="database_id",
+            module=module,
+        )
 
     except ServiceError as ex:
-        get_logger().error("Unable to create Data Guard Association due to: %s", ex.message)
+        get_logger().error(
+            "Unable to create Data Guard Association due to: %s", ex.message
+        )
         module.fail_json(msg=ex.message)
 
     return result
@@ -264,58 +269,68 @@ def create_data_guard_association(db_client, module):
 def get_create_data_guard_association_from_creation_type(module):
     create_data_guard_association_details = get_creation_type_instance(module)
     if create_data_guard_association_details is None:
-        module.fail_json('creation_type either not specified or not supported')
+        module.fail_json("creation_type either not specified or not supported")
     for attribute in create_data_guard_association_details.attribute_map:
         create_data_guard_association_details.__setattr__(
-            attribute, module.params.get(attribute))
+            attribute, module.params.get(attribute)
+        )
     return create_data_guard_association_details
 
 
 def get_creation_type_instance(module):
     create_data_guard_association_details = None
-    if module.params.get('creation_type') == 'ExistingDbSystem':
-        create_data_guard_association_details = \
+    if module.params.get("creation_type") == "ExistingDbSystem":
+        create_data_guard_association_details = (
             CreateDataGuardAssociationToExistingDbSystemDetails()
+        )
     return create_data_guard_association_details
 
 
 def perform_data_guard_operations(db_client, module):
     changed = False
-    result = dict(
-        changed=False,
-        data_guard_association=''
-    )
-    data_guard_association_id = module.params.get('data_guard_association_id')
-    database_id = module.params.get('database_id')
+    result = dict(changed=False, data_guard_association="")
+    data_guard_association_id = module.params.get("data_guard_association_id")
+    database_id = module.params.get("database_id")
     if data_guard_association_id is None or database_id is None:
         module.fail_json(
-            msg='Data Guard Association related operation must contain valid database_id and data_guard_association_id')
+            msg="Data Guard Association related operation must contain valid database_id and data_guard_association_id"
+        )
     data_guard_association = oci_utils.get_existing_resource(
-        db_client.get_data_guard_association, module, database_id=database_id,
-        data_guard_association_id=data_guard_association_id)
+        db_client.get_data_guard_association,
+        module,
+        database_id=database_id,
+        data_guard_association_id=data_guard_association_id,
+    )
     changed, target_fn, kwargs = get_operation_details(
-        db_client, module, data_guard_association)
+        db_client, module, data_guard_association
+    )
     if changed:
-        kwargs.update(database_id=database_id,
-                      data_guard_association_id=data_guard_association_id)
+        kwargs.update(
+            database_id=database_id, data_guard_association_id=data_guard_association_id
+        )
         try:
-            result = oci_db_utils.execute_function_and_wait(resource_type='data_guard_association',
-                                                            function=target_fn,
-                                                            kwargs_function=kwargs,
-                                                            client=db_client,
-                                                            get_fn=db_client.get_data_guard_association,
-                                                            get_param=None,
-                                                            kwargs_get={'database_id': database_id,
-                                                                        'data_guard_association_id': data_guard_association_id},
-                                                            module=module
-                                                            )
+            result = oci_db_utils.execute_function_and_wait(
+                resource_type="data_guard_association",
+                function=target_fn,
+                kwargs_function=kwargs,
+                client=db_client,
+                get_fn=db_client.get_data_guard_association,
+                get_param=None,
+                kwargs_get={
+                    "database_id": database_id,
+                    "data_guard_association_id": data_guard_association_id,
+                },
+                module=module,
+            )
         except ServiceError as ex:
             get_logger().error(
-                "Unable to perform operation on  Data Guard Association due to: %s", ex.message)
+                "Unable to perform operation on  Data Guard Association due to: %s",
+                ex.message,
+            )
             module.fail_json(msg=ex.message)
 
-    result['changed'] = changed
-    result['data_guard_association'] = to_dict(data_guard_association)
+    result["changed"] = changed
+    result["data_guard_association"] = to_dict(data_guard_association)
 
     return result
 
@@ -324,27 +339,31 @@ def get_operation_details(db_client, module, existing_data_guard_association):
     changed = False
     target_fn = None
     kwargs = dict()
-    state = module.params.get('state')
+    state = module.params.get("state")
     if existing_data_guard_association is None:
-        module.fail_json(msg='No Data Guard Association Found')
+        module.fail_json(msg="No Data Guard Association Found")
     data_guard_association_details = get_data_guard_association_object_details(
-        module, state)
-    if state == 'failover':
-        if existing_data_guard_association.role == 'STANDBY':
+        module, state
+    )
+    if state == "failover":
+        if existing_data_guard_association.role == "STANDBY":
             kwargs.update(
-                failover_data_guard_association_details=data_guard_association_details)
+                failover_data_guard_association_details=data_guard_association_details
+            )
             target_fn = db_client.failover_data_guard_association
             changed = True
-    elif state == 'switchover':
-        if existing_data_guard_association.role == 'PRIMARY':
+    elif state == "switchover":
+        if existing_data_guard_association.role == "PRIMARY":
             target_fn = db_client.switchover_data_guard_association
             kwargs.update(
-                switchover_data_guard_association_details=data_guard_association_details)
+                switchover_data_guard_association_details=data_guard_association_details
+            )
             changed = True
-    elif state == 'reinstate':
-        if existing_data_guard_association.role == 'DISABLED_STANDBY':
+    elif state == "reinstate":
+        if existing_data_guard_association.role == "DISABLED_STANDBY":
             kwargs.update(
-                reinstate_data_guard_association_details=data_guard_association_details)
+                reinstate_data_guard_association_details=data_guard_association_details
+            )
             target_fn = db_client.reinstate_data_guard_association
             changed = True
 
@@ -352,9 +371,17 @@ def get_operation_details(db_client, module, existing_data_guard_association):
 
 
 def get_data_guard_association_object_details(module, state):
+    state_to_object_details_dict = dict(
+        {
+            "switchover": SwitchoverDataGuardAssociationDetails(),
+            "failover": FailoverDataGuardAssociationDetails(),
+            "reinstate": ReinstateDataGuardAssociationDetails(),
+        }
+    )
     data_guard_association_details = state_to_object_details_dict.get(state)
     data_guard_association_details.database_admin_password = module.params.get(
-        'database_admin_password')
+        "database_admin_password"
+    )
     return data_guard_association_details
 
 
@@ -370,38 +397,59 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_data_guard_association")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        database_id=dict(type='str', required=True),
-        data_guard_association_id=dict(
-            type='str', required=False, aliases=['id']),
-        creation_type=dict(type='str', required=False, default='ExistingDbSystem', choices=['ExistingDbSystem']),
-        database_admin_password=dict(type='str', required=False, no_log=True),
-        protection_mode=dict(type='str', required=False, choices=[
-            'MAXIMUM_AVAILABILITY', 'MAXIMUM_PERFORMANCE', 'MAXIMUM_PROTECTION']),
-        transport_type=dict(type='str', required=False, choices=['SYNC', 'ASYNC', 'FASTSYNC']),
-        peer_db_system_id=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'switchover', 'failover', 'reinstate'])
-    ))
+    module_args = oci_utils.get_common_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            database_id=dict(type="str", required=True),
+            data_guard_association_id=dict(type="str", required=False, aliases=["id"]),
+            creation_type=dict(
+                type="str",
+                required=False,
+                default="ExistingDbSystem",
+                choices=["ExistingDbSystem"],
+            ),
+            database_admin_password=dict(type="str", required=False, no_log=True),
+            protection_mode=dict(
+                type="str",
+                required=False,
+                choices=[
+                    "MAXIMUM_AVAILABILITY",
+                    "MAXIMUM_PERFORMANCE",
+                    "MAXIMUM_PROTECTION",
+                ],
+            ),
+            transport_type=dict(
+                type="str", required=False, choices=["SYNC", "ASYNC", "FASTSYNC"]
+            ),
+            peer_db_system_id=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "switchover", "failover", "reinstate"],
+            ),
+        )
+    )
 
     module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
-    state = module.params['state']
-    if state == 'present':
-        result = oci_utils.check_and_create_resource(resource_type='data_guard_association',
-                                                     create_fn=create_data_guard_association,
-                                                     kwargs_create={'db_client': db_client,
-                                                                    'module': module},
-                                                     list_fn=db_client.list_data_guard_associations,
-                                                     kwargs_list={
-                                                         'database_id': module.params['database_id']},
-                                                     module=module,
-                                                     model=get_creation_type_instance(module))
+    state = module.params["state"]
+    if state == "present":
+        result = oci_utils.check_and_create_resource(
+            resource_type="data_guard_association",
+            create_fn=create_data_guard_association,
+            kwargs_create={"db_client": db_client, "module": module},
+            list_fn=db_client.list_data_guard_associations,
+            kwargs_list={"database_id": module.params["database_id"]},
+            module=module,
+            model=get_creation_type_instance(module),
+        )
 
     else:
         result = perform_data_guard_operations(db_client, module)
@@ -409,5 +457,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

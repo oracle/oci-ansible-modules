@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_instance_pool
 short_description: Manage Instance Pools in OCI
@@ -80,9 +80,9 @@ options:
         choices: ['present', 'absent', 'running', 'reset', 'softreset', 'stopped']
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create an instance pool
   oci_instance_pool:
     name: "backend-servers-pool"
@@ -124,9 +124,9 @@ EXAMPLES = '''
   oci_instance_pool:
     id: ocid1.instancepool.oc1.phx.xxxxxEXAMPLExxxxx...rz3fhq
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 instance_pool:
     description: Information about the Instance Pool
     returned: On successful create, delete operations on instance pools
@@ -222,15 +222,18 @@ instance_pool:
                 "size": 1,
                 "time-created": "2018-11-09T16:58:35.270000+00:00"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
 try:
     from oci.core.compute_management_client import ComputeManagementClient
-    from oci.core.models import CreateInstancePoolDetails, CreateInstancePoolPlacementConfigurationDetails, \
-        UpdateInstancePoolDetails
+    from oci.core.models import (
+        CreateInstancePoolDetails,
+        CreateInstancePoolPlacementConfigurationDetails,
+        UpdateInstancePoolDetails,
+    )
 
     import oci
     from oci.util import to_dict
@@ -245,14 +248,15 @@ RESOURCE_NAME = "instance_pool"
 
 
 def delete_instance_pool(compute_management_client, module):
-    result = oci_utils.delete_and_wait(resource_type=RESOURCE_NAME,
-                                       client=compute_management_client,
-                                       get_fn=compute_management_client.get_instance_pool,
-                                       kwargs_get={"instance_pool_id": module.params['instance_pool_id']},
-                                       delete_fn=compute_management_client.terminate_instance_pool,
-                                       kwargs_delete={"instance_pool_id": module.params['instance_pool_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type=RESOURCE_NAME,
+        client=compute_management_client,
+        get_fn=compute_management_client.get_instance_pool,
+        kwargs_get={"instance_pool_id": module.params["instance_pool_id"]},
+        delete_fn=compute_management_client.terminate_instance_pool,
+        kwargs_delete={"instance_pool_id": module.params["instance_pool_id"]},
+        module=module,
+    )
     return result
 
 
@@ -260,7 +264,7 @@ def create_instance_pool(compute_management_client, module):
     create_instance_pool_details = CreateInstancePoolDetails()
     _update_model_with_attrs(create_instance_pool_details, module.params)
 
-    user_placement_configurations = module.params['placement_configurations']
+    user_placement_configurations = module.params["placement_configurations"]
     placement_configurations = []
     for item in user_placement_configurations:
         placement_config = CreateInstancePoolPlacementConfigurationDetails()
@@ -268,14 +272,15 @@ def create_instance_pool(compute_management_client, module):
         placement_configurations.append(placement_config)
     create_instance_pool_details.placement_configurations = placement_configurations
 
-    result = oci_utils.create_and_wait(resource_type=RESOURCE_NAME,
-                                       create_fn=compute_management_client.create_instance_pool,
-                                       kwargs_create={"create_instance_pool_details": create_instance_pool_details},
-                                       client=compute_management_client,
-                                       get_fn=compute_management_client.get_instance_pool,
-                                       get_param="instance_pool_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type=RESOURCE_NAME,
+        create_fn=compute_management_client.create_instance_pool,
+        kwargs_create={"create_instance_pool_details": create_instance_pool_details},
+        client=compute_management_client,
+        get_fn=compute_management_client.get_instance_pool,
+        get_param="instance_pool_id",
+        module=module,
+    )
     return result
 
 
@@ -287,16 +292,19 @@ def _update_model_with_attrs(model_instance, value_dict):
 
 def update_instance_pool(compute_management_client, module):
     # XXX support update of placement configurations
-    return oci_utils.check_and_update_resource(resource_type=RESOURCE_NAME,
-                                               get_fn=compute_management_client.get_instance_pool,
-                                               kwargs_get={"instance_pool_id": module.params['instance_pool_id']},
-                                               update_fn=compute_management_client.update_instance_pool,
-                                               primitive_params_update=['instance_pool_id'],
-                                               kwargs_non_primitive_update={
-                                                   UpdateInstancePoolDetails: "update_instance_pool_details"
-                                               },
-                                               module=module,
-                                               update_attributes=UpdateInstancePoolDetails().attribute_map.keys())
+    return oci_utils.check_and_update_resource(
+        resource_type=RESOURCE_NAME,
+        client=compute_management_client,
+        get_fn=compute_management_client.get_instance_pool,
+        kwargs_get={"instance_pool_id": module.params["instance_pool_id"]},
+        update_fn=compute_management_client.update_instance_pool,
+        primitive_params_update=["instance_pool_id"],
+        kwargs_non_primitive_update={
+            UpdateInstancePoolDetails: "update_instance_pool_details"
+        },
+        module=module,
+        update_attributes=UpdateInstancePoolDetails().attribute_map.keys(),
+    )
 
 
 def set_logger(my_logger):
@@ -316,23 +324,27 @@ def power_action_on_instance_pool(compute_management_client, module):
     result = {}
     changed = False
     # The power action to execute on a compute instance pool to reach the desired 'state'
-    state_action_map = {"stopped": "STOP",
-                        "running": "START",
-                        "reset": "RESET",
-                        "softreset": "SOFTRESET"
-                        }
+    state_action_map = {
+        "stopped": "STOP",
+        "running": "START",
+        "reset": "RESET",
+        "softreset": "SOFTRESET",
+    }
     # The desired lifecycle state for the compute instance pool to reach the user specified 'state'
-    desired_lifecycle_states = {'stopped': 'STOPPED',
-                                'running': 'RUNNING',
-                                'reset': 'RUNNING',
-                                'softreset': 'RUNNING'
-                                }
+    desired_lifecycle_states = {
+        "stopped": "STOPPED",
+        "running": "RUNNING",
+        "reset": "RUNNING",
+        "softreset": "RUNNING",
+    }
 
-    desired_state = module.params['state']
-    instance_pool_id = module.params['id']
+    desired_state = module.params["state"]
+    instance_pool_id = module.params["id"]
     try:
-        response = oci_utils.call_with_backoff(compute_management_client.get_instance_pool,
-                                               instance_pool_id=instance_pool_id)
+        response = oci_utils.call_with_backoff(
+            compute_management_client.get_instance_pool,
+            instance_pool_id=instance_pool_id,
+        )
         curr_state = response.data.lifecycle_state
 
         change_required = False
@@ -342,35 +354,58 @@ def power_action_on_instance_pool(compute_management_client, module):
             change_required = True
 
         # Resets also require a change
-        if desired_state in ['softreset', 'reset']:
+        if desired_state in ["softreset", "reset"]:
             change_required = True
 
         if change_required:
             changed = True
-            instance_action_method_name = state_action_map[desired_state].lower() + "_instance_pool"
-            instance_action_method = getattr(compute_management_client, instance_action_method_name)
-            oci_utils.call_with_backoff(instance_action_method, instance_pool_id=instance_pool_id)
-            response = oci_utils.call_with_backoff(compute_management_client.get_instance_pool,
-                                                   instance_pool_id=instance_pool_id)
+            instance_action_method_name = (
+                state_action_map[desired_state].lower() + "_instance_pool"
+            )
+            instance_action_method = getattr(
+                compute_management_client, instance_action_method_name
+            )
+            oci_utils.call_with_backoff(
+                instance_action_method, instance_pool_id=instance_pool_id
+            )
+            response = oci_utils.call_with_backoff(
+                compute_management_client.get_instance_pool,
+                instance_pool_id=instance_pool_id,
+            )
             # for now the power actions on instances do not go through common utilities for wait.
-            if module.params.get('wait', None):
-                debug("waiting for lifecycle_state to reach {0}".format(desired_lifecycle_states[desired_state]))
-                oci.wait_until(compute_management_client, response, 'lifecycle_state',
-                               desired_lifecycle_states[desired_state],
-                               max_wait_seconds=module.params.get('wait_timeout',
-                                                                  oci_utils.MAX_WAIT_TIMEOUT_IN_SECONDS))
-                response = oci_utils.call_with_backoff(compute_management_client.get_instance_pool,
-                                                       instance_pool_id=instance_pool_id)
+            if module.params.get("wait", None):
+                debug(
+                    "waiting for lifecycle_state to reach {0}".format(
+                        desired_lifecycle_states[desired_state]
+                    )
+                )
+                oci.wait_until(
+                    compute_management_client,
+                    response,
+                    "lifecycle_state",
+                    desired_lifecycle_states[desired_state],
+                    max_wait_seconds=module.params.get(
+                        "wait_timeout", oci_utils.MAX_WAIT_TIMEOUT_IN_SECONDS
+                    ),
+                )
+                response = oci_utils.call_with_backoff(
+                    compute_management_client.get_instance_pool,
+                    instance_pool_id=instance_pool_id,
+                )
             else:
-                debug("Not waiting for power action request {0} as 'wait' is false.".format(desired_state))
+                debug(
+                    "Not waiting for power action request {0} as 'wait' is false.".format(
+                        desired_state
+                    )
+                )
 
-        result['instance_pool'] = to_dict(response.data)
+        result["instance_pool"] = to_dict(response.data)
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as ex:
         module.fail_json(msg=str(ex))
 
-    result['changed'] = changed
+    result["changed"] = changed
     return result
 
 
@@ -378,52 +413,71 @@ def main():
     my_logger = oci_utils.get_logger(RESOURCE_NAME)
     set_logger(my_logger)
 
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        instance_configuration_id=dict(type='str', required=False),
-        placement_configurations=dict(type='list', required=False),
-        instance_pool_id=dict(type='str', required=False, aliases=['id']),
-        size=dict(type='int', required=False),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present', 'running', 'reset',
-                                                                           'softreset', 'stopped']))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            instance_configuration_id=dict(type="str", required=False),
+            placement_configurations=dict(type="list", required=False),
+            instance_pool_id=dict(type="str", required=False, aliases=["id"]),
+            size=dict(type="int", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=[
+                    "absent",
+                    "present",
+                    "running",
+                    "reset",
+                    "softreset",
+                    "stopped",
+                ],
+            ),
+        )
     )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['instance_pool_id', 'compartment_id'],
-        required_if=[('state', 'absent', ['instance_pool_id'])]
+        mutually_exclusive=["instance_pool_id", "compartment_id"],
+        required_if=[("state", "absent", ["instance_pool_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    compute_management_client = oci_utils.create_service_client(module, ComputeManagementClient)
+    compute_management_client = oci_utils.create_service_client(
+        module, ComputeManagementClient
+    )
 
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_instance_pool(compute_management_client, module)
 
-    elif state == 'present':
-        instance_pool_id = module.params['instance_pool_id']
+    elif state == "present":
+        instance_pool_id = module.params["instance_pool_id"]
 
         if instance_pool_id is None:
-            kwargs_list = {'compartment_id': module.params['compartment_id']}
-            result = oci_utils.check_and_create_resource(resource_type=RESOURCE_NAME,
-                                                         create_fn=create_instance_pool,
-                                                         kwargs_create={
-                                                             'compute_management_client': compute_management_client,
-                                                             'module': module},
-                                                         list_fn=compute_management_client.list_instance_pools,
-                                                         kwargs_list=kwargs_list,
-                                                         module=module,
-                                                         model=CreateInstancePoolDetails(),
-                                                         exclude_attributes=None,
-                                                         supports_sort_by_time_created=False
-                                                         )
+            kwargs_list = {"compartment_id": module.params["compartment_id"]}
+            result = oci_utils.check_and_create_resource(
+                resource_type=RESOURCE_NAME,
+                create_fn=create_instance_pool,
+                kwargs_create={
+                    "compute_management_client": compute_management_client,
+                    "module": module,
+                },
+                list_fn=compute_management_client.list_instance_pools,
+                kwargs_list=kwargs_list,
+                module=module,
+                model=CreateInstancePoolDetails(),
+                exclude_attributes=None,
+                supports_sort_by_time_created=False,
+            )
         else:
             result = update_instance_pool(compute_management_client, module)
     else:
@@ -433,5 +487,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

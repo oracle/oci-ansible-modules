@@ -17,8 +17,7 @@ try:
     from oci.database.models import DbVersionSummary
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_db_version_facts.py requires `oci` module")
+    raise SkipTest("test_oci_db_version_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -28,7 +27,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -37,42 +36,52 @@ class FakeModule(object):
 
 @pytest.fixture()
 def db_client(mocker):
-    mock_db_client = mocker.patch(
-        'oci.database.database_client.DatabaseClient')
+    mock_db_client = mocker.patch("oci.database.database_client.DatabaseClient")
     return mock_db_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_db_version_facts.set_logger(logging)
 
 
 def test_list_db_versions_compartments(db_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa'}))
+    module = get_module(dict({"compartment_id": "ocid1.compartment.aaaa"}))
     list_all_resources_patch.return_value = [get_db_versions()]
     result = oci_db_version_facts.list_db_versions(db_client, module)
-    assert result['db_versions'][0]['version'] is get_db_versions().version
+    assert result["db_versions"][0]["version"] is get_db_versions().version
 
 
 def test_list_db_versions_db_system_shapes(db_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'db_system_shape': 'BM.DenseIO1.36',
-                              'db_system_id': None}))
+    module = get_module(
+        dict(
+            {
+                "compartment_id": "ocid1.compartment.aaaa",
+                "db_system_shape": "BM.DenseIO1.36",
+                "db_system_id": None,
+            }
+        )
+    )
     list_all_resources_patch.return_value = [get_db_versions()]
     result = oci_db_version_facts.list_db_versions(db_client, module)
-    assert result['db_versions'][0]['version'] is get_db_versions().version
+    assert result["db_versions"][0]["version"] is get_db_versions().version
 
 
 def test_list_db_versions_service_error(db_client, list_all_resources_patch):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'availability_domain': 'AD2'}))
+    error_message = "Internal Server Error"
+    module = get_module(
+        dict({"compartment_id": "ocid1.compartment.aaaa", "availability_domain": "AD2"})
+    )
     list_all_resources_patch.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_db_version_facts.list_db_versions(db_client, module)
     except Exception as ex:
@@ -81,7 +90,7 @@ def test_list_db_versions_service_error(db_client, list_all_resources_patch):
 
 def get_db_versions():
     db_version_summary = DbVersionSummary()
-    db_version_summary.version = '11.0.0.1'
+    db_version_summary.version = "11.0.0.1"
 
     return db_version_summary
 

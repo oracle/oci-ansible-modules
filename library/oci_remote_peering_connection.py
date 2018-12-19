@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_remote_peering_connection
 short_description: Manage remote peering connections in OCI
@@ -55,9 +55,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a RPC
   oci_remote_peering_connection:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
@@ -79,9 +79,9 @@ EXAMPLES = '''
   oci_remote_peering_connection:
     id: ocid1.remotepeeringconnection.oc1.phx.xxxxxEXAMPLExxxxx
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 remote_peering_connection:
     description: Information about the RPC
     returned: On successful operation
@@ -99,7 +99,7 @@ remote_peering_connection:
             "peering_status": "PEERED",
             "time_created": "2018-09-24T06:51:59.491000+00:00"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -112,42 +112,51 @@ try:
     from oci.core.models import ConnectRemotePeeringConnectionsDetails
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def delete_remote_peering_connection(virtual_network_client, module):
-    result = oci_utils.delete_and_wait(resource_type="remote_peering_connection",
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_remote_peering_connection,
-                                       kwargs_get={
-                                           "remote_peering_connection_id":
-                                               module.params["remote_peering_connection_id"]},
-                                       delete_fn=virtual_network_client.delete_remote_peering_connection,
-                                       kwargs_delete={
-                                           "remote_peering_connection_id":
-                                               module.params["remote_peering_connection_id"]},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="remote_peering_connection",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_remote_peering_connection,
+        kwargs_get={
+            "remote_peering_connection_id": module.params[
+                "remote_peering_connection_id"
+            ]
+        },
+        delete_fn=virtual_network_client.delete_remote_peering_connection,
+        kwargs_delete={
+            "remote_peering_connection_id": module.params[
+                "remote_peering_connection_id"
+            ]
+        },
+        module=module,
+    )
     return result
 
 
 def update_remote_peering_connection(virtual_network_client, module):
-    result = oci_utils.check_and_update_resource(resource_type="remote_peering_connection",
-                                                 get_fn=virtual_network_client.get_remote_peering_connection,
-                                                 kwargs_get={
-                                                     "remote_peering_connection_id":
-                                                         module.params["remote_peering_connection_id"]},
-                                                 update_fn=virtual_network_client.update_remote_peering_connection,
-                                                 primitive_params_update=['remote_peering_connection_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateRemotePeeringConnectionDetails:
-                                                         "update_remote_peering_connection_details"},
-                                                 module=module,
-                                                 update_attributes=UpdateRemotePeeringConnectionDetails().
-                                                 attribute_map.keys()
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type="remote_peering_connection",
+        get_fn=virtual_network_client.get_remote_peering_connection,
+        client=virtual_network_client,
+        kwargs_get={
+            "remote_peering_connection_id": module.params[
+                "remote_peering_connection_id"
+            ]
+        },
+        update_fn=virtual_network_client.update_remote_peering_connection,
+        primitive_params_update=["remote_peering_connection_id"],
+        kwargs_non_primitive_update={
+            UpdateRemotePeeringConnectionDetails: "update_remote_peering_connection_details"
+        },
+        module=module,
+        update_attributes=UpdateRemotePeeringConnectionDetails().attribute_map.keys(),
+    )
     return result
 
 
@@ -155,18 +164,23 @@ def create_remote_peering_connection(virtual_network_client, module):
     create_remote_peering_connection_details = CreateRemotePeeringConnectionDetails()
     for attribute in create_remote_peering_connection_details.attribute_map.keys():
         if attribute in module.params:
-            setattr(create_remote_peering_connection_details, attribute, module.params[attribute])
+            setattr(
+                create_remote_peering_connection_details,
+                attribute,
+                module.params[attribute],
+            )
 
-    result = oci_utils.create_and_wait(resource_type="remote_peering_connection",
-                                       create_fn=virtual_network_client.create_remote_peering_connection,
-                                       kwargs_create={
-                                           "create_remote_peering_connection_details":
-                                               create_remote_peering_connection_details},
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_remote_peering_connection,
-                                       get_param="remote_peering_connection_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="remote_peering_connection",
+        create_fn=virtual_network_client.create_remote_peering_connection,
+        kwargs_create={
+            "create_remote_peering_connection_details": create_remote_peering_connection_details
+        },
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_remote_peering_connection,
+        get_param="remote_peering_connection_id",
+        module=module,
+    )
     return result
 
 
@@ -182,26 +196,26 @@ def connect_rpcs_and_wait(virtual_network_client, module):
         if attribute in module.params:
             setattr(connect_details, attribute, module.params[attribute])
 
-    rpc_id = module.params['remote_peering_connection_id']
+    rpc_id = module.params["remote_peering_connection_id"]
 
-    virtual_network_client.connect_remote_peering_connections(rpc_id,
-                                                              connect_details)
+    virtual_network_client.connect_remote_peering_connections(rpc_id, connect_details)
     response = virtual_network_client.get_remote_peering_connection(rpc_id)
-    if module.params['wait']:
+    if module.params["wait"]:
         states_to_wait_for = module.params["wait_until"] or "PEERED"
-        response = oci.wait_until(virtual_network_client,
-                                  response,
-                                  evaluate_response=lambda r: r.data.peering_status in states_to_wait_for,
-                                  max_wait_seconds=module.params.get(
-                                      'wait_timeout',
-                                      oci_utils.MAX_WAIT_TIMEOUT_IN_SECONDS)
-                                  )
+        response = oci.wait_until(
+            virtual_network_client,
+            response,
+            evaluate_response=lambda r: r.data.peering_status in states_to_wait_for,
+            max_wait_seconds=module.params.get(
+                "wait_timeout", oci_utils.MAX_WAIT_TIMEOUT_IN_SECONDS
+            ),
+        )
     return response.data
 
 
 def connect_rpc(virtual_network_client, module):
-    rpc_id = module.params['remote_peering_connection_id']
-    peer_id = module.params['peer_id']
+    rpc_id = module.params["remote_peering_connection_id"]
+    peer_id = module.params["peer_id"]
     try:
         rpc = virtual_network_client.get_remote_peering_connection(rpc_id).data
 
@@ -217,65 +231,82 @@ def connect_rpc(virtual_network_client, module):
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        remote_peering_connection_id=dict(type='str', required=False, aliases=['id']),
-        peer_region_name=dict(type='str', required=False),
-        peer_id=dict(type='str', required=False),
-        drg_id=dict(type='str', required=False)
-    ))
+    module_args = oci_utils.get_common_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            remote_peering_connection_id=dict(
+                type="str", required=False, aliases=["id"]
+            ),
+            peer_region_name=dict(type="str", required=False),
+            peer_id=dict(type="str", required=False),
+            drg_id=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[
-            ('state', 'absent', ['remote_peering_connection_id'])
-        ],
-        required_together=[
-            ['peer_id', 'peer_region_name']
-        ]
+        required_if=[("state", "absent", ["remote_peering_connection_id"])],
+        required_together=[["peer_id", "peer_region_name"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
-    exclude_attributes = {'display_name': True}
-    state = module.params['state']
+    exclude_attributes = {"display_name": True}
+    state = module.params["state"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_remote_peering_connection(virtual_network_client, module)
 
     else:
-        remote_peering_connection_id = module.params['remote_peering_connection_id']
+        remote_peering_connection_id = module.params["remote_peering_connection_id"]
         if remote_peering_connection_id is not None:
             result = update_remote_peering_connection(virtual_network_client, module)
             # A RPC can be connected to another RPC. Perform this operation when peer_id is specified along with
             # remote_peering_connection_id.
-            if module.params['peer_id'] is not None:
+            if module.params["peer_id"] is not None:
                 result_of_connect_rpc = connect_rpc(virtual_network_client, module)
-                result['changed'] = result['changed'] or result_of_connect_rpc['changed']
-                result['remote_peering_connection'] = result_of_connect_rpc['remote_peering_connection']
+                result["changed"] = (
+                    result["changed"] or result_of_connect_rpc["changed"]
+                )
+                result["remote_peering_connection"] = result_of_connect_rpc[
+                    "remote_peering_connection"
+                ]
         else:
-            result = oci_utils.check_and_create_resource(resource_type='remote_peering_connection',
-                                                         create_fn=create_remote_peering_connection,
-                                                         kwargs_create={
-                                                             'virtual_network_client': virtual_network_client,
-                                                             'module': module},
-                                                         list_fn=virtual_network_client.list_remote_peering_connections,
-                                                         kwargs_list={'compartment_id': module.params['compartment_id'],
-                                                                      'drg_id': module.params['drg_id']
-                                                                      },
-                                                         module=module,
-                                                         model=CreateRemotePeeringConnectionDetails(),
-                                                         exclude_attributes=exclude_attributes)
+            result = oci_utils.check_and_create_resource(
+                resource_type="remote_peering_connection",
+                create_fn=create_remote_peering_connection,
+                kwargs_create={
+                    "virtual_network_client": virtual_network_client,
+                    "module": module,
+                },
+                list_fn=virtual_network_client.list_remote_peering_connections,
+                kwargs_list={
+                    "compartment_id": module.params["compartment_id"],
+                    "drg_id": module.params["drg_id"],
+                },
+                module=module,
+                model=CreateRemotePeeringConnectionDetails(),
+                exclude_attributes=exclude_attributes,
+            )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_load_balancer
 short_description: Create, update and delete load balancers in OCI Load Balancing Service
@@ -197,9 +198,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create Load Balancer
 - name: Create Load Balancer
@@ -257,9 +258,9 @@ EXAMPLES = '''
   oci_load_balancer:
     load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     load_balancer:
         description: Attributes of the created/updated Load Balancer.
                     For delete, deleted Load Balancer description will
@@ -446,19 +447,22 @@ RETURN = '''
    ],
    "time_created":"2018-01-06T18:22:17.198000+00:00"
 }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils, oci_lb_utils
-
-import six
+from ansible.module_utils import six
 
 try:
     import copy
     from oci.load_balancer.load_balancer_client import LoadBalancerClient
     from oci.exceptions import ServiceError, ClientError
     from oci.util import to_dict
-    from oci.load_balancer.models import CreateLoadBalancerDetails, UpdateLoadBalancerDetails
+    from oci.load_balancer.models import (
+        CreateLoadBalancerDetails,
+        UpdateLoadBalancerDetails,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -467,41 +471,61 @@ logger = None
 
 
 def create_or_update_lb(lb_client, module):
-    result = dict(
-        changed=False,
-        load_balancer=''
-    )
-    load_balancer_id = module.params.get('load_balancer_id')
-    default_attribute_values = {'backend_sets': {'backends': {'backup': False, 'drain': False, 'offline': False, 'weight': 1},
-                                                 'health_checker': {'interval_in_millis': 10000, 'port': 0,
-                                                                    'response_body_regex': '.*', 'retries': 3, 'return_code': 200,
-                                                                    'timeout_in_millis': 3000},
-                                                 'listener': {'connection_configuration': {'idle_timeout': 60}}}}
-    exclude_attributes = {'display_name': True}
+    result = dict(changed=False, load_balancer="")
+    load_balancer_id = module.params.get("load_balancer_id")
+    default_attribute_values = {
+        "backend_sets": {
+            "backends": {
+                "backup": False,
+                "drain": False,
+                "offline": False,
+                "weight": 1,
+            },
+            "health_checker": {
+                "interval_in_millis": 10000,
+                "port": 0,
+                "response_body_regex": ".*",
+                "retries": 3,
+                "return_code": 200,
+                "timeout_in_millis": 3000,
+            },
+            "listener": {"connection_configuration": {"idle_timeout": 60}},
+        }
+    }
+    exclude_attributes = {"display_name": True}
 
     try:
         if load_balancer_id:
             existing_load_balancer = oci_utils.get_existing_resource(
-                lb_client.get_load_balancer, module, load_balancer_id=load_balancer_id)
-            result = update_load_balancer(
-                lb_client, module, existing_load_balancer)
+                lb_client.get_load_balancer, module, load_balancer_id=load_balancer_id
+            )
+            result = update_load_balancer(lb_client, module, existing_load_balancer)
         else:
             module1 = copy.deepcopy(module)
-            module1.params.update({'certificates': to_dict(
-                oci_lb_utils.create_certificates(module1.params.get('certificates')))})
-            result = oci_utils.check_and_create_resource(resource_type='load_balancer',
-                                                         create_fn=create_load_balancer,
-                                                         kwargs_create={'lb_client': lb_client,
-                                                                        'module': module},
-                                                         list_fn=lb_client.list_load_balancers,
-                                                         kwargs_list={
-                                                             'compartment_id': module.params.get('compartment_id')},
-                                                         module=module1,
-                                                         exclude_attributes=exclude_attributes,
-                                                         default_attribute_values=default_attribute_values,
-                                                         model=CreateLoadBalancerDetails())
+            module1.params.update(
+                {
+                    "certificates": to_dict(
+                        oci_lb_utils.create_certificates(
+                            module1.params.get("certificates")
+                        )
+                    )
+                }
+            )
+            result = oci_utils.check_and_create_resource(
+                resource_type="load_balancer",
+                create_fn=create_load_balancer,
+                kwargs_create={"lb_client": lb_client, "module": module},
+                list_fn=lb_client.list_load_balancers,
+                kwargs_list={"compartment_id": module.params.get("compartment_id")},
+                module=module1,
+                exclude_attributes=exclude_attributes,
+                default_attribute_values=default_attribute_values,
+                model=CreateLoadBalancerDetails(),
+            )
     except ServiceError as ex:
-        get_logger().error("Unable to create/update load balancer due to: %s", ex.message)
+        get_logger().error(
+            "Unable to create/update load balancer due to: %s", ex.message
+        )
         module.fail_json(msg=ex.message)
     except ClientError as ex:
         get_logger().error("Unable to create/update backend due to: %s", str(ex))
@@ -511,77 +535,110 @@ def create_or_update_lb(lb_client, module):
 
 
 def create_load_balancer(lb_client, module):
-    compartment_id = module.params['compartment_id']
-    name = module.params['display_name']
-    get_logger().info("Creating load balancer %s in the compartment %s", name, compartment_id)
-    backend_sets = oci_lb_utils.create_backend_sets(module.params.get('backend_sets', None))
-    certificates = oci_lb_utils.create_certificates(module.params.get('certificates', None))
-    listeners = oci_lb_utils.create_listeners(module.params.get('listeners', None))
-    path_route_sets = oci_lb_utils.create_path_route_sets(module.params.get('path_route_sets', None))
-    hostnames = oci_lb_utils.create_hostnames(module.params.get('hostnames', None))
-    subnet_ids = module.params['subnet_ids']
-    shape_name = module.params['shape_name']
-    is_private = module.params.get('is_private', False)
+    compartment_id = module.params["compartment_id"]
+    name = module.params["display_name"]
+    get_logger().info(
+        "Creating load balancer %s in the compartment %s", name, compartment_id
+    )
+    backend_sets = oci_lb_utils.create_backend_sets(
+        module.params.get("backend_sets", None)
+    )
+    certificates = oci_lb_utils.create_certificates(
+        module.params.get("certificates", None)
+    )
+    listeners = oci_lb_utils.create_listeners(module.params.get("listeners", None))
+    path_route_sets = oci_lb_utils.create_path_route_sets(
+        module.params.get("path_route_sets", None)
+    )
+    hostnames = oci_lb_utils.create_hostnames(module.params.get("hostnames", None))
+    subnet_ids = module.params["subnet_ids"]
+    shape_name = module.params["shape_name"]
+    is_private = module.params.get("is_private", False)
     create_load_balancer_details = CreateLoadBalancerDetails()
-    atributes_to_value_dict = dict({'compartment_id': compartment_id, 'display_name': name, 'is_private': is_private,
-                                    'certificates': certificates, 'listeners': listeners,
-                                    'backend_sets': backend_sets, 'path_route_sets': path_route_sets,
-                                    'hostnames': hostnames, 'shape_name': shape_name, 'subnet_ids': subnet_ids})
+    atributes_to_value_dict = dict(
+        {
+            "compartment_id": compartment_id,
+            "display_name": name,
+            "is_private": is_private,
+            "certificates": certificates,
+            "listeners": listeners,
+            "backend_sets": backend_sets,
+            "path_route_sets": path_route_sets,
+            "hostnames": hostnames,
+            "shape_name": shape_name,
+            "subnet_ids": subnet_ids,
+        }
+    )
     for key, value in six.iteritems(atributes_to_value_dict):
         create_load_balancer_details.__setattr__(key, value)
-    return oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="load_balancer",
-                                                                             function=lb_client.create_load_balancer,
-                                                                             kwargs_function={
-                                                                                 'create_load_balancer_details': create_load_balancer_details},
-                                                                             lb_client=lb_client,
-                                                                             get_fn=lb_client.get_load_balancer,
-                                                                             get_param='load_balancer_id',
-                                                                             module=module
-                                                               )
+    return oci_lb_utils.create_or_update_lb_resources_and_wait(
+        resource_type="load_balancer",
+        function=lb_client.create_load_balancer,
+        kwargs_function={"create_load_balancer_details": create_load_balancer_details},
+        lb_client=lb_client,
+        get_fn=lb_client.get_load_balancer,
+        get_param="load_balancer_id",
+        module=module,
+    )
 
 
 def update_load_balancer(lb_client, module, load_balancer):
     if load_balancer is None:
-        raise ClientError(Exception("No Load Balancer with id " +
-                                    module.params.get('load_balancer_id') + " is found for update"))
+        raise ClientError(
+            Exception(
+                "No Load Balancer with id "
+                + module.params.get("load_balancer_id")
+                + " is found for update"
+            )
+        )
     result = dict(load_balancer=to_dict(load_balancer), changed=False)
-    name = module.params['display_name']
+    name = module.params["display_name"]
     update_load_balancer_details = UpdateLoadBalancerDetails()
     if load_balancer.display_name.strip() != name.strip():
-        get_logger().info("Updating the display name of load balancer from %s to %s",
-                          load_balancer.display_name, name)
-        update_load_balancer_details.display_name = name
-        result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="load_balancer",
-                                                                     function=lb_client.update_load_balancer,
-                                                                     kwargs_function={
-                                                                         'update_load_balancer_details': update_load_balancer_details,
-                                                                         'load_balancer_id': load_balancer.id},
-                                                                     lb_client=lb_client,
-                                                                     get_fn=lb_client.get_load_balancer,
-                                                                     kwargs_get={'load_balancer_id': load_balancer.id},
-                                                                     module=module
-                                                                     )
-
-        get_logger().info("Successfully updated the display name of load balancer from %s to %s",
-                          load_balancer.display_name, name)
-    if not result['changed']:
         get_logger().info(
-            "Unable to update display name of load balancer as the new name is same as old")
+            "Updating the display name of load balancer from %s to %s",
+            load_balancer.display_name,
+            name,
+        )
+        update_load_balancer_details.display_name = name
+        result = oci_lb_utils.create_or_update_lb_resources_and_wait(
+            resource_type="load_balancer",
+            function=lb_client.update_load_balancer,
+            kwargs_function={
+                "update_load_balancer_details": update_load_balancer_details,
+                "load_balancer_id": load_balancer.id,
+            },
+            lb_client=lb_client,
+            get_fn=lb_client.get_load_balancer,
+            kwargs_get={"load_balancer_id": load_balancer.id},
+            module=module,
+        )
+
+        get_logger().info(
+            "Successfully updated the display name of load balancer from %s to %s",
+            load_balancer.display_name,
+            name,
+        )
+    if not result["changed"]:
+        get_logger().info(
+            "Unable to update display name of load balancer as the new name is same as old"
+        )
     return result
 
 
 def delete_load_balancer(lb_client, module):
-    lb_id = module.params.get('load_balancer_id')
+    lb_id = module.params.get("load_balancer_id")
     get_logger().info("Deleting load balancer %s", lb_id)
-    result = oci_lb_utils.delete_lb_resources_and_wait(resource_type="load_balancer",
-                                                       function=lb_client.delete_load_balancer,
-                                                       kwargs_function={'load_balancer_id': lb_id},
-                                                       lb_client=lb_client,
-                                                       get_fn=lb_client.get_load_balancer,
-                                                       kwargs_get={'load_balancer_id': lb_id},
-                                                       module=module
-                                                       )
-    if result['changed']:
+    result = oci_lb_utils.delete_lb_resources_and_wait(
+        resource_type="load_balancer",
+        function=lb_client.delete_load_balancer,
+        kwargs_function={"load_balancer_id": lb_id},
+        lb_client=lb_client,
+        get_fn=lb_client.get_load_balancer,
+        kwargs_get={"load_balancer_id": lb_id},
+        module=module,
+    )
+    if result["changed"]:
         get_logger().info("Successfully deleted load balancer %s", lb_id)
     else:
         get_logger().info("Load balancer %s is already deleted", lb_id)
@@ -601,45 +658,49 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_load_balancer")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        load_balancer_id=dict(type='str', required=False, aliases=['id']),
-        backend_sets=dict(type=dict, required=False),
-        certificates=dict(type=dict, required=False),
-        listeners=dict(type=dict, required=False),
-        hostnames=dict(type=dict, required=False),
-        shape_name=dict(
-            type='str', required=False),
-        subnet_ids=dict(
-            type=list, required=False),
-        path_route_sets=dict(type=dict, required=False),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent']),
-        is_private=dict(type='bool', required=False, default=False)
-    ))
+    module_args = oci_utils.get_common_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            load_balancer_id=dict(type="str", required=False, aliases=["id"]),
+            backend_sets=dict(type=dict, required=False),
+            certificates=dict(type=dict, required=False),
+            listeners=dict(type=dict, required=False),
+            hostnames=dict(type=dict, required=False),
+            shape_name=dict(type="str", required=False),
+            subnet_ids=dict(type=list, required=False),
+            path_route_sets=dict(type=dict, required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+            is_private=dict(type="bool", required=False, default=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
-        mutually_exclusive=[
-            ['compartment_id', 'load_balancer_id']
-        ]
+        mutually_exclusive=[["compartment_id", "load_balancer_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_lb(lb_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_load_balancer(lb_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

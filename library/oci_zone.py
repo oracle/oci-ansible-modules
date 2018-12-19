@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_zone
 short_description: Manage a Zone in OCI DNS Service
@@ -74,9 +74,9 @@ options:
         choices: ['present', 'absent']
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a zone
   oci_zone:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
@@ -99,9 +99,9 @@ EXAMPLES = '''
   oci_zone:
     id: ocid1.dns-zone.oc1..xxxxxEXAMPLExxxxx
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 zone:
     description: Information about the zone
     returned: On successful create, delete & update operations on zone
@@ -177,7 +177,7 @@ zone:
                 "version": "1",
                 "zone_type": "PRIMARY"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -185,6 +185,7 @@ from ansible.module_utils.oracle import oci_utils
 try:
     from oci.dns.dns_client import DnsClient
     from oci.dns.models import CreateZoneDetails, UpdateZoneDetails
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -195,38 +196,40 @@ except ImportError:
 # This is different from other resources.
 # XXX: for now only zone_name appears to work, and not OCID. Using an OCID gives an error "Invalid Domain Name".
 def get_zone_name_or_id(module):
-    if module.params['name'] is not None:
-        return module.params['name']
-    if module.params['zone_id'] is not None:
-        return module.params['zone_id']
-    if module.params['id'] is not None:
-        return module.params['id']
+    if module.params["name"] is not None:
+        return module.params["name"]
+    if module.params["zone_id"] is not None:
+        return module.params["zone_id"]
+    if module.params["id"] is not None:
+        return module.params["id"]
     return None
 
 
 def delete_zone(dns_client, module):
-    result = oci_utils.delete_and_wait(resource_type="zone",
-                                       client=dns_client,
-                                       get_fn=dns_client.get_zone,
-                                       kwargs_get={"zone_name_or_id": get_zone_name_or_id(module)},
-                                       delete_fn=dns_client.delete_zone,
-                                       kwargs_delete={"zone_name_or_id": get_zone_name_or_id(module)},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="zone",
+        client=dns_client,
+        get_fn=dns_client.get_zone,
+        kwargs_get={"zone_name_or_id": get_zone_name_or_id(module)},
+        delete_fn=dns_client.delete_zone,
+        kwargs_delete={"zone_name_or_id": get_zone_name_or_id(module)},
+        module=module,
+    )
     return result
 
 
 def update_zone(dns_client, module):
-    result = oci_utils.check_and_update_resource(resource_type="zone",
-                                                 get_fn=dns_client.get_zone,
-                                                 kwargs_get={"zone_name_or_id": get_zone_name_or_id(module)},
-                                                 update_fn=dns_client.update_zone,
-                                                 primitive_params_update=['zone_name_or_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateZoneDetails: "update_zone_details"
-                                                 },
-                                                 module=module,
-                                                 update_attributes=UpdateZoneDetails().attribute_map.keys())
+    result = oci_utils.check_and_update_resource(
+        resource_type="zone",
+        client=dns_client,
+        get_fn=dns_client.get_zone,
+        kwargs_get={"zone_name_or_id": get_zone_name_or_id(module)},
+        update_fn=dns_client.update_zone,
+        primitive_params_update=["zone_name_or_id"],
+        kwargs_non_primitive_update={UpdateZoneDetails: "update_zone_details"},
+        module=module,
+        update_attributes=UpdateZoneDetails().attribute_map.keys(),
+    )
     return result
 
 
@@ -239,68 +242,81 @@ def create_zone(dns_client, module):
         if attribute in module.params:
             setattr(create_zone_details, attribute, module.params[attribute])
 
-    result = oci_utils.create_and_wait(resource_type="zone",
-                                       create_fn=dns_client.create_zone,
-                                       kwargs_create={"create_zone_details": create_zone_details},
-                                       client=dns_client,
-                                       get_fn=dns_client.get_zone,
-                                       get_param="zone_name_or_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="zone",
+        create_fn=dns_client.create_zone,
+        kwargs_create={"create_zone_details": create_zone_details},
+        client=dns_client,
+        get_fn=dns_client.get_zone,
+        get_param="zone_name_or_id",
+        module=module,
+    )
     return result
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        name=dict(type='str', required=False, aliases=['zone_name']),
-        zone_id=dict(type='str', required=False, aliases=['id']),
-        zone_type=dict(type='str', required=False, choices=['PRIMARY', 'SECONDARY']),
-        external_masters=dict(type='list', required=False),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present'])
-    ))
+    module_args = oci_utils.get_common_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            name=dict(type="str", required=False, aliases=["zone_name"]),
+            zone_id=dict(type="str", required=False, aliases=["id"]),
+            zone_type=dict(
+                type="str", required=False, choices=["PRIMARY", "SECONDARY"]
+            ),
+            external_masters=dict(type="list", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['zone_id', 'name'],
+        mutually_exclusive=["zone_id", "name"],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     dns_client = oci_utils.create_service_client(module, DnsClient)
 
-    state = module.params['state']
-    zone_id = module.params['zone_id']
+    state = module.params["state"]
+    zone_id = module.params["zone_id"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_zone(dns_client, module)
 
     else:
         if zone_id is not None:
-            module.params['zone_name_or_id'] = get_zone_name_or_id(module)
+            module.params["zone_name_or_id"] = get_zone_name_or_id(module)
             result = update_zone(dns_client, module)
             # XXX: also handle case where zone name is specified
         else:
-            if module.params['zone_type'] is None:
-                module.fail_json(msg='Zone_type must be specified while creating a Zone')
-            kwargs_list = {'compartment_id': module.params['compartment_id']}
+            if module.params["zone_type"] is None:
+                module.fail_json(
+                    msg="Zone_type must be specified while creating a Zone"
+                )
+            kwargs_list = {"compartment_id": module.params["compartment_id"]}
 
-            result = oci_utils.check_and_create_resource(resource_type='zone',
-                                                         create_fn=create_zone,
-                                                         kwargs_create={
-                                                             'dns_client': dns_client,
-                                                             'module': module},
-                                                         list_fn=dns_client.list_zones,
-                                                         kwargs_list=kwargs_list,
-                                                         module=module,
-                                                         model=CreateZoneDetails(),
-                                                         exclude_attributes=None
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="zone",
+                create_fn=create_zone,
+                kwargs_create={"dns_client": dns_client, "module": module},
+                list_fn=dns_client.list_zones,
+                kwargs_list=kwargs_list,
+                module=module,
+                model=CreateZoneDetails(),
+                exclude_attributes=None,
+            )
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

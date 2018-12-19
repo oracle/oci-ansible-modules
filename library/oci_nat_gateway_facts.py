@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_nat_gateway_facts
 short_description: Retrieve facts of NAT gateways
@@ -40,11 +40,12 @@ options:
         description: A filter to only return resources that match the given lifecycle state.  The state value is
                      case-insensitive. Allowed values are "PROVISIONING", "AVAILABLE", "TERMINATING", "TERMINATED"
         required: false
+        choices: ["PROVISIONING", "AVAILABLE", "TERMINATING", "TERMINATED"]
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get all the NAT gateways in a compartment
   oci_nat_gateway_facts:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
@@ -52,9 +53,9 @@ EXAMPLES = '''
 - name: Get a specific NAT gateway using its OCID
   oci_nat_gateway_facts:
     nat_gateway_id: ocid1.natgateway.oc1.phx.xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 nat_gateways:
     description: List of NAT gateway details
     returned: always
@@ -123,7 +124,7 @@ nat_gateways:
             "time_created": "2017-11-13T20:22:40.626000+00:00",
             "vcn_id": ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
             }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -132,6 +133,7 @@ try:
     from oci.core.virtual_network_client import VirtualNetworkClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -140,46 +142,65 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        nat_gateway_id=dict(type='str', required=False, aliases=['id']),
-        vcn_id=dict(type='str', required=False),
-        lifecycle_state=dict(type='str', required=False)
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            nat_gateway_id=dict(type="str", required=False, aliases=["id"]),
+            vcn_id=dict(type="str", required=False),
+            lifecycle_state=dict(
+                type="str",
+                required=False,
+                choices=["PROVISIONING", "AVAILABLE", "TERMINATING", "TERMINATED"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[
-            ['compartment_id', 'nat_gateway_id']
-        ]
+        required_one_of=[["compartment_id", "nat_gateway_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
-    nat_gateway_id = module.params['nat_gateway_id']
-    compartment_id = module.params['compartment_id']
+    nat_gateway_id = module.params["nat_gateway_id"]
+    compartment_id = module.params["compartment_id"]
     result = []
 
     try:
         if nat_gateway_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(virtual_network_client.get_nat_gateway,
-                                                          nat_gateway_id=nat_gateway_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        virtual_network_client.get_nat_gateway,
+                        nat_gateway_id=nat_gateway_id,
+                    ).data
+                )
+            ]
         else:
-            optional_list_method_params = ['display_name', 'lifecycle_state', 'vcn_id']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            result = to_dict(oci_utils.list_all_resources(virtual_network_client.list_nat_gateways,
-                                                          compartment_id=compartment_id,
-                                                          **optional_kwargs))
+            optional_list_method_params = ["display_name", "lifecycle_state", "vcn_id"]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    virtual_network_client.list_nat_gateways,
+                    compartment_id=compartment_id,
+                    **optional_kwargs
+                )
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(nat_gateways=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

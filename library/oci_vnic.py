@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_vnic
 short_description: Update a VNIC
@@ -52,9 +52,9 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Update the specified VNIC with a new name
   oci_vnic:
     id: "ocid1.vnicattachment.oc1.phx.xxxxxEXAMPLExxxxx....yicxjzgyhf47fq"
@@ -64,9 +64,9 @@ EXAMPLES = '''
   oci_vnic:
     id: "ocid1.vnicattachment.oc1.phx.xxxxxEXAMPLExxxxx....yicxjzgyhf47fq"
     hostname_label: "newhostname"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 vnic:
     description: Details of the VNIC attachment
     returned: On success
@@ -86,7 +86,7 @@ vnic:
         "subnet_id": "ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...smpqpaoa",
         "time_created": "2017-11-26T16:24:39.642000+00:00"
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -120,37 +120,39 @@ def main():
     set_logger(my_logger)
 
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        name=dict(type='str', required=False, aliases=['display_name']),
-        vnic_id=dict(type='str', required=False, aliases=['id']),
-        hostname_label=dict(type='str', required=False),
-        skip_source_dest_check=dict(
-            type='bool', required=False, default=False),
-        state=dict(type='str', required=False,
-                   default='present', choices=['present'])
-    ))
+    module_args.update(
+        dict(
+            name=dict(type="str", required=False, aliases=["display_name"]),
+            vnic_id=dict(type="str", required=False, aliases=["id"]),
+            hostname_label=dict(type="str", required=False),
+            skip_source_dest_check=dict(type="bool", required=False, default=False),
+            state=dict(
+                type="str", required=False, default="present", choices=["present"]
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[('state', 'present', ['id'])],
+        required_if=[("state", "present", ["id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     virtnetwork_client = oci_utils.create_service_client(module, VirtualNetworkClient)
     result = dict(changed=False)
 
-    id = module.params['id']
+    id = module.params["id"]
     debug("VNIC Id provided by user is " + str(id))
 
     try:
         vnic = oci_utils.call_with_backoff(virtnetwork_client.get_vnic, vnic_id=id).data
         if vnic is not None:
-            name = module.params['name']
-            hostname_label = module.params['hostname_label']
-            skip_source_dest_check = module.params['skip_source_dest_check']
+            name = module.params["name"]
+            hostname_label = module.params["hostname_label"]
+            skip_source_dest_check = module.params["skip_source_dest_check"]
             if not oci_utils.are_attrs_equal(vnic, module, vnic.attribute_map.keys()):
                 debug("Need to update VNIC " + str(id))
 
@@ -159,15 +161,17 @@ def main():
                 uvd.hostname_label = hostname_label
                 uvd.display_name = name
 
-                oci_utils.call_with_backoff(virtnetwork_client.update_vnic, vnic_id=id, update_vnic_details=uvd)
-                result['changed'] = True
+                oci_utils.call_with_backoff(
+                    virtnetwork_client.update_vnic, vnic_id=id, update_vnic_details=uvd
+                )
+                result["changed"] = True
         resp = oci_utils.call_with_backoff(virtnetwork_client.get_vnic, vnic_id=id)
-        result['vnic'] = to_dict(resp.data)
+        result["vnic"] = to_dict(resp.data)
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

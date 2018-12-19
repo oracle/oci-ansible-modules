@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_oke_work_request_facts
 short_description: Retrieve facts of work requests in OCI Container Engine for Kubernetes Service
@@ -51,9 +51,9 @@ options:
         type: list
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get all the work requests in a specific compartment
   oci_oke_work_request_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
@@ -72,9 +72,9 @@ EXAMPLES = '''
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
     cluster_id: ocid1.cluster.oc1..xxxxxEXAMPLExxxxx
     resource_type: NODEPOOL
-'''
+"""
 
-RETURN = '''
+RETURN = """
 work_requests:
     description: List of work request details
     returned: always
@@ -130,7 +130,7 @@ work_requests:
             "time_started": "2018-07-26T18:43:26+00:00"
 
     }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -140,6 +140,7 @@ try:
     from oci.container_engine.container_engine_client import ContainerEngineClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -148,48 +149,60 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        work_request_id=dict(type='str', required=False, aliases=['id']),
-        compartment_id=dict(type='str', required=False),
-        cluster_id=dict(type='str', required=False),
-        resource_id=dict(type='str', required=False),
-        resource_type=dict(type='str', required=False, choices=['CLUSTER', 'NODEPOOL']),
-        status=dict(type='list', required=False)
-
-    ))
+    module_args.update(
+        dict(
+            work_request_id=dict(type="str", required=False, aliases=["id"]),
+            compartment_id=dict(type="str", required=False),
+            cluster_id=dict(type="str", required=False),
+            resource_id=dict(type="str", required=False),
+            resource_type=dict(
+                type="str", required=False, choices=["CLUSTER", "NODEPOOL"]
+            ),
+            status=dict(type="list", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[
-            ['compartment_id', 'work_request_id']
-        ]
+        required_one_of=[["compartment_id", "work_request_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    container_engine_client = oci_utils.create_service_client(module, ContainerEngineClient)
+    container_engine_client = oci_utils.create_service_client(
+        module, ContainerEngineClient
+    )
 
-    work_request_id = module.params['work_request_id']
+    work_request_id = module.params["work_request_id"]
 
     try:
         if work_request_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(container_engine_client.get_work_request,
-                                                          work_request_id=work_request_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        container_engine_client.get_work_request,
+                        work_request_id=work_request_id,
+                    ).data
+                )
+            ]
         else:
-            kwargs_list = {"compartment_id": module.params['compartment_id']}
+            kwargs_list = {"compartment_id": module.params["compartment_id"]}
             list_args = ["cluster_id", "resource_id", "resource_type", "status"]
             for arg in list_args:
                 if module.params[arg]:
                     kwargs_list[arg] = module.params[arg]
-            result = to_dict(oci_utils.list_all_resources(container_engine_client.list_work_requests,
-                                                          **kwargs_list))
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    container_engine_client.list_work_requests, **kwargs_list
+                )
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(work_requests=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

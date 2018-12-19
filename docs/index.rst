@@ -11,6 +11,7 @@ Project URL: https://github.com/oracle/oci-ansible-modules
    Technical Overview <technical-overview>
    OCI Dynamic Inventory Script <dynamic-inventory-script>
    FAQs <faqs>
+   Known Issues <known-issues>
 
 .. toctree::
    :maxdepth: 1

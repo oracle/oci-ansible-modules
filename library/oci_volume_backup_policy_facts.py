@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_volume_backup_policy_facts
 short_description: Retrieve information of volume backup policies in OCI Block Volume service
@@ -30,18 +30,18 @@ options:
         aliases: ['id']
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get information of a volume backup policy
   oci_volume_backup_policy_facts:
     id: ocid1.volumebackuppolicy.oc1..xxxxxEXAMPLExxxxx
 
 - name: Get information of all available volume backup policies
   oci_volume_backup_policy_assignment_facts:
-'''
+"""
 
-RETURN = '''
+RETURN = """
 volume_backup_polices:
     description: List of volume backup policies
     returned: on success
@@ -118,7 +118,7 @@ volume_backup_polices:
                 ],
                 "time_created": "2017-10-01T00:00:00+00:00"
     }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -127,6 +127,7 @@ try:
     from oci.core.blockstorage_client import BlockstorageClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -134,32 +135,39 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        policy_id=dict(type='str', required=False, aliases=['id']),
-    ))
+    module_args.update(dict(policy_id=dict(type="str", required=False, aliases=["id"])))
 
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
-    )
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
-    policy_id = module.params['policy_id']
+    policy_id = module.params["policy_id"]
 
     try:
         if policy_id:
-            result = [to_dict(oci_utils.call_with_backoff(block_storage_client.get_volume_backup_policy,
-                                                          policy_id=policy_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        block_storage_client.get_volume_backup_policy,
+                        policy_id=policy_id,
+                    ).data
+                )
+            ]
         else:
-            optional_list_method_params = ['display_name']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            result = to_dict(oci_utils.call_with_backoff(block_storage_client.list_volume_backup_policies,
-                                                         **optional_kwargs).data)
+            optional_list_method_params = ["display_name"]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            result = to_dict(
+                oci_utils.call_with_backoff(
+                    block_storage_client.list_volume_backup_policies, **optional_kwargs
+                ).data
+            )
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -167,5 +175,5 @@ def main():
     module.exit_json(volume_backup_policies=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

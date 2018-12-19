@@ -15,8 +15,7 @@ try:
     from oci.load_balancer.models import LoadBalancerHealth
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_load_balancer_health_facts.py requires `oci` module")
+    raise SkipTest("test_oci_load_balancer_health_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -26,7 +25,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,14 +35,15 @@ class FakeModule(object):
 @pytest.fixture()
 def lb_client(mocker):
     mock_lb_client = mocker.patch(
-        'oci.load_balancer.load_balancer_client.LoadBalancerClient')
+        "oci.load_balancer.load_balancer_client.LoadBalancerClient"
+    )
     return mock_lb_client.return_value
 
 
-
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_load_balancer_health_facts.set_logger(logging)
 
 
@@ -51,29 +51,29 @@ def test_get_load_balancer_health(lb_client):
     module = get_module()
     load_balancer_health = get_backend_set_health()
     lb_client.get_load_balancer_health.return_value = get_response(
-        200, None, load_balancer_health, None)
-    result = oci_load_balancer_health_facts.get_load_balancer_health(
-        lb_client, module)
-    assert result['load_balancer_health']['status'] == 'OK'
+        200, None, load_balancer_health, None
+    )
+    result = oci_load_balancer_health_facts.get_load_balancer_health(lb_client, module)
+    assert result["load_balancer_health"]["status"] == "OK"
 
 
 def test_get_load_balancer_health_service_error(lb_client):
     error_message = "Internal Server Error"
     module = get_module()
     lb_client.get_load_balancer_health.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
-        oci_load_balancer_health_facts.get_load_balancer_health(
-            lb_client, module)
+        oci_load_balancer_health_facts.get_load_balancer_health(lb_client, module)
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
 def get_backend_set_health():
     load_balancer_health = LoadBalancerHealth()
-    load_balancer_health.critical_state_backend_set_names = ['backup1']
+    load_balancer_health.critical_state_backend_set_names = ["backup1"]
     load_balancer_health.total_backend_set_count = 2
-    load_balancer_health.status = 'OK'
+    load_balancer_health.status = "OK"
     return load_balancer_health
 
 
@@ -82,7 +82,9 @@ def get_response(status, header, data, request):
 
 
 def get_module():
-    params = {'backend_set_name': 'backend1',
-              'load_balancer_id': 'ocid1.lodbalancer.xcds'}
+    params = {
+        "backend_set_name": "backend1",
+        "load_balancer_id": "ocid1.lodbalancer.xcds",
+    }
     module = FakeModule(**params)
     return module

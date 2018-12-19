@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_volume_attachment_facts
 short_description: Retrieve facts of volume attachments in OCI
@@ -45,9 +45,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get information of all volume attachments in a compartment
   oci_volume_attachment_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
@@ -65,9 +65,9 @@ EXAMPLES = '''
 - name: Get information of a specific volume attachment
   oci_volume_attachment:
     volume_attachment_id: ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 volume_attachments:
     description: List of information about volume attachments
     returned: On success
@@ -160,12 +160,12 @@ volume_attachments:
             "time_created": "2017-11-23T11:17:50.139000+00:00",
             "volume_id": "ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx"
         }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
-import six
+from ansible.module_utils import six
 
 try:
     from oci.core.compute_client import ComputeClient
@@ -180,39 +180,59 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        instance_id=dict(type='str', required=False),
-        volume_id=dict(type='str', required=False),
-        volume_attachment_id=dict(type='str', required=False, aliases=['id']),
-        availability_domain=dict(type='str', required=False)
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            instance_id=dict(type="str", required=False),
+            volume_id=dict(type="str", required=False),
+            volume_attachment_id=dict(type="str", required=False, aliases=["id"]),
+            availability_domain=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[
-            ['compartment_id', 'volume_attachment_id']
-        ]
+        required_one_of=[["compartment_id", "volume_attachment_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
 
-    volume_attachment_id = module.params['volume_attachment_id']
+    volume_attachment_id = module.params["volume_attachment_id"]
 
     try:
         if volume_attachment_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(compute_client.get_volume_attachment,
-                                                          volume_attachment_id=volume_attachment_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        compute_client.get_volume_attachment,
+                        volume_attachment_id=volume_attachment_id,
+                    ).data
+                )
+            ]
 
         else:
-            key_list = ["compartment_id", "instance_id", "volume_id", "display_name", "availability_domain"]
-            param_map = {k: v for (k, v) in six.iteritems(module.params) if k in key_list and v is not None}
+            key_list = [
+                "compartment_id",
+                "instance_id",
+                "volume_id",
+                "display_name",
+                "availability_domain",
+            ]
+            param_map = {
+                k: v
+                for (k, v) in six.iteritems(module.params)
+                if k in key_list and v is not None
+            }
 
-            result = to_dict(oci_utils.list_all_resources(compute_client.list_volume_attachments, **param_map))
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    compute_client.list_volume_attachments, **param_map
+                )
+            )
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -220,5 +240,5 @@ def main():
     module.exit_json(volume_attachments=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

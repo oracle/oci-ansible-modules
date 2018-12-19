@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['deprecated'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["deprecated"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_swift_password_facts
 short_description: Retrieve details of swift passwords for a specified user
@@ -36,9 +37,9 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get details of all the swift passwords of the specified user
   oci_swift_password_facts:
     user_id: "ocid1.user.oc1..xxxxxEXAMPLExxxxx"
@@ -47,9 +48,9 @@ EXAMPLES = '''
   oci_swift_password_facts:
     user_id: "ocid1.user.oc1..xxxxxEXAMPLExxxxx"
     id: "ocid1.credential.oc1..xxxxxEXAMPLExxxxx"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 swift_passwords:
     description: Information about one or more swift passwords in the specified user
     returned: on success
@@ -104,7 +105,7 @@ swift_passwords:
             }
          ]
        }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -113,6 +114,7 @@ try:
     from oci.identity.identity_client import IdentityClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -120,9 +122,18 @@ except ImportError:
 
 def list_swift_passwords(identity_client, user_id, sw_pass_id, module):
     try:
-        swift_passwords = oci_utils.call_with_backoff(identity_client.list_swift_passwords, user_id=user_id).data
+        swift_passwords = oci_utils.call_with_backoff(
+            identity_client.list_swift_passwords, user_id=user_id
+        ).data
         if sw_pass_id:
-            return next((to_dict([sw_pass]) for sw_pass in swift_passwords if sw_pass.id == sw_pass_id), {})
+            return next(
+                (
+                    to_dict([sw_pass])
+                    for sw_pass in swift_passwords
+                    if sw_pass.id == sw_pass_id
+                ),
+                {},
+            )
         return to_dict(swift_passwords)
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -130,18 +141,19 @@ def list_swift_passwords(identity_client, user_id, sw_pass_id, module):
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        user_id=dict(type='str', required=True),
-        swift_password_id=dict(type='str', required=False, aliases=['id'], no_log=True)
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
+    module_args.update(
+        dict(
+            user_id=dict(type="str", required=True),
+            swift_password_id=dict(
+                type="str", required=False, aliases=["id"], no_log=True
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
@@ -152,5 +164,5 @@ def main():
     module.exit_json(swift_passwords=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

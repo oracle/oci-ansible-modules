@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_node_pool_facts
 short_description: Retrieve facts of node pools in OCI Container Engine for Kubernetes Service
@@ -37,9 +37,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get all the node pools in a compartment
   oci_node_pool_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
@@ -52,9 +52,9 @@ EXAMPLES = '''
 - name: Get a specific node pool
   oci_node_pool_facts:
     id: ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 node_pools:
     description: List of node pool details
     returned: always
@@ -168,7 +168,7 @@ node_pools:
                 "ocid1.subnet..xxxxxEXAMPLExxxxx"
             ]
         }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -178,6 +178,7 @@ try:
     from oci.container_engine.container_engine_client import ContainerEngineClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -186,43 +187,57 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
-    module_args.update(dict(
-        node_pool_id=dict(type='str', required=False, aliases=['id']),
-        cluster_id=dict(type='str', required=False),
-        compartment_id=dict(type='str', required=False)
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False
+    module_args.update(
+        dict(
+            node_pool_id=dict(type="str", required=False, aliases=["id"]),
+            cluster_id=dict(type="str", required=False),
+            compartment_id=dict(type="str", required=False),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    container_engine_client = oci_utils.create_service_client(module, ContainerEngineClient)
+    container_engine_client = oci_utils.create_service_client(
+        module, ContainerEngineClient
+    )
 
-    node_pool_id = module.params['node_pool_id']
+    node_pool_id = module.params["node_pool_id"]
 
     try:
         if node_pool_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(container_engine_client.get_node_pool,
-                                                          node_pool_id=node_pool_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        container_engine_client.get_node_pool, node_pool_id=node_pool_id
+                    ).data
+                )
+            ]
         else:
-            if module.params['cluster_id']:
-                result = to_dict(oci_utils.list_all_resources(container_engine_client.list_node_pools,
-                                                              compartment_id=module.params['compartment_id'],
-                                                              cluster_id=module.params['cluster_id'],
-                                                              name=module.params['name']))
+            if module.params["cluster_id"]:
+                result = to_dict(
+                    oci_utils.list_all_resources(
+                        container_engine_client.list_node_pools,
+                        compartment_id=module.params["compartment_id"],
+                        cluster_id=module.params["cluster_id"],
+                        name=module.params["name"],
+                    )
+                )
             else:
-                result = to_dict(oci_utils.list_all_resources(container_engine_client.list_node_pools,
-                                                              compartment_id=module.params['compartment_id'],
-                                                              name=module.params['name']))
+                result = to_dict(
+                    oci_utils.list_all_resources(
+                        container_engine_client.list_node_pools,
+                        compartment_id=module.params["compartment_id"],
+                        name=module.params["name"],
+                    )
+                )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(node_pools=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

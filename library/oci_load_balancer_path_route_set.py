@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_load_balancer_path_route_set
 short_description: Create, update and delete a path route set of a load balancer.
@@ -67,9 +68,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create a backend set named "ansible_path_route_set" in a load balancer
 - name: Create Load Balancer Path Route Set
@@ -114,9 +115,9 @@ EXAMPLES = '''
     load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_path_route_set"
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     path_route_set:
         description: Attributes of the created/updated Load Balancer Path Route Set.
                     For delete, deleted Load Balancer Path Route Set description will
@@ -154,7 +155,7 @@ RETURN = '''
                                   }
                                 ]
                 }
-'''
+"""
 from ansible.module_utils.basic import AnsibleModule
 
 from ansible.module_utils.oracle import oci_utils, oci_lb_utils
@@ -164,7 +165,13 @@ try:
     from oci.load_balancer.load_balancer_client import LoadBalancerClient
     from oci.exceptions import ServiceError, ClientError
     from oci.util import to_dict
-    from oci.load_balancer.models import CreatePathRouteSetDetails, UpdatePathRouteSetDetails, PathRoute, PathMatchType
+    from oci.load_balancer.models import (
+        CreatePathRouteSetDetails,
+        UpdatePathRouteSetDetails,
+        PathRoute,
+        PathMatchType,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -174,29 +181,34 @@ logger = None
 
 def create_or_update_path_route_set(lb_client, module):
     path_route_set = None
-    result = dict(
-        changed=False,
-        path_route_set=''
-    )
-    load_balancer_id = module.params.get('load_balancer_id')
-    name = module.params.get('name')
+    result = dict(changed=False, path_route_set="")
+    load_balancer_id = module.params.get("load_balancer_id")
+    name = module.params.get("name")
     path_route_set = oci_utils.get_existing_resource(
-        lb_client.get_path_route_set, module, load_balancer_id=load_balancer_id, path_route_set_name=name)
+        lb_client.get_path_route_set,
+        module,
+        load_balancer_id=load_balancer_id,
+        path_route_set_name=name,
+    )
     try:
         if path_route_set:
-            result = update_path_route_set(lb_client, module, load_balancer_id, path_route_set, name)
+            result = update_path_route_set(
+                lb_client, module, load_balancer_id, path_route_set, name
+            )
         else:
-            result = oci_utils.check_and_create_resource(resource_type='path_route_set',
-                                                         create_fn=create_path_route_set,
-                                                         kwargs_create={'lb_client': lb_client,
-                                                                        'module': module},
-                                                         list_fn=lb_client.list_path_route_sets,
-                                                         kwargs_list={
-                                                             'load_balancer_id': module.params.get('load_balancer_id')},
-                                                         module=module,
-                                                         model=CreatePathRouteSetDetails())
+            result = oci_utils.check_and_create_resource(
+                resource_type="path_route_set",
+                create_fn=create_path_route_set,
+                kwargs_create={"lb_client": lb_client, "module": module},
+                list_fn=lb_client.list_path_route_sets,
+                kwargs_list={"load_balancer_id": module.params.get("load_balancer_id")},
+                module=module,
+                model=CreatePathRouteSetDetails(),
+            )
     except ServiceError as ex:
-        get_logger().error("Unable to create/update path route set due to: %s", ex.message)
+        get_logger().error(
+            "Unable to create/update path route set due to: %s", ex.message
+        )
         module.fail_json(msg=ex.message)
     except ClientError as ex:
         get_logger().error("Unable to create/update path route set due to: %s", str(ex))
@@ -206,28 +218,33 @@ def create_or_update_path_route_set(lb_client, module):
 
 
 def create_path_route_set(lb_client, module):
-    path_route_set_input_details = dict({'path_routes': module.params.get(
-        'path_routes', None)})
-    name = module.params.get('name')
-    lb_id = module.params.get('load_balancer_id')
+    path_route_set_input_details = dict(
+        {"path_routes": module.params.get("path_routes", None)}
+    )
+    name = module.params.get("name")
+    lb_id = module.params.get("load_balancer_id")
     get_logger().info("Creating path route set %s in the load balancer %s", name, lb_id)
     path_route_set_details = oci_lb_utils.create_path_route_sets(
-        dict({name: path_route_set_input_details})).get(name)
+        dict({name: path_route_set_input_details})
+    ).get(name)
     create_path_route_set_details = CreatePathRouteSetDetails()
     create_path_route_set_details.name = name
     create_path_route_set_details.path_routes = path_route_set_details.path_routes
-    result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="path_route_set",
-                                                                 function=lb_client.create_path_route_set,
-                                                                 kwargs_function={
-                                                                     'create_path_route_set_details': create_path_route_set_details,
-                                                                     'load_balancer_id': lb_id},
-                                                                 lb_client=lb_client,
-                                                                 get_fn=lb_client.get_path_route_set,
-                                                                 kwargs_get={'load_balancer_id': lb_id,
-                                                                             'path_route_set_name': name},
-                                                                 module=module
-                                                                 )
-    get_logger().info("Successfullt created path route set %s in the load balancer %s", name, lb_id)
+    result = oci_lb_utils.create_or_update_lb_resources_and_wait(
+        resource_type="path_route_set",
+        function=lb_client.create_path_route_set,
+        kwargs_function={
+            "create_path_route_set_details": create_path_route_set_details,
+            "load_balancer_id": lb_id,
+        },
+        lb_client=lb_client,
+        get_fn=lb_client.get_path_route_set,
+        kwargs_get={"load_balancer_id": lb_id, "path_route_set_name": name},
+        module=module,
+    )
+    get_logger().info(
+        "Successfullt created path route set %s in the load balancer %s", name, lb_id
+    )
 
     return result
 
@@ -235,56 +252,71 @@ def create_path_route_set(lb_client, module):
 def update_path_route_set(lb_client, module, lb_id, path_route_set, name):
     result = dict(path_route_set=to_dict(path_route_set), changed=False)
     update_path_route_set_details = UpdatePathRouteSetDetails()
-    purge_path_routes = module.params.get('purge_path_routes')
-    input_path_routes = oci_lb_utils.create_path_routes(module.params.get('path_routes', None))
+    purge_path_routes = module.params.get("purge_path_routes")
+    input_path_routes = oci_lb_utils.create_path_routes(
+        module.params.get("path_routes", None)
+    )
     existing_path_routes = oci_utils.get_hashed_object_list(
-        PathRoute, path_route_set.path_routes, attributes_class_type=[PathMatchType])
+        PathRoute, path_route_set.path_routes, attributes_class_type=[PathMatchType]
+    )
     get_logger().info("Updating path route set %s in the load balancer %s", name, lb_id)
     changed = False
     if input_path_routes is not None:
         path_routes, changed = oci_utils.check_and_return_component_list_difference(
-            input_path_routes, existing_path_routes, purge_path_routes)
+            input_path_routes, existing_path_routes, purge_path_routes
+        )
     if changed:
         update_path_route_set_details.path_routes = path_routes
     else:
         update_path_route_set_details.path_routes = existing_path_routes
 
     if changed:
-        result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="path_route_set",
-                                                                     function=lb_client.update_path_route_set,
-                                                                     kwargs_function={
-                                                                         'update_path_route_set_details': update_path_route_set_details,
-                                                                         'load_balancer_id': lb_id,
-                                                                         'path_route_set_name': name},
-                                                                     lb_client=lb_client,
-                                                                     get_fn=lb_client.get_path_route_set,
-                                                                     kwargs_get={'load_balancer_id': lb_id,
-                                                                                 'path_route_set_name': name},
-                                                                     module=module
-                                                                     )
-        get_logger().info("Successfully updated path route set %s in the load balancer %s", name, lb_id)
+        result = oci_lb_utils.create_or_update_lb_resources_and_wait(
+            resource_type="path_route_set",
+            function=lb_client.update_path_route_set,
+            kwargs_function={
+                "update_path_route_set_details": update_path_route_set_details,
+                "load_balancer_id": lb_id,
+                "path_route_set_name": name,
+            },
+            lb_client=lb_client,
+            get_fn=lb_client.get_path_route_set,
+            kwargs_get={"load_balancer_id": lb_id, "path_route_set_name": name},
+            module=module,
+        )
+        get_logger().info(
+            "Successfully updated path route set %s in the load balancer %s",
+            name,
+            lb_id,
+        )
     else:
-        get_logger().info("No update to the path route set %s in the load balancer %s as no attribute changed", name, lb_id)
+        get_logger().info(
+            "No update to the path route set %s in the load balancer %s as no attribute changed",
+            name,
+            lb_id,
+        )
 
     return result
 
 
 def delete_path_route_set(lb_client, module):
-    lb_id = module.params.get('load_balancer_id')
-    name = module.params.get('name')
-    get_logger().info("Deleting path route set %s from the load balancer %s", name, lb_id)
-    result = oci_lb_utils.delete_lb_resources_and_wait(resource_type="path_route_set",
-                                                       function=lb_client.delete_path_route_set,
-                                                       kwargs_function={
-                                                           'path_route_set_name': name,
-                                                           'load_balancer_id': lb_id},
-                                                       lb_client=lb_client,
-                                                       get_fn=lb_client.get_path_route_set,
-                                                       kwargs_get={'load_balancer_id': lb_id,
-                                                                   'path_route_set_name': name},
-                                                       module=module
-                                                       )
-    get_logger().info("Successfully deleted path route set %s from the load balancer %s", name, lb_id)
+    lb_id = module.params.get("load_balancer_id")
+    name = module.params.get("name")
+    get_logger().info(
+        "Deleting path route set %s from the load balancer %s", name, lb_id
+    )
+    result = oci_lb_utils.delete_lb_resources_and_wait(
+        resource_type="path_route_set",
+        function=lb_client.delete_path_route_set,
+        kwargs_function={"path_route_set_name": name, "load_balancer_id": lb_id},
+        lb_client=lb_client,
+        get_fn=lb_client.get_path_route_set,
+        kwargs_get={"load_balancer_id": lb_id, "path_route_set_name": name},
+        module=module,
+    )
+    get_logger().info(
+        "Successfully deleted path route set %s from the load balancer %s", name, lb_id
+    )
 
     return result
 
@@ -302,35 +334,38 @@ def main():
     logger = oci_utils.get_logger("oci_load_balancer_path_route_set")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        name=dict(type='str', required=True),
-        load_balancer_id=dict(type='str', required=True, aliases=['id']),
-        path_routes=dict(type='list', required=False),
-        purge_path_routes=dict(type='bool', required=False, default=True),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
+    module_args.update(
+        dict(
+            name=dict(type="str", required=True),
+            load_balancer_id=dict(type="str", required=True, aliases=["id"]),
+            path_routes=dict(type="list", required=False),
+            purge_path_routes=dict(type="bool", required=False, default=True),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
-        argument_spec=module_args,
-        required_if=[
-            ['state', 'present', ['path_routes']]
-        ],
-
+        argument_spec=module_args, required_if=[["state", "present", ["path_routes"]]]
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_path_route_set(lb_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_path_route_set(lb_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

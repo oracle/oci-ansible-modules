@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_volume
 short_description: Manage volumes in OCI Block Volume service
@@ -98,9 +98,9 @@ options:
                 default: 1800
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a volume
   oci_volume:
     availability_domain: IwGV:US-ASHBURN-AD-2
@@ -137,9 +137,9 @@ EXAMPLES = '''
   oci_volume:
     volume_id: ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
 volume:
     description: Information about the volume
     returned: On successful create and update operation
@@ -318,7 +318,7 @@ volume:
                         "volume_id": "ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx"
             }
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -342,14 +342,15 @@ except ImportError:
 
 
 def handle_delete_volume(block_storage_client, module):
-    return oci_utils.delete_and_wait(resource_type="volume",
-                                     client=block_storage_client,
-                                     get_fn=block_storage_client.get_volume,
-                                     kwargs_get={"volume_id": module.params["volume_id"]},
-                                     delete_fn=block_storage_client.delete_volume,
-                                     kwargs_delete={"volume_id": module.params["volume_id"]},
-                                     module=module
-                                     )
+    return oci_utils.delete_and_wait(
+        resource_type="volume",
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume,
+        kwargs_get={"volume_id": module.params["volume_id"]},
+        delete_fn=block_storage_client.delete_volume,
+        kwargs_delete={"volume_id": module.params["volume_id"]},
+        module=module,
+    )
 
 
 def handle_create_volume(block_storage_client, module):
@@ -359,34 +360,37 @@ def handle_create_volume(block_storage_client, module):
         if attribute in module.params:
             setattr(create_volume_details, attribute, module.params[attribute])
 
-    if module.params['source_details']:
-        source_details = module.params['source_details']
+    if module.params["source_details"]:
+        source_details = module.params["source_details"]
         volume_source = None
-        if 'type' in source_details:
-            if source_details['type'] == "volume":
+        if "type" in source_details:
+            if source_details["type"] == "volume":
                 volume_source = VolumeSourceFromVolumeDetails()
                 volume_source.id = source_details.get("id")
 
-            elif source_details['type'] == "volumeBackup":
+            elif source_details["type"] == "volumeBackup":
                 volume_source = VolumeSourceFromVolumeBackupDetails()
                 volume_source.id = source_details.get("id")
 
             else:
-                module.fail_json(msg="value of state must be one of: volume, volumeBackup")
+                module.fail_json(
+                    msg="value of state must be one of: volume, volumeBackup"
+                )
 
         else:
             module.fail_json(msg="missing required arguments: type")
 
         create_volume_details.source_details = volume_source
 
-    result = oci_utils.create_and_wait(resource_type="volume",
-                                       create_fn=block_storage_client.create_volume,
-                                       kwargs_create={"create_volume_details": create_volume_details},
-                                       client=block_storage_client,
-                                       get_fn=block_storage_client.get_volume,
-                                       get_param="volume_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="volume",
+        create_fn=block_storage_client.create_volume,
+        kwargs_create={"create_volume_details": create_volume_details},
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume,
+        get_param="volume_id",
+        module=module,
+    )
 
     wait_for_copy = False
     copy_timeout = 1800
@@ -400,13 +404,20 @@ def handle_create_volume(block_storage_client, module):
                 copy_timeout = source_details[INITIALIZATION_TIMEOUT]
 
     try:
-        response = oci_utils.call_with_backoff(block_storage_client.get_volume,
-                                               volume_id=result['volume']['id'])
+        response = oci_utils.call_with_backoff(
+            block_storage_client.get_volume, volume_id=result["volume"]["id"]
+        )
 
         if wait_for_copy:
-            result['volume'] = to_dict(
-                oci.wait_until(block_storage_client, response, 'is_hydrated', True,
-                               max_wait_seconds=copy_timeout).data)
+            result["volume"] = to_dict(
+                oci.wait_until(
+                    block_storage_client,
+                    response,
+                    "is_hydrated",
+                    True,
+                    max_wait_seconds=copy_timeout,
+                ).data
+            )
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -417,69 +428,81 @@ def handle_create_volume(block_storage_client, module):
 
 
 def handle_update_volume(block_storage_client, module):
-    return oci_utils.check_and_update_resource(resource_type="volume",
-                                               get_fn=block_storage_client.get_volume,
-                                               kwargs_get={"volume_id": module.params["volume_id"]},
-                                               update_fn=block_storage_client.update_volume,
-                                               primitive_params_update=['volume_id'],
-                                               kwargs_non_primitive_update={
-                                                   UpdateVolumeDetails: "update_volume_details"},
-                                               module=module,
-                                               update_attributes=UpdateVolumeDetails().attribute_map.keys()
-                                               )
+    return oci_utils.check_and_update_resource(
+        resource_type="volume",
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume,
+        kwargs_get={"volume_id": module.params["volume_id"]},
+        update_fn=block_storage_client.update_volume,
+        primitive_params_update=["volume_id"],
+        kwargs_non_primitive_update={UpdateVolumeDetails: "update_volume_details"},
+        module=module,
+        update_attributes=UpdateVolumeDetails().attribute_map.keys(),
+    )
 
 
 @check_mode
 def add_attached_instance_info(module, result, lookup_attached_instance):
     compute_client = oci_utils.create_service_client(module, ComputeClient)
 
-    if 'volume' in result:
+    if "volume" in result:
         try:
-            result['volume']['attached_instance_information'] = oci_utils.get_attached_instance_info(
+            result["volume"][
+                "attached_instance_information"
+            ] = oci_utils.get_attached_instance_info(
                 module,
                 lookup_attached_instance,
                 list_attachments_fn=compute_client.list_volume_attachments,
-                list_attachments_args={"volume_id": result['volume']['id'],
-                                       "compartment_id": result['volume']['compartment_id']}
+                list_attachments_args={
+                    "volume_id": result["volume"]["id"],
+                    "compartment_id": result["volume"]["compartment_id"],
+                },
             )
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        availability_domain=dict(type='str', required=False),
-        backup_policy_id=dict(type='str', required=False),
-        compartment_id=dict(type='str', required=False),
-        volume_id=dict(type='str', required=False, aliases=['id']),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        size_in_gbs=dict(type='int', required=False, default=50),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        source_details=dict(type='dict', required=False),
-        lookup_all_attached_instances=dict(type='bool', required=False, default='no')
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            availability_domain=dict(type="str", required=False),
+            backup_policy_id=dict(type="str", required=False),
+            compartment_id=dict(type="str", required=False),
+            volume_id=dict(type="str", required=False, aliases=["id"]),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            size_in_gbs=dict(type="int", required=False, default=50),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            source_details=dict(type="dict", required=False),
+            lookup_all_attached_instances=dict(
+                type="bool", required=False, default="no"
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_together=[
-            ['availability_domain', 'compartment_id']
-        ],
-        required_if=[
-            ['state', 'absent', ['volume_id']]
-        ]
+        required_together=[["availability_domain", "compartment_id"]],
+        required_if=[["state", "absent", ["volume_id"]]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
-    state = module.params['state']
-    volume_id = module.params['volume_id']
+    state = module.params["state"]
+    volume_id = module.params["volume_id"]
 
-    if state == 'absent':
+    if state == "absent":
         result = handle_delete_volume(block_storage_client, module)
 
     else:
@@ -490,27 +513,31 @@ def main():
             # (https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/api/index.html#id194) says
             #  volumes are by default 1 TB but volumes get created with 50 GB size.
             exclude_attributes = {"size_in_mbs": True, "display_name": True}
-            default_attribute_values = {"source_details": None,
-                                        "size_in_gbs": 50}
-            result = oci_utils.check_and_create_resource(resource_type='volume',
-                                                         create_fn=handle_create_volume,
-                                                         kwargs_create={'block_storage_client': block_storage_client,
-                                                                        'module': module},
-                                                         list_fn=block_storage_client.list_volumes,
-                                                         kwargs_list={'compartment_id': module.params['compartment_id']
-                                                                      },
-                                                         module=module,
-                                                         model=CreateVolumeDetails(),
-                                                         exclude_attributes=exclude_attributes,
-                                                         default_attribute_values=default_attribute_values)
+            default_attribute_values = {"source_details": None, "size_in_gbs": 50}
+            result = oci_utils.check_and_create_resource(
+                resource_type="volume",
+                create_fn=handle_create_volume,
+                kwargs_create={
+                    "block_storage_client": block_storage_client,
+                    "module": module,
+                },
+                list_fn=block_storage_client.list_volumes,
+                kwargs_list={"compartment_id": module.params["compartment_id"]},
+                module=module,
+                model=CreateVolumeDetails(),
+                exclude_attributes=exclude_attributes,
+                default_attribute_values=default_attribute_values,
+            )
 
         else:
             result = handle_update_volume(block_storage_client, module)
 
-    add_attached_instance_info(module, result, module.params['lookup_all_attached_instances'])
+    add_attached_instance_info(
+        module, result, module.params["lookup_all_attached_instances"]
+    )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

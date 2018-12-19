@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_database
 short_description: Restore or Update a Database in OCI Database Cloud Service.
@@ -56,9 +57,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Update Database Backup Configuration
 - name: Enable automatic Database Backups for a Database
@@ -74,9 +75,9 @@ EXAMPLES = '''
       latest: True
       wait: False
       state: 'restore'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     database:
         description: Attributes of the Database.
         returned: success
@@ -187,15 +188,20 @@ RETURN = '''
                    "pdb_name":null,
                    "time_created":"2018-02-22T08:42:26.060000+00:00"
                 }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils, oci_db_utils
 
 try:
     from oci.database.database_client import DatabaseClient
-    from oci.database.models import RestoreDatabaseDetails, UpdateDatabaseDetails, DbBackupConfig
+    from oci.database.models import (
+        RestoreDatabaseDetails,
+        UpdateDatabaseDetails,
+        DbBackupConfig,
+    )
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -205,52 +211,59 @@ logger = None
 
 
 def restore_database(db_client, module):
-    result = dict(
-        changed=True,
-        database=''
-    )
-    database_id = module.params.get('database_id')
+    result = dict(changed=True, database="")
+    database_id = module.params.get("database_id")
     restore_database_details = RestoreDatabaseDetails()
     for attribute in restore_database_details.attribute_map:
-        restore_database_details.__setattr__(
-            attribute, module.params.get(attribute))
+        restore_database_details.__setattr__(attribute, module.params.get(attribute))
 
-    result = oci_db_utils.execute_function_and_wait(resource_type='database',
-                                                    function=db_client.restore_database,
-                                                    kwargs_function={
-                                                        'database_id': database_id,
-                                                        'restore_database_details': restore_database_details},
-                                                    client=db_client,
-                                                    get_fn=db_client.get_database,
-                                                    get_param='database_id',
-                                                    module=module
-                                                    )
+    result = oci_db_utils.execute_function_and_wait(
+        resource_type="database",
+        function=db_client.restore_database,
+        kwargs_function={
+            "database_id": database_id,
+            "restore_database_details": restore_database_details,
+        },
+        client=db_client,
+        get_fn=db_client.get_database,
+        get_param="database_id",
+        module=module,
+    )
     return result
 
 
 def update_database(db_client, module):
-    database_id = module.params.get('database_id')
+    database_id = module.params.get("database_id")
     input_auto_backup_enabled = False
     existing_database = oci_utils.get_existing_resource(
-        db_client.get_database, module, database_id=module.params.get('database_id'))
+        db_client.get_database, module, database_id=module.params.get("database_id")
+    )
     if existing_database is None:
-        module.fail_json(msg='No Database with id ' +
-                         database_id + 'is found for update.')
+        module.fail_json(
+            msg="No Database with id " + database_id + "is found for update."
+        )
     result = dict(database=to_dict(existing_database), changed=False)
     update_database_details = UpdateDatabaseDetails()
     changed = False
     db_backup_config_changed = False
-    attributes_to_compare = ['freeform_tags', 'defined_tags']
+    attributes_to_compare = ["freeform_tags", "defined_tags"]
     for attribute in attributes_to_compare:
-        changed = oci_utils.check_and_update_attributes(update_database_details, attribute,
-                                                        module.params.get(attribute),
-                                                        getattr(existing_database, attribute),
-                                                        changed)
-    input_db_backup_config = module.params.get('db_backup_config')
+        changed = oci_utils.check_and_update_attributes(
+            update_database_details,
+            attribute,
+            module.params.get(attribute),
+            getattr(existing_database, attribute),
+            changed,
+        )
+    input_db_backup_config = module.params.get("db_backup_config")
     if input_db_backup_config is not None:
         input_auto_backup_enabled = input_db_backup_config.get(
-            'auto_backup_enabled', False)
-    if existing_database.db_backup_config.auto_backup_enabled != input_auto_backup_enabled:
+            "auto_backup_enabled", False
+        )
+    if (
+        existing_database.db_backup_config.auto_backup_enabled
+        != input_auto_backup_enabled
+    ):
         db_backup_config = DbBackupConfig()
         db_backup_config.auto_backup_enabled = input_auto_backup_enabled
         update_database_details.db_backup_config = db_backup_config
@@ -259,16 +272,18 @@ def update_database(db_client, module):
         db_backup_config = DbBackupConfig()
         db_backup_config.auto_backup_enabled = input_auto_backup_enabled
         update_database_details.db_backup_config = db_backup_config
-        result = oci_utils.update_and_wait(resource_type='database',
-                                           update_fn=db_client.update_database,
-                                           kwargs_update={
-                                               'database_id': database_id,
-                                               'update_database_details': update_database_details},
-                                           client=db_client,
-                                           get_fn=db_client.get_database,
-                                           get_param='database_id',
-                                           module=module
-                                           )
+        result = oci_utils.update_and_wait(
+            resource_type="database",
+            update_fn=db_client.update_database,
+            kwargs_update={
+                "database_id": database_id,
+                "update_database_details": update_database_details,
+            },
+            client=db_client,
+            get_fn=db_client.get_database,
+            get_param="database_id",
+            module=module,
+        )
     return result
 
 
@@ -285,31 +300,36 @@ def main():
     logger = oci_utils.get_logger("oci_database")
     set_logger(logger)
     module_args = oci_utils.get_taggable_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        database_id=dict(type='str', required=True, aliases=['id']),
-        database_scn=dict(type='str', required=False),
-        latest=dict(type=bool, required=False),
-        timestamp=dict(type='str', required=False),
-        db_backup_config=dict(type=dict, required=False),
-        state=dict(type='str', required=False, default='update', choices=['restore', 'update'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args.update(
+        dict(
+            database_id=dict(type="str", required=True, aliases=["id"]),
+            database_scn=dict(type="str", required=False),
+            latest=dict(type=bool, required=False),
+            timestamp=dict(type="str", required=False),
+            db_backup_config=dict(type=dict, required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="update",
+                choices=["restore", "update"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
-    state = module.params['state']
-    if state == 'restore':
+    state = module.params["state"]
+    if state == "restore":
         result = restore_database(db_client, module)
-    elif state == 'update':
+    elif state == "update":
         result = update_database(db_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

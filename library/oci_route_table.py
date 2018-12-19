@@ -6,16 +6,17 @@
 # See LICENSE.TXT for details.
 
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_route_table
 short_description: Create,update and delete OCI Route Table
@@ -99,9 +100,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create/update Route Table
 - name: Create a Route Table with a route rule
@@ -146,9 +147,9 @@ EXAMPLES = '''
   oci_route_table:
     rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     route_table:
         description: Attributes of the created/updated Route Table.
                     For delete, deleted Route Table description will
@@ -219,7 +220,7 @@ RETURN = '''
                     "vcn_id":"ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx"
                 }
 
-'''
+"""
 
 
 from ansible.module_utils.basic import AnsibleModule
@@ -230,37 +231,46 @@ try:
     from oci.core import VirtualNetworkClient
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded, ClientError
     from oci.util import to_dict
-    from oci.core.models import CreateRouteTableDetails, RouteRule, \
-        UpdateRouteTableDetails
+    from oci.core.models import (
+        CreateRouteTableDetails,
+        RouteRule,
+        UpdateRouteTableDetails,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def create_or_update_route_table(virtual_network_client, module):
-    result = dict(
-        changed=False,
-        route_table=''
-    )
-    rt_id = module.params.get('rt_id')
-    exclude_attributes = {'display_name': True}
+    result = dict(changed=False, route_table="")
+    rt_id = module.params.get("rt_id")
+    exclude_attributes = {"display_name": True}
     try:
         if rt_id:
             existing_route_table = oci_utils.get_existing_resource(
-                virtual_network_client.get_route_table, module, rt_id=rt_id)
+                virtual_network_client.get_route_table, module, rt_id=rt_id
+            )
             result = update_route_table(
-                virtual_network_client, existing_route_table, module)
+                virtual_network_client, existing_route_table, module
+            )
         else:
-            result = oci_utils.check_and_create_resource(resource_type='route_table',
-                                                         create_fn=create_route_table,
-                                                         kwargs_create={'virtual_network_client': virtual_network_client,
-                                                                        'module': module},
-                                                         list_fn=virtual_network_client.list_route_tables,
-                                                         kwargs_list={'compartment_id': module.params.get('compartment_id'),
-                                                                       'vcn_id': module.params.get('vcn_id')},
-                                                         module=module,
-                                                         exclude_attributes=exclude_attributes,
-                                                         model=CreateRouteTableDetails())
+            result = oci_utils.check_and_create_resource(
+                resource_type="route_table",
+                create_fn=create_route_table,
+                kwargs_create={
+                    "virtual_network_client": virtual_network_client,
+                    "module": module,
+                },
+                list_fn=virtual_network_client.list_route_tables,
+                kwargs_list={
+                    "compartment_id": module.params.get("compartment_id"),
+                    "vcn_id": module.params.get("vcn_id"),
+                },
+                module=module,
+                exclude_attributes=exclude_attributes,
+                model=CreateRouteTableDetails(),
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as ex:
@@ -271,22 +281,22 @@ def create_or_update_route_table(virtual_network_client, module):
 
 def create_route_table(virtual_network_client, module):
     route_rules = []
-    input_route_rules = module.params['route_rules']
+    input_route_rules = module.params["route_rules"]
     if input_route_rules:
         route_rules = get_route_rules(input_route_rules)
     create_route_table_details = CreateRouteTableDetails()
     for attribute in create_route_table_details.attribute_map:
         create_route_table_details.__setattr__(attribute, module.params.get(attribute))
     create_route_table_details.route_rules = route_rules
-    result = oci_utils.create_and_wait(resource_type='route_table',
-                                       create_fn=virtual_network_client.create_route_table,
-                                       kwargs_create={
-                                           'create_route_table_details': create_route_table_details},
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_route_table,
-                                       get_param='rt_id',
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="route_table",
+        create_fn=virtual_network_client.create_route_table,
+        kwargs_create={"create_route_table_details": create_route_table_details},
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_route_table,
+        get_param="rt_id",
+        module=module,
+    )
     return result
 
 
@@ -301,14 +311,19 @@ def get_route_rules(input_route_rules):
         # Right now, the value of destination gets updated in cidr_block and vice-versa
         # after route rule gets created. This causes problem in idempotency. So performing the same
         # while creating input route table.
-        if route_rule_dict.get('destination') is None:
-            route_rule.__setattr__('destination', route_rule_dict.get('cidr_block'))
-        elif (route_rule_dict.get('cidr_block') is None and
-              route_rule_dict.get('destination_type') != RouteRule.DESTINATION_TYPE_SERVICE_CIDR_BLOCK):
-            route_rule.__setattr__('cidr_block', route_rule_dict.get('destination'))
+        if route_rule_dict.get("destination") is None:
+            route_rule.__setattr__("destination", route_rule_dict.get("cidr_block"))
+        elif (
+            route_rule_dict.get("cidr_block") is None
+            and route_rule_dict.get("destination_type")
+            != RouteRule.DESTINATION_TYPE_SERVICE_CIDR_BLOCK
+        ):
+            route_rule.__setattr__("cidr_block", route_rule_dict.get("destination"))
 
-        if route_rule_dict.get('destination_type') is None:
-            route_rule.__setattr__('destination_type', RouteRule.DESTINATION_TYPE_CIDR_BLOCK)
+        if route_rule_dict.get("destination_type") is None:
+            route_rule.__setattr__(
+                "destination_type", RouteRule.DESTINATION_TYPE_CIDR_BLOCK
+            )
 
         route_rules.append(route_rule)
     return route_rules
@@ -316,27 +331,37 @@ def get_route_rules(input_route_rules):
 
 def update_route_table(virtual_network_client, existing_route_table, module):
     if existing_route_table is None:
-        raise ClientError(Exception("No Route Table with id " +
-                                    module.params.get('rt_id') + " is found for update"))
+        raise ClientError(
+            Exception(
+                "No Route Table with id "
+                + module.params.get("rt_id")
+                + " is found for update"
+            )
+        )
     result = dict(route_table=to_dict(existing_route_table), changed=False)
-    input_route_rules = module.params.get('route_rules')
-    purge_route_rules = module.params['purge_route_rules']
+    input_route_rules = module.params.get("route_rules")
+    purge_route_rules = module.params["purge_route_rules"]
     name_tag_changed = False
     route_rules_changed = False
     existing_route_rules = existing_route_table.route_rules
     update_route_table_details = UpdateRouteTableDetails()
-    attributes_to_compare = ['display_name', 'freeform_tags', 'defined_tags']
+    attributes_to_compare = ["display_name", "freeform_tags", "defined_tags"]
     for attribute in attributes_to_compare:
-        name_tag_changed = oci_utils.check_and_update_attributes(update_route_table_details, attribute,
-                                                                 module.params.get(attribute),
-                                                                 getattr(existing_route_table, attribute),
-                                                                 name_tag_changed)
+        name_tag_changed = oci_utils.check_and_update_attributes(
+            update_route_table_details,
+            attribute,
+            module.params.get(attribute),
+            getattr(existing_route_table, attribute),
+            name_tag_changed,
+        )
     if input_route_rules is not None:
         if input_route_rules:
             route_rules_object_list = get_route_rules(input_route_rules)
             route_rules, route_rules_changed = oci_utils.get_component_list_difference(
                 get_hashed_route_rules(route_rules_object_list),
-                get_hashed_route_rules(existing_route_rules), purge_route_rules)
+                get_hashed_route_rules(existing_route_rules),
+                purge_route_rules,
+            )
         else:
             route_rules = []
             route_rules_changed = True
@@ -346,71 +371,83 @@ def update_route_table(virtual_network_client, existing_route_table, module):
         update_route_table_details.route_rules = existing_route_rules
 
     if name_tag_changed or route_rules_changed:
-        result = oci_utils.update_and_wait(resource_type='route_table',
-                                           update_fn=virtual_network_client.update_route_table,
-                                           kwargs_update={
-                                               'rt_id': existing_route_table.id,
-                                               'update_route_table_details': update_route_table_details},
-                                           client=virtual_network_client,
-                                           get_fn=virtual_network_client.get_route_table,
-                                           get_param='rt_id',
-                                           module=module
-                                           )
+        result = oci_utils.update_and_wait(
+            resource_type="route_table",
+            update_fn=virtual_network_client.update_route_table,
+            kwargs_update={
+                "rt_id": existing_route_table.id,
+                "update_route_table_details": update_route_table_details,
+            },
+            client=virtual_network_client,
+            get_fn=virtual_network_client.get_route_table,
+            get_param="rt_id",
+            module=module,
+        )
 
     return result
 
 
 def get_hashed_route_rules(route_rules):
     route_rules_reprs = []
-    supported_route_rule_attributes = ['cidr_block', 'destination', 'destination_type', 'network_entity_id']
+    supported_route_rule_attributes = [
+        "cidr_block",
+        "destination",
+        "destination_type",
+        "network_entity_id",
+    ]
     for route_rule in route_rules:
         hashed_route_rule = oci_utils.get_hashed_object(
-            RouteRule, route_rule, supported_attributes=supported_route_rule_attributes)
+            RouteRule, route_rule, supported_attributes=supported_route_rule_attributes
+        )
         route_rules_reprs.append(hashed_route_rule)
     return route_rules_reprs
 
 
 def delete_route_table(virtual_network_client, module):
-    return oci_utils.delete_and_wait(resource_type='route_table',
-                                     client=virtual_network_client,
-                                     get_fn=virtual_network_client.get_route_table,
-                                     kwargs_get={
-                                         'rt_id': module.params['rt_id']},
-                                     delete_fn=virtual_network_client.delete_route_table,
-                                     kwargs_delete={
-                                         'rt_id': module.params['rt_id']},
-                                     module=module
-                                     )
+    return oci_utils.delete_and_wait(
+        resource_type="route_table",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_route_table,
+        kwargs_get={"rt_id": module.params["rt_id"]},
+        delete_fn=virtual_network_client.delete_route_table,
+        kwargs_delete={"rt_id": module.params["rt_id"]},
+        module=module,
+    )
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(compartment_id=dict(type='str', required=False),
-                       display_name=dict(
-                           type='str', required=False, aliases=['name']),
-                       vcn_id=dict(type='str', required=False),
-                       rt_id=dict(type='str', required=False, aliases=['id']),
-                       state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
-                       route_rules=dict(type=list, required=False),
-                       purge_route_rules=dict(type='bool', required=False, default=True)
-                       )
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        compartment_id=dict(type="str", required=False),
+        display_name=dict(type="str", required=False, aliases=["name"]),
+        vcn_id=dict(type="str", required=False),
+        rt_id=dict(type="str", required=False, aliases=["id"]),
+        state=dict(
+            type="str", required=False, default="present", choices=["present", "absent"]
+        ),
+        route_rules=dict(type=list, required=False),
+        purge_route_rules=dict(type="bool", required=False, default=True),
+    )
     module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
-        result = create_or_update_route_table(
-            virtual_network_client, module)
-    elif state == 'absent':
+    if state == "present":
+        result = create_or_update_route_table(virtual_network_client, module)
+    elif state == "absent":
         result = delete_route_table(virtual_network_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -16,7 +16,8 @@ try:
     from oci.exceptions import ServiceError
 except ImportError:
     raise SkipTest(
-        "test_oci_load_balancer_health_summary_facts.py requires `oci` module")
+        "test_oci_load_balancer_health_summary_facts.py requires `oci` module"
+    )
 
 
 class FakeModule(object):
@@ -26,7 +27,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,18 +37,20 @@ class FakeModule(object):
 @pytest.fixture()
 def lb_client(mocker):
     mock_lb_client = mocker.patch(
-        'oci.load_balancer.load_balancer_client.LoadBalancerClient')
+        "oci.load_balancer.load_balancer_client.LoadBalancerClient"
+    )
     return mock_lb_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_load_balancer_health_summary_facts.set_logger(logging)
 
 
@@ -56,26 +59,29 @@ def test_list_load_balancer_healths(lb_client, list_all_resources_patch):
     load_balancer_health_summary = get_load_balancer_health_summary()
     list_all_resources_patch.return_value = [load_balancer_health_summary]
     result = oci_load_balancer_health_summary_facts.list_load_balancer_healths(
-        lb_client, module)
-    assert result['load_balancer_health_summary'][0]['status'] == 'OK'
+        lb_client, module
+    )
+    assert result["load_balancer_health_summary"][0]["status"] == "OK"
 
 
 def test_list_load_balancer_healths_service_error(lb_client, list_all_resources_patch):
     error_message = "Internal Server Error"
     module = get_module()
     list_all_resources_patch.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_load_balancer_health_summary_facts.list_load_balancer_healths(
-            lb_client, module)
+            lb_client, module
+        )
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
 def get_load_balancer_health_summary():
     load_balancer_health_summary = LoadBalancerHealthSummary()
-    load_balancer_health_summary.load_balancer_id = 'ocid1.loadbalancer.aaaa'
-    load_balancer_health_summary.status = 'OK'
+    load_balancer_health_summary.load_balancer_id = "ocid1.loadbalancer.aaaa"
+    load_balancer_health_summary.status = "OK"
     return load_balancer_health_summary
 
 
@@ -84,6 +90,6 @@ def get_response(status, header, data, request):
 
 
 def get_module():
-    params = {'compartment_id': 'ocid1.compartment.xcds'}
+    params = {"compartment_id": "ocid1.compartment.xcds"}
     module = FakeModule(**params)
     return module

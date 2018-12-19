@@ -6,16 +6,17 @@
 # See LICENSE.TXT for details.
 
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_internet_gateway_facts
 short_description: Fetches details of the OCI Internet Gateway under a Virtual
@@ -41,9 +42,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 #Fetch Internet Gateway
 - name: List Internet Gateway
   oci_internet_gateway_facts:
@@ -54,9 +55,9 @@ EXAMPLES = '''
 - name: List a specific Internet Gateway
   oci_internet_gateway_facts:
       id: 'ocid1.internetgateway..xcds'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     internet_gateways:
         description: Attributes of the  Internet Gateways.
         returned: success
@@ -108,7 +109,7 @@ RETURN = '''
         }
     ]
 
-'''
+"""
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
@@ -117,58 +118,61 @@ try:
     from oci.core import VirtualNetworkClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def list_internet_gateways(virtual_network_client, module):
-    result = dict(
-        internet_gateways=''
-    )
-    compartment_id = module.params.get('compartment_id')
-    vcn_id = module.params.get('vcn_id')
-    ig_id = module.params.get('ig_id')
+    result = dict(internet_gateways="")
+    compartment_id = module.params.get("compartment_id")
+    vcn_id = module.params.get("vcn_id")
+    ig_id = module.params.get("ig_id")
     try:
         if compartment_id and vcn_id:
             existing_igs = oci_utils.list_all_resources(
                 virtual_network_client.list_internet_gateways,
-                compartment_id=compartment_id, vcn_id=vcn_id,
-                display_name=module.params['display_name'])
+                compartment_id=compartment_id,
+                vcn_id=vcn_id,
+                display_name=module.params["display_name"],
+            )
         elif ig_id:
             response = oci_utils.call_with_backoff(
-                virtual_network_client.get_internet_gateway, ig_id=ig_id)
+                virtual_network_client.get_internet_gateway, ig_id=ig_id
+            )
             existing_igs = [response.data]
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
-    result['internet_gateways'] = to_dict(existing_igs)
+    result["internet_gateways"] = to_dict(existing_igs)
     return result
 
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        vcn_id=dict(type='str', required=False),
-        ig_id=dict(type='str', required=False, aliases=['id'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            vcn_id=dict(type="str", required=False),
+            ig_id=dict(type="str", required=False, aliases=["id"]),
+        )
+    )
     module = AnsibleModule(
         argument_spec=module_args,
-        mutually_exclusive=[
-            ['compartment_id', 'id'],
-            ['vcn_id', 'id']
-        ]
+        mutually_exclusive=[["compartment_id", "id"], ["vcn_id", "id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
     result = list_internet_gateways(virtual_network_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -17,7 +17,8 @@ try:
     from oci.exceptions import ServiceError
 except ImportError:
     raise SkipTest(
-        "test_oci_autonomous_data_warehouse_backup_facts.py requires `oci` module")
+        "test_oci_autonomous_data_warehouse_backup_facts.py requires `oci` module"
+    )
 
 
 class FakeModule(object):
@@ -27,7 +28,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,46 +37,75 @@ class FakeModule(object):
 
 @pytest.fixture()
 def db_client(mocker):
-    mock_db_client = mocker.patch(
-        'oci.database.database_client.DatabaseClient')
+    mock_db_client = mocker.patch("oci.database.database_client.DatabaseClient")
     return mock_db_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_autonomous_data_warehouse_backup_facts.set_logger(logging)
 
 
-def test_list_autonomous_data_warehouse_backups_list_all(db_client, list_all_resources_patch):
-    module = get_module(dict(compartment_id='ocid1.compartment.aaaa',
-                             autonomous_data_warehouse_backup_id='ocid1.autonomousdbwarehousebackup.aaaa'))
+def test_list_autonomous_data_warehouse_backups_list_all(
+    db_client, list_all_resources_patch
+):
+    module = get_module(
+        dict(
+            compartment_id="ocid1.compartment.aaaa",
+            autonomous_data_warehouse_backup_id="ocid1.autonomousdbwarehousebackup.aaaa",
+        )
+    )
     list_all_resources_patch.return_value = get_autonomous_data_warehouse_backups()
-    result = oci_autonomous_data_warehouse_backup_facts.list_autonomous_data_warehouse_backups(db_client, module)
-    assert len(result['autonomous_data_warehouse_backups']) is 2
+    result = oci_autonomous_data_warehouse_backup_facts.list_autonomous_data_warehouse_backups(
+        db_client, module
+    )
+    assert len(result["autonomous_data_warehouse_backups"]) is 2
 
 
 def test_list_autonomous_data_warehouse_backups_list_specific(db_client):
-    module = get_module(dict({'autonomous_data_warehouse_backup_id': 'ocid1.autonomousdbwarehousebackup.aaaa'}))
+    module = get_module(
+        dict(
+            {
+                "autonomous_data_warehouse_backup_id": "ocid1.autonomousdbwarehousebackup.aaaa"
+            }
+        )
+    )
     autonomous_data_warehouse_backup = get_autonomous_data_warehouse_backup()
     db_client.get_autonomous_data_warehouse_backup.return_value = get_response(
-        200, None, autonomous_data_warehouse_backup, None)
-    result = oci_autonomous_data_warehouse_backup_facts.list_autonomous_data_warehouse_backups(db_client, module)
-    assert result['autonomous_data_warehouse_backups'][0]['display_name'] is autonomous_data_warehouse_backup.display_name
+        200, None, autonomous_data_warehouse_backup, None
+    )
+    result = oci_autonomous_data_warehouse_backup_facts.list_autonomous_data_warehouse_backups(
+        db_client, module
+    )
+    assert (
+        result["autonomous_data_warehouse_backups"][0]["display_name"]
+        is autonomous_data_warehouse_backup.display_name
+    )
 
 
 def test_list_autonomous_data_warehouse_backup_service_error(db_client):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'autonomous_data_warehouse_backup_id': 'ocid1.autonomousdatabasebackup.aaaa'}))
+    error_message = "Internal Server Error"
+    module = get_module(
+        dict(
+            {
+                "autonomous_data_warehouse_backup_id": "ocid1.autonomousdatabasebackup.aaaa"
+            }
+        )
+    )
     db_client.get_db_system.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
-        oci_autonomous_data_warehouse_backup_facts.list_autonomous_data_warehouse_backups(db_client, module)
+        oci_autonomous_data_warehouse_backup_facts.list_autonomous_data_warehouse_backups(
+            db_client, module
+        )
     except Exception as ex:
         assert error_message in ex.args[0]
 
@@ -83,9 +113,13 @@ def test_list_autonomous_data_warehouse_backup_service_error(db_client):
 def get_autonomous_data_warehouse_backups():
     autonomous_data_warehouse_backups = []
     autonomous_data_warehouse_backup1 = AutonomousDataWarehouseBackup()
-    autonomous_data_warehouse_backup1.display_name = 'ansible-autonomous_data_warehouse_backup1'
+    autonomous_data_warehouse_backup1.display_name = (
+        "ansible-autonomous_data_warehouse_backup1"
+    )
     autonomous_data_warehouse_backup2 = AutonomousDataWarehouseBackup()
-    autonomous_data_warehouse_backup2.display_name = 'ansible-autonomous_data_warehouse_backup2'
+    autonomous_data_warehouse_backup2.display_name = (
+        "ansible-autonomous_data_warehouse_backup2"
+    )
     autonomous_data_warehouse_backups.append(autonomous_data_warehouse_backup1)
     autonomous_data_warehouse_backups.append(autonomous_data_warehouse_backup2)
     return autonomous_data_warehouse_backups
@@ -93,7 +127,9 @@ def get_autonomous_data_warehouse_backups():
 
 def get_autonomous_data_warehouse_backup():
     autonomous_data_warehouse_backup = AutonomousDataWarehouseBackup()
-    autonomous_data_warehouse_backup.display_name = 'ansible-autonomous_data_warehouse_backup'
+    autonomous_data_warehouse_backup.display_name = (
+        "ansible-autonomous_data_warehouse_backup"
+    )
     return autonomous_data_warehouse_backup
 
 

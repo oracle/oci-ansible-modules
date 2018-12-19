@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_volume_facts
 short_description: Retrieve facts of volumes in OCI Block Volume service
@@ -57,14 +57,15 @@ options:
                      case-insensitive. Allowed values are "PROVISIONING", "RESTORING", "AVAILABLE", "TERMINATING",
                      "TERMINATED", "FAULTY".
         required: false
+        choices: ["PROVISIONING", "RESTORING", "AVAILABLE", "TERMINATING", "TERMINATED", "FAULTY"]
     volume_group_id:
         description: The OCID of the volume group.
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get information of all the volumes for a specific availability domain & compartment_id
   oci_volume_facts:
     availability_domain: BnQb:PHX-AD-1
@@ -73,9 +74,9 @@ EXAMPLES = '''
 - name: Get information of a volume
   oci_volume_facts:
     volume_id: ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 volumes:
     description: List of volume information
     returned: On success
@@ -254,7 +255,7 @@ volumes:
                             "volume_id": "ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx"
                 }
     }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -279,12 +280,16 @@ def add_attached_instance_info(module, volumes, lookup_attached_instance):
     if volumes:
         for volume in volumes:
             try:
-                volume['attached_instance_information'] = oci_utils.get_attached_instance_info(
+                volume[
+                    "attached_instance_information"
+                ] = oci_utils.get_attached_instance_info(
                     module,
                     lookup_attached_instance,
                     list_attachments_fn=compute_client.list_volume_attachments,
-                    list_attachments_args={"volume_id": volume['id'],
-                                           "compartment_id": volume['compartment_id']}
+                    list_attachments_args={
+                        "volume_id": volume["id"],
+                        "compartment_id": volume["compartment_id"],
+                    },
                 )
             except ServiceError as ex:
                 module.fail_json(msg=ex.message)
@@ -294,61 +299,94 @@ def add_attached_instance_info(module, volumes, lookup_attached_instance):
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        availability_domain=dict(type='str', required=False),
-        compartment_id=dict(type='str', required=False),
-        volume_id=dict(type='str', required=False, aliases=['id']),
-        lookup_all_attached_instances=dict(type='bool', required=False, default='no'),
-        lifecycle_state=dict(type='str', required=False),
-        volume_group_id=dict(type='str', required=False)
-    ))
+    module_args.update(
+        dict(
+            availability_domain=dict(type="str", required=False),
+            compartment_id=dict(type="str", required=False),
+            volume_id=dict(type="str", required=False, aliases=["id"]),
+            lookup_all_attached_instances=dict(
+                type="bool", required=False, default="no"
+            ),
+            lifecycle_state=dict(
+                type="str",
+                required=False,
+                choices=[
+                    "PROVISIONING",
+                    "RESTORING",
+                    "AVAILABLE",
+                    "TERMINATING",
+                    "TERMINATED",
+                    "FAULTY",
+                ],
+            ),
+            volume_group_id=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=[
-            ['compartment_id', 'volume_id']
-        ],
-        required_one_of=[
-            ['compartment_id', 'volume_id']
-        ]
+        mutually_exclusive=[["compartment_id", "volume_id"]],
+        required_one_of=[["compartment_id", "volume_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
-    volume_id = module.params['volume_id']
+    volume_id = module.params["volume_id"]
 
     try:
         if volume_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(block_storage_client.get_volume,
-                                                          volume_id=volume_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        block_storage_client.get_volume, volume_id=volume_id
+                    ).data
+                )
+            ]
 
         else:
-            compartment_id = module.params['compartment_id']
-            availability_domain = module.params['availability_domain']
+            compartment_id = module.params["compartment_id"]
+            availability_domain = module.params["availability_domain"]
             if availability_domain is not None:
-                result = to_dict(oci_utils.list_all_resources(block_storage_client.list_volumes,
-                                                              compartment_id=compartment_id,
-                                                              availability_domain=availability_domain,
-                                                              display_name=module.params['display_name']))
+                result = to_dict(
+                    oci_utils.list_all_resources(
+                        block_storage_client.list_volumes,
+                        compartment_id=compartment_id,
+                        availability_domain=availability_domain,
+                        display_name=module.params["display_name"],
+                    )
+                )
             else:
-                optional_list_method_params = ['display_name', 'lifecycle_state', 'volume_group_id']
-                optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                                   if module.params.get(param) is not None}
-                result = to_dict(oci_utils.list_all_resources(block_storage_client.list_volumes,
-                                                              compartment_id=compartment_id,
-                                                              **optional_kwargs))
+                optional_list_method_params = [
+                    "display_name",
+                    "lifecycle_state",
+                    "volume_group_id",
+                ]
+                optional_kwargs = {
+                    param: module.params[param]
+                    for param in optional_list_method_params
+                    if module.params.get(param) is not None
+                }
+                result = to_dict(
+                    oci_utils.list_all_resources(
+                        block_storage_client.list_volumes,
+                        compartment_id=compartment_id,
+                        **optional_kwargs
+                    )
+                )
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    add_attached_instance_info(module, result, module.params['lookup_all_attached_instances'])
+    add_attached_instance_info(
+        module, result, module.params["lookup_all_attached_instances"]
+    )
 
     module.exit_json(volumes=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

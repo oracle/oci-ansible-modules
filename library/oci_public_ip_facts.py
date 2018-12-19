@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_public_ip_facts
 short_description: Retrieve facts of public IPs
@@ -51,9 +51,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get all the reserved public IPs in a compartment
   oci_public_ip_facts:
     scope: REGION
@@ -76,9 +76,9 @@ EXAMPLES = '''
 - name: Get a specific public IP using its public IP address
   oci_public_ip_facts:
     ip_address: 129.146.2.1
-'''
+"""
 
-RETURN = '''
+RETURN = """
 public_ips:
     description: List of public IP details
     returned: always
@@ -163,7 +163,7 @@ public_ips:
             "scope": "REGION",
             "time_created": "2018-06-22T15:25:25.569000+00:00"
         }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -171,10 +171,15 @@ from ansible.module_utils.oracle import oci_utils
 
 try:
     from oci.core.virtual_network_client import VirtualNetworkClient
-    from oci.core.models.get_public_ip_by_private_ip_id_details import GetPublicIpByPrivateIpIdDetails
-    from oci.core.models.get_public_ip_by_ip_address_details import GetPublicIpByIpAddressDetails
+    from oci.core.models.get_public_ip_by_private_ip_id_details import (
+        GetPublicIpByPrivateIpIdDetails,
+    )
+    from oci.core.models.get_public_ip_by_ip_address_details import (
+        GetPublicIpByIpAddressDetails,
+    )
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -183,59 +188,87 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        public_ip_id=dict(type='str', required=False, aliases=['id']),
-        private_ip_id=dict(type='str', required=False),
-        ip_address=dict(type='str', required=False),
-        scope=dict(type='str', required=False, choices=["REGION", "AVAILABILITY_DOMAIN"]),
-        compartment_id=dict(type='str', required=False),
-        availability_domain=dict(type='str', required=False)
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False
+    module_args.update(
+        dict(
+            public_ip_id=dict(type="str", required=False, aliases=["id"]),
+            private_ip_id=dict(type="str", required=False),
+            ip_address=dict(type="str", required=False),
+            scope=dict(
+                type="str", required=False, choices=["REGION", "AVAILABILITY_DOMAIN"]
+            ),
+            compartment_id=dict(type="str", required=False),
+            availability_domain=dict(type="str", required=False),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
-    public_ip_id = module.params['public_ip_id']
+    public_ip_id = module.params["public_ip_id"]
 
     try:
         if public_ip_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(virtual_network_client.get_public_ip,
-                                                          public_ip_id=public_ip_id).data)]
-        elif module.params['private_ip_id'] is not None:
-            pvt_ip_id_details = GetPublicIpByPrivateIpIdDetails(private_ip_id=module.params['private_ip_id'])
-            result = [to_dict(oci_utils.call_with_backoff(virtual_network_client.get_public_ip_by_private_ip_id,
-                                                          get_public_ip_by_private_ip_id_details=pvt_ip_id_details
-                                                          ).data)]
-        elif module.params['ip_address'] is not None:
-            ip_address_details = GetPublicIpByIpAddressDetails(ip_address=module.params['ip_address'])
-            result = [to_dict(oci_utils.call_with_backoff(virtual_network_client.get_public_ip_by_ip_address,
-                                                          get_public_ip_by_ip_address_details=ip_address_details
-                                                          ).data)]
-        elif module.params['scope'] is not None:
-            list_args = {'scope': module.params['scope'],
-                         'compartment_id': module.params['compartment_id'],
-                         'display_name': module.params['display_name']
-                         }
-            if module.params['availability_domain'] is not None:
-                list_args['availability_domain'] = module.params['availability_domain']
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        virtual_network_client.get_public_ip, public_ip_id=public_ip_id
+                    ).data
+                )
+            ]
+        elif module.params["private_ip_id"] is not None:
+            pvt_ip_id_details = GetPublicIpByPrivateIpIdDetails(
+                private_ip_id=module.params["private_ip_id"]
+            )
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        virtual_network_client.get_public_ip_by_private_ip_id,
+                        get_public_ip_by_private_ip_id_details=pvt_ip_id_details,
+                    ).data
+                )
+            ]
+        elif module.params["ip_address"] is not None:
+            ip_address_details = GetPublicIpByIpAddressDetails(
+                ip_address=module.params["ip_address"]
+            )
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        virtual_network_client.get_public_ip_by_ip_address,
+                        get_public_ip_by_ip_address_details=ip_address_details,
+                    ).data
+                )
+            ]
+        elif module.params["scope"] is not None:
+            list_args = {
+                "scope": module.params["scope"],
+                "compartment_id": module.params["compartment_id"],
+                "display_name": module.params["display_name"],
+            }
+            if module.params["availability_domain"] is not None:
+                list_args["availability_domain"] = module.params["availability_domain"]
 
-            result = to_dict(oci_utils.list_all_resources(virtual_network_client.list_public_ips,
-                                                          **list_args))
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    virtual_network_client.list_public_ips, **list_args
+                )
+            )
         else:
-            module.fail_json(msg="Specify scope along with compartment_id to list all public IPs or one of"
-                                 "public_ip_id/private_ip_id/ip_address.")
+            module.fail_json(
+                msg="Specify scope along with compartment_id to list all public IPs or one of"
+                "public_ip_id/private_ip_id/ip_address."
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(public_ips=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_node_pool
 short_description: Manage node pools in OCI Container Engine for Kubernetes Service
@@ -94,9 +94,9 @@ options:
         default: 1200
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a node pool and wait for atleast two nodes in the node pool to reach ACTIVE state before returning
   oci_node_pool:
     cluster_id: ocid1.cluster.oc1..xxxxxEXAMPLExxxxx
@@ -132,9 +132,9 @@ EXAMPLES = '''
   oci_node_pool:
     id: ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 node_pool:
     description: Information about the node pool
     returned: On successful create, delete & update operations on node pool
@@ -308,7 +308,7 @@ work_request:
             "time_finished": "2018-08-02T10:24:13+00:00",
             "time_started": "2018-08-02T10:24:09+00:00"
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -319,6 +319,7 @@ try:
     from oci.container_engine.models import CreateNodePoolDetails
     from oci.container_engine.models import UpdateNodePoolDetails
     from oci.container_engine.models import KeyValue
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -326,30 +327,31 @@ except ImportError:
 
 
 def delete_node_pool(container_engine_client, module):
-    result = oci_ce_utils.delete_and_wait(resource_type="node_pool",
-                                          client=container_engine_client,
-                                          get_fn=container_engine_client.get_node_pool,
-                                          kwargs_get={"node_pool_id": module.params["node_pool_id"]},
-                                          delete_fn=container_engine_client.delete_node_pool,
-                                          kwargs_delete={"node_pool_id": module.params["node_pool_id"]},
-                                          module=module,
-                                          wait_applicable=False
-                                          )
+    result = oci_ce_utils.delete_and_wait(
+        resource_type="node_pool",
+        client=container_engine_client,
+        get_fn=container_engine_client.get_node_pool,
+        kwargs_get={"node_pool_id": module.params["node_pool_id"]},
+        delete_fn=container_engine_client.delete_node_pool,
+        kwargs_delete={"node_pool_id": module.params["node_pool_id"]},
+        module=module,
+        wait_applicable=False,
+    )
     return result
 
 
 def update_node_pool(container_engine_client, module):
-    result = oci_ce_utils.update_and_wait(resource_type="node_pool",
-                                          client=container_engine_client,
-                                          get_fn=container_engine_client.get_node_pool,
-                                          kwargs_get={"node_pool_id": module.params["node_pool_id"]},
-                                          update_fn=container_engine_client.update_node_pool,
-                                          primitive_params_update=['node_pool_id'],
-                                          kwargs_non_primitive_update={
-                                              UpdateNodePoolDetails: "update_node_pool_details"},
-                                          module=module,
-                                          update_attributes=UpdateNodePoolDetails().attribute_map.keys()
-                                          )
+    result = oci_ce_utils.update_and_wait(
+        resource_type="node_pool",
+        client=container_engine_client,
+        get_fn=container_engine_client.get_node_pool,
+        kwargs_get={"node_pool_id": module.params["node_pool_id"]},
+        update_fn=container_engine_client.update_node_pool,
+        primitive_params_update=["node_pool_id"],
+        kwargs_non_primitive_update={UpdateNodePoolDetails: "update_node_pool_details"},
+        module=module,
+        update_attributes=UpdateNodePoolDetails().attribute_map.keys(),
+    )
     return result
 
 
@@ -359,7 +361,7 @@ def create_node_pool(container_engine_client, module):
         if attribute in module.params:
             setattr(create_node_pool_details, attribute, module.params[attribute])
 
-    node_labels = module.params['initial_node_labels']
+    node_labels = module.params["initial_node_labels"]
     if node_labels:
         initial_node_labels = []
         for d in node_labels:
@@ -372,74 +374,86 @@ def create_node_pool(container_engine_client, module):
     # Note: `wait` is "True" by default for `oci_node_pool`, unlike other resources because a node pool is only useful
     # if atleast one node in the node pool reaches ACTIVE state (Installation of Helm components are delayed until a
     # node is available).
-    result = oci_ce_utils.create_and_wait(resource_type="node_pool",
-                                          create_fn=container_engine_client.create_node_pool,
-                                          kwargs_create={"create_node_pool_details": create_node_pool_details},
-                                          client=container_engine_client,
-                                          get_fn=container_engine_client.get_node_pool,
-                                          get_param="node_pool_id",
-                                          module=module
-                                          )
+    result = oci_ce_utils.create_and_wait(
+        resource_type="node_pool",
+        create_fn=container_engine_client.create_node_pool,
+        kwargs_create={"create_node_pool_details": create_node_pool_details},
+        client=container_engine_client,
+        get_fn=container_engine_client.get_node_pool,
+        get_param="node_pool_id",
+        module=module,
+    )
     return result
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        node_pool_id=dict(type='str', required=False, aliases=['id']),
-        cluster_id=dict(type='str', required=False),
-        kubernetes_version=dict(type='str', required=False),
-        name=dict(type='str', required=False),
-        initial_node_labels=dict(type=list, required=False),
-        subnet_ids=dict(type=list, required=False),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        node_image_name=dict(type='str', required=False),
-        node_shape=dict(type='str', required=False),
-        quantity_per_subnet=dict(type='int', required=False),
-        ssh_public_key=dict(type='str', required=False),
-        count_of_nodes_to_wait=dict(type=int, required=False, default=1),
-        wait_until=dict(type='str', required=False, default="ACTIVE")
-    ))
+    module_args = oci_utils.get_common_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            node_pool_id=dict(type="str", required=False, aliases=["id"]),
+            cluster_id=dict(type="str", required=False),
+            kubernetes_version=dict(type="str", required=False),
+            name=dict(type="str", required=False),
+            initial_node_labels=dict(type=list, required=False),
+            subnet_ids=dict(type=list, required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            node_image_name=dict(type="str", required=False),
+            node_shape=dict(type="str", required=False),
+            quantity_per_subnet=dict(type="int", required=False),
+            ssh_public_key=dict(type="str", required=False),
+            count_of_nodes_to_wait=dict(type=int, required=False, default=1),
+            wait_until=dict(type="str", required=False, default="ACTIVE"),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[
-            ('state', 'absent', ['node_pool_id'])
-        ]
+        required_if=[("state", "absent", ["node_pool_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    container_engine_client = oci_utils.create_service_client(module, ContainerEngineClient)
+    container_engine_client = oci_utils.create_service_client(
+        module, ContainerEngineClient
+    )
 
-    state = module.params['state']
-    node_pool_id = module.params['node_pool_id']
+    state = module.params["state"]
+    node_pool_id = module.params["node_pool_id"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_node_pool(container_engine_client, module)
 
     else:
         if node_pool_id is not None:
             result = update_node_pool(container_engine_client, module)
         else:
-            kwargs_list = {'compartment_id': module.params['compartment_id']}
-            exclude_attributes = {'name': True}
-            result = oci_utils.check_and_create_resource(resource_type='node_pool',
-                                                         create_fn=create_node_pool,
-                                                         kwargs_create={
-                                                             'container_engine_client': container_engine_client,
-                                                             'module': module},
-                                                         list_fn=container_engine_client.list_node_pools,
-                                                         kwargs_list=kwargs_list,
-                                                         module=module,
-                                                         model=CreateNodePoolDetails(),
-                                                         exclude_attributes=exclude_attributes
-                                                         )
+            kwargs_list = {"compartment_id": module.params["compartment_id"]}
+            exclude_attributes = {"name": True}
+            result = oci_utils.check_and_create_resource(
+                resource_type="node_pool",
+                create_fn=create_node_pool,
+                kwargs_create={
+                    "container_engine_client": container_engine_client,
+                    "module": module,
+                },
+                list_fn=container_engine_client.list_node_pools,
+                kwargs_list=kwargs_list,
+                module=module,
+                model=CreateNodePoolDetails(),
+                exclude_attributes=exclude_attributes,
+            )
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
