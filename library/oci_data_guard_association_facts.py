@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_data_guard_association_facts
 short_description: Fetches details of an OCI Data Guard Association
@@ -33,9 +34,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # List all Data Guard Association related to a database
 - name: List all Data Guard Association of a Database
@@ -47,9 +48,9 @@ EXAMPLES = '''
   oci_data_guard_association_facts:
       database_id: 'ocid1.database..abuw'
       data_guard_association_id: 'ocid1.dgassociation.abuw'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     data_guard_association:
         description: Attributes of the Data Guard Association.
         returned: success
@@ -162,7 +163,7 @@ RETURN = '''
                     "time_created":"2018-03-03T06:55:49.463000+00:00",
                     "transport_type":"ASYNC"
               }]
-'''
+"""
 
 
 from ansible.module_utils.basic import AnsibleModule
@@ -172,6 +173,7 @@ try:
     from oci.database.database_client import DatabaseClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -180,27 +182,33 @@ logger = None
 
 
 def list_data_guard_associations(db_client, module):
-    result = dict(
-        data_guard_associations=''
-    )
-    database_id = module.params.get('database_id')
-    data_guard_association_id = module.params.get('data_guard_association_id')
+    result = dict(data_guard_associations="")
+    database_id = module.params.get("database_id")
+    data_guard_association_id = module.params.get("data_guard_association_id")
     try:
         if data_guard_association_id:
-            get_logger().debug("Listing Data Guard Association %s", data_guard_association_id)
+            get_logger().debug(
+                "Listing Data Guard Association %s", data_guard_association_id
+            )
             response = oci_utils.call_with_backoff(
-                db_client.get_data_guard_association, database_id=database_id, data_guard_association_id=data_guard_association_id)
+                db_client.get_data_guard_association,
+                database_id=database_id,
+                data_guard_association_id=data_guard_association_id,
+            )
             existing_data_guard_associations = [response.data]
         else:
-            get_logger().debug("Listing all Data Guard Association for Database %s", database_id)
+            get_logger().debug(
+                "Listing all Data Guard Association for Database %s", database_id
+            )
             existing_data_guard_associations = oci_utils.list_all_resources(
-                db_client.list_data_guard_associations,
-                database_id=database_id)
+                db_client.list_data_guard_associations, database_id=database_id
+            )
     except ServiceError as ex:
-        get_logger().error("Unable to list Data Guard Associations due to %s", ex.message)
+        get_logger().error(
+            "Unable to list Data Guard Associations due to %s", ex.message
+        )
         module.fail_json(msg=ex.message)
-    result['data_guard_associations'] = to_dict(
-        existing_data_guard_associations)
+    result["data_guard_associations"] = to_dict(existing_data_guard_associations)
     return result
 
 
@@ -217,17 +225,16 @@ def main():
     logger = oci_utils.get_logger("oci_data_guard_association_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        database_id=dict(type='str', required=True),
-        data_guard_association_id=dict(
-            type='str', required=False, aliases=['id'])
-    ))
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args.update(
+        dict(
+            database_id=dict(type="str", required=True),
+            data_guard_association_id=dict(type="str", required=False, aliases=["id"]),
+        )
     )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
     result = list_data_guard_associations(db_client, module)
@@ -235,5 +242,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

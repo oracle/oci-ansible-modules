@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_instance_configuration
 short_description: Manage Instance Configurations in OCI
@@ -282,9 +282,9 @@ options:
         choices: ['present', 'absent']
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create an instance configuration that describes launch details for a compute instance of VM.Standard1.1 shape
         and a specific image. No details are provided for additional block volume attachments or secondary VNICs
   oci_instance_configuration:
@@ -333,9 +333,9 @@ EXAMPLES = '''
   oci_instance_configuration:
     id: ocid1.instanceconfiguration.oc1.phx.xxxxxEXAMPLExxxxx...rz3fhq
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 instance_configuration:
     description: Information about the Instance Configuration
     returned: On successful create, delete operations on instance configurations
@@ -663,22 +663,29 @@ instance_configuration:
                 },
                 "time-created": "2018-11-07T04:16:20.454000+00:00"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
 try:
     from oci.core.compute_management_client import ComputeManagementClient
-    from oci.core.models import CreateInstanceConfigurationDetails, UpdateInstanceConfigurationDetails, \
-        ComputeInstanceDetails, InstanceConfigurationBlockVolumeDetails, \
-        InstanceConfigurationCreateVolumeDetails, \
-        InstanceConfigurationLaunchInstanceDetails, \
-        InstanceConfigurationCreateVnicDetails, \
-        InstanceConfigurationAttachVnicDetails, InstanceConfigurationInstanceSourceViaImageDetails, \
-        InstanceConfigurationInstanceSourceViaBootVolumeDetails, \
-        InstanceConfigurationIscsiAttachVolumeDetails, InstanceConfigurationParavirtualizedAttachVolumeDetails, \
-        InstanceConfigurationVolumeSourceFromVolumeBackupDetails, InstanceConfigurationVolumeSourceFromVolumeDetails
+    from oci.core.models import (
+        CreateInstanceConfigurationDetails,
+        UpdateInstanceConfigurationDetails,
+        ComputeInstanceDetails,
+        InstanceConfigurationBlockVolumeDetails,
+        InstanceConfigurationCreateVolumeDetails,
+        InstanceConfigurationLaunchInstanceDetails,
+        InstanceConfigurationCreateVnicDetails,
+        InstanceConfigurationAttachVnicDetails,
+        InstanceConfigurationInstanceSourceViaImageDetails,
+        InstanceConfigurationInstanceSourceViaBootVolumeDetails,
+        InstanceConfigurationIscsiAttachVolumeDetails,
+        InstanceConfigurationParavirtualizedAttachVolumeDetails,
+        InstanceConfigurationVolumeSourceFromVolumeBackupDetails,
+        InstanceConfigurationVolumeSourceFromVolumeDetails,
+    )
 
     HAS_OCI_PY_SDK = True
 
@@ -689,16 +696,19 @@ RESOURCE_NAME = "instance_configuration"
 
 
 def delete_instance_configuration(compute_management_client, module):
-    result = oci_utils.delete_and_wait(resource_type=RESOURCE_NAME,
-                                       client=compute_management_client,
-                                       get_fn=compute_management_client.get_instance_configuration,
-                                       kwargs_get={"instance_configuration_id": module.params[
-                                           'instance_configuration_id']},
-                                       delete_fn=compute_management_client.delete_instance_configuration,
-                                       kwargs_delete={"instance_configuration_id": module.params[
-                                           'instance_configuration_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type=RESOURCE_NAME,
+        client=compute_management_client,
+        get_fn=compute_management_client.get_instance_configuration,
+        kwargs_get={
+            "instance_configuration_id": module.params["instance_configuration_id"]
+        },
+        delete_fn=compute_management_client.delete_instance_configuration,
+        kwargs_delete={
+            "instance_configuration_id": module.params["instance_configuration_id"]
+        },
+        module=module,
+    )
     return result
 
 
@@ -706,26 +716,34 @@ def create_instance_configuration(compute_management_client, module):
     create_instance_configuration_details = CreateInstanceConfigurationDetails()
     _update_model_with_attrs(create_instance_configuration_details, module.params)
 
-    instance_details = module.params['instance_details']
+    instance_details = module.params["instance_details"]
 
     compute_instance_details = ComputeInstanceDetails()
-    compute_instance_details.block_volumes = _get_block_volumes(instance_details.get('block_volumes'), module)
-    compute_instance_details.launch_details = _get_launch_details(instance_details.get('launch_details'))
-    compute_instance_details.secondary_vnics = _get_secondary_vnics(instance_details.get('secondary_vnics'))
+    compute_instance_details.block_volumes = _get_block_volumes(
+        instance_details.get("block_volumes"), module
+    )
+    compute_instance_details.launch_details = _get_launch_details(
+        instance_details.get("launch_details")
+    )
+    compute_instance_details.secondary_vnics = _get_secondary_vnics(
+        instance_details.get("secondary_vnics")
+    )
 
     create_instance_configuration_details.instance_details = compute_instance_details
 
     # no need to wait as instance_configuration doesn't have a lifecycle_state
-    result = oci_utils.create_and_wait(resource_type=RESOURCE_NAME,
-                                       create_fn=compute_management_client.create_instance_configuration,
-                                       kwargs_create={
-                                           "create_instance_configuration": create_instance_configuration_details},
-                                       client=compute_management_client,
-                                       get_fn=compute_management_client.get_instance_configuration,
-                                       get_param="instance_configuration_id",
-                                       module=module,
-                                       wait_applicable=False
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type=RESOURCE_NAME,
+        create_fn=compute_management_client.create_instance_configuration,
+        kwargs_create={
+            "create_instance_configuration": create_instance_configuration_details
+        },
+        client=compute_management_client,
+        get_fn=compute_management_client.get_instance_configuration,
+        get_param="instance_configuration_id",
+        module=module,
+        wait_applicable=False,
+    )
     return result
 
 
@@ -738,7 +756,7 @@ def _get_secondary_vnics(secondary_vnic_details):
         sec_vnic = InstanceConfigurationAttachVnicDetails()
         _update_model_with_attrs(sec_vnic, item)
 
-        user_create_vnic_details = item.get('create_vnic_details')
+        user_create_vnic_details = item.get("create_vnic_details")
         if user_create_vnic_details:
             create_vnic_details = InstanceConfigurationCreateVnicDetails()
             _update_model_with_attrs(create_vnic_details, user_create_vnic_details)
@@ -756,33 +774,45 @@ def _get_block_volumes(block_volumes_details, module):
 
     for block_vol in block_volumes_details:
         if block_vol.get("volume_id") and block_vol.get("create_details"):
-            module.fail_json("Specify either createDetails or volumeId in block_volumes {0}".format(block_vol))
+            module.fail_json(
+                "Specify either createDetails or volumeId in block_volumes {0}".format(
+                    block_vol
+                )
+            )
 
         bvd = InstanceConfigurationBlockVolumeDetails()
         _update_model_with_attrs(bvd, block_vol)
 
-        user_attach_details = block_vol.get('attach_details')
+        user_attach_details = block_vol.get("attach_details")
         if user_attach_details:
-            attach_type = user_attach_details['type']
+            attach_type = user_attach_details["type"]
             if attach_type == "iscsi":
                 attach_details = InstanceConfigurationIscsiAttachVolumeDetails()
             elif attach_type == "paravirtualized":
-                attach_details = InstanceConfigurationParavirtualizedAttachVolumeDetails()
+                attach_details = (
+                    InstanceConfigurationParavirtualizedAttachVolumeDetails()
+                )
             _update_model_with_attrs(attach_details, user_attach_details)
             bvd.attach_details = attach_details
 
-        user_create_details = block_vol.get('create_details')
+        user_create_details = block_vol.get("create_details")
         if user_create_details:
             create_details = InstanceConfigurationCreateVolumeDetails()
             _update_model_with_attrs(create_details, user_create_details)
-            user_create_source_details = user_create_details.get('source_details')
+            user_create_source_details = user_create_details.get("source_details")
             if user_create_source_details:
-                user_create_source_type = user_create_source_details['type']
+                user_create_source_type = user_create_source_details["type"]
                 if user_create_source_type == "volumeBackup":
-                    create_source_details = InstanceConfigurationVolumeSourceFromVolumeBackupDetails()
+                    create_source_details = (
+                        InstanceConfigurationVolumeSourceFromVolumeBackupDetails()
+                    )
                 elif user_create_source_type == "volume":
-                    create_source_details = InstanceConfigurationVolumeSourceFromVolumeDetails()
-                _update_model_with_attrs(create_source_details, user_create_source_details)
+                    create_source_details = (
+                        InstanceConfigurationVolumeSourceFromVolumeDetails()
+                    )
+                _update_model_with_attrs(
+                    create_source_details, user_create_source_details
+                )
             create_details.source_details = create_source_details
 
             bvd.create_details = create_details
@@ -799,14 +829,14 @@ def _get_launch_details(launch_details):
     ld = InstanceConfigurationLaunchInstanceDetails()
     _update_model_with_attrs(ld, launch_details)
 
-    user_create_vnic_details = launch_details.get('create_vnic_details')
+    user_create_vnic_details = launch_details.get("create_vnic_details")
     create_vnic_details = InstanceConfigurationCreateVnicDetails()
     _update_model_with_attrs(create_vnic_details, user_create_vnic_details)
     ld.create_vnic_details = create_vnic_details
 
-    user_source_details = launch_details.get('source_details')
+    user_source_details = launch_details.get("source_details")
     if user_source_details:
-        sd_type = user_source_details['source_type']
+        sd_type = user_source_details["source_type"]
 
         if sd_type == "image":
             source_details = InstanceConfigurationInstanceSourceViaImageDetails()
@@ -825,70 +855,84 @@ def _update_model_with_attrs(model_instance, value_dict):
 
 
 def update_instance_configuration(compute_management_client, module):
-    return oci_utils.check_and_update_resource(resource_type=RESOURCE_NAME,
-                                               get_fn=compute_management_client.get_instance_configuration,
-                                               kwargs_get={"instance_configuration_id": module.params[
-                                                   'instance_configuration_id']},
-                                               update_fn=compute_management_client.update_instance_configuration,
-                                               primitive_params_update=['instance_configuration_id'],
-                                               kwargs_non_primitive_update={
-                                                   UpdateInstanceConfigurationDetails:
-                                                       "update_instance_configuration_details"
-                                               },
-                                               module=module,
-                                               update_attributes=UpdateInstanceConfigurationDetails().attribute_map.keys())
+    return oci_utils.check_and_update_resource(
+        resource_type=RESOURCE_NAME,
+        get_fn=compute_management_client.get_instance_configuration,
+        kwargs_get={
+            "instance_configuration_id": module.params["instance_configuration_id"]
+        },
+        update_fn=compute_management_client.update_instance_configuration,
+        primitive_params_update=["instance_configuration_id"],
+        kwargs_non_primitive_update={
+            UpdateInstanceConfigurationDetails: "update_instance_configuration_details"
+        },
+        module=module,
+        wait_applicable=False,
+        update_attributes=UpdateInstanceConfigurationDetails().attribute_map.keys(),
+    )
 
 
 def main():
     module_args = oci_utils.get_taggable_arg_spec(supports_create=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        instance_details=dict(type='dict', required=False),
-        instance_configuration_id=dict(type='str', required=False, aliases=['id']),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            instance_details=dict(type="dict", required=False),
+            instance_configuration_id=dict(type="str", required=False, aliases=["id"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['instance_configuration_id', 'compartment_id'],
-        required_if=[('state', 'absent', ['instance_configuration_id'])]
+        mutually_exclusive=["instance_configuration_id", "compartment_id"],
+        required_if=[("state", "absent", ["instance_configuration_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    compute_management_client = oci_utils.create_service_client(module, ComputeManagementClient)
+    compute_management_client = oci_utils.create_service_client(
+        module, ComputeManagementClient
+    )
 
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_instance_configuration(compute_management_client, module)
 
     else:
-        instance_configuration_id = module.params['instance_configuration_id']
+        instance_configuration_id = module.params["instance_configuration_id"]
 
         if instance_configuration_id is None:
-            kwargs_list = {'compartment_id': module.params['compartment_id']}
+            kwargs_list = {"compartment_id": module.params["compartment_id"]}
             # XXX Remove supports_sort_by_time_created once the backend implementation is fixed
-            result = oci_utils.check_and_create_resource(resource_type=RESOURCE_NAME,
-                                                         create_fn=create_instance_configuration,
-                                                         kwargs_create={
-                                                             'compute_management_client': compute_management_client,
-                                                             'module': module},
-                                                         list_fn=compute_management_client.list_instance_configurations,
-                                                         kwargs_list=kwargs_list,
-                                                         module=module,
-                                                         model=CreateInstanceConfigurationDetails(),
-                                                         exclude_attributes=None,
-                                                         supports_sort_by_time_created=False
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type=RESOURCE_NAME,
+                create_fn=create_instance_configuration,
+                kwargs_create={
+                    "compute_management_client": compute_management_client,
+                    "module": module,
+                },
+                list_fn=compute_management_client.list_instance_configurations,
+                kwargs_list=kwargs_list,
+                module=module,
+                model=CreateInstanceConfigurationDetails(),
+                exclude_attributes=None,
+                supports_sort_by_time_created=False,
+            )
         else:
             result = update_instance_configuration(compute_management_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

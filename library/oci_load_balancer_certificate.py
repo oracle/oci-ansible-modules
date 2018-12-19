@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_load_balancer_certificate
 short_description: Add or remove a SSL certificate from a load balancer in
@@ -58,9 +59,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Add a certificate bundle (without passphrase) to a loadbalancer
 - name: Add a certificate bundle (without passphrase) to a loadbalancer
@@ -87,9 +88,9 @@ EXAMPLES = '''
     load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_certtificate"
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     certificate:
         description: Attributes of the created certificate.
                      For delete, deleted certificate description will
@@ -123,7 +124,7 @@ RETURN = '''
                     "certificate_name":"ansible_cert",
                     "public_certificate":"-----BEGIN CERTIFICATE-----\\nMIIDPjCCAiYCCQC5OEUUNtrC\\n-----END CERTIFICATE-----"
                 }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils, oci_lb_utils
@@ -133,6 +134,7 @@ try:
     from oci.load_balancer.load_balancer_client import LoadBalancerClient
     from oci.util import to_dict
     from oci.load_balancer.models import CreateCertificateDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -141,66 +143,86 @@ logger = None
 
 
 def create_certificate(lb_client, module):
-    result = dict(
-        changed=False,
-        certificate=''
-    )
-    lb_id = module.params.get('load_balancer_id')
-    name = module.params.get('name')
+    result = dict(changed=False, certificate="")
+    lb_id = module.params.get("load_balancer_id")
+    name = module.params.get("name")
 
     certificate = oci_lb_utils.get_certificate(lb_client, module, lb_id, name)
-    create_certificate_details = oci_lb_utils.get_create_certificate_details(module, name)
+    create_certificate_details = oci_lb_utils.get_create_certificate_details(
+        module, name
+    )
     same_certificate = False
     if certificate is not None:
-        same_certificate = oci_lb_utils.is_same_certificate(create_certificate_details, certificate)
+        same_certificate = oci_lb_utils.is_same_certificate(
+            create_certificate_details, certificate
+        )
         if same_certificate:
-            get_logger().info("Certificate %s with same attribute values already available", name)
-            result['changed'] = False
-            result['certificate'] = to_dict(certificate)
+            get_logger().info(
+                "Certificate %s with same attribute values already available", name
+            )
+            result["changed"] = False
+            result["certificate"] = to_dict(certificate)
         else:
             get_logger().error(
-                "Certificate %s with different attribute value already available in load balancer %s", name,
-                lb_id)
-            module.fail_json(msg="Certificate " + name + " with different attribute value already available in "
-                             "load balancer " + lb_id)
+                "Certificate %s with different attribute value already available in load balancer %s",
+                name,
+                lb_id,
+            )
+            module.fail_json(
+                msg="Certificate "
+                + name
+                + " with different attribute value already available in "
+                "load balancer " + lb_id
+            )
     if not same_certificate:
-        get_logger().info("Creating certificate %s in the load balancer %s", name, lb_id)
-        result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type='certificate',
-                                                                     function=lb_client.create_certificate,
-                                                                     kwargs_function={
-                                                                         'create_certificate_details': create_certificate_details,
-                                                                         'load_balancer_id': lb_id},
-                                                                     lb_client=lb_client,
-                                                                     get_sub_resource_fn=oci_lb_utils.get_certificate,
-                                                                     kwargs_get={'lb_client': lb_client,
-                                                                                 'module': module,
-                                                                                 'lb_id': lb_id,
-                                                                                 'name': name},
-                                                                     module=module
-                                                                     )
-        get_logger().info("Successfully created certificate %s in the load balancer %s", name, lb_id)
+        get_logger().info(
+            "Creating certificate %s in the load balancer %s", name, lb_id
+        )
+        result = oci_lb_utils.create_or_update_lb_resources_and_wait(
+            resource_type="certificate",
+            function=lb_client.create_certificate,
+            kwargs_function={
+                "create_certificate_details": create_certificate_details,
+                "load_balancer_id": lb_id,
+            },
+            lb_client=lb_client,
+            get_sub_resource_fn=oci_lb_utils.get_certificate,
+            kwargs_get={
+                "lb_client": lb_client,
+                "module": module,
+                "lb_id": lb_id,
+                "name": name,
+            },
+            module=module,
+        )
+        get_logger().info(
+            "Successfully created certificate %s in the load balancer %s", name, lb_id
+        )
 
     return result
 
 
 def delete_certificate(lb_client, module):
-    lb_id = module.params.get('load_balancer_id')
-    name = module.params.get('name')
+    lb_id = module.params.get("load_balancer_id")
+    name = module.params.get("name")
     get_logger().info("Deleting certificate %s from the load balancer %s", name, lb_id)
-    result = oci_lb_utils.delete_lb_resources_and_wait(resource_type="certificate",
-                                                       function=lb_client.delete_certificate,
-                                                       kwargs_function={
-                                                           'certificate_name': name,
-                                                           'load_balancer_id': lb_id},
-                                                       lb_client=lb_client,
-                                                       get_sub_resource_fn=oci_lb_utils.get_certificate,
-                                                       kwargs_get={'lb_client': lb_client,
-                                                                   'module': module,
-                                                                   'lb_id': lb_id,
-                                                                   'name': name},
-                                                       module=module
-                                                       )
-    get_logger().info("Successfully deleted certificate %s from the load balancer %s", name, lb_id)
+    result = oci_lb_utils.delete_lb_resources_and_wait(
+        resource_type="certificate",
+        function=lb_client.delete_certificate,
+        kwargs_function={"certificate_name": name, "load_balancer_id": lb_id},
+        lb_client=lb_client,
+        get_sub_resource_fn=oci_lb_utils.get_certificate,
+        kwargs_get={
+            "lb_client": lb_client,
+            "module": module,
+            "lb_id": lb_id,
+            "name": name,
+        },
+        module=module,
+    )
+    get_logger().info(
+        "Successfully deleted certificate %s from the load balancer %s", name, lb_id
+    )
 
     return result
 
@@ -218,42 +240,46 @@ def main():
     logger = oci_utils.get_logger("oci_load_balancer_certificate")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        name=dict(type='str', required=True),
-        load_balancer_id=dict(type='str', required=True, aliases=['id']),
-        ca_certificate=dict(type='str', required=False),
-        passphrase=dict(type='str', required=False, no_log=True),
-        private_key=dict(type='str', required=False),
-        public_certificate=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args.update(
+        dict(
+            name=dict(type="str", required=True),
+            load_balancer_id=dict(type="str", required=True, aliases=["id"]),
+            ca_certificate=dict(type="str", required=False),
+            passphrase=dict(type="str", required=False, no_log=True),
+            private_key=dict(type="str", required=False),
+            public_certificate=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
-        result = oci_utils.check_and_create_resource(resource_type='certificate',
-                                                     create_fn=create_certificate,
-                                                     kwargs_create={'lb_client': lb_client,
-                                                                    'module': module},
-                                                     list_fn=lb_client.list_certificates,
-                                                     kwargs_list={
-                                                         'load_balancer_id': module.params.get('load_balancer_id')},
-                                                     module=module,
-                                                     model=CreateCertificateDetails())
-    elif state == 'absent':
+    if state == "present":
+        result = oci_utils.check_and_create_resource(
+            resource_type="certificate",
+            create_fn=create_certificate,
+            kwargs_create={"lb_client": lb_client, "module": module},
+            list_fn=lb_client.list_certificates,
+            kwargs_list={"load_balancer_id": module.params.get("load_balancer_id")},
+            module=module,
+            model=CreateCertificateDetails(),
+        )
+    elif state == "absent":
         result = delete_certificate(lb_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -16,8 +16,7 @@ try:
     from oci.email.models import Sender
     from oci.exceptions import ServiceError, ClientError
 except ImportError:
-    raise SkipTest(
-        "test_oci_sender.py requires `oci` module")
+    raise SkipTest("test_oci_sender.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,43 +35,43 @@ class FakeModule(object):
 
 @pytest.fixture()
 def email_client(mocker):
-    mock_email_client = mocker.patch(
-        'oci.email.email_client.EmailClient')
+    mock_email_client = mocker.patch("oci.email.email_client.EmailClient")
     return mock_email_client.return_value
 
 
 @pytest.fixture()
 def create_and_wait_patch(mocker):
-    return mocker.patch.object(oci_utils, 'create_and_wait')
+    return mocker.patch.object(oci_utils, "create_and_wait")
 
 
 @pytest.fixture()
 def delete_and_wait_patch(mocker):
-    return mocker.patch.object(oci_utils, 'delete_and_wait')
+    return mocker.patch.object(oci_utils, "delete_and_wait")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_sender.set_logger(logging)
 
 
 def test_create_sender(email_client, create_and_wait_patch):
-    module = get_module(dict(email_address='ansible@test.com'))
+    module = get_module(dict(email_address="ansible@test.com"))
     sender = get_sender()
-    create_and_wait_patch.return_value = {
-        'sender': to_dict(sender), 'changed': True}
+    create_and_wait_patch.return_value = {"sender": to_dict(sender), "changed": True}
     result = oci_sender.create_sender(email_client, module)
-    assert result['sender']['email_address'] is sender.email_address
+    assert result["sender"]["email_address"] is sender.email_address
 
 
 def test_delete_sender(email_client, delete_and_wait_patch):
-    module = get_module(dict({'sender_id': '{ocid1.sender..aa}'}))
+    module = get_module(dict({"sender_id": "{ocid1.sender..aa}"}))
     sender = get_sender()
-    delete_and_wait_patch.return_value = dict({'sender': to_dict(sender), 'changed': True})
+    delete_and_wait_patch.return_value = dict(
+        {"sender": to_dict(sender), "changed": True}
+    )
     result = oci_sender.delete_sender(email_client, module)
-    assert result['changed'] is True
-
+    assert result["changed"] is True
 
 
 def get_sender():
@@ -86,9 +85,7 @@ def get_response(status, header, data, request):
 
 
 def get_module(additional_properties):
-    params = {
-        "compartment_id": "ocid1.compartment.oc1"
-    }
+    params = {"compartment_id": "ocid1.compartment.oc1"}
     params.update(additional_properties)
     module = FakeModule(**params)
     return module

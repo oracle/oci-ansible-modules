@@ -6,16 +6,17 @@
 # See LICENSE.TXT for details.
 
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_security_list
 short_description: Create,update and delete OCI Security List
@@ -166,9 +167,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create/update Security List
 - name: Create a security list with rules
@@ -223,9 +224,9 @@ EXAMPLES = '''
   oci_security_list:
     id: 'ocid1.securitylist.xxxxxEXAMPLExxxxx'
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     security_list:
         description: Attributes of the created/updated Security List.
                     For delete, deleted Security List description will
@@ -341,7 +342,7 @@ RETURN = '''
                     "time_created":"2017-11-24T05:33:44.779000+00:00",
                     "vcn_id":"ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx"
                 }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -351,40 +352,58 @@ try:
     from oci.core import VirtualNetworkClient
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded, ClientError
     from oci.util import to_dict
-    from oci.core.models import CreateSecurityListDetails, UpdateSecurityListDetails, \
-        IngressSecurityRule, EgressSecurityRule, IcmpOptions, TcpOptions, UdpOptions, PortRange
+    from oci.core.models import (
+        CreateSecurityListDetails,
+        UpdateSecurityListDetails,
+        IngressSecurityRule,
+        EgressSecurityRule,
+        IcmpOptions,
+        TcpOptions,
+        UdpOptions,
+        PortRange,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def create_or_update_security_list(virtual_network_client, module):
-    result = dict(
-        changed=False,
-        security_list=''
-    )
-    security_list_id = module.params.get('security_list_id')
-    exclude_attributes = {'display_name': True}
-    default_attribute_values = {'egress_security_rules': {
-        'is_stateless': False}, 'ingress_security_rules': {'is_stateless': False}}
+    result = dict(changed=False, security_list="")
+    security_list_id = module.params.get("security_list_id")
+    exclude_attributes = {"display_name": True}
+    default_attribute_values = {
+        "egress_security_rules": {"is_stateless": False},
+        "ingress_security_rules": {"is_stateless": False},
+    }
     try:
         if security_list_id:
             existing_security_list = oci_utils.get_existing_resource(
-                virtual_network_client.get_security_list, module, security_list_id=security_list_id)
+                virtual_network_client.get_security_list,
+                module,
+                security_list_id=security_list_id,
+            )
             result = update_security_list(
-                virtual_network_client, existing_security_list, module)
+                virtual_network_client, existing_security_list, module
+            )
         else:
-            result = oci_utils.check_and_create_resource(resource_type='security_list',
-                                                         create_fn=create_security_list,
-                                                         kwargs_create={'virtual_network_client': virtual_network_client,
-                                                                        'module': module},
-                                                         list_fn=virtual_network_client.list_security_lists,
-                                                         kwargs_list={'compartment_id': module.params.get('compartment_id'),
-                                                                       'vcn_id': module.params.get('vcn_id')},
-                                                         exclude_attributes=exclude_attributes,
-                                                         default_attribute_values=default_attribute_values,
-                                                         module=module,
-                                                         model=CreateSecurityListDetails())
+            result = oci_utils.check_and_create_resource(
+                resource_type="security_list",
+                create_fn=create_security_list,
+                kwargs_create={
+                    "virtual_network_client": virtual_network_client,
+                    "module": module,
+                },
+                list_fn=virtual_network_client.list_security_lists,
+                kwargs_list={
+                    "compartment_id": module.params.get("compartment_id"),
+                    "vcn_id": module.params.get("vcn_id"),
+                },
+                exclude_attributes=exclude_attributes,
+                default_attribute_values=default_attribute_values,
+                module=module,
+                model=CreateSecurityListDetails(),
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as ex:
@@ -394,121 +413,157 @@ def create_or_update_security_list(virtual_network_client, module):
 
 
 def create_security_list(virtual_network_client, module):
-    input_ingress_security_rules = module.params['ingress_security_rules']
-    input_egress_security_rules = module.params['egress_security_rules']
+    input_ingress_security_rules = module.params["ingress_security_rules"]
+    input_egress_security_rules = module.params["egress_security_rules"]
     ingress_security_rules = []
     egress_security_rules = []
     if input_ingress_security_rules:
         ingress_security_rules = get_security_rules(
-            'ingress_security_rules', input_ingress_security_rules)
+            "ingress_security_rules", input_ingress_security_rules
+        )
     if input_egress_security_rules:
         egress_security_rules = get_security_rules(
-            'egress_security_rules', input_egress_security_rules)
+            "egress_security_rules", input_egress_security_rules
+        )
     create_security_list_details = CreateSecurityListDetails()
     for attribute in create_security_list_details.attribute_map:
         create_security_list_details.__setattr__(
-            attribute, module.params.get(attribute))
+            attribute, module.params.get(attribute)
+        )
     create_security_list_details.ingress_security_rules = ingress_security_rules
     create_security_list_details.egress_security_rules = egress_security_rules
-    result = oci_utils.create_and_wait(resource_type='security_list',
-                                       create_fn=virtual_network_client.create_security_list,
-                                       kwargs_create={
-                                           'create_security_list_details': create_security_list_details},
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_security_list,
-                                       get_param='security_list_id',
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="security_list",
+        create_fn=virtual_network_client.create_security_list,
+        kwargs_create={"create_security_list_details": create_security_list_details},
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_security_list,
+        get_param="security_list_id",
+        module=module,
+    )
     return result
 
 
 def update_security_list(virtual_network_client, existing_security_list, module):
     if existing_security_list is None:
-        raise ClientError(Exception("No Security List with id " +
-                                    module.params.get('security_list_id') + " is found for update"))
+        raise ClientError(
+            Exception(
+                "No Security List with id "
+                + module.params.get("security_list_id")
+                + " is found for update"
+            )
+        )
     result = dict(security_list=to_dict(existing_security_list), changed=False)
-    input_ingress_security_rules = module.params.get('ingress_security_rules')
-    input_egress_security_rules = module.params.get('egress_security_rules')
-    purge_security_rules = module.params.get('purge_security_rules')
+    input_ingress_security_rules = module.params.get("ingress_security_rules")
+    input_egress_security_rules = module.params.get("egress_security_rules")
+    purge_security_rules = module.params.get("purge_security_rules")
     name_tag_changed = False
     egress_security_rules_changed = False
     ingress_security_rules_changed = False
     update_security_list_details = UpdateSecurityListDetails()
     existing_egress_security_rule = existing_security_list.egress_security_rules
     existing_ingress_security_rule = existing_security_list.ingress_security_rules
-    attributes_to_compare = ['display_name', 'freeform_tags', 'defined_tags']
+    attributes_to_compare = ["display_name", "freeform_tags", "defined_tags"]
     for attribute in attributes_to_compare:
-        name_tag_changed = oci_utils.check_and_update_attributes(update_security_list_details, attribute,
-                                                                 module.params.get(attribute),
-                                                                 getattr(existing_security_list, attribute),
-                                                                 name_tag_changed)
+        name_tag_changed = oci_utils.check_and_update_attributes(
+            update_security_list_details,
+            attribute,
+            module.params.get(attribute),
+            getattr(existing_security_list, attribute),
+            name_tag_changed,
+        )
 
     if input_egress_security_rules is not None:
-        input_egress_security_rules = get_security_rules('egress_security_rules', input_egress_security_rules)
+        input_egress_security_rules = get_security_rules(
+            "egress_security_rules", input_egress_security_rules
+        )
         egress_security_rules, egress_security_rules_changed = oci_utils.check_and_return_component_list_difference(
-            input_egress_security_rules, get_hashed_security_rules(
-                'egress_security_rules', existing_egress_security_rule), purge_security_rules)
+            input_egress_security_rules,
+            get_hashed_security_rules(
+                "egress_security_rules", existing_egress_security_rule
+            ),
+            purge_security_rules,
+        )
 
     if input_ingress_security_rules is not None:
-        input_ingress_security_rules = get_security_rules('ingress_security_rules', input_ingress_security_rules)
+        input_ingress_security_rules = get_security_rules(
+            "ingress_security_rules", input_ingress_security_rules
+        )
         ingress_security_rules, ingress_security_rules_changed = oci_utils.check_and_return_component_list_difference(
-            input_ingress_security_rules, get_hashed_security_rules(
-                'ingress_security_rules', existing_ingress_security_rule), purge_security_rules)
+            input_ingress_security_rules,
+            get_hashed_security_rules(
+                "ingress_security_rules", existing_ingress_security_rule
+            ),
+            purge_security_rules,
+        )
 
     if egress_security_rules_changed:
         update_security_list_details.egress_security_rules = egress_security_rules
     else:
-        update_security_list_details.egress_security_rules = existing_egress_security_rule
+        update_security_list_details.egress_security_rules = (
+            existing_egress_security_rule
+        )
 
     if ingress_security_rules_changed:
         update_security_list_details.ingress_security_rules = ingress_security_rules
     else:
-        update_security_list_details.ingress_security_rules = existing_ingress_security_rule
+        update_security_list_details.ingress_security_rules = (
+            existing_ingress_security_rule
+        )
 
-    if name_tag_changed or (egress_security_rules_changed or ingress_security_rules_changed):
-        result = oci_utils.update_and_wait(resource_type='security_list',
-                                           update_fn=virtual_network_client.update_security_list,
-                                           kwargs_update={
-                                               'security_list_id': existing_security_list.id,
-                                               'update_security_list_details': update_security_list_details},
-                                           client=virtual_network_client,
-                                           get_fn=virtual_network_client.get_security_list,
-                                           get_param='security_list_id',
-                                           module=module
-                                           )
+    if name_tag_changed or (
+        egress_security_rules_changed or ingress_security_rules_changed
+    ):
+        result = oci_utils.update_and_wait(
+            resource_type="security_list",
+            update_fn=virtual_network_client.update_security_list,
+            kwargs_update={
+                "security_list_id": existing_security_list.id,
+                "update_security_list_details": update_security_list_details,
+            },
+            client=virtual_network_client,
+            get_fn=virtual_network_client.get_security_list,
+            get_param="security_list_id",
+            module=module,
+        )
     return result
 
 
 def get_hashed_security_rules(security_rules_type, security_rules):
-    supported_security_rule_simple_attributes = ['source', 'source_type',
-                                                 'destination', 'destination_type', 'is_stateless', 'protocol']
+    supported_security_rule_simple_attributes = [
+        "source",
+        "source_type",
+        "destination",
+        "destination_type",
+        "is_stateless",
+        "protocol",
+    ]
     hashed_security_rules = []
     if security_rules is None:
         return hashed_security_rules
     for security_rule in security_rules:
-        if security_rules_type == 'ingress_security_rules':
-            hashed_security_rule = oci_utils.create_hashed_instance(
-                IngressSecurityRule)
-        elif security_rules_type == 'egress_security_rules':
-            hashed_security_rule = oci_utils.create_hashed_instance(
-                EgressSecurityRule)
+        if security_rules_type == "ingress_security_rules":
+            hashed_security_rule = oci_utils.create_hashed_instance(IngressSecurityRule)
+        elif security_rules_type == "egress_security_rules":
+            hashed_security_rule = oci_utils.create_hashed_instance(EgressSecurityRule)
         for field in hashed_security_rule.attribute_map:
             value = None
-            if field == 'icmp_options':
+            if field == "icmp_options":
                 if getattr(security_rule, field):
                     source_icmp_options = getattr(security_rule, field)
                     value = oci_utils.create_hashed_instance(IcmpOptions)
                     for sub_field in source_icmp_options.attribute_map.keys():
-                        setattr(value, sub_field, getattr(
-                            source_icmp_options, sub_field))
+                        setattr(
+                            value, sub_field, getattr(source_icmp_options, sub_field)
+                        )
                 setattr(hashed_security_rule, field, value)
-            elif field == 'tcp_options':
+            elif field == "tcp_options":
                 if getattr(security_rule, field):
                     source_tcp_options = getattr(security_rule, field)
                     value = oci_utils.create_hashed_instance(TcpOptions)
                     set_port_range(source_tcp_options, value)
                 setattr(hashed_security_rule, field, value)
-            elif field == 'udp_options':
+            elif field == "udp_options":
                 if getattr(security_rule, field):
                     source_udp_options = getattr(security_rule, field)
                     value = oci_utils.create_hashed_instance(UdpOptions)
@@ -525,11 +580,9 @@ def get_hashed_security_rules(security_rules_type, security_rules):
 
 def set_port_range(source_options, target_value):
     for sub_field in source_options.attribute_map.keys():
-        source_port_range = getattr(
-            source_options, sub_field)
+        source_port_range = getattr(source_options, sub_field)
         if source_port_range:
-            setattr(target_value, sub_field, get_hashed_port_range(
-                source_port_range))
+            setattr(target_value, sub_field, get_hashed_port_range(source_port_range))
 
 
 def get_hashed_port_range(port_range):
@@ -543,37 +596,38 @@ def get_security_rules(security_rule_type, input_security_rules):
     security_rule = None
     security_rules = []
     for input_security_rule in input_security_rules:
-        if security_rule_type == 'ingress_security_rules':
-            security_rule = oci_utils.create_hashed_instance(
-                IngressSecurityRule)
-            security_rule.source = input_security_rule['source']
-            security_rule.source_type = input_security_rule.get('source_type', 'CIDR_BLOCK')
-        elif security_rule_type == 'egress_security_rules':
-            security_rule = oci_utils.create_hashed_instance(
-                EgressSecurityRule)
-            security_rule.destination = input_security_rule['destination']
-            security_rule.destination_type = input_security_rule.get('destination_type', 'CIDR_BLOCK')
-        input_icmp_options = input_security_rule.get('icmp_options', None)
+        if security_rule_type == "ingress_security_rules":
+            security_rule = oci_utils.create_hashed_instance(IngressSecurityRule)
+            security_rule.source = input_security_rule["source"]
+            security_rule.source_type = input_security_rule.get(
+                "source_type", "CIDR_BLOCK"
+            )
+        elif security_rule_type == "egress_security_rules":
+            security_rule = oci_utils.create_hashed_instance(EgressSecurityRule)
+            security_rule.destination = input_security_rule["destination"]
+            security_rule.destination_type = input_security_rule.get(
+                "destination_type", "CIDR_BLOCK"
+            )
+        input_icmp_options = input_security_rule.get("icmp_options", None)
         if input_icmp_options:
             icmp_options = oci_utils.create_hashed_instance(IcmpOptions)
-            icmp_options.type = input_icmp_options.get('type')
-            icmp_options.code = input_icmp_options.get('code', None)
+            icmp_options.type = input_icmp_options.get("type")
+            icmp_options.code = input_icmp_options.get("code", None)
             security_rule.icmp_options = icmp_options
 
-        input_tcp_options = input_security_rule.get('tcp_options', None)
+        input_tcp_options = input_security_rule.get("tcp_options", None)
         if input_tcp_options:
             tcp_options = oci_utils.create_hashed_instance(TcpOptions)
             get_protocol_option(input_tcp_options, tcp_options)
             security_rule.tcp_options = tcp_options
-        input_udp_options = input_security_rule.get('udp_options', None)
+        input_udp_options = input_security_rule.get("udp_options", None)
         if input_udp_options:
             udp_options = oci_utils.create_hashed_instance(UdpOptions)
             get_protocol_option(input_udp_options, udp_options)
             security_rule.udp_options = udp_options
 
-        security_rule.is_stateless = input_security_rule.get(
-            'is_stateless', False)
-        security_rule.protocol = input_security_rule.get('protocol')
+        security_rule.is_stateless = input_security_rule.get("is_stateless", False)
+        security_rule.protocol = input_security_rule.get("protocol")
         security_rules.append(security_rule)
 
     return security_rules
@@ -582,61 +636,74 @@ def get_security_rules(security_rule_type, input_security_rules):
 def get_protocol_option(input_protocol_options, protocol_options):
     port_range = None
     input_destination_port_range = input_protocol_options.get(
-        'destination_port_range', None)
+        "destination_port_range", None
+    )
     if input_destination_port_range:
         port_range = oci_utils.create_hashed_instance(PortRange)
-        port_range.min = input_destination_port_range['min']
-        port_range.max = input_destination_port_range['max']
+        port_range.min = input_destination_port_range["min"]
+        port_range.max = input_destination_port_range["max"]
         protocol_options.destination_port_range = port_range
-    input_source_port_range = input_protocol_options.get(
-        'source_port_range', None)
+    input_source_port_range = input_protocol_options.get("source_port_range", None)
     if input_source_port_range:
         port_range = oci_utils.create_hashed_instance(PortRange)
-        port_range.min = input_source_port_range['min']
-        port_range.max = input_source_port_range['max']
+        port_range.min = input_source_port_range["min"]
+        port_range.max = input_source_port_range["max"]
         protocol_options.source_port_range = port_range
 
 
 def delete_security_list(virtual_network_client, module):
-    result = oci_utils.delete_and_wait(resource_type="security_list",
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_security_list,
-                                       kwargs_get={"security_list_id": module.params["security_list_id"]},
-                                       delete_fn=virtual_network_client.delete_security_list,
-                                       kwargs_delete={"security_list_id": module.params["security_list_id"]},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="security_list",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_security_list,
+        kwargs_get={"security_list_id": module.params["security_list_id"]},
+        delete_fn=virtual_network_client.delete_security_list,
+        kwargs_delete={"security_list_id": module.params["security_list_id"]},
+        module=module,
+    )
     return result
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(compartment_id=dict(type='str', required=False),
-                            display_name=dict(type='str', required=False, aliases=['name']),
-                            vcn_id=dict(type='str', required=False),
-                            security_list_id=dict(type='str', required=False, aliases=['id']),
-                            state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
-                            ingress_security_rules=dict(type=list, required=False),
-                            egress_security_rules=dict(type=list, required=False),
-                            purge_security_rules=dict(type='bool', required=False, default=True)))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            vcn_id=dict(type="str", required=False),
+            security_list_id=dict(type="str", required=False, aliases=["id"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+            ingress_security_rules=dict(type=list, required=False),
+            egress_security_rules=dict(type=list, required=False),
+            purge_security_rules=dict(type="bool", required=False, default=True),
+        )
+    )
 
     module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
-        result = create_or_update_security_list(
-            virtual_network_client, module)
-    elif state == 'absent':
+    if state == "present":
+        result = create_or_update_security_list(virtual_network_client, module)
+    elif state == "absent":
         result = delete_security_list(virtual_network_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

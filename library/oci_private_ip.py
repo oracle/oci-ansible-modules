@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_private_ip
 short_description: Manage private IPs in OCI
@@ -54,9 +54,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a private IP
   oci_private_ip:
     display_name: 'ansible_private_ip'
@@ -73,9 +73,9 @@ EXAMPLES = '''
   oci_private_ip:
     private_ip_id: 'ocid1.privateip.oc1.iad.xxxxxEXAMPLExxxxx'
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 private_ip:
     description: Information about the private IP
     returned: On successful create, delete & update operation
@@ -94,7 +94,7 @@ private_ip:
             "time_created": "2018-03-28T18:37:56.190000+00:00",
             "vnic_id": "ocid1.vnic.oc1.iad.xxxxxEXAMPLExxxxx"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -103,6 +103,7 @@ try:
     from oci.core.virtual_network_client import VirtualNetworkClient
     from oci.core.models import CreatePrivateIpDetails
     from oci.core.models import UpdatePrivateIpDetails
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -110,29 +111,33 @@ except ImportError:
 
 
 def delete_private_ip(virtual_network_client, module):
-    result = oci_utils.delete_and_wait(resource_type="private_ip",
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_private_ip,
-                                       kwargs_get={"private_ip_id": module.params["private_ip_id"]},
-                                       delete_fn=virtual_network_client.delete_private_ip,
-                                       kwargs_delete={"private_ip_id": module.params["private_ip_id"]},
-                                       module=module,
-                                       wait_applicable=False
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="private_ip",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_private_ip,
+        kwargs_get={"private_ip_id": module.params["private_ip_id"]},
+        delete_fn=virtual_network_client.delete_private_ip,
+        kwargs_delete={"private_ip_id": module.params["private_ip_id"]},
+        module=module,
+        wait_applicable=False,
+    )
     return result
 
 
 def update_private_ip(virtual_network_client, module):
-    result = oci_utils.check_and_update_resource(resource_type="private_ip",
-                                                 get_fn=virtual_network_client.get_private_ip,
-                                                 kwargs_get={"private_ip_id": module.params["private_ip_id"]},
-                                                 update_fn=virtual_network_client.update_private_ip,
-                                                 primitive_params_update=['private_ip_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdatePrivateIpDetails: "update_private_ip_details"},
-                                                 module=module,
-                                                 update_attributes=UpdatePrivateIpDetails().attribute_map.keys()
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type="private_ip",
+        get_fn=virtual_network_client.get_private_ip,
+        kwargs_get={"private_ip_id": module.params["private_ip_id"]},
+        update_fn=virtual_network_client.update_private_ip,
+        primitive_params_update=["private_ip_id"],
+        kwargs_non_primitive_update={
+            UpdatePrivateIpDetails: "update_private_ip_details"
+        },
+        module=module,
+        wait_applicable=False,
+        update_attributes=UpdatePrivateIpDetails().attribute_map.keys(),
+    )
 
     return result
 
@@ -143,44 +148,54 @@ def create_private_ip(virtual_network_client, module):
         if attribute in module.params:
             setattr(create_private_ip_details, attribute, module.params[attribute])
 
-    result = oci_utils.create_and_wait(resource_type="private_ip",
-                                       create_fn=virtual_network_client.create_private_ip,
-                                       kwargs_create={"create_private_ip_details": create_private_ip_details},
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_private_ip,
-                                       get_param="private_ip_id",
-                                       module=module,
-                                       wait_applicable=False
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="private_ip",
+        create_fn=virtual_network_client.create_private_ip,
+        kwargs_create={"create_private_ip_details": create_private_ip_details},
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_private_ip,
+        get_param="private_ip_id",
+        module=module,
+        wait_applicable=False,
+    )
     return result
 
 
 def main():
     module_args = oci_utils.get_taggable_arg_spec()
-    module_args.update(dict(
-        hostname_label=dict(type='str', required=False),
-        ip_address=dict(type='str', required=False),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        vnic_id=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        private_ip_id=dict(type='str', required=False, aliases=['id'])
-    ))
+    module_args.update(
+        dict(
+            hostname_label=dict(type="str", required=False),
+            ip_address=dict(type="str", required=False),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            vnic_id=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            private_ip_id=dict(type="str", required=False, aliases=["id"]),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[('state', 'absent', ['private_ip_id'])]
+        required_if=[("state", "absent", ["private_ip_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
-    state = module.params['state']
-    private_ip_id = module.params['private_ip_id']
+    state = module.params["state"]
+    private_ip_id = module.params["private_ip_id"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_private_ip(virtual_network_client, module)
 
     else:
@@ -188,24 +203,29 @@ def main():
             result = update_private_ip(virtual_network_client, module)
         else:
             # Exclude ip_address & display_name when matching private_ips if they are not explicitly specified by user.
-            exclude_attributes = {'display_name': True, 'ip_address': True}
-            subnet_id = oci_utils.call_with_backoff(virtual_network_client.get_vnic,
-                                                    vnic_id=module.params['vnic_id']).data.subnet_id
-            result = oci_utils.check_and_create_resource(resource_type='private_ip',
-                                                         create_fn=create_private_ip,
-                                                         kwargs_create={
-                                                             'virtual_network_client': virtual_network_client,
-                                                             'module': module},
-                                                         list_fn=virtual_network_client.list_private_ips,
-                                                         kwargs_list={"vnic_id": module.params['vnic_id'],
-                                                                      "subnet_id": subnet_id},
-                                                         module=module,
-                                                         model=CreatePrivateIpDetails(),
-                                                         exclude_attributes=exclude_attributes
-                                                         )
+            exclude_attributes = {"display_name": True, "ip_address": True}
+            subnet_id = oci_utils.call_with_backoff(
+                virtual_network_client.get_vnic, vnic_id=module.params["vnic_id"]
+            ).data.subnet_id
+            result = oci_utils.check_and_create_resource(
+                resource_type="private_ip",
+                create_fn=create_private_ip,
+                kwargs_create={
+                    "virtual_network_client": virtual_network_client,
+                    "module": module,
+                },
+                list_fn=virtual_network_client.list_private_ips,
+                kwargs_list={
+                    "vnic_id": module.params["vnic_id"],
+                    "subnet_id": subnet_id,
+                },
+                module=module,
+                model=CreatePrivateIpDetails(),
+                exclude_attributes=exclude_attributes,
+            )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -6,16 +6,17 @@
 # See LICENSE.TXT for details.
 
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_sender_facts
 short_description: Fetches details of OCI Sender.
@@ -41,9 +42,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Fetch Sender
 - name: List all Senders in a compartment
   oci_sender_facts:
@@ -65,9 +66,9 @@ EXAMPLES = '''
 - name: List a specific Sender
   oci_sender_facts:
       sender_id: 'ocid1.emailsender.oc1..xxxxxEXAMPLExxxxx..qndq'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     senders:
         description: Attributes of the Fetched Sender.
         returned: success
@@ -120,7 +121,7 @@ RETURN = '''
                   "time_created":"2018-10-31T09:25:52.245000+00:00"
                  }]
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -129,6 +130,7 @@ try:
     from oci.email.email_client import EmailClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -137,30 +139,43 @@ logger = None
 
 
 def list_senders(email_client, module):
-    result = dict(
-        senders=''
-    )
-    compartment_id = module.params.get('compartment_id')
-    sender_id = module.params.get('sender_id')
+    result = dict(senders="")
+    compartment_id = module.params.get("compartment_id")
+    sender_id = module.params.get("sender_id")
     try:
         if compartment_id:
-            get_logger().debug("Listing all senders under compartment %s", compartment_id)
-            optional_list_method_params = ['email_address', 'lifecycle_state']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            existing_senders_summary = to_dict(oci_utils.list_all_resources(email_client.list_senders,
-                                                                            compartment_id=compartment_id,
-                                                                            **optional_kwargs))
-            existing_senders = [oci_utils.call_with_backoff(
-                email_client.get_sender, sender_id=sender['id']).data for sender in existing_senders_summary]
+            get_logger().debug(
+                "Listing all senders under compartment %s", compartment_id
+            )
+            optional_list_method_params = ["email_address", "lifecycle_state"]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            existing_senders_summary = to_dict(
+                oci_utils.list_all_resources(
+                    email_client.list_senders,
+                    compartment_id=compartment_id,
+                    **optional_kwargs
+                )
+            )
+            existing_senders = [
+                oci_utils.call_with_backoff(
+                    email_client.get_sender, sender_id=sender["id"]
+                ).data
+                for sender in existing_senders_summary
+            ]
         elif sender_id:
             get_logger().debug("Listing sender %s", sender_id)
-            response = oci_utils.call_with_backoff(email_client.get_sender, sender_id=sender_id)
+            response = oci_utils.call_with_backoff(
+                email_client.get_sender, sender_id=sender_id
+            )
             existing_senders = [response.data]
     except ServiceError as ex:
         get_logger().error("Unable to list senders due to %s", ex.message)
         module.fail_json(msg=ex.message)
-    result['senders'] = to_dict(existing_senders)
+    result["senders"] = to_dict(existing_senders)
     return result
 
 
@@ -177,21 +192,24 @@ def main():
     logger = oci_utils.get_logger("oci_sender_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        sender_id=dict(type='str', required=False, aliases=['id']),
-        lifecycle_state=dict(type='str', required=False, choices=['CREATING', 'ACTIVE', 'DELETING', 'DELETED']),
-        email_address=dict(type=str, required=False)
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            sender_id=dict(type="str", required=False, aliases=["id"]),
+            lifecycle_state=dict(
+                type="str",
+                required=False,
+                choices=["CREATING", "ACTIVE", "DELETING", "DELETED"],
+            ),
+            email_address=dict(type=str, required=False),
+        )
+    )
     module = AnsibleModule(
-        argument_spec=module_args,
-        mutually_exclusive=[
-            ['compartment_id', 'sender_id']
-        ]
+        argument_spec=module_args, mutually_exclusive=[["compartment_id", "sender_id"]]
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     email_client = oci_utils.create_service_client(module, EmailClient)
     result = list_senders(email_client, module)
@@ -199,5 +217,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

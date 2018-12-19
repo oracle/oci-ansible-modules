@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_console_history
 short_description: Manage console histories for compute instances in OCI
@@ -45,9 +45,9 @@ options:
         choices: ['present', 'absent']
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a console history
   oci_console_history:
     instance_id: ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx...lxiggdq
@@ -62,9 +62,9 @@ EXAMPLES = '''
   oci_console_history:
     id: ocid1.consolehistory.oc1.iad.xxxxxEXAMPLExxxxx...tc7a
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 console_history:
     description: Information about the console history of an OCI compute instance
     returned: On successful capture, delete operations on console histories
@@ -128,14 +128,17 @@ console_history:
                 "lifecycle-state": "REQUESTED",
                 "time-created": "2018-11-05T13:58:01.944000+00:00"
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
 try:
     from oci.core.compute_client import ComputeClient
-    from oci.core.models import CaptureConsoleHistoryDetails, UpdateConsoleHistoryDetails
+    from oci.core.models import (
+        CaptureConsoleHistoryDetails,
+        UpdateConsoleHistoryDetails,
+    )
 
     HAS_OCI_PY_SDK = True
 
@@ -144,30 +147,38 @@ except ImportError:
 
 
 def delete_console_history(compute_client, module):
-    result = oci_utils.delete_and_wait(resource_type="console_history",
-                                       client=compute_client,
-                                       get_fn=compute_client.get_console_history,
-                                       kwargs_get={
-                                           "instance_console_history_id": module.params['instance_console_history_id']},
-                                       delete_fn=compute_client.delete_console_history,
-                                       kwargs_delete={
-                                           "instance_console_history_id": module.params['instance_console_history_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="console_history",
+        client=compute_client,
+        get_fn=compute_client.get_console_history,
+        kwargs_get={
+            "instance_console_history_id": module.params["instance_console_history_id"]
+        },
+        delete_fn=compute_client.delete_console_history,
+        kwargs_delete={
+            "instance_console_history_id": module.params["instance_console_history_id"]
+        },
+        module=module,
+    )
     return result
 
 
 def update_console_history(compute_client, module):
-    result = oci_utils.check_and_update_resource(resource_type="console_history",
-                                                 get_fn=compute_client.get_console_history,
-                                                 kwargs_get={"instance_console_history_id": module.params["instance_console_history_id"]},
-                                                 update_fn=compute_client.update_console_history,
-                                                 primitive_params_update=['instance_console_history_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateConsoleHistoryDetails: "update_console_history_details"},
-                                                 module=module,
-                                                 update_attributes=UpdateConsoleHistoryDetails().attribute_map.keys(),
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type="console_history",
+        client=compute_client,
+        get_fn=compute_client.get_console_history,
+        kwargs_get={
+            "instance_console_history_id": module.params["instance_console_history_id"]
+        },
+        update_fn=compute_client.update_console_history,
+        primitive_params_update=["instance_console_history_id"],
+        kwargs_non_primitive_update={
+            UpdateConsoleHistoryDetails: "update_console_history_details"
+        },
+        module=module,
+        update_attributes=UpdateConsoleHistoryDetails().attribute_map.keys(),
+    )
     return result
 
 
@@ -175,74 +186,94 @@ def capture_console_history(compute_client, module):
     capture_console_history_details = CaptureConsoleHistoryDetails()
     for attribute in capture_console_history_details.attribute_map:
         if attribute in module.params:
-            setattr(capture_console_history_details, attribute, module.params[attribute])
+            setattr(
+                capture_console_history_details, attribute, module.params[attribute]
+            )
 
-    result = oci_utils.create_and_wait(resource_type="console_history",
-                                       create_fn=compute_client.capture_console_history,
-                                       kwargs_create={
-                                           "capture_console_history_details": capture_console_history_details},
-                                       client=compute_client,
-                                       get_fn=compute_client.get_console_history,
-                                       get_param="instance_console_history_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="console_history",
+        create_fn=compute_client.capture_console_history,
+        kwargs_create={
+            "capture_console_history_details": capture_console_history_details
+        },
+        client=compute_client,
+        get_fn=compute_client.get_console_history,
+        get_param="instance_console_history_id",
+        module=module,
+    )
 
     return result
 
 
 def _get_compartment_of_instance(compute_client, instance_id):
-    return oci_utils.call_with_backoff(compute_client.get_instance, instance_id=instance_id).data.compartment_id
+    return oci_utils.call_with_backoff(
+        compute_client.get_instance, instance_id=instance_id
+    ).data.compartment_id
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        instance_id=dict(type='str', required=False),
-        name=dict(type='str', required=False, aliases=['display_name']),
-        instance_console_history_id=dict(type='str', required=False, aliases=['id']),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present'])
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            instance_id=dict(type="str", required=False),
+            name=dict(type="str", required=False, aliases=["display_name"]),
+            instance_console_history_id=dict(
+                type="str", required=False, aliases=["id"]
+            ),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['console_history_id', 'instance_id'],
-        required_if=[('state', 'absent', ['instance_console_history_id'])]
+        mutually_exclusive=["console_history_id", "instance_id"],
+        required_if=[("state", "absent", ["instance_console_history_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
 
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_console_history(compute_client, module)
 
     else:
-        console_history_id = module.params['instance_console_history_id']
+        console_history_id = module.params["instance_console_history_id"]
         if console_history_id is not None:
             # Update service gateway details.
             result = update_console_history(compute_client, module)
         else:
-            instance_id = module.params['instance_id']
+            instance_id = module.params["instance_id"]
 
-            kwargs_list = {'instance_id': instance_id,
-                           'compartment_id': _get_compartment_of_instance(compute_client, instance_id)}
+            kwargs_list = {
+                "instance_id": instance_id,
+                "compartment_id": _get_compartment_of_instance(
+                    compute_client, instance_id
+                ),
+            }
 
-            result = oci_utils.check_and_create_resource(resource_type='console_history',
-                                                         create_fn=capture_console_history,
-                                                         kwargs_create={
-                                                             'compute_client': compute_client,
-                                                             'module': module},
-                                                         list_fn=compute_client.list_console_histories,
-                                                         kwargs_list=kwargs_list,
-                                                         module=module,
-                                                         model=CaptureConsoleHistoryDetails()
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="console_history",
+                create_fn=capture_console_history,
+                kwargs_create={"compute_client": compute_client, "module": module},
+                list_fn=compute_client.list_console_histories,
+                kwargs_list=kwargs_list,
+                module=module,
+                model=CaptureConsoleHistoryDetails(),
+            )
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

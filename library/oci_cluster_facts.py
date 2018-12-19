@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_cluster_facts
 short_description: Retrieve facts of clusters in OCI Container Engine for Kubernetes Service
@@ -37,11 +37,12 @@ options:
                      are "CREATING", "ACTIVE", "FAILED", "DELETING", "DELETED", "UPDATING".
         required: false
         type: list
+        choices: ['CREATING', 'ACTIVE', 'FAILED', 'DELETING', 'DELETED', 'UPDATING']
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get all the clusters
   oci_cluster_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
@@ -54,9 +55,9 @@ EXAMPLES = '''
   oci_cluster_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
     name: test_cluster
-'''
+"""
 
-RETURN = '''
+RETURN = """
 clusters:
     description: List of cluster details
     returned: always
@@ -148,7 +149,7 @@ clusters:
             },
             "vcn_id": "ocid1.vcn.oc1.iad.xxxxxEXAMPLExxxxx"
         }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -158,6 +159,7 @@ try:
     from oci.container_engine.container_engine_client import ContainerEngineClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -166,40 +168,64 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
-    module_args.update(dict(
-        cluster_id=dict(type='str', required=False, aliases=['id']),
-        compartment_id=dict(type='str', required=False),
-        lifecycle_state=dict(type='list', required=False)
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False
+    module_args.update(
+        dict(
+            cluster_id=dict(type="str", required=False, aliases=["id"]),
+            compartment_id=dict(type="str", required=False),
+            lifecycle_state=dict(
+                type="list",
+                required=False,
+                choices=[
+                    "CREATING",
+                    "ACTIVE",
+                    "FAILED",
+                    "DELETING",
+                    "DELETED",
+                    "UPDATING",
+                ],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    container_engine_client = oci_utils.create_service_client(module, ContainerEngineClient)
+    container_engine_client = oci_utils.create_service_client(
+        module, ContainerEngineClient
+    )
 
-    cluster_id = module.params['cluster_id']
+    cluster_id = module.params["cluster_id"]
 
     try:
         if cluster_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(container_engine_client.get_cluster,
-                                                          cluster_id=cluster_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        container_engine_client.get_cluster, cluster_id=cluster_id
+                    ).data
+                )
+            ]
         else:
-            optional_list_method_params = ['name', 'lifecycle_state']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            result = to_dict(oci_utils.list_all_resources(container_engine_client.list_clusters,
-                                                          compartment_id=module.params['compartment_id'],
-                                                          **optional_kwargs))
+            optional_list_method_params = ["name", "lifecycle_state"]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    container_engine_client.list_clusters,
+                    compartment_id=module.params["compartment_id"],
+                    **optional_kwargs
+                )
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(clusters=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_region_subscription_facts
 short_description: Retrieve details of the region subscriptions for the specified tenancy.
@@ -29,15 +30,15 @@ options:
 version_added: "2.5"
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get region subscription details of the specified tenancy
   oci_region_subscription_facts:
     id: "ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx...o244pucq"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 region_subscriptions:
     description: Region subscription information about the specified tenancy
     returned: on success
@@ -78,7 +79,7 @@ region_subscriptions:
                   "region_name": "us-phoenix-1"
                 }
           ]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -87,6 +88,7 @@ try:
     from oci.identity.identity_client import IdentityClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -94,9 +96,10 @@ except ImportError:
 
 def list_region_subscriptions(identity_client, module):
     try:
-        tenancy_ocid = module.params['tenancy_id']
-        region_subscriptions = oci_utils.call_with_backoff(identity_client.list_region_subscriptions,
-                                                           tenancy_id=tenancy_ocid).data
+        tenancy_ocid = module.params["tenancy_id"]
+        region_subscriptions = oci_utils.call_with_backoff(
+            identity_client.list_region_subscriptions, tenancy_id=tenancy_ocid
+        ).data
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
@@ -105,15 +108,12 @@ def list_region_subscriptions(identity_client, module):
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(tenancy_id=dict(type='str', required=True, aliases=['id'])))
+    module_args.update(dict(tenancy_id=dict(type="str", required=True, aliases=["id"])))
 
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
-    )
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
@@ -121,5 +121,5 @@ def main():
     module.exit_json(region_subscriptions=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -6,16 +6,17 @@
 # See LICENSE.TXT for details.
 
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_load_balancer_listener_facts
 short_description: Fetch details of all listeners of a load balancer
@@ -33,9 +34,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 #Fetch details of all listener of a load balancer
 - name: List all Listeners
   oci_load_balancer_listener_facts:
@@ -46,9 +47,9 @@ EXAMPLES = '''
   oci_load_balancer_listener_facts:
       load_balancer_id: 'ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx'
       name: 'ansible_listener'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     listeners:
         description: Attributes of Listener.
         returned: success
@@ -120,7 +121,7 @@ RETURN = '''
                         "idle_timeout": 1200
                     }
                }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils, oci_lb_utils
@@ -129,6 +130,7 @@ try:
     from oci.load_balancer.load_balancer_client import LoadBalancerClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -137,31 +139,36 @@ logger = None
 
 
 def list_load_balancer_listeners(lb_client, module):
-    result = dict(
-        listeners=''
-    )
-    load_balancer_id = module.params.get('load_balancer_id')
-    name = module.params.get('name')
+    result = dict(listeners="")
+    load_balancer_id = module.params.get("load_balancer_id")
+    name = module.params.get("name")
     try:
-        existing_load_balancer = to_dict(oci_lb_utils.get_existing_load_balancer(lb_client, module, load_balancer_id))
+        existing_load_balancer = to_dict(
+            oci_lb_utils.get_existing_load_balancer(lb_client, module, load_balancer_id)
+        )
         if name:
-            get_logger().info("Listing all attributes of  listener %s in load balancer %s",
-                              name, load_balancer_id)
-            if name in existing_load_balancer.get('listeners'):
-                listeners = [existing_load_balancer['listeners'][name]]
+            get_logger().info(
+                "Listing all attributes of  listener %s in load balancer %s",
+                name,
+                load_balancer_id,
+            )
+            if name in existing_load_balancer.get("listeners"):
+                listeners = [existing_load_balancer["listeners"][name]]
             else:
                 listeners = []
         else:
-            get_logger().info("Listing all attributes of  all listeners in load balancer %s",
-                              load_balancer_id)
+            get_logger().info(
+                "Listing all attributes of  all listeners in load balancer %s",
+                load_balancer_id,
+            )
             listeners_list = []
-            for _, value in existing_load_balancer['listeners'].items():
+            for key, value in existing_load_balancer["listeners"].items():
                 listeners_list.append(value)
             listeners = listeners_list
     except ServiceError as ex:
         get_logger().error("Unable to list listeners due to: %s", ex.message)
         module.fail_json(msg=ex.message)
-    result['listeners'] = listeners
+    result["listeners"] = listeners
     return result
 
 
@@ -178,21 +185,21 @@ def main():
     logger = oci_utils.get_logger("oci_load_balancer_listener_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        load_balancer_id=dict(type='str', required=True, aliases=['id']),
-        name=dict(type='str', required=False)
-    ))
-    module = AnsibleModule(
-        argument_spec=module_args,
+    module_args.update(
+        dict(
+            load_balancer_id=dict(type="str", required=True, aliases=["id"]),
+            name=dict(type="str", required=False),
+        )
     )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
     lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
     result = list_load_balancer_listeners(lb_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

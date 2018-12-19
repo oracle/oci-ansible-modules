@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_instance
 short_description: Launch, terminate and control the lifecycle of OCI Compute instances
@@ -231,9 +231,9 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Launch/create an instance using an image, with custom metadata and a private IP assignment
   oci_instance:
      name: myinstance1
@@ -335,9 +335,9 @@ EXAMPLES = '''
      count_tag:
         TagNamespace1: { Application: App1 }
 
-'''
+"""
 
-RETURN = '''
+RETURN = """
 instance:
     description: Details of the OCI compute instance launched, updated or terminated as a result of the current operation
     returned: On successful operation (create, update and terminate) on a single Compute instance
@@ -1166,13 +1166,13 @@ terminated_instances:
                     returned: always
                     type: string
                     sample: ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_utils, oci_compute_utils
 from ansible.module_utils.oracle.oci_utils import check_mode
 
-import six
+from ansible.module_utils import six
 from multiprocessing.dummy import Pool as ThreadPool
 
 try:
@@ -1195,48 +1195,32 @@ except ImportError:
 RESOURCE_NAME = "instance"
 
 
-def get_volume_attachments(compute_client, instance):
-    param_map = {'instance_id': instance['id'],
-                 'compartment_id': instance['compartment_id']}
-
-    volume_attachments = to_dict(oci_utils.list_all_resources(compute_client.list_volume_attachments,
-                                                              **param_map))
-    return volume_attachments
-
-
-def get_boot_volume_attachment(compute_client, instance):
-    param_map = {'availability_domain': instance['availability_domain'],
-                 'instance_id': instance['id'],
-                 'compartment_id': instance['compartment_id']}
-
-    boot_volume_attachments = to_dict(oci_utils.list_all_resources(compute_client.list_boot_volume_attachments,
-                                                                   **param_map))
-
-    if boot_volume_attachments:
-        return boot_volume_attachments[0]
-    return None
-
-
 def detach_volume(compute_client, module, volume_attachment_id):
     result = dict()
-    result['changed'] = False
+    result["changed"] = False
 
     try:
-        volume_attachment = oci_utils.call_with_backoff(compute_client.get_volume_attachment,
-                                                        volume_attachment_id=volume_attachment_id).data
-        if volume_attachment.lifecycle_state in {'DETACHING', 'DETACHED'}:
-            result['changed'] = False
-            result['volume_attachment'] = to_dict(volume_attachment)
+        volume_attachment = oci_utils.call_with_backoff(
+            compute_client.get_volume_attachment,
+            volume_attachment_id=volume_attachment_id,
+        ).data
+        if volume_attachment.lifecycle_state in {"DETACHING", "DETACHED"}:
+            result["changed"] = False
+            result["volume_attachment"] = to_dict(volume_attachment)
         else:
-            oci_utils.call_with_backoff(compute_client.detach_volume,
-                                        volume_attachment_id=volume_attachment_id)
-            response = oci_utils.call_with_backoff(compute_client.get_volume_attachment,
-                                                   volume_attachment_id=volume_attachment_id)
-            result['volume_attachment'] = to_dict(oci.wait_until(compute_client,
-                                                                 response,
-                                                                 'lifecycle_state',
-                                                                 'DETACHED').data)
-            result['changed'] = True
+            oci_utils.call_with_backoff(
+                compute_client.detach_volume, volume_attachment_id=volume_attachment_id
+            )
+            response = oci_utils.call_with_backoff(
+                compute_client.get_volume_attachment,
+                volume_attachment_id=volume_attachment_id,
+            )
+            result["volume_attachment"] = to_dict(
+                oci.wait_until(
+                    compute_client, response, "lifecycle_state", "DETACHED"
+                ).data
+            )
+            result["changed"] = True
     except MaximumWaitTimeExceeded as ex:
         module.fail_json(msg=str(ex))
     except ServiceError as ex:
@@ -1256,16 +1240,19 @@ def get_attach_volume_details(instance_id, volume_id, type, attachment_name=None
 
 def attach_volume(compute_client, module, attach_volume_details):
     result = dict()
-    result['changed'] = False
+    result["changed"] = False
 
     try:
-        response = oci_utils.call_with_backoff(compute_client.attach_volume,
-                                               attach_volume_details=attach_volume_details)
-        response = oci_utils.call_with_backoff(compute_client.get_volume_attachment,
-                                               volume_attachment_id=response.data.id)
-        result['volume_attachment'] = to_dict(
-            oci.wait_until(compute_client, response, 'lifecycle_state', 'ATTACHED').data)
-        result['changed'] = True
+        response = oci_utils.call_with_backoff(
+            compute_client.attach_volume, attach_volume_details=attach_volume_details
+        )
+        response = oci_utils.call_with_backoff(
+            compute_client.get_volume_attachment, volume_attachment_id=response.data.id
+        )
+        result["volume_attachment"] = to_dict(
+            oci.wait_until(compute_client, response, "lifecycle_state", "ATTACHED").data
+        )
+        result["changed"] = True
         return result
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -1274,12 +1261,18 @@ def attach_volume(compute_client, module, attach_volume_details):
 
 
 def terminate_instance(compute_client, id, module):
-    return oci_utils.delete_and_wait(resource_type=RESOURCE_NAME, client=compute_client,
-                                     get_fn=compute_client.get_instance,
-                                     kwargs_get={"instance_id": id}, delete_fn=compute_client.terminate_instance,
-                                     kwargs_delete={"instance_id": id,
-                                                    "preserve_boot_volume": module.params['preserve_boot_volume']},
-                                     module=module)
+    return oci_utils.delete_and_wait(
+        resource_type=RESOURCE_NAME,
+        client=compute_client,
+        get_fn=compute_client.get_instance,
+        kwargs_get={"instance_id": id},
+        delete_fn=compute_client.terminate_instance,
+        kwargs_delete={
+            "instance_id": id,
+            "preserve_boot_volume": module.params["preserve_boot_volume"],
+        },
+        module=module,
+    )
 
 
 def update_instance(compute_client, instance, module):
@@ -1287,23 +1280,32 @@ def update_instance(compute_client, instance, module):
     changed = False
     try:
         uid = UpdateInstanceDetails()
-        if not oci_utils.are_attrs_equal(current_resource=instance, module=module, attributes=uid.attribute_map.keys()):
+        if not oci_utils.are_attrs_equal(
+            current_resource=instance,
+            module=module,
+            attributes=uid.attribute_map.keys(),
+        ):
             # Update-able attributes are unequal, let us update the resource
-            uid = oci_utils.update_model_with_user_options(curr_model=instance, update_model=uid, module=module)
+            uid = oci_utils.update_model_with_user_options(
+                curr_model=instance, update_model=uid, module=module
+            )
 
-            response = oci_utils.call_with_backoff(compute_client.update_instance, instance_id=instance.id,
-                                                   update_instance_details=uid)
+            response = oci_utils.call_with_backoff(
+                compute_client.update_instance,
+                instance_id=instance.id,
+                update_instance_details=uid,
+            )
             changed = True
-            result['instances'] = [to_dict(response.data)]
-            result['instance'] = to_dict(response.data)  # retain for backward compat
+            result["instances"] = [to_dict(response.data)]
+            result["instance"] = to_dict(response.data)  # retain for backward compat
         else:
             # No change needed, return the current instance
-            result['instances'] = [to_dict(instance)]
-            result['instance'] = to_dict(instance)  # retain for backward compat
+            result["instances"] = [to_dict(instance)]
+            result["instance"] = to_dict(instance)  # retain for backward compat
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    result['changed'] = changed
+    result["changed"] = changed
     return result
 
 
@@ -1311,19 +1313,23 @@ def power_action_on_instance(compute_client, id, desired_state, module):
     result = {}
     changed = False
     # The power action to execute on a compute instance to reach the desired 'state'
-    state_action_map = {"stopped": "STOP",
-                        "running": "START",
-                        "reset": "RESET",
-                        "softreset": "SOFTRESET"
-                        }
+    state_action_map = {
+        "stopped": "STOP",
+        "running": "START",
+        "reset": "RESET",
+        "softreset": "SOFTRESET",
+    }
     # The desired lifecycle state for the compute instance to reach the user specified 'state'
-    desired_lifecycle_states = {'stopped': 'STOPPED',
-                                'running': 'RUNNING',
-                                'reset': 'RUNNING',
-                                'softreset': 'RUNNING'
-                                }
+    desired_lifecycle_states = {
+        "stopped": "STOPPED",
+        "running": "RUNNING",
+        "reset": "RUNNING",
+        "softreset": "RUNNING",
+    }
     try:
-        response = oci_utils.call_with_backoff(compute_client.get_instance, instance_id=id)
+        response = oci_utils.call_with_backoff(
+            compute_client.get_instance, instance_id=id
+        )
         curr_state = response.data.lifecycle_state
 
         change_required = False
@@ -1333,32 +1339,53 @@ def power_action_on_instance(compute_client, id, desired_state, module):
             change_required = True
 
         # Resets also require a change
-        if desired_state in ['softreset', 'reset']:
+        if desired_state in ["softreset", "reset"]:
             change_required = True
 
         if change_required:
             changed = True
-            oci_utils.call_with_backoff(compute_client.instance_action, instance_id=id,
-                                        action=state_action_map[desired_state])
-            response = oci_utils.call_with_backoff(compute_client.get_instance, instance_id=id)
+            oci_utils.call_with_backoff(
+                compute_client.instance_action,
+                instance_id=id,
+                action=state_action_map[desired_state],
+            )
+            response = oci_utils.call_with_backoff(
+                compute_client.get_instance, instance_id=id
+            )
             # for now the power actions on instances do not go through common utilities for wait.
-            if module.params.get('wait', None):
-                debug("waiting for lifecycle_state to reach {0}".format(desired_lifecycle_states[desired_state]))
-                oci.wait_until(compute_client, response, 'lifecycle_state', desired_lifecycle_states[desired_state],
-                               max_wait_seconds=module.params.get('wait_timeout',
-                                                                  oci_utils.MAX_WAIT_TIMEOUT_IN_SECONDS))
-                response = oci_utils.call_with_backoff(compute_client.get_instance, instance_id=id)
+            if module.params.get("wait", None):
+                debug(
+                    "waiting for lifecycle_state to reach {0}".format(
+                        desired_lifecycle_states[desired_state]
+                    )
+                )
+                oci.wait_until(
+                    compute_client,
+                    response,
+                    "lifecycle_state",
+                    desired_lifecycle_states[desired_state],
+                    max_wait_seconds=module.params.get(
+                        "wait_timeout", oci_utils.MAX_WAIT_TIMEOUT_IN_SECONDS
+                    ),
+                )
+                response = oci_utils.call_with_backoff(
+                    compute_client.get_instance, instance_id=id
+                )
             else:
-                debug("Not waiting for power action request {0} as 'wait' is false.".format(desired_state))
+                debug(
+                    "Not waiting for power action request {0} as 'wait' is false.".format(
+                        desired_state
+                    )
+                )
 
-        result['instances'] = [to_dict(response.data)]
-        result['instance'] = to_dict(response.data)  # retain for backward compat
+        result["instances"] = [to_dict(response.data)]
+        result["instance"] = to_dict(response.data)  # retain for backward compat
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as ex:
         module.fail_json(msg=str(ex))
 
-    result['changed'] = changed
+    result["changed"] = changed
     return result
 
 
@@ -1368,29 +1395,34 @@ def launch_instance(compute_client, module, display_name_override=None):
     lid.create_vnic_details = cvd
 
     debug("Provisioning " + str(lid))
-    result = oci_utils.create_and_wait(resource_type=RESOURCE_NAME, client=compute_client,
-                                       create_fn=compute_client.launch_instance,
-                                       kwargs_create={"launch_instance_details": lid},
-                                       get_fn=compute_client.get_instance,
-                                       get_param="instance_id",
-                                       module=module)
+    result = oci_utils.create_and_wait(
+        resource_type=RESOURCE_NAME,
+        client=compute_client,
+        create_fn=compute_client.launch_instance,
+        kwargs_create={"launch_instance_details": lid},
+        get_fn=compute_client.get_instance,
+        get_param="instance_id",
+        module=module,
+    )
     return result
 
 
 def get_vnic_details(module):
-    vnic_details = module.params.get('vnic', None)
+    vnic_details = module.params.get("vnic", None)
     if not vnic_details:
         # Primary VNIC details(especially subnet_id is required)
-        module.fail_json(msg="state is present and instance_id is not specified, but create_vnic_details is not "
-                             "specified.")
+        module.fail_json(
+            msg="state is present and instance_id is not specified, but create_vnic_details is not "
+            "specified."
+        )
 
     cvd = CreateVnicDetails()
-    cvd.display_name = vnic_details.get('name', None)
-    cvd.assign_public_ip = vnic_details.get('assign_public_ip', None)
-    cvd.hostname_label = vnic_details.get('hostname_label', None)
-    cvd.private_ip = vnic_details.get('private_ip', None)
-    cvd.skip_source_dest_check = vnic_details.get('skip_source_dest_check', None)
-    cvd.subnet_id = vnic_details['subnet_id']
+    cvd.display_name = vnic_details.get("name", None)
+    cvd.assign_public_ip = vnic_details.get("assign_public_ip", None)
+    cvd.hostname_label = vnic_details.get("hostname_label", None)
+    cvd.private_ip = vnic_details.get("private_ip", None)
+    cvd.skip_source_dest_check = vnic_details.get("skip_source_dest_check", None)
+    cvd.subnet_id = vnic_details["subnet_id"]
     return cvd
 
 
@@ -1401,46 +1433,59 @@ def get_launch_instance_details(module, display_name_override=None):
     if display_name_override is not None:
         lid.display_name = display_name_override
     else:
-        lid.display_name = module.params['name']
+        lid.display_name = module.params["name"]
 
-    lid.availability_domain = module.params['availability_domain']
-    lid.compartment_id = module.params['compartment_id']
+    lid.availability_domain = module.params["availability_domain"]
+    lid.compartment_id = module.params["compartment_id"]
 
     # 'fault_domain' requires OCI Python SDK 2.0.1
-    fault_domain = module.params['fault_domain']
+    fault_domain = module.params["fault_domain"]
     if fault_domain is not None:
-        if 'fault_domain' in lid.attribute_map:
+        if "fault_domain" in lid.attribute_map:
             lid.fault_domain = fault_domain
         else:
-            module.fail_json(msg="OCI Python SDK 2.0.1 or above is required to support `fault_domain`. The local SDK"
-                                 "version is {0}".format(oci.__version__))
+            module.fail_json(
+                msg="OCI Python SDK 2.0.1 or above is required to support `fault_domain`. The local SDK"
+                "version is {0}".format(oci.__version__)
+            )
 
-    lid.extended_metadata = module.params['extended_metadata']
-    lid.metadata = module.params['metadata']
-    lid.ipxe_script = module.params['ipxe_script']
-    lid.shape = module.params['shape']
+    lid.extended_metadata = module.params["extended_metadata"]
+    lid.metadata = module.params["metadata"]
+    lid.ipxe_script = module.params["ipxe_script"]
+    lid.shape = module.params["shape"]
     oci_utils.add_tags_to_model_from_module(lid, module)
 
     # An instance's source can either be specified by top-level options "image_id" or via "source_details"
     if "image_id" in module.params and module.params["image_id"] is not None:
-        lid.source_details = _create_instance_source_via_image(module.params["image_id"])
-    elif "source_details" in module.params and module.params["source_details"] is not None:
+        lid.source_details = _create_instance_source_via_image(
+            module.params["image_id"]
+        )
+    elif (
+        "source_details" in module.params
+        and module.params["source_details"] is not None
+    ):
         source_details = module.params["source_details"]
         source_type = source_details.get("source_type", None)
         if source_type == "image":
             image_id = source_details.get("image_id", None)
             if not image_id:
-                module.fail_json(msg="state is present, source_details' type is specified as image, but image_id is not"
-                                     "specified")
+                module.fail_json(
+                    msg="state is present, source_details' type is specified as image, but image_id is not"
+                    "specified"
+                )
             lid.source_details = _create_instance_source_via_image(image_id)
         elif source_type == "bootVolume":
             boot_volume_id = source_details.get("boot_volume_id", None)
             if not boot_volume_id:
-                module.fail_json(msg="state is present, source_details' type is specified as bootVolume, but "
-                                     "boot_volume_id is not specified")
+                module.fail_json(
+                    msg="state is present, source_details' type is specified as bootVolume, but "
+                    "boot_volume_id is not specified"
+                )
             lid.source_details = _create_instance_source_via_boot_volume(boot_volume_id)
         else:
-            module.fail_json(msg="value of source_type must be one of: 'bootVolume', 'image'")
+            module.fail_json(
+                msg="value of source_type must be one of: 'bootVolume', 'image'"
+            )
 
     return lid
 
@@ -1463,66 +1508,74 @@ def debug(s):
 
 def handle_volume_attachment(compute_client, module, volume_id, instance_id):
     result = dict()
-    volume_details = module.params['volume_details']
-    compartment_id = module.params['compartment_id']
+    volume_details = module.params["volume_details"]
+    compartment_id = module.params["compartment_id"]
     if instance_id is None:
-        instance_id = module.params['instance_id']
+        instance_id = module.params["instance_id"]
 
     if compartment_id is None:
         compartment_id = compute_client.get_instance(instance_id).data.compartment_id
 
     try:
         # Check if volume_id is already attached to instance_id
-        volume_attachments = to_dict(compute_client.list_volume_attachments(compartment_id,
-                                                                            instance_id=instance_id,
-                                                                            volume_id=volume_id).data)
+        volume_attachments = to_dict(
+            compute_client.list_volume_attachments(
+                compartment_id, instance_id=instance_id, volume_id=volume_id
+            ).data
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     # Case when volume_id is already ATTACHED or is ATTACHING to instance_id
     for volume_attachment in volume_attachments:
-        if volume_attachment['lifecycle_state'] in ["ATTACHING", "ATTACHED"]:
-            result['changed'] = False
+        if volume_attachment["lifecycle_state"] in ["ATTACHING", "ATTACHED"]:
+            result["changed"] = False
             return result
 
     key_list = ["attachment_name", "type"]
-    param_map = {k: v for (k, v) in six.iteritems(volume_details) if k in key_list and v is not None}
+    param_map = {
+        k: v
+        for (k, v) in six.iteritems(volume_details)
+        if k in key_list and v is not None
+    }
 
-    attach_volume_details = get_attach_volume_details(instance_id=instance_id,
-                                                      volume_id=volume_id,
-                                                      **param_map)
+    attach_volume_details = get_attach_volume_details(
+        instance_id=instance_id, volume_id=volume_id, **param_map
+    )
 
     return attach_volume(compute_client, module, attach_volume_details)
 
 
 def handle_volume_detachment(compute_client, module, volume_id):
     result = dict()
-    compartment_id = module.params['compartment_id']
-    instance_id = module.params['instance_id']
+    compartment_id = module.params["compartment_id"]
+    instance_id = module.params["instance_id"]
     if compartment_id is None:
         compartment_id = compute_client.get_instance(instance_id).data.compartment_id
 
     try:
         # Get the volume attachment with the instance_id & volume_id
-        volume_attachments = to_dict(compute_client.list_volume_attachments(compartment_id,
-                                                                            instance_id=instance_id,
-                                                                            volume_id=volume_id).data)
+        volume_attachments = to_dict(
+            compute_client.list_volume_attachments(
+                compartment_id, instance_id=instance_id, volume_id=volume_id
+            ).data
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     # Volume attachment with volume_id & instance_id does not exist
 
     if not volume_attachments:
-        result['changed'] = False
+        result["changed"] = False
         return result
 
     for volume_attachment in volume_attachments:
-        if volume_attachment['lifecycle_state'] in ["ATTACHED"]:
-            volume_attachment_id = volume_attachment['id']
+        if volume_attachment["lifecycle_state"] in ["ATTACHED"]:
+            volume_attachment_id = volume_attachment["id"]
             return detach_volume(compute_client, module, volume_attachment_id)
 
     # Case when all volume attachments for instance_id & volume_id are in non-ATTACHED state
-    result['changed'] = False
+    result["changed"] = False
     return result
 
 
@@ -1533,46 +1586,57 @@ def combine_result(result, attachment_result, boot_volume_attachment_result):
     if boot_volume_attachment_result is None:
         boot_volume_attachment_result = {}
 
-    combined_result['changed'] = any([result['changed'], attachment_result.get('changed', False),
-                                      boot_volume_attachment_result.get('changed', False)])
+    combined_result["changed"] = any(
+        [
+            result["changed"],
+            attachment_result.get("changed", False),
+            boot_volume_attachment_result.get("changed", False),
+        ]
+    )
     return combined_result
 
 
 @check_mode
 def handle_volume_details(compute_client, module, instance_id=None):
     attachment_result = dict(changed=False)
-    volume_details = module.params['volume_details']
+    volume_details = module.params["volume_details"]
     if volume_details:
-        if 'attachment_state' in volume_details:
-            attachment_state = volume_details['attachment_state']
+        if "attachment_state" in volume_details:
+            attachment_state = volume_details["attachment_state"]
         else:
-            attachment_state = 'present'
+            attachment_state = "present"
 
         # Check if volume_id is specified
-        if 'volume_id' in volume_details and volume_details['volume_id'] is not None:
-            volume_id = volume_details['volume_id']
-            if attachment_state == 'present':
-                attachment_result = handle_volume_attachment(compute_client, module, volume_id, instance_id)
-            elif attachment_state == 'absent':
-                attachment_result = handle_volume_detachment(compute_client, module, volume_id)
+        if "volume_id" in volume_details and volume_details["volume_id"] is not None:
+            volume_id = volume_details["volume_id"]
+            if attachment_state == "present":
+                attachment_result = handle_volume_attachment(
+                    compute_client, module, volume_id, instance_id
+                )
+            elif attachment_state == "absent":
+                attachment_result = handle_volume_detachment(
+                    compute_client, module, volume_id
+                )
             else:
                 module.fail_json(msg="Invalid attachment_state under volume_details")
         else:
-            attachment_result['changed'] = False
+            attachment_result["changed"] = False
 
     return attachment_result
 
 
 @check_mode
 def add_volume_attachment_info(module, compute_client, result):
-    if 'instances' in result:
+    if "instances" in result:
         try:
-            instances = result['instances']
-            for idx, _ in enumerate(instances):
-                vol_attachments = get_volume_attachments(compute_client, instances[idx])
-                result['instances'][idx]['volume_attachments'] = vol_attachments
-                if 'instance' in result:
-                    result['instance']['volume_attachments'] = vol_attachments
+            instances = result["instances"]
+            for idx, value in enumerate(instances):
+                vol_attachments = oci_compute_utils.get_volume_attachments(
+                    compute_client, instances[idx]
+                )
+                result["instances"][idx]["volume_attachments"] = vol_attachments
+                if "instance" in result:
+                    result["instance"]["volume_attachments"] = vol_attachments
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
 
@@ -1580,11 +1644,15 @@ def add_volume_attachment_info(module, compute_client, result):
 # Boot volume attachment attach and detach actions do not have separate "wait" related options. They share the
 # module's options for wait and wait timeout.
 def attach_boot_volume(compute_client, module, attach_boot_volume_details):
-    return oci_utils.create_and_wait(resource_type="boot_volume_attachment", client=compute_client,
-                                     create_fn=compute_client.attach_boot_volume,
-                                     kwargs_create={"attach_boot_volume_details": attach_boot_volume_details},
-                                     get_fn=compute_client.get_boot_volume_attachment,
-                                     get_param="boot_volume_attachment_id", module=module)
+    return oci_utils.create_and_wait(
+        resource_type="boot_volume_attachment",
+        client=compute_client,
+        create_fn=compute_client.attach_boot_volume,
+        kwargs_create={"attach_boot_volume_details": attach_boot_volume_details},
+        get_fn=compute_client.get_boot_volume_attachment,
+        get_param="boot_volume_attachment_id",
+        module=module,
+    )
 
 
 def get_attach_boot_volume_details(instance_id, boot_volume_id, attachment_name=None):
@@ -1598,117 +1666,142 @@ def get_attach_boot_volume_details(instance_id, boot_volume_id, attachment_name=
 def handle_boot_volume_attachment(compute_client, module, boot_volume_id, instance_id):
     result = dict()
 
-    compartment_id = module.params['compartment_id']
-    ad = module.params['availability_domain']
+    compartment_id = module.params["compartment_id"]
+    ad = module.params["availability_domain"]
     if instance_id is None:
-        instance_id = module.params['instance_id']
+        instance_id = module.params["instance_id"]
     try:
         if compartment_id is None:
-            compartment_id = compute_client.get_instance(instance_id).data.compartment_id
+            compartment_id = compute_client.get_instance(
+                instance_id
+            ).data.compartment_id
 
         if ad is None:
             ad = compute_client.get_instance(instance_id).data.availability_domain
 
         # Check if boot_volume_id is already attached to instance_id
-        boot_volume_attachments = to_dict(compute_client.list_boot_volume_attachments(ad,
-                                                                                      compartment_id,
-                                                                                      instance_id=instance_id,
-                                                                                      boot_volume_id=boot_volume_id
-                                                                                      ).data)
+        boot_volume_attachments = to_dict(
+            compute_client.list_boot_volume_attachments(
+                ad,
+                compartment_id,
+                instance_id=instance_id,
+                boot_volume_id=boot_volume_id,
+            ).data
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     # Case when boot_volume_id is already ATTACHED or is ATTACHING to instance_id
     for boot_volume_attachment in boot_volume_attachments:
-        if boot_volume_attachment['lifecycle_state'] in ["ATTACHING", "ATTACHED"]:
-            result['changed'] = False
+        if boot_volume_attachment["lifecycle_state"] in ["ATTACHING", "ATTACHED"]:
+            result["changed"] = False
             return result
 
-    attach_boot_volume_details = get_attach_boot_volume_details(instance_id=instance_id,
-                                                                boot_volume_id=boot_volume_id)
+    attach_boot_volume_details = get_attach_boot_volume_details(
+        instance_id=instance_id, boot_volume_id=boot_volume_id
+    )
 
     return attach_boot_volume(compute_client, module, attach_boot_volume_details)
 
 
 def detach_boot_volume(compute_client, module, boot_volume_attachment_id):
-    return oci_utils.delete_and_wait(resource_type="boot_volume_attachment", client=compute_client,
-                                     get_fn=compute_client.get_boot_volume_attachment,
-                                     kwargs_get={"boot_volume_attachment_id": boot_volume_attachment_id},
-                                     delete_fn=compute_client.detach_boot_volume,
-                                     kwargs_delete={"boot_volume_attachment_id": boot_volume_attachment_id},
-                                     module=module)
+    return oci_utils.delete_and_wait(
+        resource_type="boot_volume_attachment",
+        client=compute_client,
+        get_fn=compute_client.get_boot_volume_attachment,
+        kwargs_get={"boot_volume_attachment_id": boot_volume_attachment_id},
+        delete_fn=compute_client.detach_boot_volume,
+        kwargs_delete={"boot_volume_attachment_id": boot_volume_attachment_id},
+        module=module,
+    )
 
 
 def handle_boot_volume_detachment(compute_client, module, boot_volume_id):
     result = dict()
-    compartment_id = module.params['compartment_id']
-    instance_id = module.params['instance_id']
-    ad = module.params['availability_domain']
+    compartment_id = module.params["compartment_id"]
+    instance_id = module.params["instance_id"]
+    ad = module.params["availability_domain"]
     try:
 
         if compartment_id is None:
-            compartment_id = compute_client.get_instance(instance_id).data.compartment_id
+            compartment_id = compute_client.get_instance(
+                instance_id
+            ).data.compartment_id
 
         if ad is None:
             ad = compute_client.get_instance(instance_id).data.availability_domain
 
         # Get the boot volume attachment with the instance_id & volume_id
-        boot_volume_attachments = to_dict(compute_client.list_boot_volume_attachments(ad,
-                                                                                      compartment_id,
-                                                                                      instance_id=instance_id,
-                                                                                      boot_volume_id=boot_volume_id
-                                                                                      ).data)
+        boot_volume_attachments = to_dict(
+            compute_client.list_boot_volume_attachments(
+                ad,
+                compartment_id,
+                instance_id=instance_id,
+                boot_volume_id=boot_volume_id,
+            ).data
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     # Boot volume attachment with volume_id & instance_id does not exist
     if not boot_volume_attachments:
-        result['changed'] = False
+        result["changed"] = False
         return result
 
     for boot_volume_attachment in boot_volume_attachments:
-        if boot_volume_attachment['lifecycle_state'] == "ATTACHED":
-            boot_volume_attachment_id = boot_volume_attachment['id']
+        if boot_volume_attachment["lifecycle_state"] == "ATTACHED":
+            boot_volume_attachment_id = boot_volume_attachment["id"]
             return detach_boot_volume(compute_client, module, boot_volume_attachment_id)
 
     # Case when boot volume attachment for instance_id & volume_id is in non-ATTACHED state
-    result['changed'] = False
+    result["changed"] = False
     return result
 
 
 @check_mode
 def handle_boot_volume_details(compute_client, module, instance_id=None):
     attachment_result = dict(changed=False)
-    boot_volume_details = module.params['boot_volume_details']
+    boot_volume_details = module.params["boot_volume_details"]
     if boot_volume_details:
-        if 'attachment_state' in boot_volume_details:
-            attachment_state = boot_volume_details['attachment_state']
+        if "attachment_state" in boot_volume_details:
+            attachment_state = boot_volume_details["attachment_state"]
         else:
-            attachment_state = 'present'
+            attachment_state = "present"
 
         # Check if boot_volume_id is specified
-        if 'boot_volume_id' in boot_volume_details and boot_volume_details['boot_volume_id'] is not None:
-            boot_volume_id = boot_volume_details['boot_volume_id']
-            if attachment_state == 'present':
-                attachment_result = handle_boot_volume_attachment(compute_client, module, boot_volume_id, instance_id)
-            elif attachment_state == 'absent':
-                attachment_result = handle_boot_volume_detachment(compute_client, module, boot_volume_id)
+        if (
+            "boot_volume_id" in boot_volume_details
+            and boot_volume_details["boot_volume_id"] is not None
+        ):
+            boot_volume_id = boot_volume_details["boot_volume_id"]
+            if attachment_state == "present":
+                attachment_result = handle_boot_volume_attachment(
+                    compute_client, module, boot_volume_id, instance_id
+                )
+            elif attachment_state == "absent":
+                attachment_result = handle_boot_volume_detachment(
+                    compute_client, module, boot_volume_id
+                )
             else:
-                module.fail_json(msg="Invalid attachment_state under boot_volume_details")
+                module.fail_json(
+                    msg="Invalid attachment_state under boot_volume_details"
+                )
 
     return attachment_result
 
 
 @check_mode
 def add_boot_volume_attachment_info(module, compute_client, result):
-    if 'instances' in result:
+    if "instances" in result:
         try:
-            instances = result['instances']
+            instances = result["instances"]
             for idx, instance in enumerate(instances):
-                boot_vol_attachment = get_boot_volume_attachment(compute_client, instance)
-                result['instances'][idx]['boot_volume_attachment'] = boot_vol_attachment
-                if 'instance' in result:
-                    result['instance']['boot_volume_attachment'] = boot_vol_attachment
+                boot_vol_attachment = oci_compute_utils.get_boot_volume_attachment(
+                    compute_client, instance
+                )
+                result["instances"][idx]["boot_volume_attachment"] = boot_vol_attachment
+                if "instance" in result:
+                    result["instance"]["boot_volume_attachment"] = boot_vol_attachment
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
 
@@ -1721,7 +1814,10 @@ def _get_default_source_details(module):
     we construct an equivalent source_details for a user-specified "image_id" and set as the default value for
     the "source_details" object, so that an existing resource with the same state matches.
     """
-    if "source_details" in module.params and module.params["source_details"] is not None:
+    if (
+        "source_details" in module.params
+        and module.params["source_details"] is not None
+    ):
         return module.params["source_details"]
 
     elif "image_id" in module.params and module.params["image_id"] is not None:
@@ -1735,7 +1831,10 @@ def _get_default_image_id(module):
     """
     Return the image_id if the image_id was specified through "source_details", or None
     """
-    if "source_details" in module.params and module.params["source_details"] is not None:
+    if (
+        "source_details" in module.params
+        and module.params["source_details"] is not None
+    ):
         source_details = module.params["source_details"]
         source_type = source_details["source_type"]
         if source_type == "image":
@@ -1754,39 +1853,51 @@ def get_logger():
 
 def _get_exclude_attributes(module):
     # display_name is generated by OCI if unspecified, so always exclude it during matching
-    exclude_attributes = {'display_name': True}
-    if "source_details" in module.params and module.params["source_details"] is not None:
+    exclude_attributes = {"display_name": True}
+    if (
+        "source_details" in module.params
+        and module.params["source_details"] is not None
+    ):
         source_details = module.params["source_details"]
         if source_details["source_type"] == "bootVolume":
             # if an Instance is being created by a boot volume id, ignore the "image_id" attribute of the existing
             # resources during matching
-            exclude_attributes.update({'image_id': True})
+            exclude_attributes.update({"image_id": True})
     return exclude_attributes
 
 
 def create_one_instance(compute_client, module, display_name_override=None):
-    result = oci_utils.check_and_create_resource(resource_type="instance", create_fn=launch_instance,
-                                                 kwargs_create={"compute_client": compute_client, "module": module,
-                                                                "display_name_override": display_name_override},
-                                                 list_fn=compute_client.list_instances,
-                                                 kwargs_list={"compartment_id": module.params['compartment_id']},
-                                                 module=module, model=LaunchInstanceDetails(),
-                                                 exclude_attributes=_get_exclude_attributes(module),
-                                                 default_attribute_values={"ipxe_script": None,
-                                                                           "extended_metadata": {},
-                                                                           "metadata": {},
-                                                                           # during matching, if an existing
-                                                                           # resource has the same values as the
-                                                                           # current user request, consider it as
-                                                                           # a match.
-                                                                           "source_details":
-                                                                               _get_default_source_details(module),
-                                                                           "image_id":
-                                                                               _get_default_image_id(module)})
+    result = oci_utils.check_and_create_resource(
+        resource_type="instance",
+        create_fn=launch_instance,
+        kwargs_create={
+            "compute_client": compute_client,
+            "module": module,
+            "display_name_override": display_name_override,
+        },
+        list_fn=compute_client.list_instances,
+        kwargs_list={"compartment_id": module.params["compartment_id"]},
+        module=module,
+        model=LaunchInstanceDetails(),
+        exclude_attributes=_get_exclude_attributes(module),
+        default_attribute_values={
+            "ipxe_script": None,
+            "extended_metadata": {},
+            "metadata": {},
+            # during matching, if an existing
+            # resource has the same values as the
+            # current user request, consider it as
+            # a match.
+            "source_details": _get_default_source_details(module),
+            "image_id": _get_default_image_id(module),
+        },
+    )
     # Handle volume details when an instance is launched
     vol_attachment_result = {}
-    if result['changed']:
-        vol_attachment_result = handle_volume_details(compute_client, module, instance_id=result['instance']['id'])
+    if result["changed"]:
+        vol_attachment_result = handle_volume_details(
+            compute_client, module, instance_id=result["instance"]["id"]
+        )
     return result, vol_attachment_result
 
 
@@ -1810,20 +1921,25 @@ def ensure_exact_count(compute_client, exact_count, count_tag, fault_domain, mod
     :return: A dict that has the 'change' state and a list of matching resources (instances), and a list of added
              (added_instances) and terminated (terminated_instances) instances
     """
-    ad = module.params['availability_domain']
-    compartment_id = module.params['compartment_id']
+    ad = module.params["availability_domain"]
+    compartment_id = module.params["compartment_id"]
 
     # get all instances that match `count_tag`
-    matching_instances = _get_matching_instances(compute_client, ad, compartment_id, count_tag, fault_domain)
+    matching_instances = _get_matching_instances(
+        compute_client, ad, compartment_id, count_tag, fault_domain
+    )
     curr_inst_count = len(matching_instances)
-    debug("The number of instances that match count_tag {0} is {1}. Desired exact_count is {2}".format(
-        count_tag, curr_inst_count, exact_count))
+    debug(
+        "The number of instances that match count_tag {0} is {1}. Desired exact_count is {2}".format(
+            count_tag, curr_inst_count, exact_count
+        )
+    )
 
     result = dict(changed=False)
 
     if curr_inst_count == exact_count:
         debug("No change required.")
-        result['instances'] = to_dict(matching_instances)
+        result["instances"] = to_dict(matching_instances)
     elif curr_inst_count < exact_count:
         to_add = exact_count - curr_inst_count
         debug("Need to create {0} new instances".format(to_add))
@@ -1831,55 +1947,68 @@ def ensure_exact_count(compute_client, exact_count, count_tag, fault_domain, mod
 
         # Generate names for the new instances
         names_for_new_instances = []
-        current_names = [to_dict(inst)['display_name'] for inst in matching_instances]
+        current_names = [to_dict(inst)["display_name"] for inst in matching_instances]
         for inst_idx in range(to_add):
-            name = module.params['name']
+            name = module.params["name"]
             display_name_override = None
             if name is not None:
                 # Get a suffix to add to the new instance's name, so that it doesn't conflict with an existing
                 # instance's display_name
-                display_name_override = _get_next_available_suffix(current_names, exact_count, name)
+                display_name_override = _get_next_available_suffix(
+                    current_names, exact_count, name
+                )
             else:
                 # Case when display_name is not provided, skip checking for matching existing instances and create an
                 # instance, as an unique display_name would be generated by the backend anyway.
-                module.params['force_create'] = True
+                module.params["force_create"] = True
 
             names_for_new_instances.append(display_name_override)
         debug("Names picked for the new instances {0}".format(names_for_new_instances))
 
         # construct params map for each new instance creation task.
-        common_params = {'added_instances': added_instances, 'compute_client': compute_client,
-                         'matching_instances': matching_instances, 'module': module}
+        common_params = {
+            "added_instances": added_instances,
+            "compute_client": compute_client,
+            "matching_instances": matching_instances,
+            "module": module,
+        }
         instance_creation_params = []
         for i in range(to_add):
-            instance_specific_params = {'inst_idx': i, "display_name_override": names_for_new_instances[i]}
+            instance_specific_params = {
+                "inst_idx": i,
+                "display_name_override": names_for_new_instances[i],
+            }
             new_map = common_params.copy()
             new_map.update(instance_specific_params)
             instance_creation_params.append(new_map)
 
         # execute tasks
-        _execute_tasks(_add_one_exact_count_instance_splat, instance_creation_params, module)
+        _execute_tasks(
+            _add_one_exact_count_instance_splat, instance_creation_params, module
+        )
 
-        result['changed'] = True
-        result['instances'] = to_dict(matching_instances)
-        result['added_instances'] = to_dict(added_instances)
+        result["changed"] = True
+        result["instances"] = to_dict(matching_instances)
+        result["added_instances"] = to_dict(added_instances)
     else:
         to_delete = curr_inst_count - exact_count
         debug("Need to terminate {0} existing instances".format(to_delete))
 
-        common_params = {'compute_client': compute_client, 'module': module}
+        common_params = {"compute_client": compute_client, "module": module}
         instance_termination_params = []
         for inst in matching_instances[-to_delete:]:
-            instance_specific_params = {'id': to_dict(inst)['id']}
+            instance_specific_params = {"id": to_dict(inst)["id"]}
             new_map = common_params.copy()
             new_map.update(instance_specific_params)
             instance_termination_params.append(new_map)
 
-        terminated_results = _execute_tasks(_terminate_instance_splat, instance_termination_params, module)
+        terminated_results = _execute_tasks(
+            _terminate_instance_splat, instance_termination_params, module
+        )
 
-        result['changed'] = True
-        result['instances'] = to_dict(matching_instances[:exact_count])
-        result['terminated_instances'] = to_dict(terminated_results)
+        result["changed"] = True
+        result["instances"] = to_dict(matching_instances[:exact_count])
+        result["terminated_instances"] = to_dict(terminated_results)
 
     return result, None
 
@@ -1889,7 +2018,7 @@ def _execute_tasks(task_method, list_of_params, module):
     if module.params["enable_parallel_requests"]:
 
         # construct a ThreadPool
-        pool = ThreadPool(module.params['max_thread_count'])
+        pool = ThreadPool(module.params["max_thread_count"])
         # run task_method in parallel, collecting results
         results = pool.map(task_method, list_of_params)
         pool.close()
@@ -1915,29 +2044,49 @@ def _add_one_exact_count_instance_splat(args):
 
 
 # Launch a single "exact_count" instance
-def _add_one_exact_count_instance(added_instances, compute_client, inst_idx, matching_instances, module,
-                                  display_name_override):
+def _add_one_exact_count_instance(
+    added_instances,
+    compute_client,
+    inst_idx,
+    matching_instances,
+    module,
+    display_name_override,
+):
     debug("Creating instance # {0}".format(inst_idx))
 
-    created_result, _ = create_one_instance(compute_client, module, display_name_override)
-    added_instances.append(created_result['instance'])
+    created_result, value = create_one_instance(
+        compute_client, module, display_name_override
+    )
+    added_instances.append(created_result["instance"])
     # Add newly created instances to matching_instances list so that subsequent suffix checks will consider it
-    matching_instances.append(created_result['instance'])
+    matching_instances.append(created_result["instance"])
 
 
 def _terminate_instance_splat(args):
     terminated_instance = terminate_instance(**args)
-    return terminated_instance['instance']
+    return terminated_instance["instance"]
 
 
-def _get_matching_instances(compute_client, ad, compartment_id, count_tag, fault_domain):
+def _get_matching_instances(
+    compute_client, ad, compartment_id, count_tag, fault_domain
+):
     # Sort instances by time_created in ASC order, so that we can terminate the latest instance easily
-    param_map = {'availability_domain': ad, 'compartment_id': compartment_id, 'sort_by': "TIMECREATED",
-                 'sort_order': "ASC"}
-    curr_instances = oci_utils.list_all_resources(compute_client.list_instances, **param_map)
-    return [inst for inst in curr_instances if
-            inst.lifecycle_state == "RUNNING" and _does_instance_match_tag(inst, count_tag) and
-            _does_instance_match_fault_domain(inst, fault_domain)]
+    param_map = {
+        "availability_domain": ad,
+        "compartment_id": compartment_id,
+        "sort_by": "TIMECREATED",
+        "sort_order": "ASC",
+    }
+    curr_instances = oci_utils.list_all_resources(
+        compute_client.list_instances, **param_map
+    )
+    return [
+        inst
+        for inst in curr_instances
+        if inst.lifecycle_state == "RUNNING"
+        and _does_instance_match_tag(inst, count_tag)
+        and _does_instance_match_fault_domain(inst, fault_domain)
+    ]
 
 
 def _does_instance_match_tag(instance, count_tag):
@@ -1983,121 +2132,157 @@ def main():
     my_logger = oci_utils.get_logger("oci_instance")
     set_logger(my_logger)
 
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        availability_domain=dict(type='str', required=False),
-        boot_volume_details=dict(type='dict', required=False),
-        compartment_id=dict(type='str', required=False),
-        count_tag=dict(type='dict', required=False),
-        exact_count=dict(type='int', required=False),
-        extended_metadata=dict(type='dict', required=False),
-        fault_domain=dict(type='str', required=False),
-        instance_id=dict(type='str', required=False, aliases=['id']),
-        image_id=dict(type='str', required=False),
-        ipxe_script=dict(type='str', required=False),
-        max_thread_count=dict(type='int', required=False),
-        metadata=dict(type='dict', required=False),
-        name=dict(type='str', required=False, aliases=['display_name']),
-        preserve_boot_volume=dict(type='bool', required=False, default=False),
-        enable_parallel_requests=dict(type='bool', required=False, default=True),
-        shape=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent', 'running', 'stopped',
-                                                                           'reset', 'softreset']),
-        volume_details=dict(type='dict', required=False),
-        source_details=dict(type='dict', required=False),
-        vnic=dict(type='dict', aliases=['create_vnic_details'])
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            availability_domain=dict(type="str", required=False),
+            boot_volume_details=dict(type="dict", required=False),
+            compartment_id=dict(type="str", required=False),
+            count_tag=dict(type="dict", required=False),
+            exact_count=dict(type="int", required=False),
+            extended_metadata=dict(type="dict", required=False),
+            fault_domain=dict(type="str", required=False),
+            instance_id=dict(type="str", required=False, aliases=["id"]),
+            image_id=dict(type="str", required=False),
+            ipxe_script=dict(type="str", required=False),
+            max_thread_count=dict(type="int", required=False),
+            metadata=dict(type="dict", required=False),
+            name=dict(type="str", required=False, aliases=["display_name"]),
+            preserve_boot_volume=dict(type="bool", required=False, default=False),
+            enable_parallel_requests=dict(type="bool", required=False, default=True),
+            shape=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=[
+                    "present",
+                    "absent",
+                    "running",
+                    "stopped",
+                    "reset",
+                    "softreset",
+                ],
+            ),
+            volume_details=dict(type="dict", required=False),
+            source_details=dict(type="dict", required=False),
+            vnic=dict(type="dict", aliases=["create_vnic_details"]),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[
-            ['state', 'absent', ['instance_id']],
-        ],
+        required_if=[["state", "absent", ["instance_id"]]],
         mutually_exclusive=[
-            ['boot_volume_details', 'image_id'],
-            ['vnic', 'instance_id'],
-            ['source_details', 'image_id'],
-            ['exact_count', 'volume_details'],
-            ['exact_count', 'boot_volume_details']
+            ["boot_volume_details", "image_id"],
+            ["vnic", "instance_id"],
+            ["source_details", "image_id"],
+            ["exact_count", "volume_details"],
+            ["exact_count", "boot_volume_details"],
         ],
-        required_together=[['exact_count', 'count_tag']]
+        required_together=[["exact_count", "count_tag"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
-    state = module.params['state']
+    state = module.params["state"]
 
     result = dict(changed=False)
     vol_attachment_result = dict(changed=False)
     boot_volume_attachment_result = dict(changed=False)
 
-    id = module.params['instance_id']
-    if id is not None:
-        inst = None
-        try:
-            inst = oci_utils.call_with_backoff(compute_client.get_instance, instance_id=id).data
-        except ServiceError as se:
-            module.fail_json(msg=se.message())
+    id = module.params["instance_id"]
+    try:
+        if id is not None:
+            inst = None
 
-        if state == 'absent':
-            if inst is not None:
-                terminate_result = terminate_instance(compute_client, id, module)
-                result['changed'] = terminate_result['changed']
-                result['instances'] = [terminate_result['instance']]
-                result['instance'] = terminate_result['instance']  # retain for backward compat
+            # Attempt to get the instance
+            try:
+                inst = oci_utils.call_with_backoff(
+                    compute_client.get_instance, instance_id=id
+                ).data
+            except ServiceError as se:
+                module.fail_json(msg=se.message())
+
+            if state == "absent":
+                if inst is not None:
+                    terminate_result = terminate_instance(compute_client, id, module)
+                    result["changed"] = terminate_result["changed"]
+                    result["instances"] = [terminate_result["instance"]]
+                    result["instance"] = terminate_result[
+                        "instance"
+                    ]  # retain for backward compat
+                else:
+                    pass  # instance is already deleted.
+            elif state == "present":
+                result = update_instance(compute_client, inst, module)
+                # Handle volume details after update-instance operation
+                vol_attachment_result = handle_volume_details(compute_client, module)
+                # Handle boot volume details after update-instance operation
+                boot_volume_attachment_result = handle_boot_volume_details(
+                    compute_client, module
+                )
             else:
-                pass  # instance is already deleted.
-        elif state == 'present':
-            result = update_instance(compute_client, inst, module)
-            # Handle volume details after update-instance operation
-            vol_attachment_result = handle_volume_details(compute_client, module)
-            # Handle boot volume details after update-instance operation
-            boot_volume_attachment_result = handle_boot_volume_details(compute_client, module)
+                # One of the power actions needs to be applied
+
+                # If a boot volume is to be attached to an instance & the instance should be in RUNNING state,
+                # the attachment should be done before the power_action_on_instance.
+                if state == "running":
+                    boot_volume_attachment_result = handle_boot_volume_details(
+                        compute_client, module
+                    )
+
+                # perform power actions on instance
+                result = power_action_on_instance(compute_client, id, state, module)
+
+                # Handle volume details after power action on instance
+                vol_attachment_result = handle_volume_details(compute_client, module)
+
+                # If a boot volume is to be detached from an instance & the instance should be in STOPPED state,
+                # the detachment should be done after the power_action_on_instance.
+                if state == "stopped":
+                    boot_volume_attachment_result = handle_boot_volume_details(
+                        compute_client, module
+                    )
         else:
-            # One of the power actions needs to be applied
+            debug("check and create instances")
 
-            # If a boot volume is to be attached to an instance & the instance should be in RUNNING state,
-            # the attachment should be done before the power_action_on_instance.
-            if state == "running":
-                boot_volume_attachment_result = handle_boot_volume_details(compute_client, module)
+            exact_count = module.params.get("exact_count")
+            count_tag = module.params.get("count_tag")
+            fault_domain = module.params.get("fault_domain")
+            if exact_count is not None and count_tag is not None:
+                debug(
+                    "Use exact_count and count_tag to ensure the specified number of instances are RUNNING."
+                )
+                result, value = ensure_exact_count(
+                    compute_client, exact_count, count_tag, fault_domain, module
+                )
+            else:
+                debug("Launch a new instance")
+                create_result, vol_attachment_result = create_one_instance(
+                    compute_client, module
+                )
+                result["changed"] = create_result["changed"]
+                result["instances"] = [create_result["instance"]]
+                result["added_instances"] = [create_result["instance"]]
+                # for backward compatibility reasons, continue to return 'instance'. Eventually drop this deprecated
+                # return value.
+                result["instance"] = create_result["instance"]
 
-            # perform power actions on instance
-            result = power_action_on_instance(compute_client, id, state, module)
-
-            # Handle volume details after power action on instance
-            vol_attachment_result = handle_volume_details(compute_client, module)
-
-            # If a boot volume is to be detached from an instance & the instance should be in STOPPED state,
-            # the detachment should be done after the power_action_on_instance.
-            if state == "stopped":
-                boot_volume_attachment_result = handle_boot_volume_details(compute_client, module)
-    else:
-        debug("check and create instances")
-
-        exact_count = module.params.get('exact_count')
-        count_tag = module.params.get('count_tag')
-        fault_domain = module.params.get('fault_domain')
-        if exact_count is not None and count_tag is not None:
-            debug("Use exact_count and count_tag to ensure the specified number of instances are RUNNING.")
-            result, _ = ensure_exact_count(compute_client, exact_count, count_tag, fault_domain, module)
-        else:
-            debug("Launch a new instance")
-            create_result, vol_attachment_result = create_one_instance(compute_client, module)
-            result['changed'] = create_result['changed']
-            result['instances'] = [create_result['instance']]
-            result['added_instances'] = [create_result['instance']]
-            # for backward compatibility reasons, continue to return 'instance'. Eventually drop this deprecated
-            # return value.
-            result['instance'] = create_result['instance']
-
-    result = combine_result(result, vol_attachment_result, boot_volume_attachment_result)
-    add_volume_attachment_info(module, compute_client, result)
-    add_boot_volume_attachment_info(module, compute_client, result)
-    module.exit_json(**result)
+        result = combine_result(
+            result, vol_attachment_result, boot_volume_attachment_result
+        )
+        add_volume_attachment_info(module, compute_client, result)
+        add_boot_volume_attachment_info(module, compute_client, result)
+        module.exit_json(**result)
+    except ServiceError as se:
+        module.fail_json(msg=se.message)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -253,7 +253,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The size of the volume in GBs.</div>
+                                                                        <div>The size of the volume in GBs. <em>size_in_gbs</em> can be used to resize a boot volume. Ensure that the boot volume is detached, before resizing the boot volume.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -404,11 +404,17 @@ Examples
             type: 'bootVolume'
         availability_domain: IwGV:US-ASHBURN-AD-2
         compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
+        size_in_gbs: 50
 
     - name: Update name of a boot volume
       oci_boot_volume:
         name: ansible_boot_volume
         boot_volume_id: ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx
+
+    - name: Resize a boot volume
+      oci_boot_volume:
+        boot_volume_id: ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx
+        size_in_gbs: 100
 
     - name: Delete a boot volume
       oci_boot_volume:

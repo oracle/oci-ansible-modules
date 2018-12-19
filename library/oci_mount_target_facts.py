@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_mount_target_facts
 short_description: Fetches details of the OCI Mount Target instances
@@ -42,9 +43,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Fetch Mount Target
 - name: List all Mount Target in a compartment and availability domain
   oci_mount_target_facts:
@@ -69,9 +70,9 @@ EXAMPLES = '''
 - name: List a specific Mount Target
   oci_mount_target_facts:
       mount_target_id: 'ocid1.mounttarget..xxxxxEXAMPLExxxxx'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     mount_targets:
         description: Attributes of the fetchedd Mount Target.
         returned: success
@@ -167,7 +168,7 @@ RETURN = '''
                    "time_created":"2018-10-16T09:42:33.673000+00:00"
                 }]
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -176,6 +177,7 @@ try:
     from oci.file_storage.file_storage_client import FileStorageClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -184,39 +186,53 @@ logger = None
 
 
 def list_mount_targets(file_storage_client, module):
-    result = dict(
-        mount_targets=''
-    )
-    compartment_id = module.params.get('compartment_id')
-    availability_domain = module.params.get('availability_domain')
-    mount_target_id = module.params.get('mount_target_id')
+    result = dict(mount_targets="")
+    compartment_id = module.params.get("compartment_id")
+    availability_domain = module.params.get("availability_domain")
+    mount_target_id = module.params.get("mount_target_id")
     try:
         if compartment_id and availability_domain:
-            get_logger().debug("Listing all Mount Targets under compartment %s and availability domain %s",
-                               compartment_id, availability_domain)
-            optional_list_method_params = ['display_name', 'lifecycle_state']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            existing_mount_targets_summary = to_dict(oci_utils.list_all_resources(
-                file_storage_client.list_mount_targets,
-                compartment_id=compartment_id,
-                availability_domain=availability_domain,
-                **optional_kwargs))
-            existing_mount_targets = [oci_utils.call_with_backoff(
-                file_storage_client.get_mount_target, mount_target_id=mount_target['id']).data
-                for mount_target in existing_mount_targets_summary]
+            get_logger().debug(
+                "Listing all Mount Targets under compartment %s and availability domain %s",
+                compartment_id,
+                availability_domain,
+            )
+            optional_list_method_params = ["display_name", "lifecycle_state"]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            existing_mount_targets_summary = to_dict(
+                oci_utils.list_all_resources(
+                    file_storage_client.list_mount_targets,
+                    compartment_id=compartment_id,
+                    availability_domain=availability_domain,
+                    **optional_kwargs
+                )
+            )
+            existing_mount_targets = [
+                oci_utils.call_with_backoff(
+                    file_storage_client.get_mount_target,
+                    mount_target_id=mount_target["id"],
+                ).data
+                for mount_target in existing_mount_targets_summary
+            ]
         elif mount_target_id:
             get_logger().debug("Listing Mount Target %s", mount_target_id)
             response = oci_utils.call_with_backoff(
-                file_storage_client.get_mount_target, mount_target_id=mount_target_id)
+                file_storage_client.get_mount_target, mount_target_id=mount_target_id
+            )
             existing_mount_targets = [response.data]
         else:
-            module.fail_json(msg='No value provided for either compartment_id and availability_domain' +
-                             'or mount_target_id')
+            module.fail_json(
+                msg="No value provided for either compartment_id and availability_domain"
+                + "or mount_target_id"
+            )
     except ServiceError as ex:
         get_logger().error("Unable to list Mount Target due to %s", ex.message)
         module.fail_json(msg=ex.message)
-    result['mount_targets'] = to_dict(existing_mount_targets)
+    result["mount_targets"] = to_dict(existing_mount_targets)
     return result
 
 
@@ -233,24 +249,28 @@ def main():
     logger = oci_utils.get_logger("oci_mount_target_facts")
     set_logger(logger)
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        availability_domain=dict(type='str', required=False),
-        mount_target_id=dict(type='str', required=False, aliases=['id']),
-        lifecycle_state=dict(type='str', required=False, choices=[
-                             'CREATING', 'ACTIVE', 'DELETING', 'DELETED', 'FAILED'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            availability_domain=dict(type="str", required=False),
+            mount_target_id=dict(type="str", required=False, aliases=["id"]),
+            lifecycle_state=dict(
+                type="str",
+                required=False,
+                choices=["CREATING", "ACTIVE", "DELETING", "DELETED", "FAILED"],
+            ),
+        )
+    )
     module = AnsibleModule(
         argument_spec=module_args,
         mutually_exclusive=[
-            ['compartment_id', 'mount_target_id'],
-            ['availability_domain', 'mount_target_id']
-
-        ]
+            ["compartment_id", "mount_target_id"],
+            ["availability_domain", "mount_target_id"],
+        ],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     file_storage_client = oci_utils.create_service_client(module, FileStorageClient)
     result = list_mount_targets(file_storage_client, module)
@@ -258,5 +278,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

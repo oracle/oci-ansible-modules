@@ -6,16 +6,17 @@
 # See LICENSE.TXT for details.
 
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_load_balancer_hostname
 short_description: Create, update and delete a hostname resource in the specified load balancer.
@@ -45,9 +46,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [oracle, oracle_wait_options]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create a hostname named "ansible_hostname" in a load balancer
 - name: Create Load Balancer Hostname
@@ -70,9 +71,9 @@ EXAMPLES = '''
     load_balancer_id: "ocid1.loadbalancer.xxxxxEXAMPLExxxxx"
     name: "ansible_hostname"
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     hostname:
         description: Attributes of the created/updated Load Balancer Hostname.
                     For delete, deleted Load Balancer Hostname description will
@@ -99,7 +100,7 @@ RETURN = '''
                    "name":"ansible_hostname_002"
                  }
                 ]
-'''
+"""
 from ansible.module_utils.basic import AnsibleModule
 
 from ansible.module_utils.oracle import oci_utils, oci_lb_utils
@@ -109,6 +110,7 @@ try:
     from oci.load_balancer.load_balancer_client import LoadBalancerClient
     from oci.util import to_dict
     from oci.load_balancer.models import CreateHostnameDetails, UpdateHostnameDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -118,52 +120,61 @@ logger = None
 
 def create_or_update_hostname(lb_client, module):
     hostname = None
-    result = dict(
-        changed=False,
-        hostname=''
-    )
-    load_balancer_id = module.params.get('load_balancer_id')
-    name = module.params.get('name')
+    result = dict(changed=False, hostname="")
+    load_balancer_id = module.params.get("load_balancer_id")
+    name = module.params.get("name")
     hostname = oci_utils.get_existing_resource(
-        lb_client.get_hostname, module, load_balancer_id=load_balancer_id, name=name)
+        lb_client.get_hostname, module, load_balancer_id=load_balancer_id, name=name
+    )
     if hostname:
         result = update_hostname(lb_client, module, load_balancer_id, hostname, name)
     else:
-        result = oci_utils.check_and_create_resource(resource_type='hostname',
-                                                     create_fn=create_hostname,
-                                                     kwargs_create={'lb_client': lb_client,
-                                                                    'module': module},
-                                                     list_fn=lb_client.list_hostnames,
-                                                     kwargs_list={'load_balancer_id':
-                                                                  module.params.get('load_balancer_id')},
-                                                     module=module,
-                                                     model=CreateHostnameDetails())
+        result = oci_utils.check_and_create_resource(
+            resource_type="hostname",
+            create_fn=create_hostname,
+            kwargs_create={"lb_client": lb_client, "module": module},
+            list_fn=lb_client.list_hostnames,
+            kwargs_list={"load_balancer_id": module.params.get("load_balancer_id")},
+            module=module,
+            model=CreateHostnameDetails(),
+        )
 
     return result
 
 
 def create_hostname(lb_client, module):
-    hostname_input_details = dict({'name': module.params.get('name', None),
-                                   'hostname': module.params.get('hostname')})
-    name = module.params.get('name')
-    lb_id = module.params.get('load_balancer_id')
+    hostname_input_details = dict(
+        {
+            "name": module.params.get("name", None),
+            "hostname": module.params.get("hostname"),
+        }
+    )
+    name = module.params.get("name")
+    lb_id = module.params.get("load_balancer_id")
     get_logger().info("Creating hostname %s in the load balancer %s", name, lb_id)
-    hostname_details = oci_lb_utils.create_hostnames(dict({name: hostname_input_details})).get(name)
+    hostname_details = oci_lb_utils.create_hostnames(
+        dict({name: hostname_input_details})
+    ).get(name)
     create_hostname_details = CreateHostnameDetails()
     for attribute in create_hostname_details.attribute_map:
-        create_hostname_details.__setattr__(attribute, getattr(hostname_details, attribute))
-    result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="hostname",
-                                                                 function=lb_client.create_hostname,
-                                                                 kwargs_function={
-                                                                     'create_hostname_details': create_hostname_details,
-                                                                     'load_balancer_id': lb_id},
-                                                                 lb_client=lb_client,
-                                                                 get_fn=lb_client.get_hostname,
-                                                                 kwargs_get={'load_balancer_id': lb_id,
-                                                                             'name': name},
-                                                                 module=module
-                                                                 )
-    get_logger().info("Successfully created hostname %s in the load balancer %s", name, lb_id)
+        create_hostname_details.__setattr__(
+            attribute, getattr(hostname_details, attribute)
+        )
+    result = oci_lb_utils.create_or_update_lb_resources_and_wait(
+        resource_type="hostname",
+        function=lb_client.create_hostname,
+        kwargs_function={
+            "create_hostname_details": create_hostname_details,
+            "load_balancer_id": lb_id,
+        },
+        lb_client=lb_client,
+        get_fn=lb_client.get_hostname,
+        kwargs_get={"load_balancer_id": lb_id, "name": name},
+        module=module,
+    )
+    get_logger().info(
+        "Successfully created hostname %s in the load balancer %s", name, lb_id
+    )
 
     return result
 
@@ -174,43 +185,55 @@ def update_hostname(lb_client, module, lb_id, hostname, name):
     get_logger().info("Updating hostname %s in the load balancer %s", name, lb_id)
     changed = False
     changed = oci_utils.check_and_update_attributes(
-        update_hostname_details, 'hostname', module.params.get('hostname'), hostname.hostname, changed)
+        update_hostname_details,
+        "hostname",
+        module.params.get("hostname"),
+        hostname.hostname,
+        changed,
+    )
     if changed:
-        result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="hostname",
-                                                                     function=lb_client.update_hostname,
-                                                                     kwargs_function={
-                                                                         'update_hostname_details': update_hostname_details,
-                                                                         'load_balancer_id': lb_id,
-                                                                         'name': name},
-                                                                     lb_client=lb_client,
-                                                                     get_fn=lb_client.get_hostname,
-                                                                     kwargs_get={'load_balancer_id': lb_id,
-                                                                                 'name': name},
-                                                                     module=module
-                                                                     )
-        get_logger().info("Successfully updated hostname %s  in load balancer %s", hostname, lb_id)
+        result = oci_lb_utils.create_or_update_lb_resources_and_wait(
+            resource_type="hostname",
+            function=lb_client.update_hostname,
+            kwargs_function={
+                "update_hostname_details": update_hostname_details,
+                "load_balancer_id": lb_id,
+                "name": name,
+            },
+            lb_client=lb_client,
+            get_fn=lb_client.get_hostname,
+            kwargs_get={"load_balancer_id": lb_id, "name": name},
+            module=module,
+        )
+        get_logger().info(
+            "Successfully updated hostname %s  in load balancer %s", hostname, lb_id
+        )
     else:
-        get_logger().info("No update to the hostname %s  in load balancer %s as no attribute changed", hostname, lb_id)
+        get_logger().info(
+            "No update to the hostname %s  in load balancer %s as no attribute changed",
+            hostname,
+            lb_id,
+        )
 
     return result
 
 
 def delete_hostname(lb_client, module):
-    lb_id = module.params.get('load_balancer_id', None)
-    name = module.params.get('name', None)
+    lb_id = module.params.get("load_balancer_id", None)
+    name = module.params.get("name", None)
     get_logger().info("Deleting hostname %s from the load balancer %s", name, lb_id)
-    result = oci_lb_utils.delete_lb_resources_and_wait(resource_type="hostname",
-                                                       function=lb_client.delete_hostname,
-                                                       kwargs_function={
-                                                           'name': name,
-                                                           'load_balancer_id': lb_id},
-                                                       lb_client=lb_client,
-                                                       get_fn=lb_client.get_hostname,
-                                                       kwargs_get={'load_balancer_id': lb_id,
-                                                                   'name': name},
-                                                       module=module
-                                                       )
-    get_logger().info("Successfully deleted hostname %s from the load balancer %s", name, lb_id)
+    result = oci_lb_utils.delete_lb_resources_and_wait(
+        resource_type="hostname",
+        function=lb_client.delete_hostname,
+        kwargs_function={"name": name, "load_balancer_id": lb_id},
+        lb_client=lb_client,
+        get_fn=lb_client.get_hostname,
+        kwargs_get={"load_balancer_id": lb_id, "name": name},
+        module=module,
+    )
+    get_logger().info(
+        "Successfully deleted hostname %s from the load balancer %s", name, lb_id
+    )
     return result
 
 
@@ -227,31 +250,35 @@ def main():
     logger = oci_utils.get_logger("oci_load_balancer_hostname")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        name=dict(type='str', required=True),
-        load_balancer_id=dict(type='str', required=True, aliases=['id']),
-        hostname=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args.update(
+        dict(
+            name=dict(type="str", required=True),
+            load_balancer_id=dict(type="str", required=True, aliases=["id"]),
+            hostname=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_hostname(lb_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_hostname(lb_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

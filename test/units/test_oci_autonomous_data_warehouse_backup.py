@@ -16,8 +16,7 @@ try:
     from oci.database.models import AutonomousDataWarehouseBackup
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_autonomous_data_warehouse_backup.py requires `oci` module")
+    raise SkipTest("test_autonomous_data_warehouse_backup.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,34 +35,43 @@ class FakeModule(object):
 
 @pytest.fixture()
 def db_client(mocker):
-    mock_db_client = mocker.patch(
-        'oci.database.database_client.DatabaseClient')
+    mock_db_client = mocker.patch("oci.database.database_client.DatabaseClient")
     return mock_db_client.return_value
 
 
 @pytest.fixture()
 def create_and_wait_patch(mocker):
-    return mocker.patch.object(oci_utils, 'create_and_wait')
+    return mocker.patch.object(oci_utils, "create_and_wait")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_autonomous_data_warehouse_backup.set_logger(logging)
 
 
 def test_create_autonomous_data_warehouse_backup(db_client, create_and_wait_patch):
     module = get_module(dict())
     autonomous_data_warehouse_backup = get_autonomous_data_warehouse_backup()
-    create_and_wait_patch.return_value = {'autonomous_data_warehouse_backup': to_dict(
-        autonomous_data_warehouse_backup), 'changed': True}
-    result = oci_autonomous_data_warehouse_backup.create_autonomous_data_warehouse_backup(db_client, module)
-    assert result['autonomous_data_warehouse_backup']['display_name'] is autonomous_data_warehouse_backup.display_name
+    create_and_wait_patch.return_value = {
+        "autonomous_data_warehouse_backup": to_dict(autonomous_data_warehouse_backup),
+        "changed": True,
+    }
+    result = oci_autonomous_data_warehouse_backup.create_autonomous_data_warehouse_backup(
+        db_client, module
+    )
+    assert (
+        result["autonomous_data_warehouse_backup"]["display_name"]
+        is autonomous_data_warehouse_backup.display_name
+    )
 
 
 def get_autonomous_data_warehouse_backup():
     autonomous_data_warehouse_backup = AutonomousDataWarehouseBackup()
-    autonomous_data_warehouse_backup.display_name = 'ansible-autonomous_data_warehouse_backup'
+    autonomous_data_warehouse_backup.display_name = (
+        "ansible-autonomous_data_warehouse_backup"
+    )
     return autonomous_data_warehouse_backup
 
 
@@ -74,7 +82,7 @@ def get_response(status, header, data, request):
 def get_module(additional_properties):
     params = {
         "autonoumous_database_backup_id": "ocid1.autonomousdatabase.oc1.iad.abuw",
-        "display_name": "ansible-autonomous_data_warehouse_backup"
+        "display_name": "ansible-autonomous_data_warehouse_backup",
     }
     params.update(additional_properties)
     module = FakeModule(**params)

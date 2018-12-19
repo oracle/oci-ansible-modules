@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_service_facts
 short_description: Retrieve the available services that you can access through a service gateway in this region
@@ -30,9 +30,9 @@ options:
 version_added: "2.5"
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get details of all the available services
   oci_service_facts:
 
@@ -43,9 +43,9 @@ EXAMPLES = '''
 - name: Get details of a service using its name
   oci_service_facts:
     name: 'OCI IAD Object Storage'
-'''
+"""
 
-RETURN = '''
+RETURN = """
 services:
     description: Details of service
     returned: always
@@ -79,7 +79,7 @@ services:
             "id": "ocid1.service.oc1.phx.xxxxxEXAMPLExxxxx",
             "name": "OCI IAD Object Storage"
             }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -88,6 +88,7 @@ try:
     from oci.core.virtual_network_client import VirtualNetworkClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -96,32 +97,40 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
-    module_args.update(dict(
-        service_id=dict(type='str', required=False, aliases=['id'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False
+    module_args.update(
+        dict(service_id=dict(type="str", required=False, aliases=["id"]))
     )
 
-    if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    if not HAS_OCI_PY_SDK:
+        module.fail_json(msg="oci python sdk required for this module.")
+
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
     try:
-        if module.params['service_id']:
-            result = [to_dict(oci_utils.call_with_backoff(virtual_network_client.get_service,
-                                                          service_id=module.params['service_id']).data)]
+        if module.params["service_id"]:
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        virtual_network_client.get_service,
+                        service_id=module.params["service_id"],
+                    ).data
+                )
+            ]
         else:
-            result = to_dict(oci_utils.list_all_resources(virtual_network_client.list_services,
-                                                          name=module.params['name']))
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    virtual_network_client.list_services, name=module.params["name"]
+                )
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(services=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

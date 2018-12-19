@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_snapshot_facts
 short_description: Fetches details of the OCI Snapshot instances
@@ -37,9 +38,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Fetch Snapshot
 - name: List all Snapshots of a specific File System
   oci_snapshot_facts:
@@ -55,9 +56,9 @@ EXAMPLES = '''
 - name: List a specific Snapshot
   oci_snapshot_facts:
       snapshot_id: 'ocid1.snapshot..xxxxxEXAMPLExxxxx'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     snapshots:
         description: Attributes of the Fetched Snapshots.
         returned: success
@@ -120,7 +121,7 @@ RETURN = '''
                    "time_created":"2018-10-16T09:43:24.328000+00:00"
                 }]
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -129,6 +130,7 @@ try:
     from oci.file_storage.file_storage_client import FileStorageClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -137,35 +139,47 @@ logger = None
 
 
 def list_snapshots(file_storage_client, module):
-    result = dict(
-        snapshots=''
-    )
-    file_system_id = module.params.get('file_system_id')
-    snapshot_id = module.params.get('snapshot_id')
+    result = dict(snapshots="")
+    file_system_id = module.params.get("file_system_id")
+    snapshot_id = module.params.get("snapshot_id")
     try:
         if file_system_id:
-            get_logger().debug("Listing all Snapshots under File System %s", file_system_id)
-            optional_list_method_params = ['lifecycle_state']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            existing_snapshots_summary = to_dict(oci_utils.list_all_resources(
-                file_storage_client.list_snapshots,
-                file_system_id=file_system_id,
-                **optional_kwargs))
-            existing_snapshots = [oci_utils.call_with_backoff(
-                file_storage_client.get_snapshot, snapshot_id=snapshot['id']).data
-                for snapshot in existing_snapshots_summary]
+            get_logger().debug(
+                "Listing all Snapshots under File System %s", file_system_id
+            )
+            optional_list_method_params = ["lifecycle_state"]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            existing_snapshots_summary = to_dict(
+                oci_utils.list_all_resources(
+                    file_storage_client.list_snapshots,
+                    file_system_id=file_system_id,
+                    **optional_kwargs
+                )
+            )
+            existing_snapshots = [
+                oci_utils.call_with_backoff(
+                    file_storage_client.get_snapshot, snapshot_id=snapshot["id"]
+                ).data
+                for snapshot in existing_snapshots_summary
+            ]
         elif snapshot_id:
             get_logger().debug("Listing Snapshot %s", snapshot_id)
             response = oci_utils.call_with_backoff(
-                file_storage_client.get_snapshot, snapshot_id=snapshot_id)
+                file_storage_client.get_snapshot, snapshot_id=snapshot_id
+            )
             existing_snapshots = [response.data]
         else:
-            module.fail_json(msg='No value provided for either file_system_id or snapshot_id')
+            module.fail_json(
+                msg="No value provided for either file_system_id or snapshot_id"
+            )
     except ServiceError as ex:
         get_logger().error("Unable to list Snapshots due to %s", ex.message)
         module.fail_json(msg=ex.message)
-    result['snapshots'] = to_dict(existing_snapshots)
+    result["snapshots"] = to_dict(existing_snapshots)
     return result
 
 
@@ -182,21 +196,24 @@ def main():
     logger = oci_utils.get_logger("oci_snapshot_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        file_system_id=dict(type='str', required=False),
-        snapshot_id=dict(type='str', required=False, aliases=['id']),
-        lifecycle_state=dict(type='str', required=False, choices=[
-                             'CREATING', 'ACTIVE', 'DELETING', 'DELETED', 'FAILED'])
-    ))
+    module_args.update(
+        dict(
+            file_system_id=dict(type="str", required=False),
+            snapshot_id=dict(type="str", required=False, aliases=["id"]),
+            lifecycle_state=dict(
+                type="str",
+                required=False,
+                choices=["CREATING", "ACTIVE", "DELETING", "DELETED", "FAILED"],
+            ),
+        )
+    )
     module = AnsibleModule(
         argument_spec=module_args,
-        mutually_exclusive=[
-            ['file_system_id', 'snapshot_id']
-        ]
+        mutually_exclusive=[["file_system_id", "snapshot_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     file_storage_client = oci_utils.create_service_client(module, FileStorageClient)
     result = list_snapshots(file_storage_client, module)
@@ -204,5 +221,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

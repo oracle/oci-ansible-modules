@@ -80,22 +80,30 @@
       debug:
         msg: "SSH response from public instance -> {{ result.stdout_lines }}"
 
+    - name: Wait (upto 5 minutes) for ssh to start in private instance
+      command: 'ssh {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }} -o ProxyCommand="ssh {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }} -W %h:%p -q {{ ssh_user }}@{{ public_instance_public_ip }}" {{ ssh_user }}@{{ private_instance_private_ip }} uname -a'
+      register: result
+      until: result.rc == 0
+      retries: 10
+      delay: 30
+
     - name: Print sample SSH invocation to test if internet access is available in the private instance
       debug:
-        msg: 'ssh {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }} -o ProxyCommand="ssh {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }} -W %h:%p -q {{ ssh_user }}@${{ public_instance_public_ip }}" {{ ssh_user }}@${{ private_instance_private_ip }} ping -c2 oracle.com'
+        msg: 'ssh {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }} -o ProxyCommand="ssh {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }} -W %h:%p -q {{ ssh_user }}@{{ public_instance_public_ip }}" {{ ssh_user }}@{{ private_instance_private_ip }} ping -c2 oracle.com'
 
-# Attempt using the "command" module
-#    - name: Attempt a ssh connection to the private instance using the public instance as a jump host, and from the private instance attempt to ping a well known host in the internet to check internet access
-#      command: ssh {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }} -o ProxyCommand="ssh {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }} -W %h:%p -q {{ ssh_user }}@${{ public_instance_public_ip }}" {{ ssh_user }}@${{ private_instance_private_ip }} ping -c2 oracle.com
-#      register: result
-#    - name: Print SSH response from the private instance
-#      debug:
-#        msg: "SSH response from private instance -> {{ result }}"
+    - name: Print sample SSH invocation to test if internet access is available in the private instance
+      command: 'ssh {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }} -o ProxyCommand="ssh {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }} -W %h:%p -q {{ ssh_user }}@{{ public_instance_public_ip }}" {{ ssh_user }}@{{ private_instance_private_ip }} ping -c2 oracle.com'
+      register: result
+    
+    - name: Print ping response from the private instance
+      debug:
+        msg: "{{ result.stdout_lines }}"
+
 # Another approach to execute a remote command on the private instance
 #    - name: Add private instance to group
 #      add_host:
 #        name: "{{ private_instance_private_ip }}"
-#        ansible_ssh_common_args: '-o ProxyCommand="ssh {{ ssh_disable_strict_host_key_checking_args }} -W %h:%p -q {{ ssh_credentials_arg }} {{ ssh_user }}@${{ public_instance_public_ip }}" {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }}'
+#        ansible_ssh_common_args: '-o ProxyCommand="ssh {{ ssh_disable_strict_host_key_checking_args }} -W %h:%p -q {{ ssh_credentials_arg }} {{ ssh_user }}@{{ public_instance_public_ip }}" {{ ssh_disable_strict_host_key_checking_args }} {{ ssh_credentials_arg }}'
 #        groups: private_servers
 # - name: Run a command in the remote server
 #  hosts: private_servers

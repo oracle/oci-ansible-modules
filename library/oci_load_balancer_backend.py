@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_load_balancer_backend
 short_description: Add, modify and remove a backend from a load balancer in
@@ -72,9 +73,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [oracle, oracle_wait_options]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create Load Balancer Backend
 - name: Create Load Balancer Backend
@@ -132,8 +133,8 @@ EXAMPLES = '''
     ip_address: "10.50.121.69"
     port: 8080
     state: 'absent'
-'''
-RETURN = '''
+"""
+RETURN = """
     backend:
         description: Attributes of the created/updated Load Balancer Backend.
                     For delete, deleted Load Balancer Backend description will
@@ -185,7 +186,7 @@ RETURN = '''
                     "port":8181,
                     "weight":3
                 }
-'''
+"""
 from ansible.module_utils.basic import AnsibleModule
 
 from ansible.module_utils.oracle import oci_utils, oci_lb_utils
@@ -195,6 +196,7 @@ try:
     from oci.exceptions import ServiceError, ClientError
     from oci.util import to_dict
     from oci.load_balancer.models import UpdateBackendDetails, CreateBackendDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -205,33 +207,37 @@ logger = None
 def create_or_update_backend(lb_client, module):
 
     backend = None
-    result = dict(
-        changed=False,
-        backend=''
+    result = dict(changed=False, backend="")
+    lb_id = module.params.get("load_balancer_id")
+    backend_set_name = module.params.get("backend_set_name")
+    backend = oci_utils.get_existing_resource(
+        lb_client.get_backend,
+        module,
+        load_balancer_id=lb_id,
+        backend_set_name=backend_set_name,
+        backend_name=oci_lb_utils.get_backend_name(module),
     )
-    lb_id = module.params.get('load_balancer_id')
-    backend_set_name = module.params.get('backend_set_name')
-    backend = oci_utils.get_existing_resource(lb_client.get_backend, module,
-                                              load_balancer_id=lb_id,
-                                              backend_set_name=backend_set_name,
-                                              backend_name=oci_lb_utils.get_backend_name(module))
     try:
         if backend:
-            result = update_backend(
-                lb_client, module, backend, lb_id, backend_set_name)
+            result = update_backend(lb_client, module, backend, lb_id, backend_set_name)
         else:
-            result = oci_utils.check_and_create_resource(resource_type='backend',
-                                                         create_fn=create_backend,
-                                                         kwargs_create={'lb_client': lb_client,
-                                                                        'module': module,
-                                                                        'lb_id': lb_id,
-                                                                        'backend_set_name': backend_set_name},
-                                                         list_fn=lb_client.list_backends,
-                                                         kwargs_list={
-                                                             'load_balancer_id': lb_id,
-                                                             'backend_set_name': backend_set_name},
-                                                         module=module,
-                                                         model=CreateBackendDetails())
+            result = oci_utils.check_and_create_resource(
+                resource_type="backend",
+                create_fn=create_backend,
+                kwargs_create={
+                    "lb_client": lb_client,
+                    "module": module,
+                    "lb_id": lb_id,
+                    "backend_set_name": backend_set_name,
+                },
+                list_fn=lb_client.list_backends,
+                kwargs_list={
+                    "load_balancer_id": lb_id,
+                    "backend_set_name": backend_set_name,
+                },
+                module=module,
+                model=CreateBackendDetails(),
+            )
     except ServiceError as ex:
         get_logger().error("Unable to create/update backend due to: %s", ex.message)
         module.fail_json(msg=ex.message)
@@ -247,26 +253,40 @@ def create_backend(lb_client, module, lb_id, backend_set_name):
     create_backend_details = CreateBackendDetails()
     for attribute in create_backend_details.attribute_map:
         create_backend_details.__setattr__(
-            attribute, module.params.get(attribute, None))
-    get_logger().info("Creating backend for backendset %s with parameters %s",
-                      backend_set_name, str(create_backend_details))
-    get_logger().debug("backend ip_address: %s and port: %s",
-                       module.params['ip_address'], str(module.params['port']))
-    result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="backend",
-                                                                 function=lb_client.create_backend,
-                                                                 kwargs_function={
-                                                                     'create_backend_details': create_backend_details,
-                                                                     'load_balancer_id': lb_id,
-                                                                     'backend_set_name': backend_set_name},
-                                                                 lb_client=lb_client,
-                                                                 get_fn=lb_client.get_backend,
-                                                                 kwargs_get={'load_balancer_id': lb_id,
-                                                                             'backend_set_name': backend_set_name,
-                                                                             'backend_name': backend_name},
-                                                                 module=module
-                                                                 )
-    get_logger().info("Successfully created backend for backendset %s with parameters %s",
-                      backend_set_name, str(create_backend_details))
+            attribute, module.params.get(attribute, None)
+        )
+    get_logger().info(
+        "Creating backend for backendset %s with parameters %s",
+        backend_set_name,
+        str(create_backend_details),
+    )
+    get_logger().debug(
+        "backend ip_address: %s and port: %s",
+        module.params["ip_address"],
+        str(module.params["port"]),
+    )
+    result = oci_lb_utils.create_or_update_lb_resources_and_wait(
+        resource_type="backend",
+        function=lb_client.create_backend,
+        kwargs_function={
+            "create_backend_details": create_backend_details,
+            "load_balancer_id": lb_id,
+            "backend_set_name": backend_set_name,
+        },
+        lb_client=lb_client,
+        get_fn=lb_client.get_backend,
+        kwargs_get={
+            "load_balancer_id": lb_id,
+            "backend_set_name": backend_set_name,
+            "backend_name": backend_name,
+        },
+        module=module,
+    )
+    get_logger().info(
+        "Successfully created backend for backendset %s with parameters %s",
+        backend_set_name,
+        str(create_backend_details),
+    )
     return result
 
 
@@ -274,60 +294,96 @@ def update_backend(lb_client, module, backend, lb_id, backend_set_name):
     changed = False
     result = dict(changed=changed, backend=to_dict(backend))
     backend_name = oci_lb_utils.get_backend_name(module)
-    get_logger().info("Updating backend %s for backendset %s in load balancer %s",
-                      backend_name, backend_set_name, lb_id)
+    get_logger().info(
+        "Updating backend %s for backendset %s in load balancer %s",
+        backend_name,
+        backend_set_name,
+        lb_id,
+    )
     update_backend_details = UpdateBackendDetails()
     for attribute in update_backend_details.attribute_map:
         changed = oci_utils.check_and_update_attributes(
-            update_backend_details, attribute, module.params.get(
-                attribute, None), getattr(backend, attribute), changed)
-    get_logger().debug("Existing backend property values: %s, input property values: %s",
-                       backend, update_backend_details)
+            update_backend_details,
+            attribute,
+            module.params.get(attribute, None),
+            getattr(backend, attribute),
+            changed,
+        )
+    get_logger().debug(
+        "Existing backend property values: %s, input property values: %s",
+        backend,
+        update_backend_details,
+    )
     if changed:
-        result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="backend",
-                                                                                   function=lb_client.update_backend,
-                                                                                   kwargs_function={
-                                                                                       'update_backend_details': update_backend_details,
-                                                                                       'load_balancer_id': lb_id,
-                                                                                       'backend_set_name': backend_set_name,
-                                                                                       'backend_name': backend_name},
-                                                                                   lb_client=lb_client,
-                                                                                   get_fn=lb_client.get_backend,
-                                                                                   kwargs_get={'load_balancer_id': lb_id,
-                                                                                               'backend_set_name': backend_set_name,
-                                                                                               'backend_name': backend_name},
-                                                                                   module=module
-                                                                     )
-        get_logger().info("Successfully updated backend %s for backendset %s in load balancer %s",
-                          backend_name, backend_set_name, lb_id)
+        result = oci_lb_utils.create_or_update_lb_resources_and_wait(
+            resource_type="backend",
+            function=lb_client.update_backend,
+            kwargs_function={
+                "update_backend_details": update_backend_details,
+                "load_balancer_id": lb_id,
+                "backend_set_name": backend_set_name,
+                "backend_name": backend_name,
+            },
+            lb_client=lb_client,
+            get_fn=lb_client.get_backend,
+            kwargs_get={
+                "load_balancer_id": lb_id,
+                "backend_set_name": backend_set_name,
+                "backend_name": backend_name,
+            },
+            module=module,
+        )
+        get_logger().info(
+            "Successfully updated backend %s for backendset %s in load balancer %s",
+            backend_name,
+            backend_set_name,
+            lb_id,
+        )
     else:
-        get_logger().info("No update to the backend %s for backendset %s in load balancer %s as no " +
-                          "attribute changed", backend_name, backend_set_name, lb_id)
+        get_logger().info(
+            "No update to the backend %s for backendset %s in load balancer %s as no "
+            + "attribute changed",
+            backend_name,
+            backend_set_name,
+            lb_id,
+        )
 
     return result
 
 
 def delete_backend(lb_client, module):
-    lb_id = module.params.get('load_balancer_id')
-    backend_set_name = module.params.get('backend_set_name')
+    lb_id = module.params.get("load_balancer_id")
+    backend_set_name = module.params.get("backend_set_name")
     backend_name = oci_lb_utils.get_backend_name(module)
-    get_logger().info("Deleting backend %s for backendset %s in load balancer %s",
-                      backend_name, backend_set_name, lb_id)
-    result = oci_lb_utils.delete_lb_resources_and_wait(resource_type="backend",
-                                                       function=lb_client.delete_backend,
-                                                       kwargs_function={
-                                                           'backend_set_name': backend_set_name,
-                                                           'load_balancer_id': lb_id,
-                                                           'backend_name': backend_name},
-                                                       lb_client=lb_client,
-                                                       get_fn=lb_client.get_backend,
-                                                       kwargs_get={'load_balancer_id': lb_id,
-                                                                   'backend_set_name': backend_set_name,
-                                                                   'backend_name': backend_name},
-                                                       module=module
-                                                       )
-    get_logger().info("Successfully Deleted backend %s for backendset %s in load balancer %s",
-                      backend_name, backend_set_name, lb_id)
+    get_logger().info(
+        "Deleting backend %s for backendset %s in load balancer %s",
+        backend_name,
+        backend_set_name,
+        lb_id,
+    )
+    result = oci_lb_utils.delete_lb_resources_and_wait(
+        resource_type="backend",
+        function=lb_client.delete_backend,
+        kwargs_function={
+            "backend_set_name": backend_set_name,
+            "load_balancer_id": lb_id,
+            "backend_name": backend_name,
+        },
+        lb_client=lb_client,
+        get_fn=lb_client.get_backend,
+        kwargs_get={
+            "load_balancer_id": lb_id,
+            "backend_set_name": backend_set_name,
+            "backend_name": backend_name,
+        },
+        module=module,
+    )
+    get_logger().info(
+        "Successfully Deleted backend %s for backendset %s in load balancer %s",
+        backend_name,
+        backend_set_name,
+        lb_id,
+    )
     return result
 
 
@@ -344,35 +400,40 @@ def main():
     logger = oci_utils.get_logger("oci_load_balancer_backend")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        load_balancer_id=dict(type='str', required=True, aliases=['id']),
-        backend_set_name=dict(type='str', required=True),
-        backup=dict(type='bool', required=False),
-        ip_address=dict(type='str', required=True),
-        drain=dict(type='bool', required=False),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
-        offline=dict(type='bool', required=False),
-        port=dict(type='int', required=True),
-        weight=dict(type='int', required=False)
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args.update(
+        dict(
+            load_balancer_id=dict(type="str", required=True, aliases=["id"]),
+            backend_set_name=dict(type="str", required=True),
+            backup=dict(type="bool", required=False),
+            ip_address=dict(type="str", required=True),
+            drain=dict(type="bool", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+            offline=dict(type="bool", required=False),
+            port=dict(type="int", required=True),
+            weight=dict(type="int", required=False),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_backend(lb_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_backend(lb_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

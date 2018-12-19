@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_zone_facts
 short_description: Retrieve facts of zones in Oracle Cloud Infrastructure DNS Service
@@ -58,9 +58,9 @@ options:
         required: false
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [oracle]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get a list of zones in the specified compartment
   oci_zone_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
@@ -78,9 +78,9 @@ EXAMPLES = '''
 - name: Gets details of a specific zone using the OCID of the zone
   oci_zone_facts:
     zone_id: ocid1.dns-zone.oc1..xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 zones:
     description: List of Zone details
     returned: always
@@ -155,7 +155,7 @@ zones:
                 "version": "1",
                 "zone_type": "PRIMARY"
         }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -174,62 +174,86 @@ except ImportError:
 # DNS client accepts either a zone name or an id through the zone_name_or_id parameter for update and delete scenarios.
 # This is different from other resources.
 def get_zone_name_or_id(module):
-    if module.params['name']:
-        return module.params['name']
-    if module.params['zone_id']:
-        return module.params['zone_id']
+    if module.params["name"]:
+        return module.params["name"]
+    if module.params["zone_id"]:
+        return module.params["zone_id"]
     return None
 
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        zone_id=dict(type='str', required=False, aliases=['id']),
-        name=dict(type='str', required=False, aliases=['zone_name']),
-        compartment_id=dict(type='str', required=False),
-        zone_type=dict(type='str', required=False, choices=['PRIMARY', 'SECONDARY']),
-        name_contains=dict(type='str', required=False),
-        time_created_greater_than_or_equal_to=dict(type='str', required=False),
-        time_created_less_than=dict(type='str', required=False),
-        lifecycle_state=dict(type='str', required=False)
-    ))
+    module_args.update(
+        dict(
+            zone_id=dict(type="str", required=False, aliases=["id"]),
+            name=dict(type="str", required=False, aliases=["zone_name"]),
+            compartment_id=dict(type="str", required=False),
+            zone_type=dict(
+                type="str", required=False, choices=["PRIMARY", "SECONDARY"]
+            ),
+            name_contains=dict(type="str", required=False),
+            time_created_greater_than_or_equal_to=dict(type="str", required=False),
+            time_created_less_than=dict(type="str", required=False),
+            lifecycle_state=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[
-            ['zone_id', 'compartment_id']
-        ]
+        required_one_of=[["zone_id", "compartment_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     dns_client = oci_utils.create_service_client(module, DnsClient)
 
-    zone_id = module.params['zone_id']
-    compartment_id = module.params['compartment_id']
+    zone_id = module.params["zone_id"]
+    compartment_id = module.params["compartment_id"]
 
     try:
         if zone_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(dns_client.get_zone,
-                                                          zone_name_or_id=get_zone_name_or_id(module)).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        dns_client.get_zone, zone_name_or_id=get_zone_name_or_id(module)
+                    ).data
+                )
+            ]
         elif compartment_id is not None:
-            optional_list_method_params = ['compartment_id', 'name', 'zone_type', 'name_contains',
-                                           'time_created_greater_than_or_equal_to', 'time_created_less_than',
-                                           'lifecycle_state']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            zone_summaries = to_dict(oci_utils.list_all_resources(dns_client.list_zones, **optional_kwargs))
+            optional_list_method_params = [
+                "compartment_id",
+                "name",
+                "zone_type",
+                "name_contains",
+                "time_created_greater_than_or_equal_to",
+                "time_created_less_than",
+                "lifecycle_state",
+            ]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            zone_summaries = to_dict(
+                oci_utils.list_all_resources(dns_client.list_zones, **optional_kwargs)
+            )
 
             # Get Zone model from zone-summaries returned by `list_zones`
-            result = to_dict([oci_utils.call_with_backoff(dns_client.get_zone, zone_name_or_id=z['id']).data
-                              for z in zone_summaries])
+            result = to_dict(
+                [
+                    oci_utils.call_with_backoff(
+                        dns_client.get_zone, zone_name_or_id=z["id"]
+                    ).data
+                    for z in zone_summaries
+                ]
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(zones=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

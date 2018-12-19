@@ -16,8 +16,7 @@ try:
     from oci.file_storage.models import FileSystem
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_file_system_facts.py requires `oci` module")
+    raise SkipTest("test_oci_file_system_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -37,44 +36,56 @@ class FakeModule(object):
 @pytest.fixture()
 def file_storage_client(mocker):
     mock_file_storage_client = mocker.patch(
-        'oci.file_storage.file_storage_client.FileStorageClient')
+        "oci.file_storage.file_storage_client.FileStorageClient"
+    )
     return mock_file_storage_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_file_system_facts.set_logger(logging)
 
 
 def test_list_file_systems_list_all(file_storage_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'availability_domain': 'EXAMPLE-AD'}))
+    module = get_module(
+        dict(
+            {
+                "compartment_id": "ocid1.compartment.aaaa",
+                "availability_domain": "EXAMPLE-AD",
+            }
+        )
+    )
     list_all_resources_patch.return_value = get_file_systems()
-    file_storage_client.get_file_system.side_effect = [get_response(
-        200, None, get_file_system(), None), get_response(
-        200, None, get_file_system(), None)]
+    file_storage_client.get_file_system.side_effect = [
+        get_response(200, None, get_file_system(), None),
+        get_response(200, None, get_file_system(), None),
+    ]
     result = oci_file_system_facts.list_file_systems(file_storage_client, module)
-    assert len(result['file_systems']) is 2
+    assert len(result["file_systems"]) is 2
 
 
 def test_list_file_systems_list_specific(file_storage_client):
-    module = get_module(dict({'file_system_id': 'ocid1.filesystem.aaaa'}))
+    module = get_module(dict({"file_system_id": "ocid1.filesystem.aaaa"}))
     file_storage_client.get_file_system.return_value = get_response(
-        200, None, get_file_system(), None)
+        200, None, get_file_system(), None
+    )
     result = oci_file_system_facts.list_file_systems(file_storage_client, module)
-    assert result['file_systems'][0]['display_name'] is 'ansible_file_system'
+    assert result["file_systems"][0]["display_name"] is "ansible_file_system"
 
 
 def test_list_file_systems_service_error(file_storage_client):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'file_system_id': 'ocid1.filesystem.aaaa'}))
+    error_message = "Internal Server Error"
+    module = get_module(dict({"file_system_id": "ocid1.filesystem.aaaa"}))
     file_storage_client.get_file_system.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_file_system_facts.list_file_systems(file_storage_client, module)
     except Exception as ex:
@@ -84,9 +95,9 @@ def test_list_file_systems_service_error(file_storage_client):
 def get_file_systems():
     file_systems = []
     file_system1 = FileSystem()
-    file_system1.display_name = 'ansible_file_system1'
+    file_system1.display_name = "ansible_file_system1"
     file_system2 = FileSystem()
-    file_system2.display_name = 'ansible_file_system2'
+    file_system2.display_name = "ansible_file_system2"
     file_systems.append(file_system1)
     file_systems.append(file_system2)
     return file_systems
@@ -94,7 +105,7 @@ def get_file_systems():
 
 def get_file_system():
     file_system = FileSystem()
-    file_system.display_name = 'ansible_file_system'
+    file_system.display_name = "ansible_file_system"
     return file_system
 
 

@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_volume_attachment
 short_description: Attach or detach a volume in OCI Block Volume service
@@ -60,9 +60,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Attach a volume to an instance
   oci_volume_attachment:
     instance_id: ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx
@@ -73,9 +73,9 @@ EXAMPLES = '''
   oci_volume_attachment:
     volume_attachment_id: ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 volume_attachment:
     description: Information about the volume attachment
     returned: On successful attach operation
@@ -96,7 +96,7 @@ volume_attachment:
             "time_created": "2017-11-23T11:17:50.139000+00:00",
             "volume_id": "ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -105,6 +105,7 @@ from ansible.module_utils.oracle import oci_utils
 try:
     from oci.core.compute_client import ComputeClient
     from oci.core.models import AttachVolumeDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -118,73 +119,89 @@ def attach_volume(compute_client, module):
         if attribute in module.params:
             setattr(attach_volume_details, attribute, module.params[attribute])
 
-    result = oci_utils.create_and_wait(resource_type=RESOURCE_NAME, client=compute_client,
-                                       create_fn=compute_client.attach_volume,
-                                       kwargs_create={"attach_volume_details": attach_volume_details},
-                                       get_fn=compute_client.get_volume_attachment,
-                                       get_param="volume_attachment_id",
-                                       module=module)
+    result = oci_utils.create_and_wait(
+        resource_type=RESOURCE_NAME,
+        client=compute_client,
+        create_fn=compute_client.attach_volume,
+        kwargs_create={"attach_volume_details": attach_volume_details},
+        get_fn=compute_client.get_volume_attachment,
+        get_param="volume_attachment_id",
+        module=module,
+    )
     return result
 
 
 def main():
     module_args = oci_utils.get_common_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        instance_id=dict(type='str', required=False),
-        is_read_only=dict(type='bool', required=False, default=False),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        type=dict(type='str', required=False, choices=['iscsi', 'paravirtualized']),
-        use_chap=dict(type='bool', required=False, default=False),
-        volume_id=dict(type='str', required=False),
-        volume_attachment_id=dict(type='str', required=False, aliases=['id']),
-        display_name=dict(type='str', required=False)
-    ))
+    module_args.update(
+        dict(
+            instance_id=dict(type="str", required=False),
+            is_read_only=dict(type="bool", required=False, default=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            type=dict(type="str", required=False, choices=["iscsi", "paravirtualized"]),
+            use_chap=dict(type="bool", required=False, default=False),
+            volume_id=dict(type="str", required=False),
+            volume_attachment_id=dict(type="str", required=False, aliases=["id"]),
+            display_name=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
         required_if=[
-            ['state', 'absent', ['volume_attachment_id']],
-            ['state', 'present', ['instance_id', 'volume_id']]
-        ]
+            ["state", "absent", ["volume_attachment_id"]],
+            ["state", "present", ["instance_id", "volume_id"]],
+        ],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
 
-    state = module.params['state']
-    exclude_attributes = {'display_name': True}
-    if state == 'absent':
-        result = oci_utils.delete_and_wait(resource_type=RESOURCE_NAME,
-                                           client=compute_client,
-                                           get_fn=compute_client.get_volume_attachment,
-                                           kwargs_get={
-                                               "volume_attachment_id": module.params["volume_attachment_id"]},
-                                           delete_fn=compute_client.detach_volume,
-                                           kwargs_delete={
-                                               "volume_attachment_id": module.params["volume_attachment_id"]},
-                                           module=module
-                                           )
+    state = module.params["state"]
+    exclude_attributes = {"display_name": True}
+    if state == "absent":
+        result = oci_utils.delete_and_wait(
+            resource_type=RESOURCE_NAME,
+            client=compute_client,
+            get_fn=compute_client.get_volume_attachment,
+            kwargs_get={"volume_attachment_id": module.params["volume_attachment_id"]},
+            delete_fn=compute_client.detach_volume,
+            kwargs_delete={
+                "volume_attachment_id": module.params["volume_attachment_id"]
+            },
+            module=module,
+        )
 
     else:
-        compartment_id = compute_client.get_instance(module.params["instance_id"]).data.compartment_id
-        result = oci_utils.check_and_create_resource(resource_type=RESOURCE_NAME, create_fn=attach_volume,
-                                                     kwargs_create={"compute_client": compute_client,
-                                                                    "module": module},
-                                                     list_fn=compute_client.list_volume_attachments,
-                                                     kwargs_list={"compartment_id": compartment_id,
-                                                                  "instance_id": module.params['instance_id'],
-                                                                  "volume_id": module.params['volume_id']},
-                                                     module=module, model=AttachVolumeDetails(),
-                                                     exclude_attributes=exclude_attributes,
-                                                     default_attribute_values={"is_read_only": False,
-                                                                               "use_chap": False}
-                                                     )
+        compartment_id = compute_client.get_instance(
+            module.params["instance_id"]
+        ).data.compartment_id
+        result = oci_utils.check_and_create_resource(
+            resource_type=RESOURCE_NAME,
+            create_fn=attach_volume,
+            kwargs_create={"compute_client": compute_client, "module": module},
+            list_fn=compute_client.list_volume_attachments,
+            kwargs_list={
+                "compartment_id": compartment_id,
+                "instance_id": module.params["instance_id"],
+                "volume_id": module.params["volume_id"],
+            },
+            module=module,
+            model=AttachVolumeDetails(),
+            exclude_attributes=exclude_attributes,
+            default_attribute_values={"is_read_only": False, "use_chap": False},
+        )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

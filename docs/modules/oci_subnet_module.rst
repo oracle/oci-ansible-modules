@@ -369,10 +369,17 @@ Examples
         prohibit_public_ip_on_vnic: true
         vcn_id: ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
 
-    - name: Update a subnet
+    - name: Update subnet's display name and associated route table
       oci_subnet:
         display_name: ansible_subnet
         subnet_id: ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx
+        route_table_id: "ocid1.routetable.oc1.phx.xxxxxEXAMPLExxxxx"
+
+    - name: Update subnet's associated security lists and DHCP options
+      oci_subnet:
+        subnet_id: ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx
+        security_list_ids: ["ocid1.securitylist.oc1.phx.xxxxxEXAMPLExxxxx"]
+        dhcp_options_id: "ocid1.dhcpoptions.oc1.phx.xxxxxEXAMPLExxxxx"
 
     - name: Delete a subnet
       oci_subnet:

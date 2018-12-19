@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_dynamic_group
 short_description: Manage dynamic groups in OCI
@@ -52,9 +52,9 @@ options:
         choices: ['present', 'absent']
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a dynamic group
   oci_dynamic_group:
     compartment_id: ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx
@@ -72,9 +72,9 @@ EXAMPLES = '''
   oci_dynamic_group:
     id: ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 dynamic_group:
     description: Information about the dynamic group
     returned: On successful create, delete & update operation
@@ -89,7 +89,7 @@ dynamic_group:
             "name": "Sample dynamic group",
             "time_created": "2018-07-05T09:38:27.176000+00:00"
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -98,6 +98,7 @@ try:
     from oci.identity.identity_client import IdentityClient
     from oci.identity.models import CreateDynamicGroupDetails
     from oci.identity.models import UpdateDynamicGroupDetails
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -105,28 +106,32 @@ except ImportError:
 
 
 def delete_dynamic_group(identity_client, module):
-    result = oci_utils.delete_and_wait(resource_type="dynamic_group",
-                                       client=identity_client,
-                                       get_fn=identity_client.get_dynamic_group,
-                                       kwargs_get={"dynamic_group_id": module.params["dynamic_group_id"]},
-                                       delete_fn=identity_client.delete_dynamic_group,
-                                       kwargs_delete={"dynamic_group_id": module.params["dynamic_group_id"]},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="dynamic_group",
+        client=identity_client,
+        get_fn=identity_client.get_dynamic_group,
+        kwargs_get={"dynamic_group_id": module.params["dynamic_group_id"]},
+        delete_fn=identity_client.delete_dynamic_group,
+        kwargs_delete={"dynamic_group_id": module.params["dynamic_group_id"]},
+        module=module,
+    )
     return result
 
 
 def update_dynamic_group(identity_client, module):
-    result = oci_utils.check_and_update_resource(resource_type="dynamic_group",
-                                                 get_fn=identity_client.get_dynamic_group,
-                                                 kwargs_get={"dynamic_group_id": module.params["dynamic_group_id"]},
-                                                 update_fn=identity_client.update_dynamic_group,
-                                                 primitive_params_update=['dynamic_group_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateDynamicGroupDetails: "update_dynamic_group_details"},
-                                                 module=module,
-                                                 update_attributes=UpdateDynamicGroupDetails().attribute_map.keys()
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type="dynamic_group",
+        client=identity_client,
+        get_fn=identity_client.get_dynamic_group,
+        kwargs_get={"dynamic_group_id": module.params["dynamic_group_id"]},
+        update_fn=identity_client.update_dynamic_group,
+        primitive_params_update=["dynamic_group_id"],
+        kwargs_non_primitive_update={
+            UpdateDynamicGroupDetails: "update_dynamic_group_details"
+        },
+        module=module,
+        update_attributes=UpdateDynamicGroupDetails().attribute_map.keys(),
+    )
 
     return result
 
@@ -137,62 +142,68 @@ def create_dynamic_group(identity_client, module):
         if attribute in module.params:
             setattr(create_dynamic_group_details, attribute, module.params[attribute])
 
-    result = oci_utils.create_and_wait(resource_type="dynamic_group",
-                                       create_fn=identity_client.create_dynamic_group,
-                                       kwargs_create={"create_dynamic_group_details": create_dynamic_group_details},
-                                       client=identity_client,
-                                       get_fn=identity_client.get_dynamic_group,
-                                       get_param="dynamic_group_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="dynamic_group",
+        create_fn=identity_client.create_dynamic_group,
+        kwargs_create={"create_dynamic_group_details": create_dynamic_group_details},
+        client=identity_client,
+        get_fn=identity_client.get_dynamic_group,
+        get_param="dynamic_group_id",
+        module=module,
+    )
     return result
 
 
 def main():
     module_args = oci_utils.get_taggable_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        description=dict(type='str', required=False),
-        matching_rule=dict(type='str', required=False),
-        name=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        dynamic_group_id=dict(type='str', required=False, aliases=['id'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            description=dict(type="str", required=False),
+            matching_rule=dict(type="str", required=False),
+            name=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            dynamic_group_id=dict(type="str", required=False, aliases=["id"]),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[('state', 'absent', ['dynamic_group_id'])]
+        required_if=[("state", "absent", ["dynamic_group_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
-    state = module.params['state']
-    dynamic_group_id = module.params['dynamic_group_id']
+    state = module.params["state"]
+    dynamic_group_id = module.params["dynamic_group_id"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_dynamic_group(identity_client, module)
 
     else:
         if dynamic_group_id is not None:
             result = update_dynamic_group(identity_client, module)
         else:
-            result = oci_utils.check_and_create_resource(resource_type='dynamic_group',
-                                                         create_fn=create_dynamic_group,
-                                                         kwargs_create={
-                                                             'identity_client': identity_client,
-                                                             'module': module},
-                                                         list_fn=identity_client.list_dynamic_groups,
-                                                         kwargs_list={"compartment_id": module.params['compartment_id']
-                                                                      },
-                                                         module=module,
-                                                         model=CreateDynamicGroupDetails(),
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="dynamic_group",
+                create_fn=create_dynamic_group,
+                kwargs_create={"identity_client": identity_client, "module": module},
+                list_fn=identity_client.list_dynamic_groups,
+                kwargs_list={"compartment_id": module.params["compartment_id"]},
+                module=module,
+                model=CreateDynamicGroupDetails(),
+            )
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

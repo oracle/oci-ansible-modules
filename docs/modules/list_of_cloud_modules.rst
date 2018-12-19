@@ -42,6 +42,7 @@ Oracle
   * :ref:`oci_console_history_module` 
   * :ref:`oci_console_history_content_facts_module` 
   * :ref:`oci_console_history_facts_module` 
+  * :ref:`oci_cost_tracking_tag_facts_module` 
   * :ref:`oci_cpe_module` 
   * :ref:`oci_cpe_facts_module` 
   * :ref:`oci_customer_secret_key_module` 
@@ -88,6 +89,7 @@ Oracle
   * :ref:`oci_instance_configuration_facts_module` 
   * :ref:`oci_instance_console_connection_module` 
   * :ref:`oci_instance_console_connection_facts_module` 
+  * :ref:`oci_instance_credentials_facts_module` 
   * :ref:`oci_instance_facts_module` 
   * :ref:`oci_instance_pool_module` 
   * :ref:`oci_instance_pool_facts_module` 

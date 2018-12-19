@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_instance_configuration_facts
 short_description: Retrieve facts of instance configurations in OCI Compute Service
@@ -34,9 +34,9 @@ options:
         aliases: [ 'id' ]
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get information of all the instance configurations for a specific availability domain & compartment_id
   oci_instance_configuration_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...abcd
@@ -44,9 +44,9 @@ EXAMPLES = '''
 - name: Get information of a instance configuration
   oci_instance_configuration_facts:
     instance_configuration_id: ocid1.instanceconfiguration.oc1.phx.xxxxxEXAMPLExxxxx...efgh
-'''
+"""
 
-RETURN = '''
+RETURN = """
 instance_configurations:
     description: List of instance configuration information
     returned: On success
@@ -386,7 +386,7 @@ instance_configurations:
                 },
                 "time-created": "2018-11-07T04:16:20.454000+00:00"
         }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -404,40 +404,57 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        instance_configuration_id=dict(type='str', required=False, aliases=['id'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            instance_configuration_id=dict(type="str", required=False, aliases=["id"]),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[
-            ['compartment_id', 'instance_configuration_id']
-        ]
+        required_one_of=[["compartment_id", "instance_configuration_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    compute_management_client = oci_utils.create_service_client(module, ComputeManagementClient)
+    compute_management_client = oci_utils.create_service_client(
+        module, ComputeManagementClient
+    )
 
-    instance_configuration_id = module.params['instance_configuration_id']
+    instance_configuration_id = module.params["instance_configuration_id"]
 
     try:
         if instance_configuration_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(compute_management_client.get_instance_configuration,
-                                                          instance_configuration_id=instance_configuration_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        compute_management_client.get_instance_configuration,
+                        instance_configuration_id=instance_configuration_id,
+                    ).data
+                )
+            ]
 
         else:
-            compartment_id = module.params['compartment_id']
+            compartment_id = module.params["compartment_id"]
             inst_conf_summaries = to_dict(
-                oci_utils.list_all_resources(compute_management_client.list_instance_configurations,
-                                             compartment_id=compartment_id))
+                oci_utils.list_all_resources(
+                    compute_management_client.list_instance_configurations,
+                    compartment_id=compartment_id,
+                )
+            )
             # Get model from summaries returned by `list_instance_configurations`
-            result = to_dict([oci_utils.call_with_backoff(compute_management_client.get_instance_configuration,
-                                                          instance_configuration_id=ic['id']).data
-                              for ic in inst_conf_summaries])
+            result = to_dict(
+                [
+                    oci_utils.call_with_backoff(
+                        compute_management_client.get_instance_configuration,
+                        instance_configuration_id=ic["id"],
+                    ).data
+                    for ic in inst_conf_summaries
+                ]
+            )
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -445,5 +462,5 @@ def main():
     module.exit_json(instance_configurations=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

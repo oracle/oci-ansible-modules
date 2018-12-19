@@ -17,7 +17,7 @@ oci_compartment - Manage compartments in OCI
 
 Synopsis
 --------
-- This module allows the user to create and update a compartment in OCI.
+- This module allows the user to create, delete & update a compartment in OCI.
 
 
 
@@ -97,12 +97,13 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>compartment_id</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                                                            </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the tenancy in which the compartment has to be created or the OCID of the compartment to be updated.</div>
-                                                                                </td>
+                                                                        <div>The OCID of the compartment. Use <em>compartment_id</em> to update a compartment. <em>compartment_id</em> may also be set to the tenancy ocid to create a compartment under the root compartment of the tenancy. However it is recommended to use the <em>parent_compartment_ocid</em> for that purpose.</div>
+                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
+                                    </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
@@ -162,7 +163,17 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Name of the compartment. The name must be unique across all compartments in the tenancy. Required when creating a compartment with <em>state=present</em>.</div>
+                                                                        <div>Name of the compartment. The name must be unique across all compartments in the parent compartment. Required when creating a compartment with <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>parent_compartment_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the parent compartment containing the compartment. Use <em>parent_compartment_id</em> to create a compartment under a root or a non-root compartment. Required to create a compartment under a non-root compartment with <em>state=present</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -182,10 +193,11 @@ Parameters
                                 <td>
                                                                                                                             <ul><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>absent</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Create or update a compartment with <em>state=present</em>.</div>
+                                                                        <div>Create or update a compartment with <em>state=present</em>. Use <em>state=absent</em> to delete a compartment.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -250,17 +262,42 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Create a compartment
+    - name: Create a compartment under root compartment using parent_compartment_id option
       oci_compartment:
-        compartment_id: 'ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx:aaaabcaamx5hilzhdwvds5wfsn2akuyty4'
+        parent_compartment_id: 'ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx'
         name: Project-A
         description: Compartment for Project-A
 
-    - name: Update name and description of a compartment
+    - name: Create a compartment under root compartment using compartment_id option. Though this is supported, it is
+            recommended to use the parent_compartment_id as shown above to create a compartment under the root compartment
+            of the tenancy.
+      oci_compartment:
+        compartment_id: 'ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx'
+        name: Project-A
+        description: Compartment for Project-A
+
+    - name: Create a compartment under a non-root compartment
+      oci_compartment:
+        parent_compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+        name: Project-B
+        description: Compartment for Project-B
+
+    - name: Update name and description of a non-root compartment
       oci_compartment:
         compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
         name: Project-Ansible
         description: Compartment for Project-Ansible
+
+    - name: Update description and tags of root compartment
+      oci_compartment:
+        compartment_id: 'ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx'
+        freeform_tags:
+          stage: test
+
+    - name: Delete compartment
+      oci_compartment:
+        compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+        state: absent
 
 
 
@@ -287,7 +324,20 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about the compartment</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'ACTIVE', 'inactive_status': None, 'name': 'Project-Ansible', 'compartment_id': 'ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx:aaaabcaamx5hilzhdwvds5wfsn2akuyty4', 'id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'time_created': '2017-02-01T03:20:22.160000+00:00', 'description': 'Compartment for Project-Ansible'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'ACTIVE', 'inactive_status': None, 'description': 'Compartment for Project-Ansible', 'compartment_id': 'ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx', 'is_accessible': None, 'defined_tags': {}, 'freeform_tags': {}, 'time_created': '2017-02-01T03:20:22.160000+00:00', 'id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'name': 'Project-Ansible'}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                <td colspan="1">
+                    <b>work_request</b>
+                    <br/><div style="font-size: small; color: red">dict</div>
+                                    </td>
+                <td>When a delete compartment request is raised</td>
+                <td>
+                                            <div>Information about the work request</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'status': 'ACCEPTED', 'time_finished': None, 'errors': None, 'logs': None, 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'operation_type': 'DELETE_COMPARTMENT', 'percent_complete': 0.0, 'time_accepted': '2018-11-30T12:08:28.168000+00:00', 'id': 'ocid1.identityworkrequest.oc1..xxxxxEXAMPLExxxxx', 'resources': None, 'time_started': None}</div>
                                     </td>
             </tr>
                         </table>

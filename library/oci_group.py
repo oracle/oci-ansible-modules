@@ -6,16 +6,17 @@
 # See LICENSE.TXT for details.
 
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_group
 short_description: Create,update and delete OCI user groups and specified user associations
@@ -65,9 +66,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [oracle, oracle_wait_options, oracle_tags]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 
 # Group creation
@@ -110,9 +111,9 @@ EXAMPLES = '''
             id: ocid1.group.oc1..xxxxxEXAMPLExxxxx
             force: 'yes'
             state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
 group:
     description: Attributes of the created/updated group.
                  For delete, deleted group description will be returned.
@@ -168,7 +169,7 @@ group:
       "time_created":"2017-10-31T16:38:22.289000+00:00"
    }
 ]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -181,6 +182,7 @@ try:
     from oci.identity.models import CreateGroupDetails
     from oci.identity.models import UpdateGroupDetails
     from oci.identity.models import AddUserToGroupDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -189,31 +191,28 @@ except ImportError:
 def create_or_update_group(identity_client, module):
     group = None
     existing_group = None
-    result = dict(
-        changed=False,
-        group=''
-    )
-    group_id = module.params.get('group_id')
-    exclude_attributes = {'compartment_id': True}
+    result = dict(changed=False, group="")
+    group_id = module.params.get("group_id")
+    exclude_attributes = {"compartment_id": True}
     try:
         if group_id:
             existing_group = oci_utils.get_existing_resource(
-                identity_client.get_group, module, group_id=group_id)
-            changed, group = update_group(
-                identity_client, existing_group, module)
-            result['changed'] = changed
-            result['group'] = group
+                identity_client.get_group, module, group_id=group_id
+            )
+            changed, group = update_group(identity_client, existing_group, module)
+            result["changed"] = changed
+            result["group"] = group
         else:
-            result = oci_utils.check_and_create_resource(resource_type='group',
-                                                         create_fn=create_group,
-                                                         kwargs_create={'identity_client': identity_client,
-                                                                        'module': module},
-                                                         list_fn=identity_client.list_groups,
-                                                         kwargs_list={
-                                                             'compartment_id': module.params.get('compartment_id')},
-                                                         module=module,
-                                                         exclude_attributes=exclude_attributes,
-                                                         model=CreateGroupDetails())
+            result = oci_utils.check_and_create_resource(
+                resource_type="group",
+                create_fn=create_group,
+                kwargs_create={"identity_client": identity_client, "module": module},
+                list_fn=identity_client.list_groups,
+                kwargs_list={"compartment_id": module.params.get("compartment_id")},
+                module=module,
+                exclude_attributes=exclude_attributes,
+                model=CreateGroupDetails(),
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as ex:
@@ -223,22 +222,20 @@ def create_or_update_group(identity_client, module):
 
 def create_group(identity_client, module):
     result = dict()
-    users = module.params.get('users')
+    users = module.params.get("users")
     create_group_details = CreateGroupDetails()
     for attribute in create_group_details.attribute_map:
-        create_group_details.__setattr__(
-            attribute, module.params.get(attribute))
+        create_group_details.__setattr__(attribute, module.params.get(attribute))
     response = oci_utils.call_with_backoff(
-        identity_client.create_group, create_group_details=create_group_details)
+        identity_client.create_group, create_group_details=create_group_details
+    )
     group_id = response.data.id
-    response = oci_utils.call_with_backoff(
-        identity_client.get_group, group_id=group_id)
-    oci.wait_until(identity_client, response, 'lifecycle_state', 'ACTIVE')
+    response = oci_utils.call_with_backoff(identity_client.get_group, group_id=group_id)
+    oci.wait_until(identity_client, response, "lifecycle_state", "ACTIVE")
     group = response.data
     try:
         if users:
-            user_ids = get_user_ids_from_user_names(
-                identity_client, users, module)
+            user_ids = get_user_ids_from_user_names(identity_client, users, module)
             add_users_to_group(identity_client, group.id, user_ids)
     except (ServiceError, ClientError) as ex:
         message = None
@@ -246,72 +243,91 @@ def create_group(identity_client, module):
             message = ex.args[0]
         else:
             message = ex.message
-        module.params.update(dict({'id': group.id}))
-        module.params.update(dict({'force': True}))
+        module.params.update(dict({"id": group.id}))
+        module.params.update(dict({"force": True}))
         delete_group(identity_client, module)
         module.fail_json(msg=message)
-    result['group'] = to_dict(group)
-    result['changed'] = True
+    result["group"] = to_dict(group)
+    result["changed"] = True
     return result
 
 
 def update_group(identity_client, existing_group, module):
     if existing_group is None:
-        raise ClientError(Exception("No Group with id " +
-                                    module.params.get('group_id') + " is found for update"))
-    users = module.params['users']
-    compartment_id = module.params.get('compartment_id')
+        raise ClientError(
+            Exception(
+                "No Group with id "
+                + module.params.get("group_id")
+                + " is found for update"
+            )
+        )
+    users = module.params["users"]
+    compartment_id = module.params.get("compartment_id")
     existing_group, description_tags_changed = update_group_description_and_tags(
-        identity_client, existing_group, module)
+        identity_client, existing_group, module
+    )
     user_changed = False
     if users is not None:
         existing_group_members = get_existing_group_members(
-            identity_client, existing_group.compartment_id, existing_group.id)
+            identity_client, existing_group.compartment_id, existing_group.id
+        )
         if users:
             user_changed = update_group_users(
-                identity_client, compartment_id, users,
-                existing_group_members, existing_group, module)
+                identity_client,
+                compartment_id,
+                users,
+                existing_group_members,
+                existing_group,
+                module,
+            )
         else:
             user_changed = delete_all_users_from_group(
-                identity_client, compartment_id, existing_group)
+                identity_client, compartment_id, existing_group
+            )
     group_dict = to_dict(existing_group)
     return (description_tags_changed or user_changed), group_dict
 
 
 def delete_all_users_from_group(identity_client, compartment_id, existing_group):
     user_changed = False
-    existing_user_group_memberships = oci_utils.list_all_resources(identity_client.list_user_group_memberships,
-                                                                   **dict(compartment_id=compartment_id,
-                                                                          group_id=existing_group.id))
+    existing_user_group_memberships = oci_utils.list_all_resources(
+        identity_client.list_user_group_memberships,
+        **dict(compartment_id=compartment_id, group_id=existing_group.id)
+    )
     if existing_user_group_memberships:
-        for existing_user_group_membership in \
-                existing_user_group_memberships:
-            oci_utils.call_with_backoff(identity_client.remove_user_from_group,
-                                        user_group_membership_id=existing_user_group_membership.id)
+        for existing_user_group_membership in existing_user_group_memberships:
+            oci_utils.call_with_backoff(
+                identity_client.remove_user_from_group,
+                user_group_membership_id=existing_user_group_membership.id,
+            )
         user_changed = True
     return user_changed
 
 
-def update_group_users(identity_client, compartment_id, users,
-                       existing_group_members, existing_group, module):
-    purge_user_memberships = module.params['purge_user_memberships']
+def update_group_users(
+    identity_client,
+    compartment_id,
+    users,
+    existing_group_members,
+    existing_group,
+    module,
+):
+    purge_user_memberships = module.params["purge_user_memberships"]
     user_changed = False
 
-    user_ids = get_user_ids_from_user_names(
-        identity_client, users, module)
+    user_ids = get_user_ids_from_user_names(identity_client, users, module)
 
     if purge_user_memberships:
         if set(user_ids) ^ (set(existing_group_members)):
-            delete_all_users_from_group(
-                identity_client, compartment_id, existing_group)
+            delete_all_users_from_group(identity_client, compartment_id, existing_group)
             existing_group_members = []
     users_to_be_added = get_difference_from_existing_users(
-        existing_group_members, user_ids)
+        existing_group_members, user_ids
+    )
 
     if user_ids and users_to_be_added:
         user_changed = True
-        add_users_to_group(identity_client, existing_group.id,
-                           users_to_be_added)
+        add_users_to_group(identity_client, existing_group.id, users_to_be_added)
     return user_changed
 
 
@@ -321,38 +337,52 @@ def add_users_to_group(identity_client, group_id, user_ids):
     for user_id in user_ids:
         add_user_to_group_details.user_id = user_id
         oci_utils.call_with_backoff(
-            identity_client.add_user_to_group, add_user_to_group_details=add_user_to_group_details)
+            identity_client.add_user_to_group,
+            add_user_to_group_details=add_user_to_group_details,
+        )
 
 
 def update_group_description_and_tags(identity_client, existing_group, module):
     changed = False
-    attributes_to_compare = ['description', 'defined_tags', 'freeform_tags']
+    attributes_to_compare = ["description", "defined_tags", "freeform_tags"]
     update_group_details = UpdateGroupDetails()
     for attribute in attributes_to_compare:
-        changed = oci_utils.check_and_update_attributes(update_group_details, attribute, module.params.get(
-            attribute), getattr(existing_group, attribute), changed)
+        changed = oci_utils.check_and_update_attributes(
+            update_group_details,
+            attribute,
+            module.params.get(attribute),
+            getattr(existing_group, attribute),
+            changed,
+        )
     if changed:
-        result = oci_utils.update_and_wait(resource_type='group',
-                                           update_fn=identity_client.update_group,
-                                           kwargs_update={
-                                               'group_id': existing_group.id,
-                                               'update_group_details': update_group_details},
-                                           client=identity_client,
-                                           get_fn=identity_client.get_group,
-                                           get_param='group_id',
-                                           module=module
-                                           )
-        existing_group = result['group']
-        changed = result['changed']
+        result = oci_utils.update_and_wait(
+            resource_type="group",
+            update_fn=identity_client.update_group,
+            kwargs_update={
+                "group_id": existing_group.id,
+                "update_group_details": update_group_details,
+            },
+            client=identity_client,
+            get_fn=identity_client.get_group,
+            get_param="group_id",
+            module=module,
+        )
+        existing_group = result["group"]
+        changed = result["changed"]
     return existing_group, changed
 
 
 def get_user_ids_from_user_names(identity_client, user_names, module):
     user_ids = []
     users = oci_utils.list_all_resources(
-        identity_client.list_users, compartment_id=module.params.get('compartment_id'))
-    user_id_dict = {user_name: user.id for user in users for user_name in user_names
-                    if user.name.strip() == user_name.strip()}
+        identity_client.list_users, compartment_id=module.params.get("compartment_id")
+    )
+    user_id_dict = {
+        user_name: user.id
+        for user in users
+        for user_name in user_names
+        if user.name.strip() == user_name.strip()
+    }
     try:
         user_ids = [user_id_dict[user_name] for user_name in user_names]
     except KeyError as ex:
@@ -361,11 +391,14 @@ def get_user_ids_from_user_names(identity_client, user_names, module):
 
 
 def get_existing_group_members(identity_client, compartment_id, existing_group_id):
-    user_group_memberships = oci_utils.list_all_resources(identity_client.list_user_group_memberships,
-                                                          **dict(compartment_id=compartment_id,
-                                                                 group_id=existing_group_id))
+    user_group_memberships = oci_utils.list_all_resources(
+        identity_client.list_user_group_memberships,
+        **dict(compartment_id=compartment_id, group_id=existing_group_id)
+    )
     existing_group_user_ids = [
-        user_group_membership.user_id for user_group_membership in user_group_memberships]
+        user_group_membership.user_id
+        for user_group_membership in user_group_memberships
+    ]
     return existing_group_user_ids
 
 
@@ -377,30 +410,31 @@ def get_difference_from_existing_users(existing_users, users):
 
 
 def delete_group(identity_client, module):
-    group_id = module.params.get('group_id')
-    force = module.params.get('force')
-    compartment_id = module.params.get('compartment_id')
+    group_id = module.params.get("group_id")
+    force = module.params.get("force")
+    compartment_id = module.params.get("compartment_id")
     changed = False
-    result = dict(
-        changed=False,
-    )
+    result = dict(changed=False)
     try:
         existing_group = oci_utils.get_existing_resource(
-            identity_client.get_group, module, group_id=group_id)
+            identity_client.get_group, module, group_id=group_id
+        )
         if existing_group:
-            if force == 'yes':
+            if force == "yes":
                 delete_all_users_from_group(
-                    identity_client, compartment_id, existing_group)
+                    identity_client, compartment_id, existing_group
+                )
             oci_utils.call_with_backoff(
-                identity_client.delete_group, group_id=existing_group.id)
+                identity_client.delete_group, group_id=existing_group.id
+            )
             changed = True
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     except MaximumWaitTimeExceeded as ex:
         module.fail_json(msg=ex.args)
 
-    result['changed'] = changed
-    result['group'] = to_dict(existing_group)
+    result["changed"] = changed
+    result["group"] = to_dict(existing_group)
     return result
 
 
@@ -408,37 +442,39 @@ def main():
     module_args = oci_utils.get_taggable_arg_spec(supports_wait=True)
     module_args.update(
         dict(
-            name=dict(type='str', required=False),
-            group_id=dict(type='str', required=False, aliases=['id']),
-            description=dict(type='str', required=False, default=''),
-            users=dict(type='list', required=False),
-            purge_user_memberships=dict(type='bool', required=False, default=False),
-            state=dict(type='str', required=False, default='present', choices=['present', 'absent']),
-            force=dict(type='str', required=False, default='no')
+            name=dict(type="str", required=False),
+            group_id=dict(type="str", required=False, aliases=["id"]),
+            description=dict(type="str", required=False, default=""),
+            users=dict(type="list", required=False),
+            purge_user_memberships=dict(type="bool", required=False, default=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+            force=dict(type="str", required=False, default="no"),
         )
     )
-    module = AnsibleModule(
-        argument_spec=module_args
-    )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     oci_config = oci_utils.get_oci_config(module)
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
-    compartment_id = oci_config['tenancy']
-    module.params.update(dict({'compartment_id': compartment_id}))
-    state = module.params['state']
+    compartment_id = oci_config["tenancy"]
+    module.params.update(dict({"compartment_id": compartment_id}))
+    state = module.params["state"]
 
-    if state == 'present':
-        result = create_or_update_group(
-            identity_client, module)
-    elif state == 'absent':
+    if state == "present":
+        result = create_or_update_group(identity_client, module)
+    elif state == "absent":
         result = delete_group(identity_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

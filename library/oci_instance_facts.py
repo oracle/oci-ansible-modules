@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_instance_facts
 short_description: Retrieve details about one or more Compute instances in OCI Compute Service
@@ -39,12 +40,14 @@ options:
                      case-insensitive. Allowed values are "PROVISIONING", "RUNNING", "STARTING", "STOPPING",
                      "STOPPED", "CREATING_IMAGE", "TERMINATING", "TERMINATED"
         required: false
+        choices: ["PROVISIONING", "RUNNING", "STARTING", "STOPPING", "STOPPED", "CREATING_IMAGE", "TERMINATING",
+                  "TERMINATED"]
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get details of all the compute instances of a specified compartment in a specified Availability Domain
   oci_instance_facts:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq'
@@ -53,9 +56,9 @@ EXAMPLES = '''
 - name: Get details of a specific Compute instance
   oci_instance_facts:
     id:"ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx...lxiggdq"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 instances:
     description: Information about one or more compute instances
     returned: on success
@@ -287,16 +290,17 @@ instances:
                                 "volume_id": "ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx"
       }]
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_utils, oci_compute_utils
 from ansible.module_utils.oracle.oci_utils import check_mode
 
 try:
     from oci.core.compute_client import ComputeClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -304,73 +308,79 @@ except ImportError:
 
 def list_instances(compute_client, module):
     try:
-        cid = module.params['compartment_id']
-        optional_list_method_params = ['display_name', 'availability_domain', 'lifecycle_state']
-        optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                           if module.params.get(param) is not None}
-        instances = oci_utils.list_all_resources(compute_client.list_instances, compartment_id=cid, **optional_kwargs)
+        cid = module.params["compartment_id"]
+        optional_list_method_params = [
+            "display_name",
+            "availability_domain",
+            "lifecycle_state",
+        ]
+        optional_kwargs = {
+            param: module.params[param]
+            for param in optional_list_method_params
+            if module.params.get(param) is not None
+        }
+        instances = oci_utils.list_all_resources(
+            compute_client.list_instances, compartment_id=cid, **optional_kwargs
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     return to_dict(instances)
 
 
-def get_volume_attachments(compute_client, instance):
-    param_map = {'instance_id': instance['id'],
-                 'compartment_id': instance['compartment_id']}
-
-    volume_attachments = to_dict(oci_utils.list_all_resources(compute_client.list_volume_attachments,
-                                                              **param_map))
-    return volume_attachments
-
-
-def get_boot_volume_attachment(compute_client, instance):
-    param_map = {'availability_domain': instance['availability_domain'],
-                 'instance_id': instance['id'],
-                 'compartment_id': instance['compartment_id']}
-
-    boot_volume_attachments = to_dict(oci_utils.list_all_resources(compute_client.list_boot_volume_attachments,
-                                                                   **param_map))
-
-    if boot_volume_attachments:
-        return boot_volume_attachments[0]
-    return None
-
-
 @check_mode
 def add_boot_volume_attachment_facts(compute_client, result):
     for instance in result:
-        instance["boot_volume_attachment"] = get_boot_volume_attachment(compute_client, instance)
+        instance[
+            "boot_volume_attachment"
+        ] = oci_compute_utils.get_boot_volume_attachment(compute_client, instance)
 
 
 @check_mode
 def add_volume_attachment_facts(compute_client, result):
     for instance in result:
-        instance["volume_attachments"] = get_volume_attachments(compute_client, instance)
+        instance["volume_attachments"] = oci_compute_utils.get_volume_attachments(
+            compute_client, instance
+        )
 
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        availability_domain=dict(type='str', required=False),
-        instance_id=dict(type='str', required=False, aliases=['id']),
-        lifecycle_state=dict(type='str', required=False)
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            availability_domain=dict(type="str", required=False),
+            instance_id=dict(type="str", required=False, aliases=["id"]),
+            lifecycle_state=dict(
+                type="str",
+                required=False,
+                choices=[
+                    "PROVISIONING",
+                    "RUNNING",
+                    "STARTING",
+                    "STOPPING",
+                    "STOPPED",
+                    "CREATING_IMAGE",
+                    "TERMINATING",
+                    "TERMINATED",
+                ],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['id', 'compartment_id']
+        mutually_exclusive=["id", "compartment_id"],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
 
-    compartment_id = module.params['compartment_id']
-    id = module.params['instance_id']
+    compartment_id = module.params["compartment_id"]
+    id = module.params["instance_id"]
 
     result = dict(changed=False)
 
@@ -378,12 +388,14 @@ def main():
         result = list_instances(compute_client, module)
     else:
         try:
-            inst = oci_utils.call_with_backoff(compute_client.get_instance, instance_id=id).data
+            inst = oci_utils.call_with_backoff(
+                compute_client.get_instance, instance_id=id
+            ).data
             result = to_dict([inst])
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
 
-    # For each instance in the result, add related volume_attachments and boot_volume_attachment facts
+        # For each instance in the result, add related volume_attachments and boot_volume_attachment facts
         try:
             add_volume_attachment_facts(compute_client, result)
             add_boot_volume_attachment_facts(compute_client, result)
@@ -393,5 +405,5 @@ def main():
     module.exit_json(instances=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

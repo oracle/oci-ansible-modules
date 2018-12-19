@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_rrset_facts
 short_description: Retrieve facts of a RRSet in a specified zone in Oracle Cloud Infrastructure DNS Service
@@ -48,17 +48,17 @@ options:
         required: false
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get a list of all records in the specified RRSet
   oci_rrset_facts:
     zone_id: ocid1.dns-zone.oc1..xxxxxEXAMPLExxxxx
     domain: "test_zone_1.com"
     rtype: "TXT"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 rrset:
     description: A collection of DNS resource record objects.
     returned: always
@@ -111,12 +111,12 @@ rrset:
                     "rtype": "NS",
                     "ttl": 86400
                 }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 
-import six
+from ansible.module_utils import six
 
 try:
     from oci.dns.dns_client import DnsClient
@@ -132,49 +132,57 @@ except ImportError:
 # DNS client accepts either a zone name or an id through the zone_name_or_id parameter for update and delete scenarios.
 # This is different from other resources.
 def get_zone_name_or_id(module):
-    if module.params['name'] is not None:
-        return module.params['name']
-    if module.params['zone_id'] is not None:
-        return module.params['zone_id']
-    if module.params['id'] is not None:
-        return module.params['id']
+    if module.params["name"] is not None:
+        return module.params["name"]
+    if module.params["zone_id"] is not None:
+        return module.params["zone_id"]
+    if module.params["id"] is not None:
+        return module.params["id"]
     return None
 
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        zone_id=dict(type='str', required=False, aliases=['id']),
-        name=dict(type='str', required=False, aliases=['zone_name']),
-        compartment_id=dict(type='str', required=False),
-        domain=dict(type='str', required=True),
-        zone_version=dict(type='str', required=False),
-        rtype=dict(type='str', required=True)
-    ))
+    module_args.update(
+        dict(
+            zone_id=dict(type="str", required=False, aliases=["id"]),
+            name=dict(type="str", required=False, aliases=["zone_name"]),
+            compartment_id=dict(type="str", required=False),
+            domain=dict(type="str", required=True),
+            zone_version=dict(type="str", required=False),
+            rtype=dict(type="str", required=True),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[
-            ['zone_id', 'name']
-        ]
+        required_one_of=[["zone_id", "name"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     dns_client = oci_utils.create_service_client(module, DnsClient)
 
     try:
         zone_name_or_id = get_zone_name_or_id(module)
         key_list = ["compartment_id", "zone_version"]
-        kwargs = {k: v for (k, v) in six.iteritems(module.params) if k in key_list and v is not None}
+        kwargs = {
+            k: v
+            for (k, v) in six.iteritems(module.params)
+            if k in key_list and v is not None
+        }
 
-        result = to_dict(oci_utils.call_with_backoff(dns_client.get_rr_set,
-                                                     zone_name_or_id=zone_name_or_id,
-                                                     domain=module.params['domain'],
-                                                     rtype=module.params['rtype'],
-                                                     **kwargs).data.items)
+        result = to_dict(
+            oci_utils.call_with_backoff(
+                dns_client.get_rr_set,
+                zone_name_or_id=zone_name_or_id,
+                domain=module.params["domain"],
+                rtype=module.params["rtype"],
+                **kwargs
+            ).data.items
+        )
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -182,5 +190,5 @@ def main():
     module.exit_json(rrset=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

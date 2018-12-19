@@ -4,8 +4,9 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
+
 class ModuleDocFragment(object):
-    DOCUMENTATION = '''
+    DOCUMENTATION = """
     options:
         wait:
             description: Whether to wait for create or delete operation to complete.
@@ -22,4 +23,4 @@ class ModuleDocFragment(object):
                          RUNNING applicable lifecycle state during create operation & to get into DELETED/DETACHED/
                          TERMINATED lifecycle state during delete operation.
             required: false
-    '''
+    """

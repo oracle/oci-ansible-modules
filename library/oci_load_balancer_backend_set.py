@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_load_balancer_backend_set
 short_description: Create, update and delete a backend set of a load balancer.
@@ -159,9 +160,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create Create a backend set named "ansible_backend_set" in a load balancer
 - name: Create Load Balancer Backend Set
@@ -206,9 +207,9 @@ EXAMPLES = '''
     load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
     name: "ansible_backend_set"
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     backend_set:
         description: Attributes of the created/updated Load Balancer Backend Set.
                     For delete, deleted Load Balancer Backend Set description will
@@ -323,7 +324,7 @@ RETURN = '''
             "verify_peer_certificate": true
         }
        }
-'''
+"""
 from ansible.module_utils.basic import AnsibleModule
 
 from ansible.module_utils.oracle import oci_utils, oci_lb_utils
@@ -333,8 +334,15 @@ try:
     from oci.load_balancer.load_balancer_client import LoadBalancerClient
     from oci.exceptions import ServiceError, ClientError
     from oci.util import to_dict
-    from oci.load_balancer.models import CreateBackendSetDetails, UpdateBackendSetDetails, \
-        BackendDetails, HealthCheckerDetails, SessionPersistenceConfigurationDetails, SSLConfigurationDetails
+    from oci.load_balancer.models import (
+        CreateBackendSetDetails,
+        UpdateBackendSetDetails,
+        BackendDetails,
+        HealthCheckerDetails,
+        SessionPersistenceConfigurationDetails,
+        SSLConfigurationDetails,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -344,28 +352,25 @@ logger = None
 
 def create_or_update_backend_set(lb_client, module):
     backend_set = None
-    result = dict(
-        changed=False,
-        backend_set=''
-    )
-    lb_id = module.params.get('load_balancer_id')
-    name = module.params.get('name')
+    result = dict(changed=False, backend_set="")
+    lb_id = module.params.get("load_balancer_id")
+    name = module.params.get("name")
     backend_set = oci_utils.get_existing_resource(
-        lb_client.get_backend_set, module, load_balancer_id=lb_id, backend_set_name=name)
+        lb_client.get_backend_set, module, load_balancer_id=lb_id, backend_set_name=name
+    )
     try:
         if backend_set:
-            result = update_backend_set(
-                lb_client, module, lb_id, backend_set, name)
+            result = update_backend_set(lb_client, module, lb_id, backend_set, name)
         else:
-            result = oci_utils.check_and_create_resource(resource_type='backend_set',
-                                                         create_fn=create_backend_set,
-                                                         kwargs_create={'lb_client': lb_client,
-                                                                        'module': module},
-                                                         list_fn=lb_client.list_backend_sets,
-                                                         kwargs_list={
-                                                             'load_balancer_id': lb_id},
-                                                         module=module,
-                                                         model=CreateBackendSetDetails())
+            result = oci_utils.check_and_create_resource(
+                resource_type="backend_set",
+                create_fn=create_backend_set,
+                kwargs_create={"lb_client": lb_client, "module": module},
+                list_fn=lb_client.list_backend_sets,
+                kwargs_list={"load_balancer_id": lb_id},
+                module=module,
+                model=CreateBackendSetDetails(),
+            )
     except ServiceError as ex:
         get_logger().error("Unable to create/update backend set due to: %s", ex.message)
         module.fail_json(msg=ex.message)
@@ -377,33 +382,44 @@ def create_or_update_backend_set(lb_client, module):
 
 
 def create_backend_set(lb_client, module):
-    backen_end_set_input_details = dict({'backends': module.params.get(
-        'backends', None),
-        'health_checker': module.params.get('health_checker'),
-        'policy': module.params.get('policy'),
-        'session_persistence_configuration':
-            module.params.get('session_persistence_configuration', None),
-        'ssl_configuration': module.params.get('ssl_configuration', None)})
-    name = module.params.get('name')
-    lb_id = module.params.get('load_balancer_id')
+    backen_end_set_input_details = dict(
+        {
+            "backends": module.params.get("backends", None),
+            "health_checker": module.params.get("health_checker"),
+            "policy": module.params.get("policy"),
+            "session_persistence_configuration": module.params.get(
+                "session_persistence_configuration", None
+            ),
+            "ssl_configuration": module.params.get("ssl_configuration", None),
+        }
+    )
+    name = module.params.get("name")
+    lb_id = module.params.get("load_balancer_id")
     get_logger().info("Creating backend set %s in the load balancer %s", name, lb_id)
-    backend_set_details = oci_lb_utils.create_backend_sets(dict({name: backen_end_set_input_details})).get(name)
+    backend_set_details = oci_lb_utils.create_backend_sets(
+        dict({name: backen_end_set_input_details})
+    ).get(name)
     create_backend_set_details = CreateBackendSetDetails()
     for attribute in create_backend_set_details.attribute_map:
-        create_backend_set_details.__setattr__(attribute, getattr(backend_set_details, attribute, None))
+        create_backend_set_details.__setattr__(
+            attribute, getattr(backend_set_details, attribute, None)
+        )
     create_backend_set_details.name = name
-    result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="backend_set",
-                                                                 function=lb_client.create_backend_set,
-                                                                 kwargs_function={
-                                                                     'create_backend_set_details': create_backend_set_details,
-                                                                     'load_balancer_id': lb_id},
-                                                                 lb_client=lb_client,
-                                                                 get_fn=lb_client.get_backend_set,
-                                                                 kwargs_get={'load_balancer_id': lb_id,
-                                                                             'backend_set_name': name},
-                                                                 module=module
-                                                                 )
-    get_logger().info("Successfully created backend set %s in the load balancer %s", name, lb_id)
+    result = oci_lb_utils.create_or_update_lb_resources_and_wait(
+        resource_type="backend_set",
+        function=lb_client.create_backend_set,
+        kwargs_function={
+            "create_backend_set_details": create_backend_set_details,
+            "load_balancer_id": lb_id,
+        },
+        lb_client=lb_client,
+        get_fn=lb_client.get_backend_set,
+        kwargs_get={"load_balancer_id": lb_id, "backend_set_name": name},
+        module=module,
+    )
+    get_logger().info(
+        "Successfully created backend set %s in the load balancer %s", name, lb_id
+    )
 
     return result
 
@@ -411,75 +427,109 @@ def create_backend_set(lb_client, module):
 def update_backend_set(lb_client, module, lb_id, backend_set, name):
     result = dict(backend_set=to_dict(backend_set), changed=False)
     update_backend_set_details = UpdateBackendSetDetails()
-    purge_backends = module.params.get('purge_backends')
-    input_backends = oci_lb_utils.create_backends(module.params.get('backends', None))
-    existing_backends = oci_utils.get_hashed_object_list(BackendDetails, backend_set.backends)
+    purge_backends = module.params.get("purge_backends")
+    input_backends = oci_lb_utils.create_backends(module.params.get("backends", None))
+    existing_backends = oci_utils.get_hashed_object_list(
+        BackendDetails, backend_set.backends
+    )
     get_logger().info("Updating backend set %s in the load balancer %s", name, lb_id)
     backends_changed = False
     if input_backends is not None:
         backends, backends_changed = oci_utils.check_and_return_component_list_difference(
-            input_backends, existing_backends, purge_backends)
+            input_backends, existing_backends, purge_backends
+        )
     if backends_changed:
         update_backend_set_details.backends = backends
     else:
         update_backend_set_details.backends = existing_backends
 
     input_health_checker = oci_lb_utils.create_health_checker(
-        module.params.get('health_checker'))
+        module.params.get("health_checker")
+    )
     health_checker_changed = oci_utils.update_class_type_attr_difference(
-        update_backend_set_details, backend_set,
-        'health_checker', HealthCheckerDetails, input_health_checker)
+        update_backend_set_details,
+        backend_set,
+        "health_checker",
+        HealthCheckerDetails,
+        input_health_checker,
+    )
     policy_changed = oci_utils.check_and_update_attributes(
-        update_backend_set_details, 'policy', module.params.get('policy'),
-        backend_set.policy, False)
+        update_backend_set_details,
+        "policy",
+        module.params.get("policy"),
+        backend_set.policy,
+        False,
+    )
     input_session_persistence_configuration = oci_lb_utils.create_session_persistence_configuration(
-        module.params.get('session_persistence_configuration', None))
+        module.params.get("session_persistence_configuration", None)
+    )
     session_persistence_configuration_changed = oci_utils.update_class_type_attr_difference(
-        update_backend_set_details, backend_set, 'session_persistence_configuration',
-        SessionPersistenceConfigurationDetails, input_session_persistence_configuration)
+        update_backend_set_details,
+        backend_set,
+        "session_persistence_configuration",
+        SessionPersistenceConfigurationDetails,
+        input_session_persistence_configuration,
+    )
     input_ssl_configuration = oci_lb_utils.create_ssl_configuration(
-        module.params.get('ssl_configuration', None))
+        module.params.get("ssl_configuration", None)
+    )
     ssl_configuration_changed = oci_utils.update_class_type_attr_difference(
-        update_backend_set_details, backend_set, 'ssl_configuration',
-        SSLConfigurationDetails, input_ssl_configuration)
-    changed = backends_changed or health_checker_changed or policy_changed or \
-        session_persistence_configuration_changed or ssl_configuration_changed
+        update_backend_set_details,
+        backend_set,
+        "ssl_configuration",
+        SSLConfigurationDetails,
+        input_ssl_configuration,
+    )
+    changed = (
+        backends_changed
+        or health_checker_changed
+        or policy_changed
+        or session_persistence_configuration_changed
+        or ssl_configuration_changed
+    )
     if changed:
-        result = oci_lb_utils.create_or_update_lb_resources_and_wait(resource_type="backend_set",
-                                                                     function=lb_client.update_backend_set,
-                                                                     kwargs_function={
-                                                                         'update_backend_set_details': update_backend_set_details,
-                                                                         'load_balancer_id': lb_id,
-                                                                         'backend_set_name': name},
-                                                                     lb_client=lb_client,
-                                                                     get_fn=lb_client.get_backend_set,
-                                                                     kwargs_get={'load_balancer_id': lb_id,
-                                                                                 'backend_set_name': name},
-                                                                     module=module
-                                                                     )
-        get_logger().info("Successfully updated backend set %s in the load balancer %s", name, lb_id)
+        result = oci_lb_utils.create_or_update_lb_resources_and_wait(
+            resource_type="backend_set",
+            function=lb_client.update_backend_set,
+            kwargs_function={
+                "update_backend_set_details": update_backend_set_details,
+                "load_balancer_id": lb_id,
+                "backend_set_name": name,
+            },
+            lb_client=lb_client,
+            get_fn=lb_client.get_backend_set,
+            kwargs_get={"load_balancer_id": lb_id, "backend_set_name": name},
+            module=module,
+        )
+        get_logger().info(
+            "Successfully updated backend set %s in the load balancer %s", name, lb_id
+        )
     else:
-        get_logger().info("No update on backend set %s in the load balancer %s as no attribute changed", name, lb_id)
+        get_logger().info(
+            "No update on backend set %s in the load balancer %s as no attribute changed",
+            name,
+            lb_id,
+        )
 
     return result
 
 
 def delete_backend_set(lb_client, module):
-    lb_id = module.params.get('load_balancer_id')
-    name = module.params.get('name')
+    lb_id = module.params.get("load_balancer_id")
+    name = module.params.get("name")
     get_logger().info("Deleting backend set %s from the load balancer %s", name, lb_id)
-    result = oci_lb_utils.delete_lb_resources_and_wait(resource_type="backend_set",
-                                                       function=lb_client.delete_backend_set,
-                                                       kwargs_function={
-                                                           'backend_set_name': name,
-                                                           'load_balancer_id': lb_id},
-                                                       lb_client=lb_client,
-                                                       get_fn=lb_client.get_backend_set,
-                                                       kwargs_get={'load_balancer_id': lb_id,
-                                                                   'backend_set_name': name},
-                                                       module=module
-                                                       )
-    get_logger().info("Successfully deleted backend set %s from the load balancer %s", name, lb_id)
+    result = oci_lb_utils.delete_lb_resources_and_wait(
+        resource_type="backend_set",
+        function=lb_client.delete_backend_set,
+        kwargs_function={"backend_set_name": name, "load_balancer_id": lb_id},
+        lb_client=lb_client,
+        get_fn=lb_client.get_backend_set,
+        kwargs_get={"load_balancer_id": lb_id, "backend_set_name": name},
+        module=module,
+    )
+    get_logger().info(
+        "Successfully deleted backend set %s from the load balancer %s", name, lb_id
+    )
 
     return result
 
@@ -497,35 +547,40 @@ def main():
     logger = oci_utils.get_logger("oci_load_balancer_backend_set")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec(supports_wait=True)
-    module_args.update(dict(
-        name=dict(type='str', required=True),
-        load_balancer_id=dict(type='str', required=True, aliases=['id']),
-        backends=dict(type=list, required=False),
-        health_checker=dict(type=dict, required=False),
-        policy=dict(type='str', required=False),
-        session_persistence_configuration=dict(type=dict, required=False),
-        ssl_configuration=dict(type=dict, required=False),
-        purge_backends=dict(type='bool', required=False, default=True),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args.update(
+        dict(
+            name=dict(type="str", required=True),
+            load_balancer_id=dict(type="str", required=True, aliases=["id"]),
+            backends=dict(type=list, required=False),
+            health_checker=dict(type=dict, required=False),
+            policy=dict(type="str", required=False),
+            session_persistence_configuration=dict(type=dict, required=False),
+            ssl_configuration=dict(type=dict, required=False),
+            purge_backends=dict(type="bool", required=False, default=True),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     lb_client = oci_utils.create_service_client(module, LoadBalancerClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_backend_set(lb_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_backend_set(lb_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

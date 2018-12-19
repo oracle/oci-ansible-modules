@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_volume_group_backup
 short_description: Manage volume group backups in OCI Block Volume service
@@ -55,9 +55,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a volume group backup
   oci_volume_group_backup:
     name: my_backup
@@ -79,9 +79,9 @@ EXAMPLES = '''
   oci_volume_group_backup:
     id: ocid1.volumegroupbackup.oc1.iad.xxxxxEXAMPLExxxxx
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 volume_group_backup:
     description: Information about the volume group backup
     returned: on successful create, delete and update operation
@@ -188,7 +188,7 @@ volume_group_backup:
             "volume_backup_ids": ["ocid1.volumebackup.oc1.iad.xxxxxEXAMPLExxxxx"],
             "volume_group_id": "ocid1.volumegroup.oc1.iad.xxxxxEXAMPLExxxxx"
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -198,21 +198,24 @@ try:
     from oci.core.blockstorage_client import BlockstorageClient
     from oci.core.models import CreateVolumeGroupBackupDetails
     from oci.core.models import UpdateVolumeGroupBackupDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def delete_volume_group_backup(block_storage_client, module):
-    result = oci_utils.delete_and_wait(resource_type="volume_group_backup",
-                                       client=block_storage_client,
-                                       get_fn=block_storage_client.get_volume_group_backup,
-                                       kwargs_get={"volume_group_backup_id": module.params["id"]},
-                                       delete_fn=block_storage_client.delete_volume_group_backup,
-                                       kwargs_delete={"volume_group_backup_id":
-                                                      module.params["volume_group_backup_id"]},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="volume_group_backup",
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume_group_backup,
+        kwargs_get={"volume_group_backup_id": module.params["id"]},
+        delete_fn=block_storage_client.delete_volume_group_backup,
+        kwargs_delete={
+            "volume_group_backup_id": module.params["volume_group_backup_id"]
+        },
+        module=module,
+    )
     return result
 
 
@@ -223,91 +226,108 @@ def create_volume_group_backup(block_storage_client, module):
         if attribute in module.params:
             setattr(cvgbd, attribute, module.params[attribute])
 
-    result = oci_utils.create_and_wait(resource_type="volume_group_backup",
-                                       create_fn=block_storage_client.create_volume_group_backup,
-                                       kwargs_create={"create_volume_group_backup_details": cvgbd},
-                                       client=block_storage_client,
-                                       get_fn=block_storage_client.get_volume_group_backup,
-                                       get_param="volume_group_backup_id",
-                                       module=module,
-                                       states=[module.params['wait_until'], "FAULTY",
-                                               "AVAILABLE"]
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="volume_group_backup",
+        create_fn=block_storage_client.create_volume_group_backup,
+        kwargs_create={"create_volume_group_backup_details": cvgbd},
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume_group_backup,
+        get_param="volume_group_backup_id",
+        module=module,
+        states=[module.params["wait_until"], "FAULTY", "AVAILABLE"],
+    )
 
     return result
 
 
 def update_volume_group_backup(block_storage_client, module):
-    return oci_utils.check_and_update_resource(resource_type="volume_group_backup",
-                                               get_fn=block_storage_client.get_volume_group_backup,
-                                               kwargs_get={"volume_group_backup_id":
-                                                           module.params["volume_group_backup_id"]},
-                                               update_fn=block_storage_client.update_volume_group_backup,
-                                               primitive_params_update=['volume_group_backup_id'],
-                                               kwargs_non_primitive_update={
-                                                   UpdateVolumeGroupBackupDetails:
-                                                       "update_volume_group_backup_details"},
-                                               module=module,
-                                               update_attributes=UpdateVolumeGroupBackupDetails().attribute_map.keys()
-                                               )
+    return oci_utils.check_and_update_resource(
+        resource_type="volume_group_backup",
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume_group_backup,
+        kwargs_get={"volume_group_backup_id": module.params["volume_group_backup_id"]},
+        update_fn=block_storage_client.update_volume_group_backup,
+        primitive_params_update=["volume_group_backup_id"],
+        kwargs_non_primitive_update={
+            UpdateVolumeGroupBackupDetails: "update_volume_group_backup_details"
+        },
+        module=module,
+        update_attributes=UpdateVolumeGroupBackupDetails().attribute_map.keys(),
+    )
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        type=dict(type='str', required=False, default='INCREMENTAL', choices=['FULL', 'INCREMENTAL']),
-        volume_group_backup_id=dict(type='str', required=False, aliases=['id']),
-        volume_group_id=dict(type='str', required=False)
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            type=dict(
+                type="str",
+                required=False,
+                default="INCREMENTAL",
+                choices=["FULL", "INCREMENTAL"],
+            ),
+            volume_group_backup_id=dict(type="str", required=False, aliases=["id"]),
+            volume_group_id=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[
-            ['state', 'absent', ['volume_group_backup_id']]
-        ]
+        required_if=[["state", "absent", ["volume_group_backup_id"]]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
-    state = module.params['state']
-    volume_group_backup_id = module.params['volume_group_backup_id']
+    state = module.params["state"]
+    volume_group_backup_id = module.params["volume_group_backup_id"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_volume_group_backup(block_storage_client, module)
 
     else:
         if volume_group_backup_id is None:
-            if module.params['compartment_id']:
-                compartment_id = module.params['compartment_id']
+            if module.params["compartment_id"]:
+                compartment_id = module.params["compartment_id"]
             # Get compartment_id of volume group to list all the volume group backups of the volume group in that
             # compartment.
             else:
                 compartment_id = block_storage_client.get_volume_group(
-                    module.params['volume_group_id']).data.compartment_id
-            result = oci_utils.check_and_create_resource(resource_type='volume_group_backup',
-                                                         create_fn=create_volume_group_backup,
-                                                         kwargs_create={
-                                                             'block_storage_client': block_storage_client,
-                                                             'module': module},
-                                                         list_fn=block_storage_client.list_volume_group_backups,
-                                                         kwargs_list={'compartment_id': compartment_id,
-                                                                      'volume_group_id':
-                                                                          module.params['volume_group_id']
-                                                                      },
-                                                         module=module,
-                                                         model=CreateVolumeGroupBackupDetails())
+                    module.params["volume_group_id"]
+                ).data.compartment_id
+            result = oci_utils.check_and_create_resource(
+                resource_type="volume_group_backup",
+                create_fn=create_volume_group_backup,
+                kwargs_create={
+                    "block_storage_client": block_storage_client,
+                    "module": module,
+                },
+                list_fn=block_storage_client.list_volume_group_backups,
+                kwargs_list={
+                    "compartment_id": compartment_id,
+                    "volume_group_id": module.params["volume_group_id"],
+                },
+                module=module,
+                model=CreateVolumeGroupBackupDetails(),
+            )
         else:
             result = update_volume_group_backup(block_storage_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

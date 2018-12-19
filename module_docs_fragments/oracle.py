@@ -6,7 +6,7 @@
 
 
 class ModuleDocFragment(object):
-    DOCUMENTATION = '''
+    DOCUMENTATION = """
     requirements:
         - "python >= 2.6"
         -  Python SDK for Oracle Cloud Infrastructure U(https://oracle-cloud-infrastructure-python-sdk.readthedocs.io)
@@ -79,4 +79,4 @@ class ModuleDocFragment(object):
                   U(https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm) for more information
                   on OCI regions.
             required: false
-    '''
+    """

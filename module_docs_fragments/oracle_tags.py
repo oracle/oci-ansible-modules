@@ -4,8 +4,9 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
+
 class ModuleDocFragment(object):
-    DOCUMENTATION = '''
+    DOCUMENTATION = """
     options:
         defined_tags:
             description: Defined tags for this resource. Each key is predefined and scoped to a namespace. For more
@@ -17,4 +18,4 @@ class ModuleDocFragment(object):
                          type, or namespace. For more information, see
                          U(https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm).
             required: false
-    '''
+    """

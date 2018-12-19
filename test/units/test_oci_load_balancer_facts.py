@@ -25,7 +25,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -34,49 +34,56 @@ class FakeModule(object):
 
 @pytest.fixture()
 def lb_client(mocker):
-    mock_identity_client = mocker.patch(
-        'oci.identity.identity_client.IdentityClient')
+    mock_identity_client = mocker.patch("oci.identity.identity_client.IdentityClient")
     return mock_identity_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
+
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                            filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_load_balancer_facts.set_logger(logging)
+
 
 def test_list_load_balancers_compartment_id(lb_client, list_all_resources_patch):
     module = get_module(
-        dict({'compartment_id': 'ocid1.compartment.xscf', 'load_balancer_id': None}))
+        dict({"compartment_id": "ocid1.compartment.xscf", "load_balancer_id": None})
+    )
     load_balancer = LoadBalancer()
-    load_balancer.id = 'ocid.loadbalancer.cvghs'
-    load_balancer.display_name = 'ansible_lb'
+    load_balancer.id = "ocid.loadbalancer.cvghs"
+    load_balancer.display_name = "ansible_lb"
     list_all_resources_patch.return_value = [load_balancer]
     result = oci_load_balancer_facts.list_load_balancers(lb_client, module)
-    assert result['load_balancers'][0]['id'] == load_balancer.id
+    assert result["load_balancers"][0]["id"] == load_balancer.id
 
 
 def test_list_load_balancers_load_balancer_id(lb_client):
     module = get_module(
-        dict({'compartment_id': None, 'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+        dict({"compartment_id": None, "load_balancer_id": "ocid1.lodbalancer.xcds"})
+    )
     load_balancer = LoadBalancer()
-    load_balancer.id = 'ocid.loadbalancer.cvghs'
-    load_balancer.display_name = 'ansible_lb'
+    load_balancer.id = "ocid.loadbalancer.cvghs"
+    load_balancer.display_name = "ansible_lb"
     lb_client.get_load_balancer.return_value = get_response(
-        200, None, load_balancer, None)
+        200, None, load_balancer, None
+    )
     result = oci_load_balancer_facts.list_load_balancers(lb_client, module)
-    assert result['load_balancers'][0]['id'] == load_balancer.id
+    assert result["load_balancers"][0]["id"] == load_balancer.id
 
 
 def test_list_load_balancers_service_error(lb_client):
-    error_message = 'Internal Server Error'
+    error_message = "Internal Server Error"
     module = get_module(
-        dict({'compartment_id': None, 'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+        dict({"compartment_id": None, "load_balancer_id": "ocid1.lodbalancer.xcds"})
+    )
     lb_client.get_load_balancer.side_effect = ServiceError(
-        500, 'InternalServerError', dict(), error_message)
+        500, "InternalServerError", dict(), error_message
+    )
     try:
         oci_load_balancer_facts.list_load_balancers(lb_client, module)
     except Exception as ex:

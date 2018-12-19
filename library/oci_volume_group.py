@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_volume_group
 short_description: Manage volume groups in OCI Block Volume service
@@ -70,9 +70,9 @@ options:
                 required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a clone of an existing volume group
   oci_volume_group:
     availability_domain: IwGV:US-ASHBURN-AD-2
@@ -114,9 +114,9 @@ EXAMPLES = '''
   oci_volume_group:
     id: ocid1.volumegroup.oc1.iad.xxxxxEXAMPLExxxxx
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
 volume_group:
     description: Information about the volume group
     returned: On successful operation
@@ -222,7 +222,7 @@ volume_group:
             "time_created": "2017-12-05T15:35:28.747000+00:00",
             "volume_ids": ['ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx']
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -234,6 +234,7 @@ try:
     from oci.core.models import VolumeGroupSourceFromVolumeGroupBackupDetails
     from oci.core.models import VolumeGroupSourceFromVolumeGroupDetails
     from oci.core.models import VolumeGroupSourceFromVolumesDetails
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -241,14 +242,15 @@ except ImportError:
 
 
 def handle_delete_volume_group(block_storage_client, module):
-    return oci_utils.delete_and_wait(resource_type="volume_group",
-                                     client=block_storage_client,
-                                     get_fn=block_storage_client.get_volume_group,
-                                     kwargs_get={"volume_group_id": module.params["volume_group_id"]},
-                                     delete_fn=block_storage_client.delete_volume_group,
-                                     kwargs_delete={"volume_group_id": module.params["volume_group_id"]},
-                                     module=module
-                                     )
+    return oci_utils.delete_and_wait(
+        resource_type="volume_group",
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume_group,
+        kwargs_get={"volume_group_id": module.params["volume_group_id"]},
+        delete_fn=block_storage_client.delete_volume_group,
+        kwargs_delete={"volume_group_id": module.params["volume_group_id"]},
+        module=module,
+    )
 
 
 def handle_create_volume_group(block_storage_client, module):
@@ -258,94 +260,112 @@ def handle_create_volume_group(block_storage_client, module):
         if attribute in module.params:
             setattr(create_volume_group_details, attribute, module.params[attribute])
 
-    source_details = module.params['source_details']
+    source_details = module.params["source_details"]
     volume_group_source = None
 
-    if source_details.get('volume_ids'):
+    if source_details.get("volume_ids"):
         volume_group_source = VolumeGroupSourceFromVolumesDetails()
-        volume_group_source.volume_ids = source_details['volume_ids']
-    elif source_details.get('volume_group_backup_id'):
+        volume_group_source.volume_ids = source_details["volume_ids"]
+    elif source_details.get("volume_group_backup_id"):
         volume_group_source = VolumeGroupSourceFromVolumeGroupBackupDetails()
-        volume_group_source.volume_group_backup_id = source_details['volume_group_backup_id']
-    elif source_details.get('volume_group_id'):
+        volume_group_source.volume_group_backup_id = source_details[
+            "volume_group_backup_id"
+        ]
+    elif source_details.get("volume_group_id"):
         volume_group_source = VolumeGroupSourceFromVolumeGroupDetails()
-        volume_group_source.volume_group_id = source_details['volume_group_id']
+        volume_group_source.volume_group_id = source_details["volume_group_id"]
     else:
-        module.fail_json(msg="Specify one of the following under source_details: 'volume_ids', "
-                             "'volume_group_backup_id', 'volume_group_id'.")
+        module.fail_json(
+            msg="Specify one of the following under source_details: 'volume_ids', "
+            "'volume_group_backup_id', 'volume_group_id'."
+        )
 
     create_volume_group_details.source_details = volume_group_source
 
-    result = oci_utils.create_and_wait(resource_type="volume_group",
-                                       create_fn=block_storage_client.create_volume_group,
-                                       kwargs_create={"create_volume_group_details": create_volume_group_details},
-                                       client=block_storage_client,
-                                       get_fn=block_storage_client.get_volume_group,
-                                       get_param="volume_group_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="volume_group",
+        create_fn=block_storage_client.create_volume_group,
+        kwargs_create={"create_volume_group_details": create_volume_group_details},
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume_group,
+        get_param="volume_group_id",
+        module=module,
+    )
     return result
 
 
 def handle_update_volume_group(block_storage_client, module):
-    return oci_utils.check_and_update_resource(resource_type="volume_group",
-                                               get_fn=block_storage_client.get_volume_group,
-                                               kwargs_get={"volume_group_id": module.params["volume_group_id"]},
-                                               update_fn=block_storage_client.update_volume_group,
-                                               primitive_params_update=['volume_group_id'],
-                                               kwargs_non_primitive_update={
-                                                   UpdateVolumeGroupDetails: "update_volume_group_details"},
-                                               module=module,
-                                               update_attributes=UpdateVolumeGroupDetails().attribute_map.keys()
-                                               )
+    return oci_utils.check_and_update_resource(
+        resource_type="volume_group",
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume_group,
+        kwargs_get={"volume_group_id": module.params["volume_group_id"]},
+        update_fn=block_storage_client.update_volume_group,
+        primitive_params_update=["volume_group_id"],
+        kwargs_non_primitive_update={
+            UpdateVolumeGroupDetails: "update_volume_group_details"
+        },
+        module=module,
+        update_attributes=UpdateVolumeGroupDetails().attribute_map.keys(),
+    )
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        availability_domain=dict(type='str', required=False),
-        compartment_id=dict(type='str', required=False),
-        volume_group_id=dict(type='str', required=False, aliases=['id']),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        volume_ids=dict(type='list', required=False),
-        source_details=dict(type='dict', required=False)
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            availability_domain=dict(type="str", required=False),
+            compartment_id=dict(type="str", required=False),
+            volume_group_id=dict(type="str", required=False, aliases=["id"]),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            volume_ids=dict(type="list", required=False),
+            source_details=dict(type="dict", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[
-            ['state', 'absent', ['volume_group_id']]
-        ],
-        mutually_exclusive=[['volume_ids', 'source_details']]
+        required_if=[["state", "absent", ["volume_group_id"]]],
+        mutually_exclusive=[["volume_ids", "source_details"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
-    state = module.params['state']
-    volume_group_id = module.params['volume_group_id']
+    state = module.params["state"]
+    volume_group_id = module.params["volume_group_id"]
 
-    if state == 'absent':
+    if state == "absent":
         result = handle_delete_volume_group(block_storage_client, module)
 
     else:
         if volume_group_id is None:
-            result = oci_utils.check_and_create_resource(resource_type='volume_group',
-                                                         create_fn=handle_create_volume_group,
-                                                         kwargs_create={'block_storage_client': block_storage_client,
-                                                                        'module': module},
-                                                         list_fn=block_storage_client.list_volume_groups,
-                                                         kwargs_list={'compartment_id': module.params['compartment_id'],
-                                                                      'availability_domain':
-                                                                          module.params['availability_domain']
-                                                                      },
-                                                         module=module,
-                                                         model=CreateVolumeGroupDetails()
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="volume_group",
+                create_fn=handle_create_volume_group,
+                kwargs_create={
+                    "block_storage_client": block_storage_client,
+                    "module": module,
+                },
+                list_fn=block_storage_client.list_volume_groups,
+                kwargs_list={
+                    "compartment_id": module.params["compartment_id"],
+                    "availability_domain": module.params["availability_domain"],
+                },
+                module=module,
+                model=CreateVolumeGroupDetails(),
+            )
 
         else:
             result = handle_update_volume_group(block_storage_client, module)
@@ -353,5 +373,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_sender
 short_description: Create and delete a Sender in OCI Email Delivery Module
@@ -43,9 +44,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create Sender
 - name: Create Sender
@@ -59,9 +60,9 @@ EXAMPLES = '''
   oci_sender:
     sender_id: 'ocid1.emailsender.oc1..xxxxxEXAMPLExxxxx'
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     sender:
         description: Attributes of the created Sender. For delete, deleted Sender description will be returned.
         returned: success
@@ -106,14 +107,16 @@ RETURN = '''
                   "lifecycle_state":"ACTIVE",
                   "time_created":"2018-10-31T09:20:52.245000+00:00"
                  }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
+
 try:
     from oci.email.email_client import EmailClient
     from oci.exceptions import ServiceError, ClientError
     from oci.email.models import CreateSenderDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -124,29 +127,28 @@ def create_sender(email_client, module):
     for attribute in create_sender_details.attribute_map:
         create_sender_details.__setattr__(attribute, module.params.get(attribute))
 
-    result = oci_utils.create_and_wait(resource_type='sender',
-                                       create_fn=email_client.create_sender,
-                                       kwargs_create={
-                                           'create_sender_details': create_sender_details},
-                                       client=email_client,
-                                       get_fn=email_client.get_sender,
-                                       get_param='sender_id',
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="sender",
+        create_fn=email_client.create_sender,
+        kwargs_create={"create_sender_details": create_sender_details},
+        client=email_client,
+        get_fn=email_client.get_sender,
+        get_param="sender_id",
+        module=module,
+    )
     return result
 
 
 def delete_sender(email_client, module):
-    result = oci_utils.delete_and_wait(resource_type='sender',
-                                       client=email_client,
-                                       get_fn=email_client.get_sender,
-                                       kwargs_get={
-                                           'sender_id': module.params['sender_id']},
-                                       delete_fn=email_client.delete_sender,
-                                       kwargs_delete={
-                                           'sender_id': module.params['sender_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="sender",
+        client=email_client,
+        get_fn=email_client.get_sender,
+        kwargs_get={"sender_id": module.params["sender_id"]},
+        delete_fn=email_client.delete_sender,
+        kwargs_delete={"sender_id": module.params["sender_id"]},
+        module=module,
+    )
 
     return result
 
@@ -164,47 +166,53 @@ def main():
     logger = oci_utils.get_logger("oci_sender")
     set_logger(logger)
 
-    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        sender_id=dict(type='str', required=False, aliases=['id']),
-        email_address=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args = oci_utils.get_common_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            sender_id=dict(type="str", required=False, aliases=["id"]),
+            email_address=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     email_client = oci_utils.create_service_client(module, EmailClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         try:
-            result = oci_utils.check_and_create_resource(resource_type='sender',
-                                                         create_fn=create_sender,
-                                                         kwargs_create={'email_client': email_client,
-                                                                        'module': module},
-                                                         list_fn=email_client.list_senders,
-                                                         kwargs_list={'compartment_id':
-                                                                      module.params.get('compartment_id')},
-                                                         module=module,
-                                                         model=CreateSenderDetails()
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="sender",
+                create_fn=create_sender,
+                kwargs_create={"email_client": email_client, "module": module},
+                list_fn=email_client.list_senders,
+                kwargs_list={"compartment_id": module.params.get("compartment_id")},
+                module=module,
+                model=CreateSenderDetails(),
+            )
         except ServiceError as ex:
             get_logger().error("Unable to create Sender due to: %s", ex.message)
             module.fail_json(msg=ex.message)
         except ClientError as ex:
             get_logger().error("Unable to create Sender due to: %s", str(ex))
             module.fail_json(msg=str(ex))
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_sender(email_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

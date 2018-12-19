@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_volume_backup_policy_assignment_facts
 short_description: Retrieve information of a volume backup policy assignment in OCI Block Volume service
@@ -35,9 +35,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get information of a volume backup policy assignment
   oci_volume_backup_policy_assignment_facts:
     id: ocid1.volumebackuppolicyassign.oc1.iad.xxxxxEXAMPLExxxxx
@@ -45,9 +45,9 @@ EXAMPLES = '''
 - name: Get information of volume backup assignment for the specified asset
   oci_volume_backup_policy_assignment_facts:
     asset_id: ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 volume_backup_policy_assignments:
     description: List of volume backup policy assignment
     returned: on success
@@ -79,7 +79,7 @@ volume_backup_policy_assignments:
             "id": "ocid1.volumebackuppolicyassign.oc1.iad.xxxxxEXAMPLExxxxx",
             "time_created": "2017-12-22T15:40:53.219000+00:00"
     }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -88,6 +88,7 @@ try:
     from oci.core.blockstorage_client import BlockstorageClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -95,33 +96,43 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        policy_assignment_id=dict(type='str', required=False, aliases=['id']),
-        asset_id=dict(type='str', required=False),
-    ))
+    module_args.update(
+        dict(
+            policy_assignment_id=dict(type="str", required=False, aliases=["id"]),
+            asset_id=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[
-            ['policy_assignment_id', 'asset_id']
-        ]
+        required_one_of=[["policy_assignment_id", "asset_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
-    policy_assignment_id = module.params['policy_assignment_id']
+    policy_assignment_id = module.params["policy_assignment_id"]
 
     try:
         if policy_assignment_id:
-            result = [to_dict(oci_utils.call_with_backoff(block_storage_client.get_volume_backup_policy_assignment,
-                                                          policy_assignment_id=policy_assignment_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        block_storage_client.get_volume_backup_policy_assignment,
+                        policy_assignment_id=policy_assignment_id,
+                    ).data
+                )
+            ]
         else:
-            result = to_dict(oci_utils.call_with_backoff(block_storage_client.get_volume_backup_policy_asset_assignment,
-                                                         asset_id=module.params['asset_id']).data)
+            result = to_dict(
+                oci_utils.call_with_backoff(
+                    block_storage_client.get_volume_backup_policy_asset_assignment,
+                    asset_id=module.params["asset_id"],
+                ).data
+            )
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -129,5 +140,5 @@ def main():
     module.exit_json(volume_backup_policy_assignments=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

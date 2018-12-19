@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2018-12-19
+
+### Added
+- Modules to manage
+    - [Cost tracking tags](https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/taggingoverview.htm#UsingCostTrackingTags)
+    - [Retrieving initial credentials of Windows instances](https://docs.cloud.oracle.com/iaas/Content/GSG/Tasks/launchinginstanceWindows.htm)
+- Added the following features in existing modules:
+    - Support for creating nested compartments and deleting compartments in `oci_compartment` module
+    - Support for retrieving information of nested compartments in `oci_compartment_facts` module 
+    - Support specification of cost-tracking during tag definition creation in the `oci_tags` module
+    - Support for multi-part uploads and parallel uploads in `oci_object` module
+- Added the following features in OCI dynamic inventory script:
+    - Options to parallelise the inventory generation
+    - Options to build inventory of only specific tagged instances
+    - Option to build inventory of entire hierarchy under a given compartment
+- Samples to demonstrate:
+  - how to give compute instances private access to OCI Object Storage using Service Gateway
+  - how to enable internet access to a private instance using NAT Gateway
+
 ## [1.3.0] - 2018-11-16
 
 ### Added

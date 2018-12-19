@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_oke_work_request_error_facts
 short_description: Retrieve errors of a work request in OCI Container Engine for Kubernetes Service
@@ -31,16 +31,16 @@ options:
         required: true
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get the errors of a work request
   oci_oke_work_request_error_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
     work_request_id: "ocid1.clustersworkrequest.oc1..xxxxxEXAMPLExxxxx"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 work_request_errors:
     description: List of work request errors
     returned: always
@@ -63,7 +63,7 @@ work_request_errors:
             "message": "failed to get DNS record from OCI API",
             "timestamp": "2018-08-16T12:20:48Z"
     }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -73,6 +73,7 @@ try:
     from oci.container_engine.container_engine_client import ContainerEngineClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -81,30 +82,35 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        work_request_id=dict(type='str', required=True),
-        compartment_id=dict(type='str', required=True)
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False
+    module_args.update(
+        dict(
+            work_request_id=dict(type="str", required=True),
+            compartment_id=dict(type="str", required=True),
+        )
     )
 
-    if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
 
-    container_engine_client = oci_utils.create_service_client(module, ContainerEngineClient)
+    if not HAS_OCI_PY_SDK:
+        module.fail_json(msg="oci python sdk required for this module.")
+
+    container_engine_client = oci_utils.create_service_client(
+        module, ContainerEngineClient
+    )
 
     try:
-        result = to_dict(oci_utils.list_all_resources(container_engine_client.list_work_request_errors,
-                                                      compartment_id=module.params['compartment_id'],
-                                                      work_request_id=module.params['work_request_id']))
+        result = to_dict(
+            oci_utils.list_all_resources(
+                container_engine_client.list_work_request_errors,
+                compartment_id=module.params["compartment_id"],
+                work_request_id=module.params["work_request_id"],
+            )
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(work_request_errors=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

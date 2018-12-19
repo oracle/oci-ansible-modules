@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_db_home
 short_description: Create,update and delete a DB Home in OCI Database Cloud Service.
@@ -114,10 +115,11 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
+
 # Create DB Home from No Source
 - name: Create DB Home From No Source
   oci_db_home:
@@ -135,6 +137,7 @@ EXAMPLES = '''
     db_version: "12.2.0.1"
     wait: False
     state: 'present'
+
 # Create DB Home from DB Backup
 - name: Create DB Home From DB Backup
   oci_db_home:
@@ -146,6 +149,7 @@ EXAMPLES = '''
        backup_tde_password: 'BEstr0ng_#1'
        admin_password: 'BEstr0ng_#1'
     state: 'present'
+
 # Precheck a patch on DB Home
 - name: Precheck a patch on DB Home
   oci_db_home:
@@ -154,6 +158,7 @@ EXAMPLES = '''
        patch_id: "ocid1.dbbackup.oc1.iad.xxxxxEXAMPLExxxxx"
        action: 'PRECHECK'
     state: 'present'
+
 # Apply a patch on DB Home
 - name: Apply a patch on DB Home
   oci_db_home:
@@ -162,13 +167,15 @@ EXAMPLES = '''
        patch_id: "ocid1.dbbackup.oc1.iad.xxxxxEXAMPLExxxxx"
        action: 'APPLY'
     state: 'present'
+
 # Delete DB Home
+- name: Delete DB Home
   oci_db_home:
     db_home_id: "ocid1.dbhome.aaaa"
-    state: 'absense'
-'''
+    state: 'absent'
+"""
 
-RETURN = '''
+RETURN = """
     db_home:
         description: Attributes of the created/updated DB Home.
                     For delete, deleted DB Home description will
@@ -228,55 +235,63 @@ RETURN = '''
                    "lifecycle_state":"AVAILABLE",
                    "time_created":"2018-02-16T08:44:32.779000+00:00"
               }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 from ansible.module_utils.oracle import oci_db_utils
 import os
+
 try:
     from oci.database.database_client import DatabaseClient
     from oci.exceptions import ServiceError, ClientError
     from oci.util import to_dict
-    from oci.database.models import CreateDbHomeWithDbSystemIdDetails, \
-        CreateDbHomeWithDbSystemIdFromBackupDetails, UpdateDbHomeDetails, \
-        CreateDatabaseFromBackupDetails
+    from oci.database.models import (
+        CreateDbHomeWithDbSystemIdDetails,
+        CreateDbHomeWithDbSystemIdFromBackupDetails,
+        UpdateDbHomeDetails,
+        CreateDatabaseFromBackupDetails,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def create_or_update_db_home(db_client, module):
-    result = dict(
-        changed=False,
-        db_home=''
-    )
-    db_home_id = module.params.get('db_home_id')
+    result = dict(changed=False, db_home="")
+    db_home_id = module.params.get("db_home_id")
     try:
         if db_home_id:
-            result = update_db_home(
-                db_client, module, db_home_id)
+            result = update_db_home(db_client, module, db_home_id)
         else:
             db_system = oci_utils.get_existing_resource(
-                db_client.get_db_system, module, db_system_id=module.params.get('db_system_id'))
+                db_client.get_db_system,
+                module,
+                db_system_id=module.params.get("db_system_id"),
+            )
             db_home_model = None
-            source = module.params.get('source')
-            if source == 'NONE':
+            source = module.params.get("source")
+            if source == "NONE":
                 db_home_model = CreateDbHomeWithDbSystemIdDetails()
-            elif source == 'DB_BACKUP':
+            elif source == "DB_BACKUP":
                 db_home_model = CreateDbHomeWithDbSystemIdFromBackupDetails()
-            result = oci_utils.check_and_create_resource(resource_type='db_home',
-                                                         create_fn=create_db_home,
-                                                         kwargs_create={'db_client': db_client,
-                                                                        'module': module},
-                                                         list_fn=db_client.list_db_homes,
-                                                         kwargs_list={'compartment_id': db_system.compartment_id,
-                                                                      'db_system_id': module.params.get('db_system_id')},
-                                                         module=module,
-                                                         model=db_home_model
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type="db_home",
+                create_fn=create_db_home,
+                kwargs_create={"db_client": db_client, "module": module},
+                list_fn=db_client.list_db_homes,
+                kwargs_list={
+                    "compartment_id": db_system.compartment_id,
+                    "db_system_id": module.params.get("db_system_id"),
+                },
+                module=module,
+                model=db_home_model,
+            )
     except ServiceError as ex:
-        get_logger().error("Unable to create/update database home due to: %s", ex.message)
+        get_logger().error(
+            "Unable to create/update database home due to: %s", ex.message
+        )
         module.fail_json(msg=ex.message)
     except ClientError as ex:
         get_logger().error("Unable to launch/update database home due to: %s", str(ex))
@@ -287,31 +302,34 @@ def create_or_update_db_home(db_client, module):
 
 def create_db_home(db_client, module):
     create_db_home_details = None
-    source = module.params.get('source')
-    if source == 'NONE':
+    source = module.params.get("source")
+    if source == "NONE":
         create_db_home_details = CreateDbHomeWithDbSystemIdDetails()
         create_db_home_details.database = oci_db_utils.create_database_details(
-            module.params.get('database', None))
+            module.params.get("database", None)
+        )
         create_db_home_details.source = source
-    elif source == 'DB_BACKUP':
+    elif source == "DB_BACKUP":
         create_db_home_details = CreateDbHomeWithDbSystemIdFromBackupDetails()
         create_db_home_details.database = create_database_from_backup_details(
-            module.params.get('database', None))
+            module.params.get("database", None)
+        )
         create_db_home_details.source = source
 
     for attribute in create_db_home_details.attribute_map.keys():
         if attribute not in ("database", "source"):
-            create_db_home_details.__setattr__(
-                attribute, module.params.get(attribute))
-    result = oci_utils.create_and_wait(resource_type='db_home',
-                                       create_fn=db_client.create_db_home,
-                                       kwargs_create={
-                                           'create_db_home_with_db_system_id_details': create_db_home_details},
-                                       client=db_client,
-                                       get_fn=db_client.get_db_home,
-                                       get_param='db_home_id',
-                                       module=module
-                                       )
+            create_db_home_details.__setattr__(attribute, module.params.get(attribute))
+    result = oci_utils.create_and_wait(
+        resource_type="db_home",
+        create_fn=db_client.create_db_home,
+        kwargs_create={
+            "create_db_home_with_db_system_id_details": create_db_home_details
+        },
+        client=db_client,
+        get_fn=db_client.get_db_home,
+        get_param="db_home_id",
+        module=module,
+    )
     return result
 
 
@@ -319,51 +337,61 @@ def create_database_from_backup_details(database_dict):
     create_database_from_backup_details = CreateDatabaseFromBackupDetails()
     for attribute in create_database_from_backup_details.attribute_map.keys():
         create_database_from_backup_details.__setattr__(
-            attribute, database_dict.get(attribute, None))
+            attribute, database_dict.get(attribute, None)
+        )
     return create_database_from_backup_details
 
 
 def update_db_home(db_client, module, db_home_id):
     result = dict()
     db_home = oci_utils.get_existing_resource(
-        db_client.get_db_home, module, db_home_id=db_home_id)
+        db_client.get_db_home, module, db_home_id=db_home_id
+    )
     if db_home is None:
-        raise ClientError(Exception("No DB Home with id " +
-                                    db_home_id + " is found for update"))
+        raise ClientError(
+            Exception("No DB Home with id " + db_home_id + " is found for update")
+        )
     last_patch_history_entry_id = db_home.last_patch_history_entry_id
-    input_version_dict = module.params.get('patch_details', None)
+    input_version_dict = module.params.get("patch_details", None)
     update_db_home_details = UpdateDbHomeDetails()
     version_changed, patch_details = oci_db_utils.is_version_changed(
-        db_client.get_db_home_patch_history_entry, db_client.get_db_home_patch, db_home.db_version,
-        input_version_dict, last_patch_history_entry_id, db_home_id=db_home_id)
+        db_client.get_db_home_patch_history_entry,
+        db_client.get_db_home_patch,
+        db_home.db_version,
+        input_version_dict,
+        last_patch_history_entry_id,
+        db_home_id=db_home_id,
+    )
     if version_changed:
         update_db_home_details.db_version = patch_details
-        result = oci_utils.update_and_wait(resource_type='db_home',
-                                           update_fn=db_client.update_db_home,
-                                           kwargs_update={
-                                               'db_home_id': db_home_id,
-                                               'update_db_home_details': update_db_home_details},
-                                           client=db_client,
-                                           get_fn=db_client.get_db_home,
-                                           get_param='db_home_id',
-                                           module=module)
+        result = oci_utils.update_and_wait(
+            resource_type="db_home",
+            update_fn=db_client.update_db_home,
+            kwargs_update={
+                "db_home_id": db_home_id,
+                "update_db_home_details": update_db_home_details,
+            },
+            client=db_client,
+            get_fn=db_client.get_db_home,
+            get_param="db_home_id",
+            module=module,
+        )
     else:
-        result['db_home'] = to_dict(db_home)
-        result['changed'] = False
+        result["db_home"] = to_dict(db_home)
+        result["changed"] = False
     return result
 
 
 def delete_db_home(db_client, module):
-    result = oci_utils.delete_and_wait(resource_type='db_home',
-                                       client=db_client,
-                                       get_fn=db_client.get_db_home,
-                                       kwargs_get={
-                                           'db_home_id': module.params['db_home_id']},
-                                       delete_fn=db_client.delete_db_home,
-                                       kwargs_delete={
-                                           'db_home_id': module.params['db_home_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="db_home",
+        client=db_client,
+        get_fn=db_client.get_db_home,
+        kwargs_get={"db_home_id": module.params["db_home_id"]},
+        delete_fn=db_client.delete_db_home,
+        kwargs_delete={"db_home_id": module.params["db_home_id"]},
+        module=module,
+    )
     return result
 
 
@@ -380,40 +408,50 @@ def main():
     logger = oci_utils.get_logger("oci_db_home")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec(
-        supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        db_system_id=dict(type='str', required=False),
-        db_home_id=dict(type='str', required=False, aliases=['id']),
-        display_name=dict(type='str', required=False),
-        source=dict(type='str', required=False, choices=[
-            'DB_BACKUP', 'NONE'], default='NONE'),
-        database=dict(type=dict, required=False),
-        db_version=dict(type='str', required=False),
-        patch_details=dict(type=dict, required=False),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            db_system_id=dict(type="str", required=False),
+            db_home_id=dict(type="str", required=False, aliases=["id"]),
+            display_name=dict(type="str", required=False),
+            source=dict(
+                type="str",
+                required=False,
+                choices=["DB_BACKUP", "NONE"],
+                default="NONE",
+            ),
+            database=dict(type=dict, required=False),
+            db_version=dict(type="str", required=False),
+            patch_details=dict(type=dict, required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
-    if os.environ.get('OCI_DB_MOCK') is not None:
+    if os.environ.get("OCI_DB_MOCK") is not None:
         db_client.base_client.session.headers.update(
-            {'opc-host-serial': 'FakeHostSerial'})
-    state = module.params['state']
+            {"opc-host-serial": "FakeHostSerial"}
+        )
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_db_home(db_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_db_home(db_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

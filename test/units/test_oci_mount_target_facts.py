@@ -16,8 +16,7 @@ try:
     from oci.file_storage.models import MountTarget
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_mount_target_facts.py requires `oci` module")
+    raise SkipTest("test_oci_mount_target_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -37,44 +36,56 @@ class FakeModule(object):
 @pytest.fixture()
 def file_storage_client(mocker):
     mock_file_storage_client = mocker.patch(
-        'oci.file_storage.file_storage_client.FileStorageClient')
+        "oci.file_storage.file_storage_client.FileStorageClient"
+    )
     return mock_file_storage_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_mount_target_facts.set_logger(logging)
 
 
 def test_list_mount_targets_list_all(file_storage_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa', 'availability_domain': 'EXAMPLE-AD'}))
+    module = get_module(
+        dict(
+            {
+                "compartment_id": "ocid1.compartment.aaaa",
+                "availability_domain": "EXAMPLE-AD",
+            }
+        )
+    )
     list_all_resources_patch.return_value = get_mount_targets()
-    file_storage_client.get_mount_target.side_effect = [get_response(
-        200, None, get_mount_target(), None), get_response(
-        200, None, get_mount_target(), None)]
+    file_storage_client.get_mount_target.side_effect = [
+        get_response(200, None, get_mount_target(), None),
+        get_response(200, None, get_mount_target(), None),
+    ]
     result = oci_mount_target_facts.list_mount_targets(file_storage_client, module)
-    assert len(result['mount_targets']) is 2
+    assert len(result["mount_targets"]) is 2
 
 
 def test_list_mount_targets_list_specific(file_storage_client):
-    module = get_module(dict({'mount_target_id': 'ocid1.mounttarget.aaaa'}))
+    module = get_module(dict({"mount_target_id": "ocid1.mounttarget.aaaa"}))
     file_storage_client.get_mount_target.return_value = get_response(
-        200, None, get_mount_target(), None)
+        200, None, get_mount_target(), None
+    )
     result = oci_mount_target_facts.list_mount_targets(file_storage_client, module)
-    assert result['mount_targets'][0]['display_name'] is 'ansible_mount_target'
+    assert result["mount_targets"][0]["display_name"] is "ansible_mount_target"
 
 
 def test_list_mount_targets_service_error(file_storage_client):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'mount_target_id': 'ocid1.mounttarget.aaaa'}))
+    error_message = "Internal Server Error"
+    module = get_module(dict({"mount_target_id": "ocid1.mounttarget.aaaa"}))
     file_storage_client.get_mount_target.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_mount_target_facts.list_mount_targets(file_storage_client, module)
     except Exception as ex:
@@ -84,9 +95,9 @@ def test_list_mount_targets_service_error(file_storage_client):
 def get_mount_targets():
     mount_targets = []
     mount_target1 = MountTarget()
-    mount_target1.display_name = 'ansible_mount_target1'
+    mount_target1.display_name = "ansible_mount_target1"
     mount_target2 = MountTarget()
-    mount_target2.display_name = 'ansible_mount_target2'
+    mount_target2.display_name = "ansible_mount_target2"
     mount_targets.append(mount_target1)
     mount_targets.append(mount_target2)
     return mount_targets
@@ -94,7 +105,7 @@ def get_mount_targets():
 
 def get_mount_target():
     mount_target = MountTarget()
-    mount_target.display_name = 'ansible_mount_target'
+    mount_target.display_name = "ansible_mount_target"
     return mount_target
 
 

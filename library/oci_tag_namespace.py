@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_tag_namespace
 short_description: Create, retire and reactivate tag namespaces in OCI
@@ -60,9 +60,9 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a new tag namespace
   oci_tag_namespace:
     compartment_id: "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx"
@@ -83,9 +83,9 @@ EXAMPLES = '''
   oci_tag_namespace:
     id: "ocid1.namespace.oc1..xxxxxEXAMPLExxxxx"
     reactivate: "yes"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 tag_namespace:
     description: Details of the tag namespace
     returned: On successful create or update of a tag namespace
@@ -100,7 +100,7 @@ tag_namespace:
             "name": "BillingTags",
             "time_created": "2018-01-15T17:36:10.388000+00:00"
      }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -133,9 +133,11 @@ def update_tag_namespace_state(identity_client, tag_namespace_id, module, is_ret
         utnd = UpdateTagNamespaceDetails()
         utnd.is_retired = is_retired
 
-        updated_tag_ns = oci_utils.call_with_backoff(identity_client.update_tag_namespace,
-                                                     tag_namespace_id=tag_namespace_id,
-                                                     update_tag_namespace_details=utnd).data
+        updated_tag_ns = oci_utils.call_with_backoff(
+            identity_client.update_tag_namespace,
+            tag_namespace_id=tag_namespace_id,
+            update_tag_namespace_details=utnd,
+        ).data
 
         get_logger().info("Retired Tag Namespace %s", tag_namespace_id)
         return updated_tag_ns, True
@@ -145,14 +147,18 @@ def update_tag_namespace_state(identity_client, tag_namespace_id, module, is_ret
         module.fail_json(msg=str(mwte))
 
 
-def update_tag_namespace_description(identity_client, tag_namespace_id, description, module):
+def update_tag_namespace_description(
+    identity_client, tag_namespace_id, description, module
+):
     try:
         utnsd = UpdateTagNamespaceDetails()
         utnsd.description = description
 
-        updated_tag_ns = oci_utils.call_with_backoff(identity_client.update_tag_namespace,
-                                                     tag_namespace_id=tag_namespace_id,
-                                                     update_tag_namespace_details=utnsd).data
+        updated_tag_ns = oci_utils.call_with_backoff(
+            identity_client.update_tag_namespace,
+            tag_namespace_id=tag_namespace_id,
+            update_tag_namespace_details=utnsd,
+        ).data
 
         get_logger().info("Updated tag namespace %s", to_dict(updated_tag_ns))
         return updated_tag_ns, True
@@ -169,13 +175,14 @@ def create_tag_namespace(identity_client, compartment_id, name, description, mod
         ctnsd.compartment_id = compartment_id
         oci_utils.add_tags_to_model_from_module(ctnsd, module)
 
-        create_response = oci_utils.call_with_backoff(identity_client.create_tag_namespace,
-                                                      create_tag_namespace_details=ctnsd)
+        create_response = oci_utils.call_with_backoff(
+            identity_client.create_tag_namespace, create_tag_namespace_details=ctnsd
+        )
 
         get_logger().info("Created Tag Namespace %s", to_dict(create_response.data))
 
-        result['tag_namespace'] = to_dict(create_response.data)
-        result['changed'] = True
+        result["tag_namespace"] = to_dict(create_response.data)
+        result["changed"] = True
         return result
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -187,78 +194,101 @@ def main():
     set_logger(oci_utils.get_logger("oci_tag_namespace"))
 
     module_args = oci_utils.get_taggable_arg_spec(supports_create=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        tag_namespace_id=dict(type='str', required=False, aliases=['id']),
-        name=dict(type='str', required=False),
-        description=dict(type='str', required=False),
-        reactivate=dict(type='bool', required=False),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            tag_namespace_id=dict(type="str", required=False, aliases=["id"]),
+            name=dict(type="str", required=False),
+            description=dict(type="str", required=False),
+            reactivate=dict(type="bool", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[('state', 'absent', ['tag_namespace_id'])],
+        required_if=[("state", "absent", ["tag_namespace_id"])],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
-    state = module.params['state']
+    state = module.params["state"]
 
     result = dict(changed=False)
 
     compartment_id = module.params.get("compartment_id", None)
     tag_ns_id = module.params.get("tag_namespace_id", None)
-    name = module.params.get('name', None)
-    description = module.params.get('description', None)
+    name = module.params.get("name", None)
+    description = module.params.get("description", None)
 
     get_logger().debug("Tag namespace id is " + str(tag_ns_id))
 
     if tag_ns_id is not None:
-        tag_ns = oci_utils.call_with_backoff(identity_client.get_tag_namespace, tag_namespace_id=tag_ns_id).data
+        tag_ns = oci_utils.call_with_backoff(
+            identity_client.get_tag_namespace, tag_namespace_id=tag_ns_id
+        ).data
 
-        if state == 'absent':
+        if state == "absent":
             get_logger().debug("Retire tag namespace %s requested", tag_ns_id)
             if tag_ns is not None:
                 retired = False
                 if not tag_ns.is_retired:
                     get_logger().debug("Retiring %s", tag_ns.id)
-                    tag_ns, retired = update_tag_namespace_state(identity_client, tag_ns_id, module, is_retired=True)
+                    tag_ns, retired = update_tag_namespace_state(
+                        identity_client, tag_ns_id, module, is_retired=True
+                    )
 
-                result['changed'] = retired
-                result['tag_namespace'] = to_dict(tag_ns)
+                result["changed"] = retired
+                result["tag_namespace"] = to_dict(tag_ns)
         # if the Tag-namespace doesn't exist, it is already deleted and so we return the default dict with
         # changed as False
-        elif state == 'present':
+        elif state == "present":
             desc_changed = False
             reactivated = False
 
             if tag_ns.description != description:
-                tag_ns, desc_changed = update_tag_namespace_description(identity_client, tag_ns_id, description, module)
+                tag_ns, desc_changed = update_tag_namespace_description(
+                    identity_client, tag_ns_id, description, module
+                )
 
-            reactivate = module.params.get('reactivate', None)
+            reactivate = module.params.get("reactivate", None)
             if reactivate:
                 get_logger().debug("Reactivate tag namespace %s requested", tag_ns_id)
                 if tag_ns.is_retired:
-                    tag_ns, reactivated = update_tag_namespace_state(identity_client, tag_ns_id, module, is_retired=False)
+                    tag_ns, reactivated = update_tag_namespace_state(
+                        identity_client, tag_ns_id, module, is_retired=False
+                    )
 
-            result['changed'] = desc_changed or reactivated
-            result['tag_namespace'] = to_dict(tag_ns)
+            result["changed"] = desc_changed or reactivated
+            result["tag_namespace"] = to_dict(tag_ns)
     else:
-        result = oci_utils.check_and_create_resource(resource_type="tag_namespace", create_fn=create_tag_namespace,
-                                                     kwargs_create={"identity_client": identity_client,
-                                                                    "compartment_id": compartment_id, "name": name,
-                                                                    "description": description, "module": module},
-                                                     list_fn=identity_client.list_tag_namespaces,
-                                                     kwargs_list={"compartment_id": compartment_id},
-                                                     module=module, model=CreateTagNamespaceDetails(),
-                                                     default_attribute_values={"defined_tags": {}})
+        result = oci_utils.check_and_create_resource(
+            resource_type="tag_namespace",
+            create_fn=create_tag_namespace,
+            kwargs_create={
+                "identity_client": identity_client,
+                "compartment_id": compartment_id,
+                "name": name,
+                "description": description,
+                "module": module,
+            },
+            list_fn=identity_client.list_tag_namespaces,
+            kwargs_list={"compartment_id": compartment_id},
+            module=module,
+            model=CreateTagNamespaceDetails(),
+            default_attribute_values={"defined_tags": {}},
+        )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

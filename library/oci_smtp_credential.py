@@ -5,17 +5,18 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_smtp_credential
 short_description: Manage SMTP credential in OCI Identity and Access Management service
@@ -45,10 +46,10 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource ]
-'''
+"""
 
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a SMTP credential
   oci_smtp_credential:
     user_id: ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq
@@ -65,10 +66,10 @@ EXAMPLES = '''
     user_id: ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq
     id: ocid1.credential.oc1..xxxxxEXAMPLExxxxx...l5aq
     state: 'absent'
-'''
+"""
 
 
-RETURN = '''
+RETURN = """
 smtp_credential:
     description: Information about the SMTP credential
     returned: On successful operation
@@ -133,117 +134,131 @@ smtp_credential:
               "user_id":"ocid1.user.oc1..xxxxxEXAMPLExxxxx",
               "username":"ocid1.user.oc1..xxxxxEXAMPLExxxxx@ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx.za.com"
              }
-'''
+"""
 
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
+
 try:
     from oci.identity.identity_client import IdentityClient
     from oci.exceptions import ServiceError, ClientError
-    from oci.identity.models import CreateSmtpCredentialDetails, UpdateSmtpCredentialDetails
+    from oci.identity.models import (
+        CreateSmtpCredentialDetails,
+        UpdateSmtpCredentialDetails,
+    )
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-RESOURCE_NAME = 'smtp_credential'
+RESOURCE_NAME = "smtp_credential"
 
 
 def create_or_update_smtp_credential(identity_client, module):
-    result = dict(
-        changed=False,
-        export=''
-    )
-    smtp_credential_id = module.params.get('smtp_credential_id')
+    result = dict(changed=False, export="")
+    smtp_credential_id = module.params.get("smtp_credential_id")
     try:
         if smtp_credential_id:
             result = update_smtp_credential(identity_client, module)
         else:
-            result = oci_utils.check_and_create_resource(resource_type=RESOURCE_NAME,
-                                                         create_fn=create_smtp_credential,
-                                                         kwargs_create={'identity_client': identity_client,
-                                                                        'module': module},
-                                                         list_fn=identity_client.list_smtp_credentials,
-                                                         kwargs_list={'user_id':
-                                                                      module.params.get('user_id')},
-                                                         module=module,
-                                                         model=CreateSmtpCredentialDetails()
-                                                         )
+            result = oci_utils.check_and_create_resource(
+                resource_type=RESOURCE_NAME,
+                create_fn=create_smtp_credential,
+                kwargs_create={"identity_client": identity_client, "module": module},
+                list_fn=identity_client.list_smtp_credentials,
+                kwargs_list={"user_id": module.params.get("user_id")},
+                module=module,
+                model=CreateSmtpCredentialDetails(),
+            )
     except ServiceError as ex:
-        get_logger().error("Unable to create/update SMTP credential due to: %s", ex.message)
+        get_logger().error(
+            "Unable to create/update SMTP credential due to: %s", ex.message
+        )
         module.fail_json(msg=ex.message)
     except ClientError as ex:
-        get_logger().error("Unable to create/update SMTP credential due to: %s", str(ex))
+        get_logger().error(
+            "Unable to create/update SMTP credential due to: %s", str(ex)
+        )
         module.fail_json(msg=str(ex))
 
     return result
 
 
 def create_smtp_credential(identity_client, module):
-    user_id = module.params['user_id']
+    user_id = module.params["user_id"]
     create_smtp_credential_details = CreateSmtpCredentialDetails()
     for attribute in create_smtp_credential_details.attribute_map:
-        create_smtp_credential_details.__setattr__(attribute, module.params.get(attribute))
+        create_smtp_credential_details.__setattr__(
+            attribute, module.params.get(attribute)
+        )
 
     # Don't wait as create operation of smtp credential always returns with ACTIVE lifecycle state on creation.
-    result = oci_utils.create_and_wait(resource_type=RESOURCE_NAME,
-                                       create_fn=identity_client.create_smtp_credential,
-                                       kwargs_create={"user_id": user_id,
-                                                      "create_smtp_credential_details":
-                                                      create_smtp_credential_details},
-                                       client=identity_client,
-                                       get_fn=None,
-                                       get_param=None,
-                                       module=module,
-                                       wait_applicable=False
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type=RESOURCE_NAME,
+        create_fn=identity_client.create_smtp_credential,
+        kwargs_create={
+            "user_id": user_id,
+            "create_smtp_credential_details": create_smtp_credential_details,
+        },
+        client=identity_client,
+        get_fn=None,
+        get_param=None,
+        module=module,
+        wait_applicable=False,
+    )
     return result
 
 
 def update_smtp_credential(identity_client, module):
-    result = oci_utils.check_and_update_resource(resource_type=RESOURCE_NAME,
-                                                 get_fn=oci_utils.get_target_resource_from_list,
-                                                 kwargs_get={'module': module,
-                                                             'list_resource_fn': identity_client.list_smtp_credentials,
-                                                             'target_resource_id':
-                                                             module.params.get('smtp_credential_id'),
-                                                             'user_id': module.params.get('user_id')},
-                                                 update_fn=identity_client.update_smtp_credential,
-                                                 client=identity_client,
-                                                 primitive_params_update=['user_id', 'smtp_credential_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateSmtpCredentialDetails:
-                                                     "update_smtp_credential_details"},
-                                                 module=module,
-                                                 update_attributes=UpdateSmtpCredentialDetails().attribute_map,
-                                                 wait_applicable=False
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type=RESOURCE_NAME,
+        get_fn=oci_utils.get_target_resource_from_list,
+        kwargs_get={
+            "module": module,
+            "list_resource_fn": identity_client.list_smtp_credentials,
+            "target_resource_id": module.params.get("smtp_credential_id"),
+            "user_id": module.params.get("user_id"),
+        },
+        update_fn=identity_client.update_smtp_credential,
+        primitive_params_update=["user_id", "smtp_credential_id"],
+        kwargs_non_primitive_update={
+            UpdateSmtpCredentialDetails: "update_smtp_credential_details"
+        },
+        module=module,
+        update_attributes=UpdateSmtpCredentialDetails().attribute_map,
+        wait_applicable=False,
+    )
     return result
 
 
 def delete_smtp_credential(identity_client, module):
-    result = oci_utils.delete_and_wait(resource_type=RESOURCE_NAME,
-                                       client=identity_client,
-                                       get_fn=oci_utils.get_target_resource_from_list,
-                                       kwargs_get={'module': module,
-                                                   'list_resource_fn': identity_client.list_smtp_credentials,
-                                                   'target_resource_id':
-                                                   module.params.get('smtp_credential_id'),
-                                                   'user_id': module.params.get('user_id')},
-                                       delete_fn=identity_client.delete_smtp_credential,
-                                       kwargs_delete={'user_id': module.params['user_id'],
-                                                      'smtp_credential_id': module.params['smtp_credential_id']},
-                                       module=module,
-                                       wait_applicable=False
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type=RESOURCE_NAME,
+        client=identity_client,
+        get_fn=oci_utils.get_target_resource_from_list,
+        kwargs_get={
+            "module": module,
+            "list_resource_fn": identity_client.list_smtp_credentials,
+            "target_resource_id": module.params.get("smtp_credential_id"),
+            "user_id": module.params.get("user_id"),
+        },
+        delete_fn=identity_client.delete_smtp_credential,
+        kwargs_delete={
+            "user_id": module.params["user_id"],
+            "smtp_credential_id": module.params["smtp_credential_id"],
+        },
+        module=module,
+        wait_applicable=False,
+    )
     # XXX: The smtp credential is not returned after it is deleted,
     # and so we currently reuse the earlier smtp credential object and mark
     # its lifecycle state as DELETED.
     # We also don't wait, as there is no state transition that we need to wait for.
-    if result['changed']:
+    if result["changed"]:
         smtp_credential = result[RESOURCE_NAME]
-        smtp_credential['lifecycle_state'] = "DELETED"
+        smtp_credential["lifecycle_state"] = "DELETED"
         result[RESOURCE_NAME] = smtp_credential
     return result
 
@@ -262,30 +277,35 @@ def main():
     set_logger(logger)
 
     module_args = oci_utils.get_common_arg_spec(supports_create=True)
-    module_args.update(dict(
-        user_id=dict(type='str', required=True),
-        smtp_credential_id=dict(type='str', required=False, aliases=['id']),
-        description=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present', choices=['present', 'absent'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args.update(
+        dict(
+            user_id=dict(type="str", required=True),
+            smtp_credential_id=dict(type="str", required=False, aliases=["id"]),
+            description=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["present", "absent"],
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'present':
+    if state == "present":
         result = create_or_update_smtp_credential(identity_client, module)
-    elif state == 'absent':
+    elif state == "absent":
         result = delete_smtp_credential(identity_client, module)
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

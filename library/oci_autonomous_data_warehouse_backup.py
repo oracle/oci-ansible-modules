@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_autonomous_data_warehouse_backup
 short_description: Create a new Autonomous Data Warehouse Backup in OCI Database Cloud Service.
@@ -41,9 +42,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Note: These examples do not set authentication details.
 # Create Autonomous Data Warehouse Backup
 - name: Create Autonomous Data Warehouse Backup
@@ -52,9 +53,9 @@ EXAMPLES = '''
       display_name: 'ansible-data-warehouse-backup'
       wait: False
       state: 'present'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     autonomous_data_warehouse_backup:
         description: Attributes of the Autonomous Data Warehouse Backup.
         returned: success
@@ -126,7 +127,7 @@ RETURN = '''
                   "time_started":"2018-09-22T16:38:30.558000+00:00",
                   "type":"FULL"
                 }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -134,6 +135,7 @@ from ansible.module_utils.oracle import oci_utils
 try:
     from oci.database.database_client import DatabaseClient
     from oci.database.models import CreateAutonomousDataWarehouseBackupDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -143,25 +145,27 @@ logger = None
 
 
 def create_autonomous_data_warehouse_backup(db_client, module):
-    result = dict(
-        changed=False,
-        autonomous_data_warehouse_backup=''
+    result = dict(changed=False, autonomous_data_warehouse_backup="")
+    create_autonomous_data_warehouse_backup_details = (
+        CreateAutonomousDataWarehouseBackupDetails()
     )
-    create_autonomous_data_warehouse_backup_details = CreateAutonomousDataWarehouseBackupDetails()
     for attribute in create_autonomous_data_warehouse_backup_details.attribute_map:
-        create_autonomous_data_warehouse_backup_details.__setattr__(attribute, module.params.get(attribute))
+        create_autonomous_data_warehouse_backup_details.__setattr__(
+            attribute, module.params.get(attribute)
+        )
 
-    result = oci_utils.create_and_wait(resource_type='autonomous_data_warehouse_backup',
-                                       create_fn=db_client.create_autonomous_data_warehouse_backup,
-                                       kwargs_create={
-                                           'create_autonomous_data_warehouse_backup_details':
-                                           create_autonomous_data_warehouse_backup_details},
-                                       client=db_client,
-                                       get_fn=db_client.get_autonomous_data_warehouse_backup,
-                                       get_param='autonomous_data_warehouse_backup_id',
-                                       module=module,
-                                       states=['ACTIVE', 'FAILED']
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="autonomous_data_warehouse_backup",
+        create_fn=db_client.create_autonomous_data_warehouse_backup,
+        kwargs_create={
+            "create_autonomous_data_warehouse_backup_details": create_autonomous_data_warehouse_backup_details
+        },
+        client=db_client,
+        get_fn=db_client.get_autonomous_data_warehouse_backup,
+        get_param="autonomous_data_warehouse_backup_id",
+        module=module,
+        states=["ACTIVE", "FAILED"],
+    )
 
     return result
 
@@ -179,37 +183,45 @@ def main():
     logger = oci_utils.get_logger("oci_autonomous_data_warehouse_backup")
     set_logger(logger)
 
-    module_args = oci_utils.get_common_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        autonomous_data_warehouse_id=dict(type='str', required=False, aliases=['id']),
-        display_name=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present',
-                   choices=['present'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args
+    module_args = oci_utils.get_common_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            autonomous_data_warehouse_id=dict(
+                type="str", required=False, aliases=["id"]
+            ),
+            display_name=dict(type="str", required=False),
+            state=dict(
+                type="str", required=False, default="present", choices=["present"]
+            ),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     db_client = oci_utils.create_service_client(module, DatabaseClient)
-    state = module.params['state']
-    if state == 'present':
-        result = oci_utils.check_and_create_resource(resource_type='autonomous_data_warehouse_backup',
-                                                     create_fn=create_autonomous_data_warehouse_backup,
-                                                     kwargs_create={'db_client': db_client, 'module': module},
-                                                     list_fn=db_client.list_autonomous_data_warehouse_backups,
-                                                     kwargs_list={
-                                                         'autonomous_data_warehouse_id':
-                                                         module.params.get('autonomous_data_warehouse_id')},
-                                                     module=module,
-                                                     model=CreateAutonomousDataWarehouseBackupDetails()
-                                                     )
+    state = module.params["state"]
+    if state == "present":
+        result = oci_utils.check_and_create_resource(
+            resource_type="autonomous_data_warehouse_backup",
+            create_fn=create_autonomous_data_warehouse_backup,
+            kwargs_create={"db_client": db_client, "module": module},
+            list_fn=db_client.list_autonomous_data_warehouse_backups,
+            kwargs_list={
+                "autonomous_data_warehouse_id": module.params.get(
+                    "autonomous_data_warehouse_id"
+                )
+            },
+            module=module,
+            model=CreateAutonomousDataWarehouseBackupDetails(),
+        )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_instance_console_connection
 short_description: Manage Instance Console Connections in OCI
@@ -43,9 +43,9 @@ options:
         choices: ['present', 'absent']
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create an instance console connection
   oci_instance_console_connection:
     instance_id: ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx...lxiggdq
@@ -55,9 +55,9 @@ EXAMPLES = '''
   oci_instance_console_connection:
     id: ocid1.instanceconsoleconnection.oc1.phx.xxxxxEXAMPLExxxxx...rz3fhq
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 instance_console_connection:
     description: Information about the Instance Console Connection
     returned: On successful create, delete operations on instance console connections
@@ -123,7 +123,7 @@ instance_console_connection:
                                           ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx...whsma:5900
                                           ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx...whsma"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -140,89 +140,120 @@ except ImportError:
 
 
 def delete_instance_console_connection(compute_client, module):
-    result = oci_utils.delete_and_wait(resource_type="instance_console_connection",
-                                       client=compute_client,
-                                       get_fn=compute_client.get_instance_console_connection,
-                                       kwargs_get={"instance_console_connection_id": module.params[
-                                           'instance_console_connection_id']},
-                                       delete_fn=compute_client.delete_instance_console_connection,
-                                       kwargs_delete={"instance_console_connection_id": module.params[
-                                           'instance_console_connection_id']},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="instance_console_connection",
+        client=compute_client,
+        get_fn=compute_client.get_instance_console_connection,
+        kwargs_get={
+            "instance_console_connection_id": module.params[
+                "instance_console_connection_id"
+            ]
+        },
+        delete_fn=compute_client.delete_instance_console_connection,
+        kwargs_delete={
+            "instance_console_connection_id": module.params[
+                "instance_console_connection_id"
+            ]
+        },
+        module=module,
+    )
     return result
 
 
 def create_instance_console_connection(compute_client, module):
-    create_instance_console_connection_details = CreateInstanceConsoleConnectionDetails()
+    create_instance_console_connection_details = (
+        CreateInstanceConsoleConnectionDetails()
+    )
     for attribute in create_instance_console_connection_details.attribute_map:
         if attribute in module.params:
-            setattr(create_instance_console_connection_details, attribute, module.params[attribute])
+            setattr(
+                create_instance_console_connection_details,
+                attribute,
+                module.params[attribute],
+            )
 
-    result = oci_utils.create_and_wait(resource_type="instance_console_connection",
-                                       create_fn=compute_client.create_instance_console_connection,
-                                       kwargs_create={
-                                           "create_instance_console_connection_details":
-                                               create_instance_console_connection_details},
-                                       client=compute_client,
-                                       get_fn=compute_client.get_instance_console_connection,
-                                       get_param="instance_console_connection_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="instance_console_connection",
+        create_fn=compute_client.create_instance_console_connection,
+        kwargs_create={
+            "create_instance_console_connection_details": create_instance_console_connection_details
+        },
+        client=compute_client,
+        get_fn=compute_client.get_instance_console_connection,
+        get_param="instance_console_connection_id",
+        module=module,
+    )
     return result
 
 
 def _get_compartment_of_instance(compute_client, instance_id):
-    return oci_utils.call_with_backoff(compute_client.get_instance, instance_id=instance_id).data.compartment_id
+    return oci_utils.call_with_backoff(
+        compute_client.get_instance, instance_id=instance_id
+    ).data.compartment_id
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        instance_id=dict(type='str', required=False),
-        public_key=dict(type='str', required=False),
-        instance_console_connection_id=dict(type='str', required=False, aliases=['id']),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present'])
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            instance_id=dict(type="str", required=False),
+            public_key=dict(type="str", required=False),
+            instance_console_connection_id=dict(
+                type="str", required=False, aliases=["id"]
+            ),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['instance_console_connection_id', 'instance_id'],
-        required_if=[('state', 'absent', ['instance_console_connection_id']),
-                     ('state', 'present', ['instance_id', 'public_key'])]
+        mutually_exclusive=["instance_console_connection_id", "instance_id"],
+        required_if=[
+            ("state", "absent", ["instance_console_connection_id"]),
+            ("state", "present", ["instance_id", "public_key"]),
+        ],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
 
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_instance_console_connection(compute_client, module)
 
     else:
         # Replace value of `public_key` key by content of file pointed to by the `public_key` param
-        module.params["public_key"] = get_file_content(module.params['public_key'])
+        module.params["public_key"] = get_file_content(module.params["public_key"])
 
-        instance_id = module.params['instance_id']
-        kwargs_list = {'instance_id': instance_id, 'compartment_id': _get_compartment_of_instance(compute_client, instance_id)}
+        instance_id = module.params["instance_id"]
+        kwargs_list = {
+            "instance_id": instance_id,
+            "compartment_id": _get_compartment_of_instance(compute_client, instance_id),
+        }
 
-        result = oci_utils.check_and_create_resource(resource_type='instance_console_connection',
-                                                     create_fn=create_instance_console_connection,
-                                                     kwargs_create={
-                                                         'compute_client': compute_client,
-                                                         'module': module},
-                                                     list_fn=compute_client.list_instance_console_connections,
-                                                     kwargs_list=kwargs_list,
-                                                     module=module,
-                                                     model=CreateInstanceConsoleConnectionDetails(),
-                                                     exclude_attributes=None
-                                                     )
+        result = oci_utils.check_and_create_resource(
+            resource_type="instance_console_connection",
+            create_fn=create_instance_console_connection,
+            kwargs_create={"compute_client": compute_client, "module": module},
+            list_fn=compute_client.list_instance_console_connections,
+            kwargs_list=kwargs_list,
+            module=module,
+            model=CreateInstanceConsoleConnectionDetails(),
+            exclude_attributes=None,
+        )
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

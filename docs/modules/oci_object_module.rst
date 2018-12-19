@@ -204,6 +204,17 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>multipart_upload</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>Use <em>multipart_upload=True</em> to use multipart upload feature to upload an large object. Disable multipart upload feature with <em>multipart_upload=False</em></div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>namespace_name</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
@@ -244,6 +255,17 @@ Parameters
                                                                         <div>User-defined metadata dict(str,str) for the object to be uploaded.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: metadata</div>
                                     </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>parallel_uploads</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>Use <em>parallel_uploads=True</em> to use parallel upload feature to upload an object. Disable parallel upload feature with <em>parallel_uploads=False</em>. Parallel upload feature works only when <em>multipart_upload=True</em>.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
@@ -306,13 +328,23 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Create/upload an object
+    - name: Create/upload an object (with multipart and parallel upload)
       oci_object:
         namespace: mynamespace
         bucket: mybucket
         object: mydata.txt
         src: /usr/local/myfile.txt
         opc_meta: {language: english}
+
+    - name: Create/upload an object without multipart and parallel upload
+      oci_object:
+        namespace: mynamespace
+        bucket: mybucket
+        object: mydata.txt
+        src: /usr/local/myfile.txt
+        opc_meta: {language: english}
+        multipart_upload: False
+        parallel_uploads: False
 
     - name: Get/download an object to a file
       oci_object:
@@ -362,7 +394,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>OCI object details</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'Content-Length': '165661', 'opc-request-id': '79bcd894-8a9d-fbfe-3717-fd92d518d0a1', 'Access-Control-Expose-Headers': 'Access-Control-Allow-Credentials,Access-Control-Allow-Methods, Access-Control-Allow-Origin,Content-Length,Content-MD5,Content-Type,ETag,Last-Modified,opc-client-info, opc-meta-author,opc-meta-doc-genre,opc-request-id', 'opc-meta-author': 'RC', 'Content-MD5': '3zBENq6MBnedDrpl2+SttQ==', 'Last-Modified': 'Tue, 10 Oct 2017 13:57:20 GMT', 'Connection': 'keep-alive', 'ETag': '5B3287C054A51CB6E053824310AC257B', 'Access-Control-Allow-Credentials': 'true', 'Date': 'Tue, 10 Oct 2017 13:58:02 GMT', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST,PUT,GET,HEAD,DELETE,OPTIONS', 'Content-Type': 'image/png'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'Content-Length': '165661', 'opc-request-id': '79bcd894-8a9d-fbfe-3717-fd92d518d0a1', 'Access-Control-Expose-Headers': 'Access-Control-Allow-Credentials,Access-Control-Allow-Methods, Access-Control-Allow-Origin,Content-Length,Content-MD5,Content-Type,ETag,Last-Modified,opc-client-info, opc-meta-author,opc-meta-doc-genre,opc-request-id', 'opc-meta-author': 'RC', 'Access-Control-Allow-Credentials': 'true', 'Content-MD5': '3zBENq6MBnedDrpl2+SttQ==', 'Last-Modified': 'Tue, 10 Oct 2017 13:57:20 GMT', 'Connection': 'keep-alive', 'ETag': '5B3287C054A51CB6E053824310AC257B', 'opc-multipart-md5': 'eoYNSi2Jkc2gMKksGkXOrQ', 'Date': 'Tue, 10 Oct 2017 13:58:02 GMT', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST,PUT,GET,HEAD,DELETE,OPTIONS', 'Content-Type': 'image/png'}</div>
                                     </td>
             </tr>
                         </table>

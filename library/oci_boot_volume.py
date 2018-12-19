@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_boot_volume
 short_description: Manage boot volumes in OCI Block Volume service
@@ -70,7 +70,8 @@ options:
         description: The OCID of the KMS key to be used as the master encryption key for the boot volume.
         required: false
     size_in_gbs:
-        description: The size of the volume in GBs.
+        description: The size of the volume in GBs. I(size_in_gbs) can be used to resize a boot volume. Ensure that the
+                     boot volume is detached, before resizing the boot volume.
         required: false
     source_details:
         description: Specifies the boot volume source details for a new boot volume. The volume source is either another
@@ -97,9 +98,9 @@ options:
                 default: 1800
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_wait_options, oracle_creatable_resource, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a boot volume by cloning data from another boot volume in the same availability domain
   oci_boot_volume:
     name: sample_boot_volume
@@ -108,19 +109,25 @@ EXAMPLES = '''
         type: 'bootVolume'
     availability_domain: IwGV:US-ASHBURN-AD-2
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
+    size_in_gbs: 50
 
 - name: Update name of a boot volume
   oci_boot_volume:
     name: ansible_boot_volume
     boot_volume_id: ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx
 
+- name: Resize a boot volume
+  oci_boot_volume:
+    boot_volume_id: ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx
+    size_in_gbs: 100
+
 - name: Delete a boot volume
   oci_boot_volume:
     boot_volume_id: ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx
     state: 'absent'
-'''
+"""
 
-RETURN = '''
+RETURN = """
 boot_volume:
     description: Information about the boot volume
     returned: On successful update and delete operation
@@ -237,7 +244,7 @@ boot_volume:
                 "size_in_mbs": 47694,
                 "time_created": "2018-01-14T19:02:49.042000+00:00"
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -253,46 +260,55 @@ try:
     from oci.core.models import BootVolumeSourceFromBootVolumeDetails
     from oci.util import to_dict
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def handle_delete_boot_volume(block_storage_client, module):
-    return oci_utils.delete_and_wait(resource_type="boot_volume",
-                                     client=block_storage_client,
-                                     get_fn=block_storage_client.get_boot_volume,
-                                     kwargs_get={"boot_volume_id": module.params["boot_volume_id"]},
-                                     delete_fn=block_storage_client.delete_boot_volume,
-                                     kwargs_delete={"boot_volume_id": module.params["boot_volume_id"]},
-                                     module=module
-                                     )
+    return oci_utils.delete_and_wait(
+        resource_type="boot_volume",
+        client=block_storage_client,
+        get_fn=block_storage_client.get_boot_volume,
+        kwargs_get={"boot_volume_id": module.params["boot_volume_id"]},
+        delete_fn=block_storage_client.delete_boot_volume,
+        kwargs_delete={"boot_volume_id": module.params["boot_volume_id"]},
+        module=module,
+    )
 
 
 def handle_update_boot_volume(block_storage_client, module):
-    return oci_utils.check_and_update_resource(resource_type="boot_volume",
-                                               get_fn=block_storage_client.get_boot_volume,
-                                               kwargs_get={"boot_volume_id": module.params["boot_volume_id"]},
-                                               update_fn=block_storage_client.update_boot_volume,
-                                               primitive_params_update=['boot_volume_id'],
-                                               kwargs_non_primitive_update={
-                                                   UpdateBootVolumeDetails: "update_boot_volume_details"},
-                                               module=module,
-                                               update_attributes=UpdateBootVolumeDetails().attribute_map.keys()
-                                               )
+    return oci_utils.check_and_update_resource(
+        resource_type="boot_volume",
+        get_fn=block_storage_client.get_boot_volume,
+        client=block_storage_client,
+        kwargs_get={"boot_volume_id": module.params["boot_volume_id"]},
+        update_fn=block_storage_client.update_boot_volume,
+        primitive_params_update=["boot_volume_id"],
+        kwargs_non_primitive_update={
+            UpdateBootVolumeDetails: "update_boot_volume_details"
+        },
+        module=module,
+        update_attributes=UpdateBootVolumeDetails().attribute_map.keys(),
+    )
 
 
 @check_mode
 def add_attached_instance_info(module, result, lookup_attached_instance):
     compute_client = oci_utils.create_service_client(module, ComputeClient)
     try:
-        result['boot_volume']['attached_instance_information'] = oci_utils.get_attached_instance_info(
+        result["boot_volume"][
+            "attached_instance_information"
+        ] = oci_utils.get_attached_instance_info(
             module,
             lookup_attached_instance,
             list_attachments_fn=compute_client.list_boot_volume_attachments,
-            list_attachments_args={"boot_volume_id": result["boot_volume"]["id"],
-                                   "availability_domain": result["boot_volume"]["availability_domain"],
-                                   "compartment_id": result["boot_volume"]["compartment_id"]}
+            list_attachments_args={
+                "boot_volume_id": result["boot_volume"]["id"],
+                "availability_domain": result["boot_volume"]["availability_domain"],
+                "compartment_id": result["boot_volume"]["compartment_id"],
+            },
         )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -304,32 +320,35 @@ def handle_create_boot_volume(block_storage_client, module):
         if attribute in module.params:
             setattr(create_boot_volume_details, attribute, module.params[attribute])
 
-    if module.params['source_details']:
-        source_details = module.params['source_details']
+    if module.params["source_details"]:
+        source_details = module.params["source_details"]
         volume_source = None
-        if 'type' in source_details:
-            if source_details['type'] == "bootVolume":
+        if "type" in source_details:
+            if source_details["type"] == "bootVolume":
                 volume_source = BootVolumeSourceFromBootVolumeDetails()
                 volume_source.id = source_details.get("id")
-            elif source_details['type'] == "bootVolumeBackup":
+            elif source_details["type"] == "bootVolumeBackup":
                 volume_source = BootVolumeSourceFromBootVolumeBackupDetails()
                 volume_source.id = source_details.get("id")
             else:
-                module.fail_json(msg="value of state must be one of: bootVolume, bootVolumeBackup")
+                module.fail_json(
+                    msg="value of state must be one of: bootVolume, bootVolumeBackup"
+                )
             create_boot_volume_details.source_details = volume_source
         else:
             module.fail_json(msg="missing required arguments: type")
     else:
         module.fail_json(msg="missing required arguments: source_details")
 
-    result = oci_utils.create_and_wait(resource_type="boot_volume",
-                                       create_fn=block_storage_client.create_boot_volume,
-                                       kwargs_create={"create_boot_volume_details": create_boot_volume_details},
-                                       client=block_storage_client,
-                                       get_fn=block_storage_client.get_boot_volume,
-                                       get_param="boot_volume_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="boot_volume",
+        create_fn=block_storage_client.create_boot_volume,
+        kwargs_create={"create_boot_volume_details": create_boot_volume_details},
+        client=block_storage_client,
+        get_fn=block_storage_client.get_boot_volume,
+        get_param="boot_volume_id",
+        module=module,
+    )
 
     wait_for_copy = False
     copy_timeout = 1800
@@ -343,13 +362,21 @@ def handle_create_boot_volume(block_storage_client, module):
                 copy_timeout = source_details[INITIALIZATION_TIMEOUT]
 
     try:
-        response = oci_utils.call_with_backoff(block_storage_client.get_boot_volume,
-                                               boot_volume_id=result['boot_volume']['id'])
+        response = oci_utils.call_with_backoff(
+            block_storage_client.get_boot_volume,
+            boot_volume_id=result["boot_volume"]["id"],
+        )
 
         if wait_for_copy:
-            result['boot_volume'] = to_dict(
-                oci.wait_until(block_storage_client, response, 'is_hydrated', True,
-                               max_wait_seconds=copy_timeout).data)
+            result["boot_volume"] = to_dict(
+                oci.wait_until(
+                    block_storage_client,
+                    response,
+                    "is_hydrated",
+                    True,
+                    max_wait_seconds=copy_timeout,
+                ).data
+            )
 
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
@@ -360,36 +387,43 @@ def handle_create_boot_volume(block_storage_client, module):
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(supports_wait=True, supports_create=True)
-    module_args.update(dict(
-        boot_volume_id=dict(type='str', required=False, aliases=['id']),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        lookup_attached_instance=dict(type='bool', required=False, default='no'),
-        availability_domain=dict(type='str', required=False),
-        backup_policy_id=dict(type='str', required=False),
-        compartment_id=dict(type='str', required=False),
-        kms_key_id=dict(type='str', required=False),
-        size_in_gbs=dict(type='int', required=False),
-        source_details=dict(type=dict, required=False)
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_wait=True, supports_create=True
+    )
+    module_args.update(
+        dict(
+            boot_volume_id=dict(type="str", required=False, aliases=["id"]),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            lookup_attached_instance=dict(type="bool", required=False, default="no"),
+            availability_domain=dict(type="str", required=False),
+            backup_policy_id=dict(type="str", required=False),
+            compartment_id=dict(type="str", required=False),
+            kms_key_id=dict(type="str", required=False),
+            size_in_gbs=dict(type="int", required=False),
+            source_details=dict(type=dict, required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[
-            ['state', 'absent', ['boot_volume_id']]
-        ]
+        required_if=[["state", "absent", ["boot_volume_id"]]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'absent':
+    if state == "absent":
         result = handle_delete_boot_volume(block_storage_client, module)
 
     else:
@@ -397,23 +431,29 @@ def main():
             result = handle_update_boot_volume(block_storage_client, module)
         else:
             default_attribute_values = {"size_in_gbs": 47}
-            result = oci_utils.check_and_create_resource(resource_type='boot_volume',
-                                                         create_fn=handle_create_boot_volume,
-                                                         kwargs_create={'block_storage_client': block_storage_client,
-                                                                        'module': module},
-                                                         list_fn=block_storage_client.list_boot_volumes,
-                                                         kwargs_list={'compartment_id': module.params['compartment_id'],
-                                                                      'availability_domain':
-                                                                          module.params['availability_domain']
-                                                                      },
-                                                         module=module,
-                                                         model=CreateBootVolumeDetails(),
-                                                         default_attribute_values=default_attribute_values)
+            result = oci_utils.check_and_create_resource(
+                resource_type="boot_volume",
+                create_fn=handle_create_boot_volume,
+                kwargs_create={
+                    "block_storage_client": block_storage_client,
+                    "module": module,
+                },
+                list_fn=block_storage_client.list_boot_volumes,
+                kwargs_list={
+                    "compartment_id": module.params["compartment_id"],
+                    "availability_domain": module.params["availability_domain"],
+                },
+                module=module,
+                model=CreateBootVolumeDetails(),
+                default_attribute_values=default_attribute_values,
+            )
 
-    add_attached_instance_info(module, result, module.params['lookup_attached_instance'])
+    add_attached_instance_info(
+        module, result, module.params["lookup_attached_instance"]
+    )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

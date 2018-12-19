@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_dynamic_group_facts
 short_description: Retrieve facts of dynamic groups
@@ -34,9 +34,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get all the dynamic groups in a tenancy
   oci_dynamic_group_facts:
     compartment_id: ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx
@@ -44,9 +44,9 @@ EXAMPLES = '''
 - name: Get information of a specific dynamic group
   oci_dynamic_group_facts:
     dynamic_group_id: ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 dynamic_groups:
     description: List of dynamic group details
     returned: always
@@ -105,7 +105,7 @@ dynamic_groups:
             "name": "Sample dynamic group",
             "time_created": "2018-07-05T09:38:27.176000+00:00"
         }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -115,6 +115,7 @@ try:
     from oci.identity.identity_client import IdentityClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 
 except ImportError:
@@ -123,36 +124,45 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
-    module_args.update(dict(
-        dynamic_group_id=dict(type='str', required=False, aliases=['id']),
-        compartment_id=dict(type='str', required=False)
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False
+    module_args.update(
+        dict(
+            dynamic_group_id=dict(type="str", required=False, aliases=["id"]),
+            compartment_id=dict(type="str", required=False),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
-    dynamic_group_id = module.params['dynamic_group_id']
+    dynamic_group_id = module.params["dynamic_group_id"]
 
     try:
         if dynamic_group_id is not None:
-            result = [to_dict(oci_utils.call_with_backoff(identity_client.get_dynamic_group,
-                                                          dynamic_group_id=dynamic_group_id).data)]
+            result = [
+                to_dict(
+                    oci_utils.call_with_backoff(
+                        identity_client.get_dynamic_group,
+                        dynamic_group_id=dynamic_group_id,
+                    ).data
+                )
+            ]
         else:
-            result = to_dict(oci_utils.list_all_resources(identity_client.list_dynamic_groups,
-                                                          compartment_id=module.params['compartment_id'],
-                                                          name=module.params['name']))
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    identity_client.list_dynamic_groups,
+                    compartment_id=module.params["compartment_id"],
+                    name=module.params["name"],
+                )
+            )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
     module.exit_json(dynamic_groups=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

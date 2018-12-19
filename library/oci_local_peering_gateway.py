@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_local_peering_gateway
 short_description: Manage Local Peering Gateways(LPGs) in OCI
@@ -62,9 +62,9 @@ options:
         required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a LPG
   oci_local_peering_gateway:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
@@ -85,9 +85,9 @@ EXAMPLES = '''
   oci_local_peering_gateway:
     id: ocid1.localpeeringgateway.oc1.phx.xxxxxEXAMPLExxxxx
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 local_peering_gateway:
     description: Information about the LPG
     returned: On successful operation
@@ -106,7 +106,7 @@ local_peering_gateway:
             "time_created": "2018-09-24T06:51:59.491000+00:00",
             "vcn_id": "ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx"
         }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -120,6 +120,7 @@ try:
     from oci.core.models import ConnectLocalPeeringGatewaysDetails
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -128,34 +129,38 @@ logger = None
 
 
 def delete_local_peering_gateway(virtual_network_client, module):
-    result = oci_utils.delete_and_wait(resource_type="local_peering_gateway",
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_local_peering_gateway,
-                                       kwargs_get={
-                                           "local_peering_gateway_id": module.params["local_peering_gateway_id"]},
-                                       delete_fn=virtual_network_client.delete_local_peering_gateway,
-                                       kwargs_delete={
-                                           "local_peering_gateway_id": module.params["local_peering_gateway_id"]},
-                                       module=module
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="local_peering_gateway",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_local_peering_gateway,
+        kwargs_get={
+            "local_peering_gateway_id": module.params["local_peering_gateway_id"]
+        },
+        delete_fn=virtual_network_client.delete_local_peering_gateway,
+        kwargs_delete={
+            "local_peering_gateway_id": module.params["local_peering_gateway_id"]
+        },
+        module=module,
+    )
     return result
 
 
 def update_local_peering_gateway(virtual_network_client, module):
-    result = oci_utils.check_and_update_resource(resource_type="local_peering_gateway",
-                                                 get_fn=virtual_network_client.get_local_peering_gateway,
-                                                 kwargs_get={
-                                                     "local_peering_gateway_id":
-                                                         module.params["local_peering_gateway_id"]},
-                                                 update_fn=virtual_network_client.update_local_peering_gateway,
-                                                 primitive_params_update=['local_peering_gateway_id'],
-                                                 kwargs_non_primitive_update={
-                                                     UpdateLocalPeeringGatewayDetails:
-                                                         "update_local_peering_gateway_details"},
-                                                 module=module,
-                                                 update_attributes=UpdateLocalPeeringGatewayDetails().
-                                                 attribute_map.keys()
-                                                 )
+    result = oci_utils.check_and_update_resource(
+        resource_type="local_peering_gateway",
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_local_peering_gateway,
+        kwargs_get={
+            "local_peering_gateway_id": module.params["local_peering_gateway_id"]
+        },
+        update_fn=virtual_network_client.update_local_peering_gateway,
+        primitive_params_update=["local_peering_gateway_id"],
+        kwargs_non_primitive_update={
+            UpdateLocalPeeringGatewayDetails: "update_local_peering_gateway_details"
+        },
+        module=module,
+        update_attributes=UpdateLocalPeeringGatewayDetails().attribute_map.keys(),
+    )
     return result
 
 
@@ -163,76 +168,114 @@ def create_local_peering_gateway(virtual_network_client, module):
     create_local_peering_gateway_details = CreateLocalPeeringGatewayDetails()
     for attribute in create_local_peering_gateway_details.attribute_map.keys():
         if attribute in module.params:
-            setattr(create_local_peering_gateway_details, attribute, module.params[attribute])
+            setattr(
+                create_local_peering_gateway_details,
+                attribute,
+                module.params[attribute],
+            )
 
-    result = oci_utils.create_and_wait(resource_type="local_peering_gateway",
-                                       create_fn=virtual_network_client.create_local_peering_gateway,
-                                       kwargs_create={
-                                           "create_local_peering_gateway_details":
-                                               create_local_peering_gateway_details},
-                                       client=virtual_network_client,
-                                       get_fn=virtual_network_client.get_local_peering_gateway,
-                                       get_param="local_peering_gateway_id",
-                                       module=module
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="local_peering_gateway",
+        create_fn=virtual_network_client.create_local_peering_gateway,
+        kwargs_create={
+            "create_local_peering_gateway_details": create_local_peering_gateway_details
+        },
+        client=virtual_network_client,
+        get_fn=virtual_network_client.get_local_peering_gateway,
+        get_param="local_peering_gateway_id",
+        module=module,
+    )
     return result
 
 
-def get_similar_lpg(compartments, virtual_network_client, lpg_cidr_block, peer_lpg_cidr_block, peer_lpg):
+def get_similar_lpg(
+    compartments, virtual_network_client, lpg_cidr_block, peer_lpg_cidr_block, peer_lpg
+):
     for compartment in compartments:
         compartment_id = compartment.id
         vcns = []
         try:
-            vcns = oci_utils.list_all_resources(virtual_network_client.list_vcns,
-                                                compartment_id=compartment_id)
+            vcns = oci_utils.list_all_resources(
+                virtual_network_client.list_vcns, compartment_id=compartment_id
+            )
         except ServiceError as ex:
             if ex.status == 403:
                 pass
 
         for vcn in vcns:
             if vcn.cidr_block == peer_lpg_cidr_block:
-                debug("VCN {0} exists with CIDR {1}".format(vcn.id, peer_lpg_cidr_block))
-                similar_lpg = get_lpg_in_peered_state_in_vcn(virtual_network_client, compartments, vcn.id,
-                                                             lpg_cidr_block, peer_lpg)
+                debug(
+                    "VCN {0} exists with CIDR {1}".format(vcn.id, peer_lpg_cidr_block)
+                )
+                similar_lpg = get_lpg_in_peered_state_in_vcn(
+                    virtual_network_client,
+                    compartments,
+                    vcn.id,
+                    lpg_cidr_block,
+                    peer_lpg,
+                )
                 if similar_lpg:
                     return similar_lpg
     return None
 
 
-def get_lpg_in_peered_state_in_vcn(virtual_network_client, compartments, vcn_id, cidr_block, peer_lpg):
+def get_lpg_in_peered_state_in_vcn(
+    virtual_network_client, compartments, vcn_id, cidr_block, peer_lpg
+):
     for compartment in compartments:
         lpgs = []
         try:
-            lpgs = oci_utils.list_all_resources(virtual_network_client.list_local_peering_gateways,
-                                                compartment_id=compartment.id,
-                                                vcn_id=vcn_id)
+            lpgs = oci_utils.list_all_resources(
+                virtual_network_client.list_local_peering_gateways,
+                compartment_id=compartment.id,
+                vcn_id=vcn_id,
+            )
         except ServiceError as ex:
             if ex.status == 403:
                 pass
         for lpg in lpgs:
             if lpg.id != peer_lpg.id:
-                if lpg.peering_status == 'PEERED' and lpg.peer_advertised_cidr == cidr_block:
-                    debug("Local peering gateway {0} exists in VCN {1} which is PEERED to a VCN with CIDR block {2}."
-                          .format(lpg.id, vcn_id, cidr_block))
+                if (
+                    lpg.peering_status == "PEERED"
+                    and lpg.peer_advertised_cidr == cidr_block
+                ):
+                    debug(
+                        "Local peering gateway {0} exists in VCN {1} which is PEERED to a VCN with CIDR block {2}.".format(
+                            lpg.id, vcn_id, cidr_block
+                        )
+                    )
                     return lpg
     return None
 
 
-def matching_lpg_exists(virtual_network_client, module, lpg, peer_lpg, lpg_vcn, peer_vcn):
-    tenancy = oci_utils.get_oci_config(module)['tenancy']
+def matching_lpg_exists(
+    virtual_network_client, module, lpg, peer_lpg, lpg_vcn, peer_vcn
+):
+    tenancy = oci_utils.get_oci_config(module)["tenancy"]
     identity_client = oci_utils.create_service_client(module, IdentityClient)
     compartments = []
     try:
-        compartments = oci_utils.list_all_resources(identity_client.list_compartments,
-                                                    compartment_id=tenancy)
+        compartments = oci_utils.list_all_resources(
+            identity_client.list_compartments,
+            compartment_id=tenancy,
+            compartment_id_in_subtree=True,
+        )
     except ServiceError as ex:
         if ex.status == 403:
             pass
-    similar_lpg = get_similar_lpg(compartments, virtual_network_client, lpg_vcn.cidr_block,
-                                  peer_vcn.cidr_block, peer_lpg)
+    similar_lpg = get_similar_lpg(
+        compartments,
+        virtual_network_client,
+        lpg_vcn.cidr_block,
+        peer_vcn.cidr_block,
+        peer_lpg,
+    )
     if similar_lpg:
-        module.fail_json(msg="Local peering gateway {0} may be connected to local peering gateway {1}.".format(
-            similar_lpg.id, lpg.id))
+        module.fail_json(
+            msg="Local peering gateway {0} may be connected to local peering gateway {1}.".format(
+                similar_lpg.id, lpg.id
+            )
+        )
     return False
 
 
@@ -253,15 +296,26 @@ def are_lpgs_connected(virtual_network_client, module, lpg, peer_lpg):
     # throw an error in this case, indicating this possibility. This heuristic may have false positives. So, if an user
     # wants to ignore this invalid failure, "skip_exhaustive_search_for_lpg_peerings" could be employed.
 
-    lpg_vcn = oci_utils.call_with_backoff(virtual_network_client.get_vcn, vcn_id=lpg.vcn_id).data
-    peer_vcn = oci_utils.call_with_backoff(virtual_network_client.get_vcn, vcn_id=peer_lpg.vcn_id).data
+    lpg_vcn = oci_utils.call_with_backoff(
+        virtual_network_client.get_vcn, vcn_id=lpg.vcn_id
+    ).data
+    peer_vcn = oci_utils.call_with_backoff(
+        virtual_network_client.get_vcn, vcn_id=peer_lpg.vcn_id
+    ).data
 
-    if (lpg.peering_status == 'PEERED' and lpg.peer_advertised_cidr == peer_vcn.cidr_block) and \
-            (peer_lpg.peering_status == 'PEERED' and peer_lpg.peer_advertised_cidr == lpg_vcn.cidr_block):
-        if module.params['skip_exhaustive_search_for_lpg_peerings']:
+    if (
+        lpg.peering_status == "PEERED"
+        and lpg.peer_advertised_cidr == peer_vcn.cidr_block
+    ) and (
+        peer_lpg.peering_status == "PEERED"
+        and peer_lpg.peer_advertised_cidr == lpg_vcn.cidr_block
+    ):
+        if module.params["skip_exhaustive_search_for_lpg_peerings"]:
             return True
         else:
-            return not matching_lpg_exists(virtual_network_client, module, lpg, peer_lpg, lpg_vcn, peer_vcn)
+            return not matching_lpg_exists(
+                virtual_network_client, module, lpg, peer_lpg, lpg_vcn, peer_vcn
+            )
     else:
         return False
 
@@ -269,31 +323,40 @@ def are_lpgs_connected(virtual_network_client, module, lpg, peer_lpg):
 def connect_lpgs_and_wait(virtual_network_client, module, lpg_id, peer_id):
     connect_details = ConnectLocalPeeringGatewaysDetails()
     connect_details.peer_id = peer_id
-    oci_utils.call_with_backoff(virtual_network_client.connect_local_peering_gateways,
-                                local_peering_gateway_id=lpg_id,
-                                connect_local_peering_gateways_details=connect_details)
-    response = oci_utils.call_with_backoff(virtual_network_client.get_local_peering_gateway,
-                                           local_peering_gateway_id=lpg_id)
-    if module.params['wait']:
+    oci_utils.call_with_backoff(
+        virtual_network_client.connect_local_peering_gateways,
+        local_peering_gateway_id=lpg_id,
+        connect_local_peering_gateways_details=connect_details,
+    )
+    response = oci_utils.call_with_backoff(
+        virtual_network_client.get_local_peering_gateway,
+        local_peering_gateway_id=lpg_id,
+    )
+    if module.params["wait"]:
         states_to_wait_for = module.params["wait_until"] or "PEERED"
-        response = oci.wait_until(virtual_network_client,
-                                  response,
-                                  evaluate_response=lambda r: r.data.peering_status in states_to_wait_for,
-                                  max_wait_seconds=module.params.get(
-                                      'wait_timeout',
-                                      oci_utils.MAX_WAIT_TIMEOUT_IN_SECONDS)
-                                  )
+        response = oci.wait_until(
+            virtual_network_client,
+            response,
+            evaluate_response=lambda r: r.data.peering_status in states_to_wait_for,
+            max_wait_seconds=module.params.get(
+                "wait_timeout", oci_utils.MAX_WAIT_TIMEOUT_IN_SECONDS
+            ),
+        )
     return response.data
 
 
 def connect_lpg(virtual_network_client, module):
-    lpg_id = module.params['local_peering_gateway_id']
-    peer_id = module.params['peer_id']
+    lpg_id = module.params["local_peering_gateway_id"]
+    peer_id = module.params["peer_id"]
     try:
-        lpg = oci_utils.call_with_backoff(virtual_network_client.get_local_peering_gateway,
-                                          local_peering_gateway_id=lpg_id).data
-        peer_lpg = oci_utils.call_with_backoff(virtual_network_client.get_local_peering_gateway,
-                                               local_peering_gateway_id=peer_id).data
+        lpg = oci_utils.call_with_backoff(
+            virtual_network_client.get_local_peering_gateway,
+            local_peering_gateway_id=lpg_id,
+        ).data
+        peer_lpg = oci_utils.call_with_backoff(
+            virtual_network_client.get_local_peering_gateway,
+            local_peering_gateway_id=peer_id,
+        ).data
         connected = are_lpgs_connected(virtual_network_client, module, lpg, peer_lpg)
         if not connected:
             lpg = connect_lpgs_and_wait(virtual_network_client, module, lpg_id, peer_id)
@@ -322,63 +385,84 @@ def debug(s):
 def main():
     my_logger = oci_utils.get_logger("oci_local_peering_gateway")
     set_logger(my_logger)
-    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        display_name=dict(type='str', required=False, aliases=['name']),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        local_peering_gateway_id=dict(type='str', required=False, aliases=['id']),
-        peer_id=dict(type='str', required=False),
-        vcn_id=dict(type='str', required=False),
-        skip_exhaustive_search_for_lpg_peerings=dict(type=bool, required=False, default=False)
-    ))
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=True, supports_wait=True
+    )
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            display_name=dict(type="str", required=False, aliases=["name"]),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            local_peering_gateway_id=dict(type="str", required=False, aliases=["id"]),
+            peer_id=dict(type="str", required=False),
+            vcn_id=dict(type="str", required=False),
+            skip_exhaustive_search_for_lpg_peerings=dict(
+                type=bool, required=False, default=False
+            ),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
         required_if=[
-            ('state', 'absent', ['local_peering_gateway_id']),
-            ('peer_id', not None, ['local_peering_gateway_id'])
-        ]
+            ("state", "absent", ["local_peering_gateway_id"]),
+            ("peer_id", not None, ["local_peering_gateway_id"]),
+        ],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
+    virtual_network_client = oci_utils.create_service_client(
+        module, VirtualNetworkClient
+    )
 
-    exclude_attributes = {'display_name': True}
-    state = module.params['state']
+    exclude_attributes = {"display_name": True}
+    state = module.params["state"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_local_peering_gateway(virtual_network_client, module)
 
     else:
-        local_peering_gateway_id = module.params['local_peering_gateway_id']
+        local_peering_gateway_id = module.params["local_peering_gateway_id"]
         if local_peering_gateway_id is not None:
             result = update_local_peering_gateway(virtual_network_client, module)
             # A LPG can be connected to another LPG. Perform this operation when peer_id is specified along with
             # local_peering_gateway_id.
-            if module.params['peer_id'] is not None:
+            if module.params["peer_id"] is not None:
                 result_of_connect_lpg = connect_lpg(virtual_network_client, module)
-                result['changed'] = result['changed'] or result_of_connect_lpg['changed']
-                result['local_peering_gateway'] = result_of_connect_lpg['local_peering_gateway']
+                result["changed"] = (
+                    result["changed"] or result_of_connect_lpg["changed"]
+                )
+                result["local_peering_gateway"] = result_of_connect_lpg[
+                    "local_peering_gateway"
+                ]
         else:
-            result = oci_utils.check_and_create_resource(resource_type='local_peering_gateway',
-                                                         create_fn=create_local_peering_gateway,
-                                                         kwargs_create={
-                                                             'virtual_network_client': virtual_network_client,
-                                                             'module': module},
-                                                         list_fn=virtual_network_client.list_local_peering_gateways,
-                                                         kwargs_list={'compartment_id': module.params['compartment_id'],
-                                                                      'vcn_id': module.params['vcn_id']
-                                                                      },
-                                                         module=module,
-                                                         model=CreateLocalPeeringGatewayDetails(),
-                                                         exclude_attributes=exclude_attributes)
+            result = oci_utils.check_and_create_resource(
+                resource_type="local_peering_gateway",
+                create_fn=create_local_peering_gateway,
+                kwargs_create={
+                    "virtual_network_client": virtual_network_client,
+                    "module": module,
+                },
+                list_fn=virtual_network_client.list_local_peering_gateways,
+                kwargs_list={
+                    "compartment_id": module.params["compartment_id"],
+                    "vcn_id": module.params["vcn_id"],
+                },
+                module=module,
+                model=CreateLocalPeeringGatewayDetails(),
+                exclude_attributes=exclude_attributes,
+            )
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

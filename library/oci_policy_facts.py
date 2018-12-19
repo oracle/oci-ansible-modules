@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_policy_facts
 short_description: Retrieve details about a policy or policies attached to a compartment or tenancy in OCI Identity
@@ -34,9 +35,9 @@ options:
         aliases: [ 'id' ]
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_name_option ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get all the policies attached to a compartment or tenancy
   oci_policy_facts:
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
@@ -44,9 +45,9 @@ EXAMPLES = '''
 - name: Get details of a specific policy
   oci_policy_facts:
     id: ocid1.policy.oc1..xxxxxEXAMPLExxxxx
-'''
+"""
 
-RETURN = '''
+RETURN = """
 policies:
     description: Information of one or more policies
     returned: on success
@@ -115,7 +116,7 @@ policies:
         "time_created": "2017-11-01T14:59:51.728000+00:00",
         "version_date": "2017-11-01T00:00:00+00:00"
     }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -123,6 +124,7 @@ from ansible.module_utils.oracle import oci_utils
 try:
     from oci.identity.identity_client import IdentityClient
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
     from oci.exceptions import ServiceError
 except ImportError:
@@ -131,31 +133,35 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        policy_id=dict(type='str', required=False, aliases=['id'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            policy_id=dict(type="str", required=False, aliases=["id"]),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[
-            ['compartment_id', 'policy_id']
-        ]
+        required_one_of=[["compartment_id", "policy_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
-    policy_id = module.params['policy_id']
+    policy_id = module.params["policy_id"]
 
     try:
         if policy_id is None:
-            result = to_dict(oci_utils.list_all_resources(identity_client.list_policies,
-                                                          compartment_id=module.params['compartment_id'],
-                                                          name=module.params['name']))
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    identity_client.list_policies,
+                    compartment_id=module.params["compartment_id"],
+                    name=module.params["name"],
+                )
+            )
         else:
             result = [to_dict(identity_client.get_policy(policy_id).data)]
     except ServiceError as ex:
@@ -164,5 +170,5 @@ def main():
     module.exit_json(policies=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

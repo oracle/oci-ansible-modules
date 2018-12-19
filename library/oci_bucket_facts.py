@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_bucket_facts
 short_description: Fetches details of a bucket or all available buckets within a namespace
@@ -43,9 +44,9 @@ options:
         type: 'list'
 author: "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 #Note: These examples do not set authentication details.
 
 #Listing facts of all buckets in a given namespace and compartment
@@ -60,9 +61,9 @@ EXAMPLES = '''
   oci_bucket_facts:
     namespace_name: 'mynamespace'
     name: 'Bucket1'
-'''
+"""
 
-RETURN = '''
+RETURN = """
 buckets:
     description: The specified bucket or a list of all available buckets in the specified namespace and compartment.
     returned: on success
@@ -125,7 +126,7 @@ buckets:
               "namespace": "mynamespace",
               "time_created": "2017-10-06T13:47:38.544000+00:00"
              }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -135,6 +136,7 @@ try:
     from oci.object_storage.object_storage_client import ObjectStorageClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -142,16 +144,22 @@ except ImportError:
 
 def list_buckets(object_storage_client, module):
     try:
-        namespace_name = module.params['namespace_name']
-        compartment_id = module.params['compartment_id']
+        namespace_name = module.params["namespace_name"]
+        compartment_id = module.params["compartment_id"]
 
-        optional_list_method_params = ['fields']
-        optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                           if module.params.get(param) is not None}
+        optional_list_method_params = ["fields"]
+        optional_kwargs = {
+            param: module.params[param]
+            for param in optional_list_method_params
+            if module.params.get(param) is not None
+        }
 
-        buckets = oci_utils.list_all_resources(object_storage_client.list_buckets,
-                                               namespace_name=namespace_name, compartment_id=compartment_id,
-                                               **optional_kwargs)
+        buckets = oci_utils.list_all_resources(
+            object_storage_client.list_buckets,
+            namespace_name=namespace_name,
+            compartment_id=compartment_id,
+            **optional_kwargs
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
     return to_dict(buckets)
@@ -161,28 +169,33 @@ def main():
     module_args = oci_utils.get_common_arg_spec()
     module_args.update(
         dict(
-            namespace_name=dict(type='str', required=True),
-            compartment_id=dict(type='str', required=False),
-            name=dict(type='str', required=False, aliases=['bucket']),
-            fields=dict(type='list', required=False, choices=['tags'])
+            namespace_name=dict(type="str", required=True),
+            compartment_id=dict(type="str", required=False),
+            name=dict(type="str", required=False, aliases=["bucket"]),
+            fields=dict(type="list", required=False, choices=["tags"]),
         )
     )
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_one_of=[['compartment_id', 'name']]
+        required_one_of=[["compartment_id", "name"]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     object_storage_client = oci_utils.create_service_client(module, ObjectStorageClient)
 
-    bucket_name = module.params['name']
+    bucket_name = module.params["name"]
     if bucket_name is not None:
         try:
-            result = [to_dict(object_storage_client.get_bucket(
-                module.params['namespace_name'], bucket_name).data)]
+            result = [
+                to_dict(
+                    object_storage_client.get_bucket(
+                        module.params["namespace_name"], bucket_name
+                    ).data
+                )
+            ]
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
     else:
@@ -191,5 +204,5 @@ def main():
     module.exit_json(buckets=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

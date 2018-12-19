@@ -6,7 +6,7 @@
 
 
 class ModuleDocFragment(object):
-    DOCUMENTATION = '''
+    DOCUMENTATION = """
     options:
         force_create:
             description: Whether to attempt non-idempotent creation of a resource. By default, create resource is an
@@ -21,4 +21,4 @@ class ModuleDocFragment(object):
                          identify an instance of the resource. By default, all the attributes of a resource except
                          I(freeform_tags) are used to uniquely identify a resource.
             required: false
-    '''
+    """

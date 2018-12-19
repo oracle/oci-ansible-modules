@@ -140,7 +140,15 @@ Parameters
                     <b>lifecycle_state</b>
                                                                             </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>CREATING</li>
+                                                                                                                                                                                                <li>AVAILABLE</li>
+                                                                                                                                                                                                <li>TERMINATING</li>
+                                                                                                                                                                                                <li>TERMINATED</li>
+                                                                                                                                                                                                <li>FAULTY</li>
+                                                                                                                                                                                                <li>REQUEST_RECEIVED</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
                                                                         <div>A filter to only return resources that match the given lifecycle state.  The state value is case-insensitive. Allowed values are &quot;CREATING&quot;, &quot;AVAILABLE&quot;, &quot;TERMINATING&quot;, &quot;TERMINATED&quot;, &quot;FAULTY&quot;, &quot;REQUEST_RECEIVED&quot;.</div>
                                                                                 </td>

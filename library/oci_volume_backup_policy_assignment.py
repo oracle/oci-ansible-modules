@@ -5,17 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_volume_backup_policy_assignment
 short_description: Manage volume backup policy assignments in OCI Block Volume service
@@ -44,9 +44,9 @@ options:
         aliases: ['id']
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create a volume backup policy assignment
   oci_volume_backup_policy_assignment:
     asset_id: ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx
@@ -56,9 +56,9 @@ EXAMPLES = '''
   oci_volume_backup_policy_assignment:
     id: ocid1.volumebackuppolicyassign.oc1.iad.xxxxxEXAMPLExxxxx
     state: absent
-'''
+"""
 
-RETURN = '''
+RETURN = """
 volume_backup_policy_assignment:
     description: Information about the volume backup policy assignment
     returned: on successful operation
@@ -90,7 +90,7 @@ volume_backup_policy_assignment:
             "id": "ocid1.volumebackuppolicyassign.oc1.iad.xxxxxEXAMPLExxxxx",
             "time_created": "2017-12-22T15:40:53.219000+00:00"
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -98,21 +98,23 @@ from ansible.module_utils.oracle import oci_utils
 try:
     from oci.core.blockstorage_client import BlockstorageClient
     from oci.core.models import CreateVolumeBackupPolicyAssignmentDetails
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
 def delete_volume_backup_policy_assignment(block_storage_client, module):
-    result = oci_utils.delete_and_wait(resource_type="volume_backup_policy_assignment",
-                                       client=block_storage_client,
-                                       get_fn=block_storage_client.get_volume_backup_policy_assignment,
-                                       kwargs_get={"policy_assignment_id": module.params["policy_assignment_id"]},
-                                       delete_fn=block_storage_client.delete_volume_backup_policy_assignment,
-                                       kwargs_delete={"policy_assignment_id": module.params["policy_assignment_id"]},
-                                       module=module,
-                                       wait_applicable=False
-                                       )
+    result = oci_utils.delete_and_wait(
+        resource_type="volume_backup_policy_assignment",
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume_backup_policy_assignment,
+        kwargs_get={"policy_assignment_id": module.params["policy_assignment_id"]},
+        delete_fn=block_storage_client.delete_volume_backup_policy_assignment,
+        kwargs_delete={"policy_assignment_id": module.params["policy_assignment_id"]},
+        module=module,
+        wait_applicable=False,
+    )
     return result
 
 
@@ -123,61 +125,67 @@ def create_volume_backup_policy_assignment(block_storage_client, module):
         if attribute in module.params:
             setattr(cvb, attribute, module.params[attribute])
 
-    result = oci_utils.create_and_wait(resource_type="volume_backup_policy_assignment",
-                                       create_fn=block_storage_client.create_volume_backup_policy_assignment,
-                                       kwargs_create={"create_volume_backup_policy_assignment_details": cvb},
-                                       client=block_storage_client,
-                                       get_fn=block_storage_client.get_volume_backup_policy_assignment,
-                                       get_param="policy_assignment_id",
-                                       module=module,
-                                       wait_applicable=False
-                                       )
+    result = oci_utils.create_and_wait(
+        resource_type="volume_backup_policy_assignment",
+        create_fn=block_storage_client.create_volume_backup_policy_assignment,
+        kwargs_create={"create_volume_backup_policy_assignment_details": cvb},
+        client=block_storage_client,
+        get_fn=block_storage_client.get_volume_backup_policy_assignment,
+        get_param="policy_assignment_id",
+        module=module,
+        wait_applicable=False,
+    )
 
     return result
 
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        asset_id=dict(type='str', required=False),
-        state=dict(type='str', required=False, default='present', choices=['absent', 'present']),
-        policy_assignment_id=dict(type='str', required=False, aliases=['id']),
-        policy_id=dict(type='str', required=False)
-    ))
+    module_args.update(
+        dict(
+            asset_id=dict(type="str", required=False),
+            state=dict(
+                type="str",
+                required=False,
+                default="present",
+                choices=["absent", "present"],
+            ),
+            policy_assignment_id=dict(type="str", required=False, aliases=["id"]),
+            policy_id=dict(type="str", required=False),
+        )
+    )
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        required_if=[
-            ['state', 'absent', ['policy_assignment_id']]
-        ]
+        required_if=[["state", "absent", ["policy_assignment_id"]]],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
 
-    state = module.params['state']
+    state = module.params["state"]
 
-    if state == 'absent':
+    if state == "absent":
         result = delete_volume_backup_policy_assignment(block_storage_client, module)
 
     else:
-        result = oci_utils.check_and_create_resource(resource_type='volume_backup_policy_assignment',
-                                                     create_fn=create_volume_backup_policy_assignment,
-                                                     kwargs_create={
-                                                         'block_storage_client': block_storage_client,
-                                                         'module': module},
-                                                     list_fn=block_storage_client.
-                                                     get_volume_backup_policy_asset_assignment,
-                                                     kwargs_list={"asset_id": module.params['asset_id']
-                                                                  },
-                                                     module=module,
-                                                     model=CreateVolumeBackupPolicyAssignmentDetails()
-                                                     )
+        result = oci_utils.check_and_create_resource(
+            resource_type="volume_backup_policy_assignment",
+            create_fn=create_volume_backup_policy_assignment,
+            kwargs_create={
+                "block_storage_client": block_storage_client,
+                "module": module,
+            },
+            list_fn=block_storage_client.get_volume_backup_policy_asset_assignment,
+            kwargs_list={"asset_id": module.params["asset_id"]},
+            module=module,
+            model=CreateVolumeBackupPolicyAssignmentDetails(),
+        )
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

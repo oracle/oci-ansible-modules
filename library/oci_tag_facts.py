@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_tag_facts
 short_description: Retrieve details of tag key definitions for a specified tag namespace in OCI
@@ -33,9 +34,9 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get details of all the tag key definitions of the specified tag namespace
   oci_tag_facts:
     tag_namespace_id: "ocid1.tagnamespace.oc1..xxxxxEXAMPLExxxxx"
@@ -44,9 +45,9 @@ EXAMPLES = '''
   oci_tag_facts:
     tag_namespace_id: "ocid1.tagnamespace.oc1..xxxxxEXAMPLExxxxx"
     name: "CostCenter"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 tags:
     description: Information about one or more tag key definitions
     returned: on success
@@ -97,7 +98,7 @@ tags:
             }
         ]
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -106,6 +107,7 @@ try:
     from oci.identity.identity_client import IdentityClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -114,29 +116,35 @@ except ImportError:
 def list_tags(identity_client, tag_namespace_id, tag_name, module):
     try:
         if tag_name is not None:
-            tag = oci_utils.call_with_backoff(identity_client.get_tag, tag_namespace_id=tag_namespace_id,
-                                              tag_name=tag_name).data
+            tag = oci_utils.call_with_backoff(
+                identity_client.get_tag,
+                tag_namespace_id=tag_namespace_id,
+                tag_name=tag_name,
+            ).data
             return to_dict([tag])
 
-        return to_dict(oci_utils.call_with_backoff(identity_client.list_tags, tag_namespace_id=tag_namespace_id).data)
+        return to_dict(
+            oci_utils.call_with_backoff(
+                identity_client.list_tags, tag_namespace_id=tag_namespace_id
+            ).data
+        )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        tag_namespace_id=dict(type='str', required=True),
-        tag_name=dict(type='str', required=False, aliases=['name'])
-    ))
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
+    module_args.update(
+        dict(
+            tag_namespace_id=dict(type="str", required=True),
+            tag_name=dict(type="str", required=False, aliases=["name"]),
+        )
     )
 
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
@@ -147,5 +155,5 @@ def main():
     module.exit_json(tags=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

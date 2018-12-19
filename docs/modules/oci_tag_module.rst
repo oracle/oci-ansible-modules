@@ -127,6 +127,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>is_cost_tracking</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Indicates whether the tag is enabled for cost tracking.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>reactivate</b>
                     <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
@@ -229,6 +243,18 @@ Examples
         name: "CostCenter"
         state: "absent"
 
+    - name: Enable a tag key definition for cost-tracking
+      oci_tag:
+        tag_namespace_id: "ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx"
+        name: "CostCenter"
+        is_cost_tracking: "yes"
+
+    - name: Disable a tag key definition for cost-tracking
+      oci_tag:
+        tag_namespace_id: "ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx"
+        name: "CostCenter"
+        is_cost_tracking: "no"
+
     - name: To reactivate a retired namespace
       oci_tag:
         tag_namespace_id: "ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx"
@@ -260,7 +286,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Details of the tag key definition</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'tag_namespace_id': 'ocid1.tagnamespace.oc1..xxxxxEXAMPLExxxxx', 'description': 'This tag will show the cost center that will be used for billing of resources.', 'compartment_id': None, 'defined_tags': {}, 'freeform_tags': {}, 'time_created': '2018-01-16T04:55:22.600000+00:00', 'tag_namespace_name': None, 'is_retired': False, 'id': 'ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx', 'name': 'CostCenter'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'tag_namespace_id': 'ocid1.tagnamespace.oc1..xxxxxEXAMPLExxxxx', 'is_cost_tracking': False, 'description': 'This tag will show the cost center that will be used for billing of resources.', 'compartment_id': None, 'defined_tags': {}, 'freeform_tags': {}, 'time_created': '2018-01-16T04:55:22.600000+00:00', 'tag_namespace_name': None, 'is_retired': False, 'id': 'ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx', 'name': 'CostCenter'}</div>
                                     </td>
             </tr>
                         </table>

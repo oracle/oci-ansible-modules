@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_vnic_facts
 short_description: Retrieve details about a specific VNIC
@@ -29,15 +30,15 @@ options:
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: oracle
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get details of a specific VNIC
   oci_vnic_facts:
     id: 'ocid1.vnic.oc1..xxxxxEXAMPLExxxxx...vm62xq'
-'''
+"""
 
-RETURN = '''
+RETURN = """
 vnic:
     description: Information about a specific VNIC
     returned: on success
@@ -127,7 +128,7 @@ vnic:
               "subnet_id": "ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...dusmpqpaoa",
               "time_created": "2017-11-26T16:23:29.932000+00:00"
               }]
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -136,6 +137,7 @@ try:
     from oci.core.virtual_network_client import VirtualNetworkClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -143,22 +145,20 @@ except ImportError:
 
 def main():
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        vnic_id=dict(type='str', required=False, aliases=['id'])
-    ))
+    module_args.update(dict(vnic_id=dict(type="str", required=False, aliases=["id"])))
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=['id', 'compartment_id']
+        mutually_exclusive=["id", "compartment_id"],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module.')
+        module.fail_json(msg="oci python sdk required for this module.")
 
     virtnw_client = oci_utils.create_service_client(module, VirtualNetworkClient)
 
-    id = module.params['vnic_id']
+    id = module.params["vnic_id"]
 
     result = dict()
     try:
@@ -172,5 +172,5 @@ def main():
     module.exit_json(vnic=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

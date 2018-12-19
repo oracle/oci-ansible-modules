@@ -5,16 +5,17 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: oci_export_facts
 short_description: Fetches details of the OCI Export instances
@@ -46,9 +47,9 @@ options:
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle ]
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Fetch Export by Compartment Identifier
 - name: List all Export in a compartment
   oci_export_facts:
@@ -74,9 +75,9 @@ EXAMPLES = '''
 - name: List a specific Export
   oci_export_facts:
       export_id: 'ocid1.export..xxxxxEXAMPLExxxxx'
-'''
+"""
 
-RETURN = '''
+RETURN = """
     exports:
         description: Attributes of the fetched Export.
         returned: success
@@ -148,7 +149,7 @@ RETURN = '''
                   "time_created":"2018-10-18T11:40:52.483000+00:00"
                 }]
 
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
@@ -157,6 +158,7 @@ try:
     from oci.file_storage.file_storage_client import FileStorageClient
     from oci.exceptions import ServiceError
     from oci.util import to_dict
+
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
@@ -165,40 +167,50 @@ logger = None
 
 
 def list_exports(file_storage_client, module):
-    result = dict(
-        exports=''
-    )
-    compartment_id = module.params.get('compartment_id')
-    export_set_id = module.params.get('export_set_id')
-    file_system_id = module.params.get('file_system_id')
-    export_id = module.params.get('export_id')
+    result = dict(exports="")
+    compartment_id = module.params.get("compartment_id")
+    export_set_id = module.params.get("export_set_id")
+    file_system_id = module.params.get("file_system_id")
+    export_id = module.params.get("export_id")
     try:
         if compartment_id or export_set_id or file_system_id:
             get_logger().debug("Listing all Exports under given Identifier")
-            optional_list_method_params = ['lifecycle_state']
-            optional_kwargs = {param: module.params[param] for param in optional_list_method_params
-                               if module.params.get(param) is not None}
-            existing_exports_summary = to_dict(oci_utils.list_all_resources(
-                file_storage_client.list_exports,
-                compartment_id=compartment_id,
-                export_set_id=export_set_id,
-                file_system_id=file_system_id,
-                **optional_kwargs))
-            existing_exports = [oci_utils.call_with_backoff(
-                file_storage_client.get_export, export_id=export['id']).data
-                for export in existing_exports_summary]
+            optional_list_method_params = ["lifecycle_state"]
+            optional_kwargs = {
+                param: module.params[param]
+                for param in optional_list_method_params
+                if module.params.get(param) is not None
+            }
+            existing_exports_summary = to_dict(
+                oci_utils.list_all_resources(
+                    file_storage_client.list_exports,
+                    compartment_id=compartment_id,
+                    export_set_id=export_set_id,
+                    file_system_id=file_system_id,
+                    **optional_kwargs
+                )
+            )
+            existing_exports = [
+                oci_utils.call_with_backoff(
+                    file_storage_client.get_export, export_id=export["id"]
+                ).data
+                for export in existing_exports_summary
+            ]
         elif export_id:
             get_logger().debug("Listing Export %s", file_system_id)
             response = oci_utils.call_with_backoff(
-                file_storage_client.get_export, export_id=export_id)
+                file_storage_client.get_export, export_id=export_id
+            )
             existing_exports = [response.data]
         else:
-            module.fail_json(msg='No value provided for either compartment_id, export_set_id' +
-                             'and file_system_id or export_id')
+            module.fail_json(
+                msg="No value provided for either compartment_id, export_set_id"
+                + "and file_system_id or export_id"
+            )
     except ServiceError as ex:
         get_logger().error("Unable to list Exports due to %s", ex.message)
         module.fail_json(msg=ex.message)
-    result['exports'] = to_dict(existing_exports)
+    result["exports"] = to_dict(existing_exports)
     return result
 
 
@@ -215,28 +227,33 @@ def main():
     logger = oci_utils.get_logger("oci_file_system_facts")
     set_logger(logger)
     module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(
-        compartment_id=dict(type='str', required=False),
-        export_set_id=dict(type='str', required=False),
-        file_system_id=dict(type='str', required=False),
-        export_id=dict(type='str', required=False, aliases=['id']),
-        lifecycle_state=dict(type='str', required=False, choices=[
-                             'CREATING', 'ACTIVE', 'DELETING', 'DELETED', 'FAILED'])
-    ))
+    module_args.update(
+        dict(
+            compartment_id=dict(type="str", required=False),
+            export_set_id=dict(type="str", required=False),
+            file_system_id=dict(type="str", required=False),
+            export_id=dict(type="str", required=False, aliases=["id"]),
+            lifecycle_state=dict(
+                type="str",
+                required=False,
+                choices=["CREATING", "ACTIVE", "DELETING", "DELETED", "FAILED"],
+            ),
+        )
+    )
     module = AnsibleModule(
         argument_spec=module_args,
         mutually_exclusive=[
-            ['compartment_id', 'file_system_id'],
-            ['export_set_id', 'file_system_id'],
-            ['export_set_id', 'compartment_id'],
-            ['export_id', 'compartment_id'],
-            ['export_id', 'file_system_id'],
-            ['export_id', 'export_set_id']
-        ]
+            ["compartment_id", "file_system_id"],
+            ["export_set_id", "file_system_id"],
+            ["export_set_id", "compartment_id"],
+            ["export_id", "compartment_id"],
+            ["export_id", "file_system_id"],
+            ["export_id", "export_set_id"],
+        ],
     )
 
     if not HAS_OCI_PY_SDK:
-        module.fail_json(msg='oci python sdk required for this module')
+        module.fail_json(msg="oci python sdk required for this module")
 
     file_storage_client = oci_utils.create_service_client(module, FileStorageClient)
     result = list_exports(file_storage_client, module)
@@ -244,5 +261,5 @@ def main():
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

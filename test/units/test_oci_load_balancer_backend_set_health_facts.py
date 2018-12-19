@@ -16,7 +16,8 @@ try:
     from oci.exceptions import ServiceError
 except ImportError:
     raise SkipTest(
-        "test_oci_load_balancer_backend_set_health_facts.py requires `oci` module")
+        "test_oci_load_balancer_backend_set_health_facts.py requires `oci` module"
+    )
 
 
 class FakeModule(object):
@@ -26,7 +27,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,13 +37,15 @@ class FakeModule(object):
 @pytest.fixture()
 def lb_client(mocker):
     mock_lb_client = mocker.patch(
-        'oci.load_balancer.load_balancer_client.LoadBalancerClient')
+        "oci.load_balancer.load_balancer_client.LoadBalancerClient"
+    )
     return mock_lb_client.return_value
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_load_balancer_backend_set_health_facts.set_logger(logging)
 
 
@@ -50,29 +53,33 @@ def test_get_load_balancer_backend_set_health(lb_client):
     module = get_module()
     backend_set_health = get_backend_set_health()
     lb_client.get_backend_set_health.return_value = get_response(
-        200, None, backend_set_health, None)
+        200, None, backend_set_health, None
+    )
     result = oci_load_balancer_backend_set_health_facts.get_load_balancer_backend_set_health(
-        lb_client, module)
-    assert result['backend_set_health']['status'] == 'CRITICAL'
+        lb_client, module
+    )
+    assert result["backend_set_health"]["status"] == "CRITICAL"
 
 
 def test_get_load_balancer_backend_set_health_service_error(lb_client):
     error_message = "Internal Server Error"
     module = get_module()
     lb_client.get_backend_health.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_load_balancer_backend_set_health_facts.get_load_balancer_backend_set_health(
-            lb_client, module)
+            lb_client, module
+        )
     except Exception as ex:
         assert error_message in ex.args[0]
 
 
 def get_backend_set_health():
     backend_set_health = BackendSetHealth()
-    backend_set_health.critical_state_backend_names = ['10.1.2.3:8080']
+    backend_set_health.critical_state_backend_names = ["10.1.2.3:8080"]
     backend_set_health.total_backend_count = 1
-    backend_set_health.status = 'CRITICAL'
+    backend_set_health.status = "CRITICAL"
 
     return backend_set_health
 
@@ -82,8 +89,9 @@ def get_response(status, header, data, request):
 
 
 def get_module():
-    params = {'backend_set_name': 'backend1',
-              'load_balancer_id': 'ocid1.lodbalancer.xcds'}
+    params = {
+        "backend_set_name": "backend1",
+        "load_balancer_id": "ocid1.lodbalancer.xcds",
+    }
     module = FakeModule(**params)
     return module
-

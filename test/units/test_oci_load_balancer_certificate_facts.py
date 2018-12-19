@@ -15,8 +15,7 @@ try:
     from oci.load_balancer.models import Certificate
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_load_balancer_certificate_facts.py requires `oci` module")
+    raise SkipTest("test_oci_load_balancer_certificate_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -26,7 +25,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -36,43 +35,64 @@ class FakeModule(object):
 @pytest.fixture()
 def lb_client(mocker):
     mock_lb_client = mocker.patch(
-        'oci.load_balancer.load_balancer_client.LoadBalancerClient')
+        "oci.load_balancer.load_balancer_client.LoadBalancerClient"
+    )
     return mock_lb_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_load_balancer_certificate_facts.set_logger(logging)
 
 
 def test_list_load_balancer_certificates_specific_certificate(lb_client):
-    module = get_module(dict({'name': 'ansible_certificate_one',
-                              'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+    module = get_module(
+        dict(
+            {
+                "name": "ansible_certificate_one",
+                "load_balancer_id": "ocid1.lodbalancer.xcds",
+            }
+        )
+    )
     lb_client.list_certificates.return_value = get_response(
-        200, None, get_certificates(), None)
-    result = oci_load_balancer_certificate_facts.list_load_balancer_certificates(lb_client, module)
-    assert result['certificates'][0]['certificate_name'] is module.params.get('name')
-    
+        200, None, get_certificates(), None
+    )
+    result = oci_load_balancer_certificate_facts.list_load_balancer_certificates(
+        lb_client, module
+    )
+    assert result["certificates"][0]["certificate_name"] is module.params.get("name")
 
-def test_list_load_balancer_certificates_all_certificates(lb_client, list_all_resources_patch):
-    module = get_module(dict({'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+
+def test_list_load_balancer_certificates_all_certificates(
+    lb_client, list_all_resources_patch
+):
+    module = get_module(dict({"load_balancer_id": "ocid1.lodbalancer.xcds"}))
     list_all_resources_patch.return_value = get_certificates()
-    result = oci_load_balancer_certificate_facts.list_load_balancer_certificates(lb_client, module)
-    assert len(result['certificates']) is 2
+    result = oci_load_balancer_certificate_facts.list_load_balancer_certificates(
+        lb_client, module
+    )
+    assert len(result["certificates"]) is 2
 
-def test_list_load_balancer_certificates_service_error(lb_client, list_all_resources_patch):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'load_balancer_id': 'ocid1.lodbalancer.xcds'}))
+
+def test_list_load_balancer_certificates_service_error(
+    lb_client, list_all_resources_patch
+):
+    error_message = "Internal Server Error"
+    module = get_module(dict({"load_balancer_id": "ocid1.lodbalancer.xcds"}))
     list_all_resources_patch.side_effect = ServiceError(
-        500, 'InternalServerError', dict(), error_message)
+        500, "InternalServerError", dict(), error_message
+    )
     try:
-        oci_load_balancer_certificate_facts.list_load_balancer_certificates(lb_client, module)
+        oci_load_balancer_certificate_facts.list_load_balancer_certificates(
+            lb_client, module
+        )
     except Exception as ex:
         assert error_message in ex.args[0]
 
@@ -84,8 +104,10 @@ def get_certificates():
     certificate_two.certificate_name = "ansible_certificate_two"
     return [certificate_one, certificate_two]
 
+
 def get_response(status, header, data, request):
     return oci.Response(status, header, data, request)
+
 
 def get_module(additional_properties):
     params = dict()

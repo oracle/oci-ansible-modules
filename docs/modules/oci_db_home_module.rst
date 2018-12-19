@@ -431,6 +431,7 @@ Examples
 
     
     # Note: These examples do not set authentication details.
+
     # Create DB Home from No Source
     - name: Create DB Home From No Source
       oci_db_home:
@@ -448,6 +449,7 @@ Examples
         db_version: "12.2.0.1"
         wait: False
         state: 'present'
+
     # Create DB Home from DB Backup
     - name: Create DB Home From DB Backup
       oci_db_home:
@@ -459,6 +461,7 @@ Examples
            backup_tde_password: 'BEstr0ng_#1'
            admin_password: 'BEstr0ng_#1'
         state: 'present'
+
     # Precheck a patch on DB Home
     - name: Precheck a patch on DB Home
       oci_db_home:
@@ -467,6 +470,7 @@ Examples
            patch_id: "ocid1.dbbackup.oc1.iad.xxxxxEXAMPLExxxxx"
            action: 'PRECHECK'
         state: 'present'
+
     # Apply a patch on DB Home
     - name: Apply a patch on DB Home
       oci_db_home:
@@ -475,10 +479,12 @@ Examples
            patch_id: "ocid1.dbbackup.oc1.iad.xxxxxEXAMPLExxxxx"
            action: 'APPLY'
         state: 'present'
+
     # Delete DB Home
+    - name: Delete DB Home
       oci_db_home:
         db_home_id: "ocid1.dbhome.aaaa"
-        state: 'absense'
+        state: 'absent'
 
 
 

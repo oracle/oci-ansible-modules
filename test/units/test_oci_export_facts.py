@@ -16,8 +16,7 @@ try:
     from oci.file_storage.models import Export
     from oci.exceptions import ServiceError
 except ImportError:
-    raise SkipTest(
-        "test_oci_export_facts.py requires `oci` module")
+    raise SkipTest("test_oci_export_facts.py requires `oci` module")
 
 
 class FakeModule(object):
@@ -27,7 +26,7 @@ class FakeModule(object):
     def fail_json(self, *args, **kwargs):
         self.exit_args = args
         self.exit_kwargs = kwargs
-        raise Exception(kwargs['msg'])
+        raise Exception(kwargs["msg"])
 
     def exit_json(self, *args, **kwargs):
         self.exit_args = args
@@ -37,64 +36,77 @@ class FakeModule(object):
 @pytest.fixture()
 def file_storage_client(mocker):
     mock_file_storage_client = mocker.patch(
-        'oci.file_storage.file_storage_client.FileStorageClient')
+        "oci.file_storage.file_storage_client.FileStorageClient"
+    )
     return mock_file_storage_client.return_value
 
 
 @pytest.fixture()
 def list_all_resources_patch(mocker):
-    return mocker.patch.object(oci_utils, 'list_all_resources')
+    return mocker.patch.object(oci_utils, "list_all_resources")
 
 
 def setUpModule():
-    logging.basicConfig(filename='/tmp/oci_ansible_module.log',
-                        filemode='a', level=logging.INFO)
+    logging.basicConfig(
+        filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
+    )
     oci_export_facts.set_logger(logging)
 
 
-def test_list_exports_list_all_by_compartment_id(file_storage_client, list_all_resources_patch):
-    module = get_module(dict({'compartment_id': 'ocid1.compartment.aaaa'}))
+def test_list_exports_list_all_by_compartment_id(
+    file_storage_client, list_all_resources_patch
+):
+    module = get_module(dict({"compartment_id": "ocid1.compartment.aaaa"}))
     list_all_resources_patch.return_value = get_exports()
-    file_storage_client.get_export.side_effect = [get_response(
-        200, None, get_export(), None), get_response(
-        200, None, get_export(), None)]
+    file_storage_client.get_export.side_effect = [
+        get_response(200, None, get_export(), None),
+        get_response(200, None, get_export(), None),
+    ]
     result = oci_export_facts.list_exports(file_storage_client, module)
-    assert len(result['exports']) is 2
+    assert len(result["exports"]) is 2
 
 
-def test_list_exports_list_all_by_file_system_id(file_storage_client, list_all_resources_patch):
-    module = get_module(dict({'file_system_id': 'ocid1.filesystem.aaaa'}))
+def test_list_exports_list_all_by_file_system_id(
+    file_storage_client, list_all_resources_patch
+):
+    module = get_module(dict({"file_system_id": "ocid1.filesystem.aaaa"}))
     list_all_resources_patch.return_value = get_exports()
-    file_storage_client.get_export.side_effect = [get_response(
-        200, None, get_export(), None), get_response(
-        200, None, get_export(), None)]
+    file_storage_client.get_export.side_effect = [
+        get_response(200, None, get_export(), None),
+        get_response(200, None, get_export(), None),
+    ]
     result = oci_export_facts.list_exports(file_storage_client, module)
-    assert len(result['exports']) is 2
+    assert len(result["exports"]) is 2
 
 
-def test_list_exports_list_all_by_export_set_id(file_storage_client, list_all_resources_patch):
-    module = get_module(dict({'export_set_id': 'ocid1.exportset.aaaa'}))
+def test_list_exports_list_all_by_export_set_id(
+    file_storage_client, list_all_resources_patch
+):
+    module = get_module(dict({"export_set_id": "ocid1.exportset.aaaa"}))
     list_all_resources_patch.return_value = get_exports()
-    file_storage_client.get_export.side_effect = [get_response(
-        200, None, get_export(), None), get_response(
-        200, None, get_export(), None)]
+    file_storage_client.get_export.side_effect = [
+        get_response(200, None, get_export(), None),
+        get_response(200, None, get_export(), None),
+    ]
     result = oci_export_facts.list_exports(file_storage_client, module)
-    assert len(result['exports']) is 2
+    assert len(result["exports"]) is 2
 
 
 def test_list_exports_list_specific(file_storage_client):
-    module = get_module(dict({'export_id': 'ocid1.export.aaaa'}))
+    module = get_module(dict({"export_id": "ocid1.export.aaaa"}))
     file_storage_client.get_export.return_value = get_response(
-        200, None, get_export(), None)
+        200, None, get_export(), None
+    )
     result = oci_export_facts.list_exports(file_storage_client, module)
-    assert result['exports'][0]['lifecycle_state'] is 'ACTIVE'
+    assert result["exports"][0]["lifecycle_state"] is "ACTIVE"
 
 
 def test_list_exports_service_error(file_storage_client):
-    error_message = 'Internal Server Error'
-    module = get_module(dict({'export_id': 'ocid1.export.aaaa'}))
+    error_message = "Internal Server Error"
+    module = get_module(dict({"export_id": "ocid1.export.aaaa"}))
     file_storage_client.get_export.side_effect = ServiceError(
-        499, 'InternalServerError', dict(), error_message)
+        499, "InternalServerError", dict(), error_message
+    )
     try:
         oci_export_facts.list_exports(file_storage_client, module)
     except Exception as ex:
@@ -104,9 +116,9 @@ def test_list_exports_service_error(file_storage_client):
 def get_exports():
     exports = []
     export1 = Export()
-    export1.lifecycle_state = 'ACTIVE'
+    export1.lifecycle_state = "ACTIVE"
     export2 = Export()
-    export2.lifecycle_state = 'CREATING'
+    export2.lifecycle_state = "CREATING"
     exports.append(export1)
     exports.append(export2)
     return exports
@@ -114,7 +126,7 @@ def get_exports():
 
 def get_export():
     export = Export()
-    export.lifecycle_state = 'ACTIVE'
+    export.lifecycle_state = "ACTIVE"
     return export
 
 
