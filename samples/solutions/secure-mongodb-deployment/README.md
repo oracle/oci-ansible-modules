@@ -29,7 +29,7 @@ various OCI Services and resources used in this sample is shown below
 - Ensure that you have a valid OCI SDK configuration at the default config path ~/.oci/config
 - Export the following environment variables specific to your tenancy:
   SAMPLE_COMPARTMENT_OCID
-  SAMPLE_OEL_IMAGE_OCID
+  SAMPLE_OL_IMAGE_OCID
   SAMPLE_AD1_NAME
   SAMPLE_AD2_NAME
 - Run the demo playbook to create the Secure MongoDB topology in OCI

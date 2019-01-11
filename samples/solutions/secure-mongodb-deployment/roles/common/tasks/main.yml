@@ -16,7 +16,7 @@
     - "SAMPLE_COMPARTMENT_OCID"
     - "SAMPLE_AD1_NAME"
     - "SAMPLE_AD2_NAME"
-    - "SAMPLE_OEL_IMAGE_OCID"
+    - "SAMPLE_OL_IMAGE_OCID"
 
 - name: Create a temporary directory to house a temporary SSH keypair to connect to bastion instance
   tempfile:

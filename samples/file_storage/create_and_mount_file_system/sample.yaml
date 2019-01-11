@@ -149,7 +149,7 @@
         ansible_connection: local
 #==========================================================================================
     - name: Mount the filesystem in the first instance and create a directory
-      # Use "opc" user as this is an OEL image
+      # Use "opc" user as this is an OL image
       # Disable SSH's strict host key checking just for this one command invocation
       # Installs nfs-utils to mount the File System and create a directory in the File System
       command: ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ first_instance_public_ip }} "sudo yum -y install nfs-utils > nfs-utils-install.log;sudo mkdir -p /mnt{{ export_path }};sudo mount {{ mount_target_ip_address }}:{{ export_path }} /mnt{{ export_path }};cd /mnt{{ export_path }};sudo mkdir filesystem_test"
@@ -214,7 +214,7 @@
 # first instance. Here listing the files in the folder shared through the export path lists same file created
 # through first instance.
     - name: Mount the filesystem in the second instance and list all content
-      # Use "opc" user as this is an OEL image
+      # Use "opc" user as this is an OL image
       # Disable SSH's strict host key checking just for this one command invocation
       # Access the File System and list it's content. The directory created bu the first
       # instance should be listed

@@ -11,7 +11,7 @@
   when: item not in ansible_env
   with_items:
     - "SAMPLE_COMPARTMENT_OCID"
-    - "SAMPLE_OEL_IMAGE_OCID"
+    - "SAMPLE_OL_IMAGE_OCID"
     - "SAMPLE_AD_NAME"
 
 - name: Create a temporary directory to house a temporary SSH keypair we will later use to connect to instance

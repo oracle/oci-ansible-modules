@@ -42,7 +42,7 @@
     #########################################
     instance_ad: "{{ lookup('env', 'SAMPLE_AD_NAME') }}"
     instance_compartment: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
-    # provide an "OEL" image
+    # provide an "OL" image
     instance_image: "{{ lookup('env', 'SAMPLE_IMAGE_OCID') }}"
 
   tasks:
@@ -96,7 +96,7 @@
         ansible_connection: local
 
     - name: Attempt a ssh connection to the newly launced instance
-      # Use "opc" user as this is an OEL image
+      # Use "opc" user as this is an OL image
       # Disable SSH's strict host key checking just for this one command invocation
       command: ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }} uname -a
       retries: 3

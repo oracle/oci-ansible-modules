@@ -56,7 +56,7 @@
     ad1: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"
     ad2: "{{ lookup('env', 'SAMPLE_AD2_NAME') }}"
     sample_compartment: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
-    # provide an OEL image OCID if you want to launch instances
+    # provide an OL image OCID if you want to launch instances
     instance_image: "{{ lookup('env', 'SAMPLE_IMAGE_OCID') }}"
     cpe_ip_address: "{{ lookup('env', 'SAMPLE_CPE_IP_ADDRESS') }}"
     static_route: "{{ lookup('env', 'SAMPLE_STATIC_ROUTE') }}"

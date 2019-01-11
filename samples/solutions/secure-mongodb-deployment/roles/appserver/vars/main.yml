@@ -5,7 +5,7 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-demo_appserver_image_ocid: "{{ lookup('env', 'SAMPLE_OEL_IMAGE_OCID') }}"
+demo_appserver_image_ocid: "{{ lookup('env', 'SAMPLE_OL_IMAGE_OCID') }}"
 demo_appserver_availability_domain_ad1: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"
 demo_appserver_1_name: "{{ demo_var_prefix }}_appserver_1"
 demo_appserver_2_name: "{{ demo_var_prefix }}_appserver_2"

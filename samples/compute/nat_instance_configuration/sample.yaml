@@ -46,7 +46,7 @@
     public_subnet_instance_hostname: "mypublicinstance"
     private_subnet_instance_hostname: "myprivateinstance"
 
-    # Use "opc" as the user, as this is an OEL image
+    # Use "opc" as the user, as this is an OL image
     ssh_user: "opc"
     ssh_disable_strict_host_key_checking_args: '-o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no"'
     ssh_credentials_arg: "-i {{ temp_certificates_path }}/private_key.pem"
@@ -58,7 +58,7 @@
     #########################################
     instance_ad: "{{ lookup('env', 'SAMPLE_AD_NAME') }}"
     instance_compartment: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
-    # provide an OEL image
+    # provide an OL image
     instance_image: "{{ lookup('env', 'SAMPLE_IMAGE_OCID') }}"
 
   tasks:

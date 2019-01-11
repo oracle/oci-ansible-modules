@@ -219,7 +219,7 @@
         ansible_connection: local
 #==========================================================================================
     - name: Mount the filesystem in the instance and create a directory
-      # Use "opc" user as this is an OEL image
+      # Use "opc" user as this is an OL image
       # Disable SSH's strict host key checking just for this one command invocation
       # Installs nfs-utils to mount the File System and create a directory in the File System
       command: ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }} "sudo yum -y install nfs-utils > nfs-utils-install.log;sudo mkdir -p /mnt{{ mt1_fs1_export_path }};sudo mount {{ mt1_ip_address }}:{{ mt1_fs1_export_path }} /mnt{{ mt1_fs1_export_path }};cd /mnt{{ mt1_fs1_export_path }};sudo mkdir filesystem_test"

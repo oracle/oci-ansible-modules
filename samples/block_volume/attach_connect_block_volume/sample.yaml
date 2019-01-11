@@ -44,7 +44,7 @@
     #########################################
     instance_ad: "{{ lookup('env', 'SAMPLE_AD_NAME') }}"
     instance_compartment: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
-    # provide an OEL image
+    # provide an OL image
     instance_image: "{{ lookup('env', 'SAMPLE_IMAGE_OCID') }}"
 
   tasks:

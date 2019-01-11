@@ -5,7 +5,7 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-bastion_image_ocid: "{{ lookup('env', 'SAMPLE_OEL_IMAGE_OCID') }}"
+bastion_image_ocid: "{{ lookup('env', 'SAMPLE_OL_IMAGE_OCID') }}"
 bastion_shape: "VM.Standard1.1"
 bastion_availability_domain: "{{ lookup('env', 'SAMPLE_AD2_NAME') }}"
 

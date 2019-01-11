@@ -7,7 +7,7 @@
 
 compartment_id: "{{ demo_compartment_ocid }}"
 
-mongodb_image_id: "{{ lookup('env', 'SAMPLE_OEL_IMAGE_OCID') }}"
+mongodb_image_id: "{{ lookup('env', 'SAMPLE_OL_IMAGE_OCID') }}"
 
 availability_domain_1: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"
 availability_domain_2: "{{ lookup('env', 'SAMPLE_AD2_NAME') }}"
