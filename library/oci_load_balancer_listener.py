@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -79,9 +79,19 @@ options:
     purge_hostname_names:
         description: Purge any Hostname names in the  Listener named I(name) that is not specified in I(hostname_names).
                      This is only applicable in case of updating Listener.If I(purge_hostname_names=no), provided
-                     I(hostname_names) would be appended to existing I(hostname_names).
+                     I(hostname_names) would be appended to existing I(hostname_names). I(purge_hostname_names) and
+                     I(delete_hostname_names) are mutually exclusive.
         required: false
         default: 'yes'
+        type: "bool"
+    delete_hostname_names:
+        description: Delete any Hostname names in the  Listener named I(name) that is specified in I(hostname_names).
+                     This is only applicable in case of updating Listener.If I(delete_hostname_names=yes), provided
+                     I(hostname_names) would be deleted from existing I(hostname_names), if they are part of existing
+                     hostname names. If they are not part of existing hostname names, they will be ignored.
+                     I(delete_hostname_names) and I(purge_hostname_names) are mutually exclusive.
+        required: false
+        default: 'no'
         type: "bool"
     state:
         description: Create,update or delete Load Balancer Backend. For I(state=present),
@@ -153,6 +163,14 @@ EXAMPLES = """
     name: "ansible_listener"
     hostname_names: ['hostname_002']
     purge_hostname_names: False
+    state: 'present'
+
+- name: Update Listener's Hostname Names by deleting hostname name
+  oci_load_balancer_listener:
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
+    name: "ansible_listener"
+    hostname_names: ['hostname_002']
+    delete_hostname_names: True
     state: 'present'
 
 - name: Update Listener's Hostname Names by replacing existing names
@@ -427,6 +445,7 @@ def update_listener(lb_client, module, listener, lb_id, name):
             input_hostname_names,
             listener.hostname_names,
             module.params.get("purge_hostname_names"),
+            module.params.get("delete_hostname_names"),
         )
     if hostname_names_changed:
         update_listener_details.hostname_names = changed_hostname_names
@@ -541,11 +560,15 @@ def main():
             connection_configuration=dict(type=dict, required=False),
             hostname_names=dict(type=list, required=False),
             purge_hostname_names=dict(type="bool", required=False, default=True),
+            delete_hostname_names=dict(type="bool", required=False, default=False),
             path_route_set_name=dict(type="str", required=False),
         )
     )
 
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        mutually_exclusive=[["purge_hostname_names", "delete_hostname_names"]],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")

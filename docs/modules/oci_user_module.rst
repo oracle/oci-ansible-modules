@@ -163,6 +163,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>delete_group_memberships</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Delete groups from existing memberships which are present in group memberships provided by <em>user_groups</em>. If <em>delete_group_memberships=True</em>, groups provided by <em>user_groups</em> would be deleted from existing group memberships, if they are part of existing group memberships. If they are not part of existing group memberships, they will be ignored. <em>delete_group_memberships</em> and <em>purge_group_memberships</em> are mutually exclusive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>description</b>
                                                                             </td>
                                 <td>
@@ -216,7 +230,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Purge groups from existing memberships which are not present in provided group memberships. If <em>purge_group_memberships=False</em>, provided groups would be appended to existing group memberships.</div>
+                                                                        <div>Purge groups from existing memberships which are not present in provided group memberships. If <em>purge_group_memberships=False</em>, provided groups would be appended to existing group memberships. <em>purge_group_memberships</em> and <em>delete_group_memberships</em> are mutually exclusive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -379,6 +393,15 @@ Examples
           create_or_reset_ui_password: True
           state: 'present'
 
+    - name: Update user by deleting group memberships, after this
+            operation user would not longer be a member of ansible_group_B
+      oci_user:
+          user_id: "ocid1.user..abuwd"
+          description: 'Ansible User'
+          delete_group_memberships: True
+          user_groups: ['ansible_group_B']
+          create_or_reset_ui_password: True
+          state: 'present'
 
     # Delete group
     - name: Delete user with no force

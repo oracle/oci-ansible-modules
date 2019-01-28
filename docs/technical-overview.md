@@ -48,6 +48,7 @@ In the current version of the OCI Ansible modules, the following Services are su
 - Object Storage
 - File Storage
 - Email Delivery
+- Search
 
 Support for the following Services are not yet implemented. They would be implemented in future releases.
 - Audit

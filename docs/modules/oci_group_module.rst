@@ -132,6 +132,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>delete_user_memberships</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Delete users in existing memberships which are present in the users memberships provided by <em>users</em>. If <em>delete_user_memberships=yes</em>, users provided by <em>users</em> would be deleted from existing user memberships, if they are part of existing user memberships. If they are not part of existing user memberships, they will be ignored. <em>delete_user_memberships</em> and <em>purge_user_memberships</em> are mutually exclusive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>description</b>
                                                                             </td>
                                 <td>
@@ -193,7 +207,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Purge users in existing memberships which are not present in the provided users memberships. If <em>purge_user_memberships=no</em>, provided users would be appended to existing user memberships.</div>
+                                                                        <div>Purge users in existing memberships which are not present in the provided users memberships. If <em>purge_user_memberships=no</em>, provided users would be appended to existing user memberships. <em>purge_user_memberships</em> and <em>delete_user_memberships</em> are mutually exclusive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -313,6 +327,14 @@ Examples
                 description: 'Group for Testing Ansible Module'
                 purge_user_memberships: True
                 users: ['user1','user3']
+                state: 'present'
+
+    - name: Update group by deleting existing user memberships
+      oci_group:
+                id: ocid1.group.oc1..xxxxxEXAMPLExxxxx
+                description: 'Group for Testing Ansible Module'
+                delete_user_memberships: True
+                users: ['user1']
                 state: 'present'
 
     - name: Create group without users associations

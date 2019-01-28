@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -158,9 +158,18 @@ options:
     purge_ssh_public_keys:
         description: Purge ssh public keys  from DB System which are not present in the provided ssh public keys.
                      If I(purge_ssh_public_keys=no), provided ssh public keys would be appended to existing ssh
-                     public keys.
+                     public keys. I(purge_ssh_public_keys) and I(delete_ssh_public_keys) are mutually exclusive.
         required: false
         default: True
+        choices: [True, False]
+    delete_ssh_public_keys:
+        description: Delete ssh public keys from DB System which are present in the provided ssh public keys.
+                     If I(delete_ssh_public_keys=yes), ssh public keys provided by I(ssh_public_keys) would
+                     be deleted from existing ssh public keys, if they are part of existing ssh public keys.
+                     If they are not part of existing ssh public keys, they will be ignored. I(delete_ssh_public_keys)
+                     and I(purge_ssh_public_keys) are mutually exclusive.
+        required: false
+        default: False
         choices: [True, False]
     version:
         description: This attribute describes the patch version and what actions to perform with that on specified DB
@@ -269,6 +278,14 @@ EXAMPLES = """
     db_system_id: "ocid1.dbsystem.aaaa"
     ssh_public_keys: ["/tmp/id_rsa_updated.pub"]
     purge_ssh_public_keys: False
+    state: 'present'
+
+# Deleting SSH public keys from a database system
+- name: Update DB System by deleting SSH Public keys
+  oci_db_system:
+    db_system_id: "ocid1.dbsystem.aaaa"
+    ssh_public_keys: ["/tmp/id_rsa_updated.pub"]
+    delete_ssh_public_keys: True
     state: 'present'
 
 # Terminate DB System
@@ -594,6 +611,7 @@ def update_db_system(db_client, module, db_system_id):
     existing_ssh_public_keys = db_system.ssh_public_keys
     last_patch_history_entry_id = db_system.last_patch_history_entry_id
     purge_ssh_public_keys = module.params.get("purge_ssh_public_keys")
+    delete_ssh_public_keys = module.params.get("delete_ssh_public_keys")
     update_db_system_details = UpdateDbSystemDetails()
 
     for attribute in primitive_attributes:
@@ -611,7 +629,10 @@ def update_db_system(db_client, module, db_system_id):
     ssh_public_keys_changed = False
     if input_ssh_public_keys is not None:
         ssh_public_keys, ssh_public_keys_changed = oci_utils.get_component_list_difference(
-            input_ssh_public_keys, existing_ssh_public_keys, purge_ssh_public_keys
+            input_ssh_public_keys,
+            existing_ssh_public_keys,
+            purge_ssh_public_keys,
+            delete_ssh_public_keys,
         )
     if ssh_public_keys_changed:
         update_db_system_details.ssh_public_keys = ssh_public_keys
@@ -733,11 +754,17 @@ def main():
             purge_ssh_public_keys=dict(
                 type=bool, required=False, default=True, choices=[True, False]
             ),
+            delete_ssh_public_keys=dict(
+                type=bool, required=False, default=False, choices=[True, False]
+            ),
             version=dict(type=dict, required=False),
         )
     )
 
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        mutually_exclusive=[["purge_ssh_public_keys", "delete_ssh_public_keys"]],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")

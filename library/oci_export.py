@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -69,9 +69,19 @@ options:
     purge_export_options:
         description: Purge any export options in the  Export that is not specified in I(export_options).
                      If I(purge_export_options=no), provided export options would be appended to existing
-                     export options.
+                     export options. I(purge_export_options) and I(delete_export_options) are
+                     mutually exclusive.
         required: false
         default: 'yes'
+        type: bool
+    delete_export_options:
+        description: Delete any export options in the Export that is specified in I(export_options).
+                     If I(delete_export_options=yes), export options provided by I(export_options)
+                     would be deleted from existing export options, if they are part of existing export
+                     options. If they are not part of existing export options, they will be ignored.
+                     I(delete_export_options) and I(purge_export_options) are mutually exclusive.
+        required: false
+        default: 'no'
         type: bool
     path:
         description: Path used to access the associated file system. Avoid entering confidential information. Mandatory for create operation.
@@ -123,6 +133,18 @@ EXAMPLES = """
             access: 'READ_ONLY'
             identity_squash: 'ALL'
     purge_export_options: False
+    state: 'present'
+
+# Update Export's Export Options by deleting an Export Options
+- name: Update Export's Export Options by deleting an Export Options
+  oci_export:
+    export_id: 'ocid1.export.oc1..xxxxxEXAMPLExxxxx'
+    export_options:
+          - source: '10.0.0.100'
+            require_privileged_source_port: False
+            access: 'READ_ONLY'
+            identity_squash: 'ALL'
+    delete_export_options: True
     state: 'present'
 
 # Delete Export
@@ -306,6 +328,7 @@ def update_export(file_storage_client, module, export):
     result = dict(export=to_dict(export), changed=False)
     update_export_details = UpdateExportDetails()
     purge_export_options = module.params.get("purge_export_options")
+    delete_export_options = module.params.get("delete_export_options")
     input_export_options = get_export_options(module.params.get("export_options", None))
     existing_export_options = oci_utils.get_hashed_object_list(
         ClientOptions, export.export_options
@@ -313,7 +336,10 @@ def update_export(file_storage_client, module, export):
     export_option_changed = False
     if input_export_options is not None:
         export_options, export_option_changed = oci_utils.check_and_return_component_list_difference(
-            input_export_options, existing_export_options, purge_export_options
+            input_export_options,
+            existing_export_options,
+            purge_export_options,
+            delete_export_options,
         )
     if export_option_changed:
         update_export_details.export_options = export_options
@@ -373,6 +399,7 @@ def main():
             export_id=dict(type="str", required=False, aliases=["id"]),
             path=dict(type="str", required=False),
             purge_export_options=dict(type="bool", required=False, default=True),
+            delete_export_options=dict(type="bool", required=False, default=False),
             state=dict(
                 type="str",
                 required=False,
@@ -382,7 +409,10 @@ def main():
         )
     )
 
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        mutually_exclusive=[["purge_export_options", "delete_export_options"]],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")

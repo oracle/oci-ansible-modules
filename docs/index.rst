@@ -26,7 +26,7 @@ Project URL: https://github.com/oracle/oci-ansible-modules
    Module Index <modules/list_of_cloud_modules>
 
 
-OCI Ansible Modules are Copyright (c) 2018 Oracle and/or its affiliates.
+OCI Ansible Modules are Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 
 This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 See `LICENSE.txt <https://github.com/oracle/oci-ansible-modules/blob/master/LICENSE.txt>`_ for more details.

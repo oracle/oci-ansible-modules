@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -160,9 +160,20 @@ options:
     purge_security_rules:
         description: Purge security rules  from security list which are not present in the provided group security list.
                      If I(purge_security_rules=no), provided security rules would be appended to existing security
-                     rules.
+                     rules. I(purge_security_rules) and I(delete_security_rules) are mutually exclusive.
         required: false
         default: 'yes'
+        type: bool
+    delete_security_rules:
+        description: Delete security rules from existing security list which are present in the
+                     security rules provided by I(ingress_security_rules) and/or I(egress_security_rules).
+                     If I(delete_security_rules=yes), security rules provided by I(ingress_security_rules)
+                     and/or I(egress_security_rules) would be deleted to existing security list, if they
+                     are part of existing security list. If they are not part of existing security list,
+                     they will be ignored. I(purge_security_rules) and I(delete_security_rules) are mutually
+                     exclusive.
+        required: false
+        default: 'no'
         type: bool
 author:
     - "Debayan Gupta(@debayan_gupta)"
@@ -217,6 +228,20 @@ EXAMPLES = """
                  min: '25'
                  max: '30'
     purge_security_rules: 'yes'
+    state: 'present'
+
+- name: Update a security list by deleting existing ingress rules
+  oci_security_list:
+    security_list_id: 'ocid1.securitylist.xxxxxEXAMPLExxxxx'
+    ingress_security_rules:
+        - source: '10.0.0.0/8'
+          is_stateless: False
+          protocol: '6'
+          tcp_options:
+              destination_port_range:
+                 min: '25'
+                 max: '30'
+    delete_security_rules: 'yes'
     state: 'present'
 
 # Delete a security list
@@ -457,6 +482,7 @@ def update_security_list(virtual_network_client, existing_security_list, module)
     input_ingress_security_rules = module.params.get("ingress_security_rules")
     input_egress_security_rules = module.params.get("egress_security_rules")
     purge_security_rules = module.params.get("purge_security_rules")
+    delete_security_rules = module.params.get("delete_security_rules")
     name_tag_changed = False
     egress_security_rules_changed = False
     ingress_security_rules_changed = False
@@ -483,6 +509,7 @@ def update_security_list(virtual_network_client, existing_security_list, module)
                 "egress_security_rules", existing_egress_security_rule
             ),
             purge_security_rules,
+            delete_security_rules,
         )
 
     if input_ingress_security_rules is not None:
@@ -495,6 +522,7 @@ def update_security_list(virtual_network_client, existing_security_list, module)
                 "ingress_security_rules", existing_ingress_security_rule
             ),
             purge_security_rules,
+            delete_security_rules,
         )
 
     if egress_security_rules_changed:
@@ -627,7 +655,9 @@ def get_security_rules(security_rule_type, input_security_rules):
             security_rule.udp_options = udp_options
 
         security_rule.is_stateless = input_security_rule.get("is_stateless", False)
-        security_rule.protocol = input_security_rule.get("protocol")
+        if security_rule.is_stateless is None:
+            security_rule.is_stateless = False
+        security_rule.protocol = input_security_rule.get("protocol").lower()
         security_rules.append(security_rule)
 
     return security_rules
@@ -683,10 +713,14 @@ def main():
             ingress_security_rules=dict(type=list, required=False),
             egress_security_rules=dict(type=list, required=False),
             purge_security_rules=dict(type="bool", required=False, default=True),
+            delete_security_rules=dict(type="bool", required=False, default=False),
         )
     )
 
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        mutually_exclusive=[["purge_security_rules", "delete_security_rules"]],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")

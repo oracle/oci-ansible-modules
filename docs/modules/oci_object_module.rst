@@ -295,10 +295,11 @@ Parameters
                                                                                                                             <ul><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>absent</li>
+                                                                                                                                                                                                <li>abort_multipart_upload</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The final state of the object after the task. Use <em>state=absent</em> with <em>object</em> to delete a specific object. Use <em>state=present</em> with <em>dest</em> to download an object. Use <em>state=present</em> with <em>src</em> to upload an object.</div>
+                                                                        <div>The final state of the object after the task. Use <em>state=absent</em> with <em>object</em> to delete a specific object. Use <em>state=present</em> with <em>dest</em> to download an object. Use <em>state=present</em> with <em>src</em> to upload an object. Use <em>state=abort_multipart_upload</em> with <em>object</em> and <em>upload_id</em> to abort a specific multipart object upload.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -309,6 +310,16 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>upload_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The upload ID for a multipart upload. Use with <em>state=abort_multipart_upload</em> to abort an in-progress multipart upload, and delete all the parts that have been uploaded.</div>
                                                                                 </td>
             </tr>
                         </table>
@@ -361,6 +372,14 @@ Examples
         object: key.txt
         dest: /usr/local/myfile.txt
         force: false
+
+    - name: Abort multipart upload
+      oci_object:
+        namespace: mynamespace
+        bucket: mybucket
+        object: mydata.txt
+        upload_id: 951f4759-f910-50b4-udf99gf
+        state: 'abort_multipart_upload'
 
     - name: Delete an object
       oci_object:

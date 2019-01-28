@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -71,6 +71,16 @@ options:
     purge_group_memberships:
         description: Purge groups from existing memberships which are not present in provided group memberships. If
                      I(purge_group_memberships=False), provided groups would be appended to existing group memberships.
+                     I(purge_group_memberships) and I(delete_group_memberships) are mutually exclusive.
+        required: false
+        default: False
+        type: bool
+    delete_group_memberships:
+        description: Delete groups from existing memberships which are present in group memberships provided by I(user_groups).
+                     If I(delete_group_memberships=True), groups provided by I(user_groups) would be deleted from existing group
+                     memberships, if they are part of existing group memberships. If they are not part of existing group memberships,
+                     they will be ignored. I(delete_group_memberships) and I(purge_group_memberships) are mutually
+                     exclusive.
         required: false
         default: False
         type: bool
@@ -140,6 +150,15 @@ EXAMPLES = """
       create_or_reset_ui_password: True
       state: 'present'
 
+- name: Update user by deleting group memberships, after this
+        operation user would not longer be a member of ansible_group_B
+  oci_user:
+      user_id: "ocid1.user..abuwd"
+      description: 'Ansible User'
+      delete_group_memberships: True
+      user_groups: ['ansible_group_B']
+      create_or_reset_ui_password: True
+      state: 'present'
 
 # Delete group
 - name: Delete user with no force
@@ -333,11 +352,11 @@ def update_user(identity_client, existing_user, module):
     existing_user, description_tags_changed = update_user_description_and_tags(
         identity_client, existing_user, module
     )
-
     if not description_tags_changed:
         existing_user = to_dict(existing_user)
     if password_changed:
         existing_user.update({"password": ui_password})
+
     user_changed = (
         description_tags_changed or group_changed or password_changed or state_changed
     )
@@ -401,7 +420,18 @@ def update_group_memberships(
 ):
     group_membership_changed = False
     purge_group_memberships = module.params.get("purge_group_memberships")
+    delete_group_memberships = module.params.get("delete_group_memberships")
     group_ids = get_group_ids_from_group_names(identity_client, group_names, module)
+
+    if delete_group_memberships:
+        removable_group_ids = set(existing_memberships_group_ids).intersection(
+            set(group_ids)
+        )
+        if removable_group_ids:
+            group_membership_changed = delete_input_group_memberships(
+                identity_client, compartment_id, user_id, list(removable_group_ids)
+            )
+        return group_membership_changed
 
     if purge_group_memberships:
         if set(group_ids) ^ (set(existing_memberships_group_ids)):
@@ -412,6 +442,7 @@ def update_group_memberships(
         existing_memberships_group_ids, group_ids
     )
     if group_ids and groups_to_add_memberships:
+        print("groups to add membership")
         add_user_to_groups(identity_client, user_id, groups_to_add_memberships)
         group_membership_changed = True
     return group_membership_changed
@@ -450,6 +481,25 @@ def delete_all_group_memberships(identity_client, compartment_id, existing_user_
             identity_client.remove_user_from_group,
             user_group_membership_id=existing_user_group_membership.id,
         )
+    return group_membership_changed
+
+
+def delete_input_group_memberships(
+    identity_client, compartment_id, existing_user_id, removable_group_ids
+):
+    group_membership_changed = False
+    existing_user_group_memberships = oci_utils.list_all_resources(
+        identity_client.list_user_group_memberships,
+        **dict(compartment_id=compartment_id, user_id=existing_user_id)
+    )
+
+    for existing_user_group_membership in existing_user_group_memberships:
+        if existing_user_group_membership.group_id in removable_group_ids:
+            oci_utils.call_with_backoff(
+                identity_client.remove_user_from_group,
+                user_group_membership_id=existing_user_group_membership.id,
+            )
+            group_membership_changed = True
     return group_membership_changed
 
 
@@ -574,10 +624,14 @@ def main():
                 choices=["present", "absent"],
             ),
             purge_group_memberships=dict(type="bool", required=False, default=False),
+            delete_group_memberships=dict(type="bool", required=False, default=False),
             force=dict(type="bool", required=False, default=False),
         )
     )
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        mutually_exclusive=[["purge_group_memberships", "delete_group_memberships"]],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")

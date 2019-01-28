@@ -1,5 +1,5 @@
 ---
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -47,7 +47,7 @@
     public_subnet_instance_hostname: "mypublicinstance"
     private_subnet_instance_hostname: "myprivateinstance"
 
-    # Use "opc" as the user, as this is an OEL image
+    # Use "opc" as the user, as this is an OL image
     ssh_user: "opc"
     ssh_disable_strict_host_key_checking_args: '-o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no"'
     ssh_credentials_arg: "-i {{ temp_certificates_path }}/private_key.pem"
@@ -55,12 +55,12 @@
     #########################################
     # Tenancy specific configuration
     # *Note* - Override the following variables based on your tenancy
-    # or set a valid value for the corresponding environment variable     
+    # or set a valid value for the corresponding environment variable
     #########################################
     instance_ad: "{{ lookup('env', 'SAMPLE_AD_NAME') }}"
     instance_compartment: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
-    # provide an OEL image
-    instance_image: "{{ lookup('env', 'SAMPLE_OEL_IMAGE_OCID') }}"
+    # provide an OL image
+    instance_image: "{{ lookup('env', 'SAMPLE_OL_IMAGE_OCID') }}"
 
   tasks:
     - import_tasks: setup.yaml

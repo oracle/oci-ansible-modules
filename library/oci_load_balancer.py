@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -489,8 +489,11 @@ def create_or_update_lb(lb_client, module):
                 "return_code": 200,
                 "timeout_in_millis": 3000,
             },
-            "listener": {"connection_configuration": {"idle_timeout": 60}},
-        }
+        },
+        "listeners": {
+            "connection_configuration": {"idle_timeout": 60},
+            "rule_set_names": [],
+        },
     }
     exclude_attributes = {"display_name": True}
 

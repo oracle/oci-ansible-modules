@@ -151,6 +151,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>delete_hostname_names</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Delete any Hostname names in the  Listener named <em>name</em> that is specified in <em>hostname_names</em>. This is only applicable in case of updating Listener.If <em>delete_hostname_names=yes</em>, provided <em>hostname_names</em> would be deleted from existing <em>hostname_names</em>, if they are part of existing hostname names. If they are not part of existing hostname names, they will be ignored. <em>delete_hostname_names</em> and <em>purge_hostname_names</em> are mutually exclusive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>hostname_names</b>
                                                                             </td>
                                 <td>
@@ -221,7 +235,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Purge any Hostname names in the  Listener named <em>name</em> that is not specified in <em>hostname_names</em>. This is only applicable in case of updating Listener.If <em>purge_hostname_names=no</em>, provided <em>hostname_names</em> would be appended to existing <em>hostname_names</em>.</div>
+                                                                        <div>Purge any Hostname names in the  Listener named <em>name</em> that is not specified in <em>hostname_names</em>. This is only applicable in case of updating Listener.If <em>purge_hostname_names=no</em>, provided <em>hostname_names</em> would be appended to existing <em>hostname_names</em>. <em>purge_hostname_names</em> and <em>delete_hostname_names</em> are mutually exclusive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -412,6 +426,14 @@ Examples
         name: "ansible_listener"
         hostname_names: ['hostname_002']
         purge_hostname_names: False
+        state: 'present'
+
+    - name: Update Listener's Hostname Names by deleting hostname name
+      oci_load_balancer_listener:
+        load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
+        name: "ansible_listener"
+        hostname_names: ['hostname_002']
+        delete_hostname_names: True
         state: 'present'
 
     - name: Update Listener's Hostname Names by replacing existing names

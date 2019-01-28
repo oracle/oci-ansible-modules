@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -53,8 +53,9 @@ options:
         default: 'present'
         choices: ['present','absent']
     force:
-        description: If I(force='no') and the bucket contains objects, bucket will not be deleted. To delete a bucket
-                     which has objects, I(force='yes') should be specified.
+        description: If I(force='no') and the bucket contains objects and pre-authenticared request at the bucket level,
+                     bucket will not be deleted. To delete a bucket which has objects and pre-authenticated request at
+                     the bucket level, I(force='yes') should be specified.
         required: false
         default: 'no'
         type: bool
@@ -226,6 +227,9 @@ def delete_bucket(object_storage_client, module):
                 delete_all_objects_in_bucket(
                     object_storage_client, namespace_name, bucket_name
                 )
+                delete_all_pars_of_bucket(
+                    object_storage_client, namespace_name, bucket_name
+                )
             object_storage_client.delete_bucket(
                 namespace_name, bucket_name, **opc_client_request_id_dict
             )
@@ -259,6 +263,25 @@ def delete_all_objects_in_bucket(object_storage_client, namespace_name, bucket_n
     for obj in objects_in_bucket.objects:
         get_logger().debug("Deleting object: %s", obj.name)
         object_storage_client.delete_object(namespace_name, bucket_name, obj.name)
+
+
+def delete_all_pars_of_bucket(object_storage_client, namespace_name, bucket_name):
+    get_logger().debug(
+        "Deleting all Pre-Authenticated Requests of bucket: %s", bucket_name
+    )
+    pars_of_bucket = oci_utils.list_all_resources(
+        object_storage_client.list_preauthenticated_requests,
+        namespace_name=namespace_name,
+        bucket_name=bucket_name,
+    )
+    for par in pars_of_bucket:
+        get_logger().debug("Deleting Pre-authenticated Request: %s", par.id)
+        oci_utils.call_with_backoff(
+            object_storage_client.delete_preauthenticated_request,
+            par_id=par.id,
+            namespace_name=namespace_name,
+            bucket_name=bucket_name,
+        )
 
 
 def set_logger(input_logger):

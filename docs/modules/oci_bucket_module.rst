@@ -138,7 +138,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>If <em>force='no'</em> and the bucket contains objects, bucket will not be deleted. To delete a bucket which has objects, <em>force='yes'</em> should be specified.</div>
+                                                                        <div>If <em>force='no'</em> and the bucket contains objects and pre-authenticared request at the bucket level, bucket will not be deleted. To delete a bucket which has objects and pre-authenticated request at the bucket level, <em>force='yes'</em> should be specified.</div>
                                                                                 </td>
             </tr>
                                 <tr>

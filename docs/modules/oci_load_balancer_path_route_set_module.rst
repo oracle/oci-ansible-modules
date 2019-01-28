@@ -119,6 +119,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>delete_path_routes</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Delete any Path Route in the  Path Route Set named <em>name</em> that is specified in <em>path_routes</em>. This is only applicable in case of updating path route set.If <em>delete_path_routes=yes</em>, path routes provided by <em>path_routes</em> would be deleted from existing path routes, if they are part of existing path route. If they are not part of existing path routes, they will be ignored. <em>delete_path_routes</em> and <em>purge_path_routes</em> are mutually exclusive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>load_balancer_id</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
@@ -193,7 +207,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Purge any Path Route in the  Path Route Set named <em>name</em> that is not specified in <em>path_routes</em>. This is only applicable in case of updating path route set.If <em>purge_path_routes=no</em>, provided path_routes would be appended to existing path_routes.</div>
+                                                                        <div>Purge any Path Route in the  Path Route Set named <em>name</em> that is not specified in <em>path_routes</em>. This is only applicable in case of updating path route set.If <em>purge_path_routes=no</em>, provided path_routes would be appended to existing path_routes.  <em>purge_path_routes</em> and <em>delete_path_routes</em> are mutually exclusive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -318,6 +332,19 @@ Examples
                 path_match_type:
                      match_type: 'FORCE_LONGEST_PREFIX_MATCH'
         purge_path_routes: False
+        state: 'present'
+
+    # Update Load Balancer Path Route Set by deleting a path route
+    - name: Update Load Balancer Path Route Set by deleting a path route
+      oci_load_balancer_path_route_set:
+        load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
+        name: "ansible_backend_set"
+        path_routes:
+              - backend_set_name: "ansible_backend_set"
+                path: "/admin"
+                path_match_type:
+                     match_type: 'FORCE_LONGEST_PREFIX_MATCH'
+        delete_path_routes: True
         state: 'present'
 
     # Delete Load Balancer Path Route Set

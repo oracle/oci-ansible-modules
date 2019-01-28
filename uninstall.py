@@ -1,22 +1,22 @@
 #!/usr/bin/env python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-'''
-Oracle Cloud Infrastructure(OCI) Ansible Role Uninstaller Script
+"""
+Oracle Cloud Infrastructure(OCI) Ansible Modules Uninstaller Script
 ===================================================================
 This script deletes OCI Ansible modules, Oracle docs fragments and Oracle Ansible utility file from the ansible path.
 
-To uninstall the OCI Ansible role, execute:
+To uninstall OCI Ansible modules, execute:
 $ ./uninstall.py
 To execute the script with debug messages, execute:
 $ ./uninstall.py --debug
 
 author: "Rohit Chaware (@rohitChaware)"
-'''
+"""
 
 from __future__ import print_function
 import argparse
@@ -26,6 +26,7 @@ import sys
 
 try:
     import ansible
+
     ANSIBLE_IS_INSTALLED = True
 except ImportError:
     ANSIBLE_IS_INSTALLED = False
@@ -34,11 +35,13 @@ debug = False
 
 
 def parse_cli_args():
-    parser = argparse.ArgumentParser(description='Script to uninstall oci-ansible-role')
-    parser.add_argument('--debug',
-                        action='store_true',
-                        default=False,
-                        help='Send debug messages to STDERR')
+    parser = argparse.ArgumentParser(description="Script to uninstall oci-ansible-role")
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+        help="Send debug messages to STDERR",
+    )
     return parser.parse_args()
 
 
@@ -59,22 +62,24 @@ def main():
     ansible_path = os.path.dirname(os.path.abspath(os.path.realpath(ansible.__file__)))
     log("Ansible path: {}".format(ansible_path))
 
-    module_utils_path = os.path.join(ansible_path, 'module_utils', 'oracle')
+    module_utils_path = os.path.join(ansible_path, "module_utils", "oracle")
     log("Module utilities path: {}".format(module_utils_path))
 
-    document_fragments_path = os.path.join(ansible_path, 'utils', 'module_docs_fragments')
+    document_fragments_path = os.path.join(
+        ansible_path, "utils", "module_docs_fragments"
+    )
     log("Documentation fragments path: {}".format(document_fragments_path))
 
     delete(module_utils_path)
 
     oci_docs_fragments = []
     for filename in os.listdir(document_fragments_path):
-        if filename.startswith('oracle'):
+        if filename.startswith("oracle"):
             oci_docs_fragments.append(os.path.join(document_fragments_path, filename))
 
     delete(oci_docs_fragments)
 
-    oracle_module_dir_path = os.path.join(ansible_path, 'modules', 'cloud', 'oracle')
+    oracle_module_dir_path = os.path.join(ansible_path, "modules", "cloud", "oracle")
     delete(oracle_module_dir_path)
 
     print("Uninstalled OCI Ansible modules successfully.")
@@ -93,5 +98,5 @@ def delete(paths):
             os.remove(path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

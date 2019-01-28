@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -33,7 +33,7 @@ options:
         required: false
         aliases: [ 'id' ]
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: [ oracle ]
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 """
 
 EXAMPLES = """
@@ -403,7 +403,7 @@ except ImportError:
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(
         dict(
             compartment_id=dict(type="str", required=False),

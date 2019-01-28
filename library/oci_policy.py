@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -105,6 +105,7 @@ policy:
 """
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils._text import to_bytes
 from ansible.module_utils.oracle import oci_utils
 from collections import Counter
 
@@ -121,9 +122,12 @@ except ImportError:
 
 
 def get_policy_statements(file_path):
-    with open(file_path, "r") as policy_file:
-        policy_statements = policy_file.readlines()
-    policy_statements = [x.strip() for x in policy_statements]
+    policy_statements = None
+    with open(to_bytes(file_path), "r") as policy_file:
+        policy_statements = []
+        for stmt in policy_file:
+            policy_statements.append(stmt.strip())
+
     return policy_statements
 
 

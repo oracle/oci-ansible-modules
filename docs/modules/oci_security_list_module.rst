@@ -140,6 +140,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>delete_security_rules</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Delete security rules from existing security list which are present in the security rules provided by <em>ingress_security_rules</em> and/or <em>egress_security_rules</em>. If <em>delete_security_rules=yes</em>, security rules provided by <em>ingress_security_rules</em> and/or <em>egress_security_rules</em> would be deleted to existing security list, if they are part of existing security list. If they are not part of existing security list, they will be ignored. <em>purge_security_rules</em> and <em>delete_security_rules</em> are mutually exclusive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>display_name</b>
                                                                             </td>
                                 <td>
@@ -396,7 +410,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Purge security rules  from security list which are not present in the provided group security list. If <em>purge_security_rules=no</em>, provided security rules would be appended to existing security rules.</div>
+                                                                        <div>Purge security rules  from security list which are not present in the provided group security list. If <em>purge_security_rules=no</em>, provided security rules would be appended to existing security rules. <em>purge_security_rules</em> and <em>delete_security_rules</em> are mutually exclusive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -553,6 +567,20 @@ Examples
                      min: '25'
                      max: '30'
         purge_security_rules: 'yes'
+        state: 'present'
+
+    - name: Update a security list by deleting existing ingress rules
+      oci_security_list:
+        security_list_id: 'ocid1.securitylist.xxxxxEXAMPLExxxxx'
+        ingress_security_rules:
+            - source: '10.0.0.0/8'
+              is_stateless: False
+              protocol: '6'
+              tcp_options:
+                  destination_port_range:
+                     min: '25'
+                     max: '30'
+        delete_security_rules: 'yes'
         state: 'present'
 
     # Delete a security list

@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -547,7 +547,11 @@ def get_response(status, header, data, request):
 
 
 def get_module(additional_properties):
-    params = {"name": "test_group", "description": "Test Group"}
+    params = {
+        "name": "test_group",
+        "description": "Test Group",
+        "delete_user_memberships": False,
+    }
     # if additional_properties:
     params.update(additional_properties)
     module = FakeModule(**params)

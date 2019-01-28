@@ -161,6 +161,17 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>list_multipart_uploads</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>If <em>list_multipart_uploads=True</em>, all in-progress multipart uploads for the given <em>bucket</em> would be listed.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>namespace_name</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
@@ -221,6 +232,16 @@ Parameters
                                                                         <div>OCID of your tenancy. If not set, then the value of the OCI_TENANCY variable, if any, is used. This option is required if the tenancy OCID is not specified through a configuration file (See <code>config_file_location</code>). To get the tenancy OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a></div>
                                                                                 </td>
             </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>upload_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The upload ID for a multipart upload. When <em>upload_id</em> is specified, all the parts of the specified in-progress multipart upload is listed.</div>
+                                                                                </td>
+            </tr>
                         </table>
     <br/>
 
@@ -255,6 +276,19 @@ Examples
         bucket: mybucket
         object: myobject
 
+    - name: Get details of all in-progress multipart uploads for the given bucket
+      oci_object_facts:
+        name: mynamespace
+        bucket: mybucket
+        list_multipart_uploads: True
+
+    - name: Get details of all the parts of an in-progress multipart upload for a specific object
+      oci_object_facts:
+        name: mynamespace
+        bucket: mybucket
+        object: myobject
+        upload_id: 951f4759-f910-50b4-udf99gf
+
 
 
 
@@ -280,24 +314,10 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of object details</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'md5': '3zBENq6MBnedDrpl2+SttQ==', 'name': 'image2a343.png', 'time_created': '2017-10-09T10:27:53.688000+00:00', 'size': 165661}, {'md5': 'LWX13se0YFa6VVlv0R3hqA==', 'name': 'info1.txt', 'time_created': '2017-10-09T08:39:17.411000+00:00', 'size': 1084}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'md5': '3zBENq6MBnedDrpl2+SttQ==', 'name': 'image2a343.png', 'time_created': '2017-10-09T10:27:53.688000+00:00', 'size': 165661}, {'md5': 'LWX13se0YFa6VVlv0R3hqA==', 'name': 'info1.txt', 'time_created': '2017-10-09T08:39:17.411000+00:00', 'size': 1084}, {'namespace': 'ansible_namespace', 'object': 'ansible_object', 'bucket': 'ansible_bucket', 'upload_id': '3f7c3d1f-15cf-97a6-c6d7-f319', 'time_created': '2018-12-26T13:48:18.326000+00:00'}, {'part_number': 2, 'etag': '7DF108FC90D40327E053821BC20AC918', 'md5': 'J0doWIKY7JfZTrS1IPEGvA==', 'size': 28282272}]</div>
                                     </td>
             </tr>
                                                             <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>md5</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>Base64-encoded MD5 hash of the object data</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">3zBENq6MBnedDrpl2+SttQ==</div>
-                                    </td>
-            </tr>
-                                <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>name</b>
@@ -309,6 +329,48 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">image2a343.png</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>part_size</b>
+                    <br/><div style="font-size: small; color: red">int</div>
+                                    </td>
+                <td>multipart upload parts listing</td>
+                <td>
+                                            <div>The part number for this part.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>object</b>
+                    <br/><div style="font-size: small; color: red">int</div>
+                                    </td>
+                <td>multipart uploads listing</td>
+                <td>
+                                            <div>The object name of the in-progress multipart upload.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible_object</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>namespace</b>
+                    <br/><div style="font-size: small; color: red">int</div>
+                                    </td>
+                <td>multipart uploads listing</td>
+                <td>
+                                            <div>The Object Storage namespace in which the in-progress multipart upload is stored.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible_namespace</div>
                                     </td>
             </tr>
                                 <tr>
@@ -328,6 +390,48 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
+                    <b>etag</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>multipart upload parts listing</td>
+                <td>
+                                            <div>The current entity tag for the part.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">7DF108FC90D40327E053821BC20</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>upload_id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>multipart uploads listing</td>
+                <td>
+                                            <div>The unique identifier for the in-progress multipart upload.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">3f7c3d1f-15cf-97a6-c6d7-f31</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>bucket</b>
+                    <br/><div style="font-size: small; color: red">int</div>
+                                    </td>
+                <td>multipart uploads listing</td>
+                <td>
+                                            <div>The bucket in which the in-progress multipart upload is stored.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible_bucket</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
                     <b>size</b>
                     <br/><div style="font-size: small; color: red">int</div>
                                     </td>
@@ -337,6 +441,20 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">165661</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>md5</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Base64-encoded MD5 hash of the object data</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">3zBENq6MBnedDrpl2+SttQ==</div>
                                     </td>
             </tr>
                     
