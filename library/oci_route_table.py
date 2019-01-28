@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -86,9 +86,19 @@ options:
     purge_route_rules:
         description: Purge route rules in existing Route Table which are not present in the provided
                      Route Rules. If I(purge_route_rules=no), provided route rules would be
-                     appended to existing route rules.
+                     appended to existing route rules. I(purge_route_rules) and I(delete_route_rules)
+                     are mutually exclusive.
         required: false
         default: 'yes'
+        type: bool
+    delete_route_rules:
+        description: Delete route rules in existing Route Table which are present in the provided
+                     Route Rules. If I(delete_route_rules=yes), route rules provided by I(route_rules)
+                     would be deleted from existing route rules, if they are part of existing route rules. If
+                     they are not part of existing route rules, they will be ignored. I(delete_route_rules)
+                     and I(purge_route_rules) are mutually exclusive.
+        required: false
+        default: 'no'
         type: bool
     state:
         description: Create,update or delete Route Table. For I(state=present), if it
@@ -137,6 +147,15 @@ EXAMPLES = """
   oci_route_table:
     rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
     purge_route_rules: 'yes'
+    route_rules:
+        - cidr_block: '10.0.0.0/12'
+          network_entity_id: 'ocid1.internetgateway..abcd'
+    state: 'present'
+
+- name: Update a Route Table by deleting route rules
+  oci_route_table:
+    rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
+    delete_route_rules: 'yes'
     route_rules:
         - cidr_block: '10.0.0.0/12'
           network_entity_id: 'ocid1.internetgateway..abcd'
@@ -341,6 +360,7 @@ def update_route_table(virtual_network_client, existing_route_table, module):
     result = dict(route_table=to_dict(existing_route_table), changed=False)
     input_route_rules = module.params.get("route_rules")
     purge_route_rules = module.params["purge_route_rules"]
+    delete_route_rules = module.params["delete_route_rules"]
     name_tag_changed = False
     route_rules_changed = False
     existing_route_rules = existing_route_table.route_rules
@@ -361,6 +381,7 @@ def update_route_table(virtual_network_client, existing_route_table, module):
                 get_hashed_route_rules(route_rules_object_list),
                 get_hashed_route_rules(existing_route_rules),
                 purge_route_rules,
+                delete_route_rules,
             )
         else:
             route_rules = []
@@ -429,8 +450,12 @@ def main():
         ),
         route_rules=dict(type=list, required=False),
         purge_route_rules=dict(type="bool", required=False, default=True),
+        delete_route_rules=dict(type="bool", required=False, default=False),
     )
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        mutually_exclusive=[["purge_route_rules", "delete_route_rules"]],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")

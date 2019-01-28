@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -154,8 +154,17 @@ options:
     purge_backends:
         description: Purge any backends in the  Backend Set named I(name) that is not specified in I(backends).
                      If I(purge_backends=no), provided backends would be appended to existing backends.
+                     I(purge_backends) and I(delete_backends) are mutually exclusive.
         required: false
         default: 'yes'
+        type: bool
+    delete_backends:
+        description: Delete any backends in the  Backend Set named I(name) that is specified in I(backends).
+                     If I(delete_backends=yes), backends provided by I(backends) would be deleted from existing
+                     backends, if they are part of existing backends. If they are not part of existing backends,
+                     they will be ignored. I(delete_backends) and I(purge_backends) are mutually exclusive.
+        required: false
+        default: 'no'
         type: bool
 author:
     - "Debayan Gupta(@debayan_gupta)"
@@ -201,6 +210,18 @@ EXAMPLES = """
             port: 8282
     purge_backends: 'no'
     state: 'present'
+
+# Update Load Balancer Backend Set by deleting backends
+- name: Update Load Balancer Backend Set by deleting backends
+  oci_load_balancer_backend_set:
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
+    name: "ansible_backend_set"
+    backends:
+          - ip_address: "10.159.34.25"
+            port: 8282
+    delete_backends: 'yes'
+    state: 'present'
+
 # Deleted Load Balancer Backend Set
 - name: Update Load Balancer Backend Set
   oci_load_balancer_backend_set:
@@ -428,6 +449,7 @@ def update_backend_set(lb_client, module, lb_id, backend_set, name):
     result = dict(backend_set=to_dict(backend_set), changed=False)
     update_backend_set_details = UpdateBackendSetDetails()
     purge_backends = module.params.get("purge_backends")
+    delete_backends = module.params.get("delete_backends")
     input_backends = oci_lb_utils.create_backends(module.params.get("backends", None))
     existing_backends = oci_utils.get_hashed_object_list(
         BackendDetails, backend_set.backends
@@ -436,7 +458,7 @@ def update_backend_set(lb_client, module, lb_id, backend_set, name):
     backends_changed = False
     if input_backends is not None:
         backends, backends_changed = oci_utils.check_and_return_component_list_difference(
-            input_backends, existing_backends, purge_backends
+            input_backends, existing_backends, purge_backends, delete_backends
         )
     if backends_changed:
         update_backend_set_details.backends = backends
@@ -557,6 +579,7 @@ def main():
             session_persistence_configuration=dict(type=dict, required=False),
             ssl_configuration=dict(type=dict, required=False),
             purge_backends=dict(type="bool", required=False, default=True),
+            delete_backends=dict(type="bool", required=False, default=False),
             state=dict(
                 type="str",
                 required=False,
@@ -566,7 +589,10 @@ def main():
         )
     )
 
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        mutually_exclusive=[["purge_backends", "delete_backends"]],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")

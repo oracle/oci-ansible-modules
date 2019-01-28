@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -77,9 +77,19 @@ options:
     purge_dhcp_options:
         description: Purge existing Dhcp Options which are not present in the provided
                      Dhcp Options. If I(purge_dhcp_options=no), provided options would be
-                     appended to existing options.
+                     appended to existing options. I(purge_dhcp_options) and I(delete_dhcp_options)
+                     are mutually exclusive.
         required: false
         default: 'yes'
+        type: bool
+    delete_dhcp_options:
+        description: Delete existing Dhcp Options which are present in the Dhcp Options provided by
+                     I(options). If I(delete_dhcp_options=yes), options provided by I(options) would be
+                     deleted from existing options, if they are part of existing dhcp options.
+                     If they are not part of existing dhcp options, they will be ignored.
+                     I(delete_dhcp_options) and I(purge_dhcp_options) are mutually exclusive.
+        required: false
+        default: 'no'
         type: bool
     state:
         description: Create,update or delete Dhcp Options. For I(state=present), if it
@@ -96,7 +106,7 @@ extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait
 EXAMPLES = """
 #Note: These examples do not set authentication details.
 #Create/update Dhcp Options
-- name: Create dhcp options
+- name: Create Dhcp options
   oci_dhcp_options:
     compartment_id: 'ocid1.compartment..xdsc'
     name: 'ansible_dhcp_options'
@@ -114,8 +124,8 @@ EXAMPLES = """
             capacity: 'medium'
     state: 'present'
 
-#Update Dhcp Options by appending new options
-- name: Update the display name of a Dhcp Options
+# Update Dhcp Options by appending new options
+- name: Update Dhcp Options by appending new options
   oci_dhcp_options:
     id: 'ocid1.dhcpoptions.oc1.aaa'
     purge_dhcp_options: 'no'
@@ -127,8 +137,8 @@ EXAMPLES = """
             search_domain_names: ['ansibletestvcn.oraclevcn.com']
     state: 'present'
 
-#Update Dhcp Options by purging existing options
-- name: Update the display name of a Dhcp Options
+# Update Dhcp Options by purging existing options
+- name: Update Dhcp Options by purging existing options
   oci_dhcp_options:
     dhcp_id: 'ocid1.dhcpoptions.oc1.aaa'
     options:
@@ -137,6 +147,17 @@ EXAMPLES = """
             custom_dns_servers: ['10.0.0.8', '10.0.0.10', '10.0.0.12']
           - type: 'SearchDomain'
             search_domain_names: ['ansibletestvcn.oraclevcn.com']
+    state: 'present'
+
+# Update Dhcp Options by deleting existing options
+- name: Update Dhcp Options by deleting existing options
+  oci_dhcp_options:
+    dhcp_id: 'ocid1.dhcpoptions.oc1.aaa'
+    options:
+          - type: 'DomainNameServer'
+            server_type: 'CustomDnsServer'
+            custom_dns_servers: ['10.0.0.8', '10.0.0.10', '10.0.0.12']
+    delete_dhcp_options: 'yes'
     state: 'present'
 
 #Delete Dhcp Options
@@ -327,8 +348,8 @@ def update_dhcp_options(virtual_network_client, existing_dhcp_options, module):
                 get_options_objects(input_options),
                 get_hashed_options(existing_options),
                 module.params.get("purge_dhcp_options"),
+                module.params.get("delete_dhcp_options"),
             )
-
     if options_changed:
         update_dhcp_details.options = options
     else:
@@ -395,7 +416,7 @@ def get_options_objects(options):
             if search_domain_names:
                 dhcp_option.search_domain_names = option["search_domain_names"]
             else:
-                raise ClientError("serarch_domain_names field should not be empty")
+                raise ClientError("search_domain_names field should not be empty")
         dhcp_options.append(dhcp_option)
     return dhcp_options
 
@@ -430,9 +451,13 @@ def main():
             ),
             options=dict(type=list, required=False),
             purge_dhcp_options=dict(type="bool", required=False, default=True),
+            delete_dhcp_options=dict(type="bool", required=False, default=False),
         )
     )
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        mutually_exclusive=[["purge_dhcp_options", "delete_dhcp_options"]],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")

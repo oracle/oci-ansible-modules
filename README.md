@@ -16,6 +16,7 @@ Oracle Cloud Infrastructure Ansible Modules provide an easy way to create and pr
 - Object Storage
 - File Storage
 - Email Delivery
+- Search
 
 The OCI Ansible modules are built using the [Oracle Cloud Infrastructure Python SDK](https://docs.us-phoenix-1.oraclecloud.com/Content/API/SDKDocs/pythonsdk.htm). The OCI Ansible modules honour the [SDK configuration](https://docs.us-phoenix-1.oraclecloud.com/Content/ToolsConfig.htm) when available.
 
@@ -69,7 +70,7 @@ You can find information on any known issues with OCI [here](https://docs.us-pho
 
 ## License
 
-Copyright (c) 2018 Oracle and/or its affiliates.
+Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 
 This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 

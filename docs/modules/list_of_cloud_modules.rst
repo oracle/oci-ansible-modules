@@ -45,6 +45,13 @@ Oracle
   * :ref:`oci_cost_tracking_tag_facts_module` 
   * :ref:`oci_cpe_module` 
   * :ref:`oci_cpe_facts_module` 
+  * :ref:`oci_cross_connect_module` 
+  * :ref:`oci_cross_connect_facts_module` 
+  * :ref:`oci_cross_connect_group_module` 
+  * :ref:`oci_cross_connect_group_facts_module` 
+  * :ref:`oci_cross_connect_location_facts_module` 
+  * :ref:`oci_cross_connect_port_speed_shape_facts_module` 
+  * :ref:`oci_cross_connect_status_facts_module` 
   * :ref:`oci_customer_secret_key_module` 
   * :ref:`oci_customer_secret_key_facts_module` 
   * :ref:`oci_data_guard_association_module` 
@@ -77,6 +84,8 @@ Oracle
   * :ref:`oci_export_facts_module` 
   * :ref:`oci_export_set_module` 
   * :ref:`oci_export_set_facts_module` 
+  * :ref:`oci_fast_connect_provider_service_facts_module` 
+  * :ref:`oci_fast_connect_provider_virtual_circuit_bandwidth_shape_facts_module` 
   * :ref:`oci_fault_domain_facts_module` 
   * :ref:`oci_file_system_module` 
   * :ref:`oci_file_system_facts_module` 
@@ -101,6 +110,7 @@ Oracle
   * :ref:`oci_ip_sec_connection_device_status_facts_module` 
   * :ref:`oci_ip_sec_connection_facts_module` 
   * :ref:`oci_kubeconfig_module` 
+  * :ref:`oci_letter_of_authority_facts_module` 
   * :ref:`oci_load_balancer_module` 
   * :ref:`oci_load_balancer_backend_module` 
   * :ref:`oci_load_balancer_backend_facts_module` 
@@ -143,6 +153,8 @@ Oracle
   * :ref:`oci_peer_region_for_remote_peering_facts_module` 
   * :ref:`oci_policy_module` 
   * :ref:`oci_policy_facts_module` 
+  * :ref:`oci_preauthenticated_request_module` 
+  * :ref:`oci_preauthenticated_request_facts_module` 
   * :ref:`oci_private_ip_module` 
   * :ref:`oci_private_ip_facts_module` 
   * :ref:`oci_public_ip_module` 
@@ -184,6 +196,10 @@ Oracle
   * :ref:`oci_user_facts_module` 
   * :ref:`oci_vcn_module` 
   * :ref:`oci_vcn_facts_module` 
+  * :ref:`oci_virtual_circuit_module` 
+  * :ref:`oci_virtual_circuit_bandwidth_shape_facts_module` 
+  * :ref:`oci_virtual_circuit_facts_module` 
+  * :ref:`oci_virtual_circuit_public_prefix_facts_module` 
   * :ref:`oci_vnic_module` 
   * :ref:`oci_vnic_attachment_module` 
   * :ref:`oci_vnic_attachment_facts_module` 

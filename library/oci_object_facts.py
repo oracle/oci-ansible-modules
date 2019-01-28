@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -61,6 +61,15 @@ options:
                      For example 'name,timeCreated,md5'. Allowed values are "name", "size", "timeCreated", "md5"
         required: false
         type: str
+    list_multipart_uploads:
+        description: If I(list_multipart_uploads=True), all in-progress multipart uploads for the given I(bucket) would
+                     be listed.
+        required: false
+        default: False
+    upload_id:
+        description: The upload ID for a multipart upload. When I(upload_id) is specified, all the parts of the
+                     specified in-progress multipart upload is listed.
+        required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: oracle
 """
@@ -82,6 +91,19 @@ EXAMPLES = """
     name: mynamespace
     bucket: mybucket
     object: myobject
+
+- name: Get details of all in-progress multipart uploads for the given bucket
+  oci_object_facts:
+    name: mynamespace
+    bucket: mybucket
+    list_multipart_uploads: True
+
+- name: Get details of all the parts of an in-progress multipart upload for a specific object
+  oci_object_facts:
+    name: mynamespace
+    bucket: mybucket
+    object: myobject
+    upload_id: 951f4759-f910-50b4-udf99gf
 """
 
 RETURN = """
@@ -110,6 +132,38 @@ objects:
             returned: always
             type: datetime
             sample: 2017-10-09T08:39:17.411000+00:00
+        etag:
+            description: The current entity tag for the part.
+            returned: multipart upload parts listing
+            type: string
+            sample: 7DF108FC90D40327E053821BC20
+        part_size:
+            description: The part number for this part.
+            returned: multipart upload parts listing
+            type: int
+            sample: 2
+        namespace:
+            description: The Object Storage namespace in which the in-progress
+                         multipart upload is stored.
+            returned: multipart uploads listing
+            type: int
+            sample: 'ansible_namespace'
+        bucket:
+            description: The bucket in which the in-progress multipart upload
+                         is stored.
+            returned: multipart uploads listing
+            type: int
+            sample: 'ansible_bucket'
+        object:
+            description: The object name of the in-progress multipart upload.
+            returned: multipart uploads listing
+            type: int
+            sample: 'ansible_object'
+        upload_id:
+            description: The unique identifier for the in-progress multipart upload.
+            returned: multipart uploads listing
+            type: string
+            sample: '3f7c3d1f-15cf-97a6-c6d7-f31'
     sample: [
         {
             "md5": "3zBENq6MBnedDrpl2+SttQ==",
@@ -122,6 +176,19 @@ objects:
             "name": "info1.txt",
             "size": 1084,
             "time_created": "2017-10-09T08:39:17.411000+00:00"
+        },
+        {
+            "namespace":"ansible_namespace",
+            "bucket":"ansible_bucket",
+            "object":"ansible_object",
+            "upload_id":"3f7c3d1f-15cf-97a6-c6d7-f319",
+            "time_created":"2018-12-26T13:48:18.326000+00:00"
+        },
+        {
+            "etag":"7DF108FC90D40327E053821BC20AC918",
+            "md5":"J0doWIKY7JfZTrS1IPEGvA==",
+            "size":28282272,
+            "part_number":2
         }
     ]
 """
@@ -146,15 +213,21 @@ def main():
             namespace_name=dict(type="str", required=True, aliases=["namespace"]),
             bucket_name=dict(type="str", required=True, aliases=["bucket"]),
             object_name=dict(type="str", required=False, aliases=["name", "object"]),
+            upload_id=dict(type="str", required=False),
             prefix=dict(type="str", required=False),
             start=dict(type="str", required=False),
             end=dict(type="str", required=False),
             delimiter=dict(type="str", required=False, choices=["/"]),
             fields=dict(type="str", required=False),
+            list_multipart_uploads=dict(type=bool, required=False, default=False),
         )
     )
 
-    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        supports_check_mode=False,
+        mutually_exclusive=[["list_multipart_uploads", "upload_id"]],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")
@@ -166,7 +239,25 @@ def main():
     object_name = module.params["object_name"]
     fields_to_retrieve = ",".join(["name", "size", "timeCreated", "md5"])
     try:
-        if object_name is not None:
+        if module.params.get("upload_id") is not None:
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    object_storage_client.list_multipart_upload_parts,
+                    namespace_name=namespace,
+                    bucket_name=bucket,
+                    object_name=object_name,
+                    upload_id=module.params.get("upload_id"),
+                )
+            )
+        elif module.params.get("list_multipart_uploads"):
+            result = to_dict(
+                oci_utils.list_all_resources(
+                    object_storage_client.list_multipart_uploads,
+                    namespace_name=namespace,
+                    bucket_name=bucket,
+                )
+            )
+        elif object_name is not None:
             result = to_dict(
                 oci_utils.list_all_resources(
                     object_storage_client.list_objects,

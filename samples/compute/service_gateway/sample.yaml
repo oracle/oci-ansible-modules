@@ -1,5 +1,5 @@
 ---
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -7,7 +7,7 @@
 
 - name: Launch a private compute instance and connect to object storage via storage gateway
   hosts: localhost
-  
+
   vars:
     # common networking definitions
     quad_zero_route: "0.0.0.0/0"
@@ -17,13 +17,13 @@
     #########################################
     # Tenancy specific configuration
     # *Note* - Override the following variables based on your tenancy
-    # or set a valid value for the corresponding environment variable     
+    # or set a valid value for the corresponding environment variable
     #########################################
     tenancy_ocid: "{{ lookup('env', 'SAMPLE_TENANCY_OCID') }}"
     instance_ad: "{{ lookup('env', 'SAMPLE_AD_NAME') }}"
     instance_compartment: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
-    # provide an OEL image
-    instance_image: "{{ lookup('env', 'SAMPLE_OEL_IMAGE_OCID') }}"
+    # provide an OL image
+    instance_image: "{{ lookup('env', 'SAMPLE_OL_IMAGE_OCID') }}"
     namespace_name: "{{ lookup('env', 'SAMPLE_OBJECT_NS_NAME') }}"
     region: "{{ lookup('env', 'SAMPLE_REGION') }}"
 
@@ -42,13 +42,13 @@
 
     public_subnet_securitylist_name: "mysecuritylist_for_{{public_subnet_name}}"
     private_subnet_securitylist_name: "mysecuritylist_for_{{private_subnet_name}}"
-    
+
     public_subnet_route_table_name: "myroutetable_for_{{public_subnet_name}}"
     # route all internet access from the public subnet to the Internet Gateway
     public_subnet_route_table_rules:
         - cidr_block: "{{ quad_zero_route }}"
           network_entity_id: "{{ ig_id }}"
-    
+
     public_instance_egress_security_rules:
       # Allow all connections outside
       - destination: "{{ quad_zero_route }}"
@@ -64,7 +64,7 @@
             max: "{{ SSH_port }}"
 
     private_subnet_route_table_name: "myroutetable_for_{{private_subnet_name}}"
-    
+
     # temporary rule which allows private instance to install oci cli
     quad_zero_nat_gateway_route_rule:
       destination: "{{ quad_zero_route }}"
@@ -72,17 +72,17 @@
 
     private_subnet_route_table_rules_temp:
       - "{{ quad_zero_nat_gateway_route_rule }}"
-    
+
     object_storage_destination_type: "SERVICE_CIDR_BLOCK"
     object_service_route_rule:
       destination: "{{ object_storage_destination }}"
       destination_type: "{{ object_storage_destination_type }}"
       network_entity_id: "{{ sg_id }}"
-    
+
     # route rule to allow private object storage access via Service Gateway
     private_subnet_route_table_rules:
       - "{{ object_service_route_rule }}"
-    
+
     private_instance_egress_security_rules:
       # Allow all connections outside
       - destination: "{{ quad_zero_route }}"
@@ -104,7 +104,7 @@
     public_subnet_instance_hostname: "mybastioninstance"
     private_subnet_instance_hostname: "myprivateinstance"
 
-    # Use "opc" as the user, as this is an OEL image
+    # Use "opc" as the user, as this is an OL image
     ssh_user: "opc"
     ssh_disable_strict_host_key_checking_args: '-o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no"'
     ssh_credentials_arg: "-i {{ temp_certificates_path }}/private_key.pem"
@@ -141,16 +141,16 @@
     - name: Print bucket create response
       debug:
         msg: "Create bucket reponse -> {{ result.stdout }}"
-    
+
     - name: get the bucket details
       oci_bucket_facts:
         namespace_name: "{{ namespace_name }}"
         name: "{{ test_bucket_name }}"
       register: result
-    
+
     - debug:
         msg: "{{ result.buckets }}"
-      
+
     - name: verify that the bucket is created
       assert:
         that:

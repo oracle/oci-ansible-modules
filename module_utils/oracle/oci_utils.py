@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -40,8 +40,9 @@ except ImportError:
 
 
 from ansible.module_utils.basic import _load_params
+from ansible.module_utils._text import to_bytes
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -67,6 +68,7 @@ DEFAULT_READY_STATES = [
     "ATTACHED",
     "ASSIGNED",
     "SUCCEEDED",
+    "PENDING_PROVIDER",
 ]
 
 # If a resource is in one of these states, it would be considered deleted
@@ -424,7 +426,7 @@ def setup_logging(
     files_handlers = ["debug_file_handler", "error_file_handler", "info_file_handler"]
 
     if os.path.exists(config_file):
-        with open(config_file, "rt") as f:
+        with open(to_bytes(config_file), "rt") as f:
             config = yaml.safe_load(f.read())
             for files_handler in files_handlers:
                 config["handlers"][files_handler]["filename"] = config["handlers"][
@@ -476,7 +478,9 @@ def check_and_update_resource(
     client=None,
     sub_attributes_of_update_model=None,
     wait_applicable=True,
+    states=None,
 ):
+
     """
     This function handles update operation on a resource. It checks whether update is required and accordingly returns
     the resource and the changed status.
@@ -494,6 +498,8 @@ def check_and_update_resource(
      to the update function. e.g. {UpdatePrivateIpDetails: "update_private_ip_details"}
     :param module: Instance of AnsibleModule
     :param update_attributes: Attributes in update model.
+    :param states: List of lifecycle states to watch for while waiting after create_fn is called.
+                   e.g. [module.params['wait_until'], "FAULTY"]
     :param sub_attributes_of_update_model: Dictionary of non-primitive sub-attributes of update model. for example,
         {'services': [ServiceIdRequestDetails()]} as in UpdateServiceGatewayDetails.
     :return: Returns a dictionary containing the "changed" status and the resource.
@@ -519,7 +525,7 @@ def check_and_update_resource(
                         msg="wait_applicable is True, but client is not specified."
                     )
                 resource = wait_for_resource_lifecycle_state(
-                    client, module, True, kwargs_get, get_fn, None, resource, None
+                    client, module, True, kwargs_get, get_fn, None, resource, states
                 )
             result["changed"] = True
         result[resource_type] = to_dict(resource)
@@ -897,10 +903,8 @@ def does_existing_resource_match_user_inputs(
     :param default_attribute_values: A dictionary containing default values for attributes.
     :return: True if the values for the list of attributes is the same in the existing_resource and module instances.
     """
-
     if not default_attribute_values:
         default_attribute_values = {}
-
     for attr in attributes_to_compare:
         attribute_with_default_metadata = None
         if attr in existing_resource:
@@ -1038,6 +1042,7 @@ def check_if_user_value_matches_resources_attr(
 ):
     if isinstance(default_attribute_values.get(attribute_name), dict):
         default_attribute_values = default_attribute_values.get(attribute_name)
+
     if isinstance(exclude_attributes.get(attribute_name), dict):
         exclude_attributes = exclude_attributes.get(attribute_name)
 
@@ -1045,6 +1050,14 @@ def check_if_user_value_matches_resources_attr(
         user_provided_value_for_attr, list
     ):
         # Perform a deep equivalence check for a List attribute
+        if exclude_attributes.get(attribute_name):
+            return
+        if (
+            user_provided_value_for_attr is None
+            and default_attribute_values.get(attribute_name) is not None
+        ):
+            user_provided_value_for_attr = default_attribute_values.get(attribute_name)
+
         if resources_value_for_attr is None and user_provided_value_for_attr is None:
             return
 
@@ -1097,6 +1110,7 @@ def check_if_user_value_matches_resources_attr(
 
     elif isinstance(resources_value_for_attr, dict):
         # Perform a deep equivalence check for dict typed attributes
+
         if not resources_value_for_attr and user_provided_value_for_attr:
             res[0] = False
         for key in resources_value_for_attr:
@@ -1282,6 +1296,7 @@ def update_and_wait(
     module,
     states=None,
     wait_applicable=True,
+    kwargs_get=None,
 ):
     """
     A utility function to update a resource and wait for the resource to get into the state as specified in the module
@@ -1295,6 +1310,7 @@ def update_and_wait(
     :param get_fn: Function in the SDK to get the resource. e.g. virtual_network_client.get_vcn
     :param get_param: Name of the argument in the SDK get function. e.g. "vcn_id"
     :param module: Instance of AnsibleModule.
+    :param kwargs_get: Dictionary containing arguments to be used to call the get function which requires multiple arguments.
     :param states: List of lifecycle states to watch for while waiting after update_fn is called.
                    e.g. [module.params['wait_until'], "FAULTY"]
     :return: A dictionary containing the resource & the "changed" status. e.g. {"vcn":{x:y}, "changed":True}
@@ -1310,6 +1326,7 @@ def update_and_wait(
             get_param,
             states,
             client,
+            kwargs_get=kwargs_get,
         )
     except MaximumWaitTimeExceeded as ex:
         module.fail_json(msg=str(ex))
@@ -1906,11 +1923,14 @@ def check_mode(fn):
 
 
 def check_and_return_component_list_difference(
-    input_component_list, existing_components, purge_components
+    input_component_list, existing_components, purge_components, delete_components=False
 ):
     if input_component_list:
         existing_components, changed = get_component_list_difference(
-            input_component_list, existing_components, purge_components
+            input_component_list,
+            existing_components,
+            purge_components,
+            delete_components,
         )
     else:
         existing_components = []
@@ -1919,8 +1939,18 @@ def check_and_return_component_list_difference(
 
 
 def get_component_list_difference(
-    input_component_list, existing_components, purge_components
+    input_component_list, existing_components, purge_components, delete_components=False
 ):
+    if delete_components:
+        if existing_components is None:
+            return None, False
+        component_differences = set(existing_components).intersection(
+            set(input_component_list)
+        )
+        if component_differences:
+            return list(set(existing_components) - component_differences), True
+        else:
+            return None, False
     if existing_components is None:
         return input_component_list, True
     if purge_components:
@@ -1940,7 +1970,7 @@ def get_component_list_difference(
 
 
 def write_to_file(path, content):
-    with open(path, "wb") as dest_file:
+    with open(to_bytes(path), "wb") as dest_file:
         dest_file.write(content)
 
 

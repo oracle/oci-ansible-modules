@@ -141,6 +141,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>delete_dhcp_options</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Delete existing Dhcp Options which are present in the Dhcp Options provided by <em>options</em>. If <em>delete_dhcp_options=yes</em>, options provided by <em>options</em> would be deleted from existing options, if they are part of existing dhcp options. If they are not part of existing dhcp options, they will be ignored. <em>delete_dhcp_options</em> and <em>purge_dhcp_options</em> are mutually exclusive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>dhcp_id</b>
                                                                             </td>
                                 <td>
@@ -269,7 +283,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Purge existing Dhcp Options which are not present in the provided Dhcp Options. If <em>purge_dhcp_options=no</em>, provided options would be appended to existing options.</div>
+                                                                        <div>Purge existing Dhcp Options which are not present in the provided Dhcp Options. If <em>purge_dhcp_options=no</em>, provided options would be appended to existing options. <em>purge_dhcp_options</em> and <em>delete_dhcp_options</em> are mutually exclusive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -370,7 +384,7 @@ Examples
     
     #Note: These examples do not set authentication details.
     #Create/update Dhcp Options
-    - name: Create dhcp options
+    - name: Create Dhcp options
       oci_dhcp_options:
         compartment_id: 'ocid1.compartment..xdsc'
         name: 'ansible_dhcp_options'
@@ -388,8 +402,8 @@ Examples
                 capacity: 'medium'
         state: 'present'
 
-    #Update Dhcp Options by appending new options
-    - name: Update the display name of a Dhcp Options
+    # Update Dhcp Options by appending new options
+    - name: Update Dhcp Options by appending new options
       oci_dhcp_options:
         id: 'ocid1.dhcpoptions.oc1.aaa'
         purge_dhcp_options: 'no'
@@ -401,8 +415,8 @@ Examples
                 search_domain_names: ['ansibletestvcn.oraclevcn.com']
         state: 'present'
 
-    #Update Dhcp Options by purging existing options
-    - name: Update the display name of a Dhcp Options
+    # Update Dhcp Options by purging existing options
+    - name: Update Dhcp Options by purging existing options
       oci_dhcp_options:
         dhcp_id: 'ocid1.dhcpoptions.oc1.aaa'
         options:
@@ -411,6 +425,17 @@ Examples
                 custom_dns_servers: ['10.0.0.8', '10.0.0.10', '10.0.0.12']
               - type: 'SearchDomain'
                 search_domain_names: ['ansibletestvcn.oraclevcn.com']
+        state: 'present'
+
+    # Update Dhcp Options by deleting existing options
+    - name: Update Dhcp Options by deleting existing options
+      oci_dhcp_options:
+        dhcp_id: 'ocid1.dhcpoptions.oc1.aaa'
+        options:
+              - type: 'DomainNameServer'
+                server_type: 'CustomDnsServer'
+                custom_dns_servers: ['10.0.0.8', '10.0.0.10', '10.0.0.12']
+        delete_dhcp_options: 'yes'
         state: 'present'
 
     #Delete Dhcp Options

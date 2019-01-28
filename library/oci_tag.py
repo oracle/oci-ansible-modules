@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -59,7 +59,7 @@ options:
         choices: ['present', 'absent']
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [oracle, oracle_tags]
 """
 
 EXAMPLES = """
@@ -159,6 +159,18 @@ def _get_tag_definition_from_id(identity_client, tag_namespace_id, tag_name):
         return None
 
 
+def _is_tag_update_needed(model, module):
+    user_freeform_tags = module.params.get("freeform_tags", None)
+    user_defined_tags = module.params.get("defined_tags", None)
+
+    resource_freeform_tags = model.freeform_tags
+    resource_defined_tags = model.defined_tags
+
+    return (
+        user_freeform_tags is not None and user_freeform_tags != resource_freeform_tags
+    ) or (user_defined_tags is not None and user_defined_tags != resource_defined_tags)
+
+
 def handle_update_tag_definition(identity_client, tag, module):
     result = dict(changed=False, tag=to_dict(tag))
 
@@ -176,8 +188,15 @@ def handle_update_tag_definition(identity_client, tag, module):
     )
     reactivate_needed = reactivate is not None and reactivate is True and tag.is_retired
 
+    tag_update_needed = _is_tag_update_needed(tag, module)
+
     change_needed = any(
-        [desc_change_needed, cost_tracking_change_needed, reactivate_needed]
+        [
+            desc_change_needed,
+            cost_tracking_change_needed,
+            reactivate_needed,
+            tag_update_needed,
+        ]
     )
     if change_needed:
         utd = UpdateTagDetails()
@@ -188,6 +207,8 @@ def handle_update_tag_definition(identity_client, tag, module):
             utd.is_cost_tracking = is_cost_tracking
         if reactivate_needed:
             utd.is_retired = False
+        if tag_update_needed:
+            oci_utils.add_tags_to_model_from_module(utd, module)
 
         tag_namespace_id = module.params.get("tag_namespace_id", None)
         tag_name = module.params.get("tag_name", None)
@@ -243,6 +264,7 @@ def create_tag(
         ctd.name = name
         ctd.description = description
         ctd.is_cost_tracking = is_cost_tracking
+        oci_utils.add_tags_to_model_from_module(ctd, module)
 
         create_response = oci_utils.call_with_backoff(
             identity_client.create_tag,
@@ -263,7 +285,9 @@ def create_tag(
 def main():
     set_logger(oci_utils.get_logger("oci_tag"))
 
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_taggable_arg_spec(
+        supports_create=False, supports_wait=False
+    )
     module_args.update(
         dict(
             tag_namespace_id=dict(type="str", required=True),

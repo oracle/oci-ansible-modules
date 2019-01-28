@@ -271,6 +271,21 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>delete_ssh_public_keys</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                                                                                    <li>yes</li>
+                                                                                                                                                                                                                                                                    <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                                    <b>Default:</b><br/><div style="color: blue">no</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>Delete ssh public keys from DB System which are present in the provided ssh public keys. If <em>delete_ssh_public_keys=yes</em>, ssh public keys provided by <em>ssh_public_keys</em> would be deleted from existing ssh public keys, if they are part of existing ssh public keys. If they are not part of existing ssh public keys, they will be ignored. <em>delete_ssh_public_keys</em> and <em>purge_ssh_public_keys</em> are mutually exclusive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>disk_redundancy</b>
                                                                             </td>
                                 <td>
@@ -393,7 +408,7 @@ Parameters
                                                                                     <b>Default:</b><br/><div style="color: blue">yes</div>
                                     </td>
                                                                 <td>
-                                                                        <div>Purge ssh public keys  from DB System which are not present in the provided ssh public keys. If <em>purge_ssh_public_keys=no</em>, provided ssh public keys would be appended to existing ssh public keys.</div>
+                                                                        <div>Purge ssh public keys  from DB System which are not present in the provided ssh public keys. If <em>purge_ssh_public_keys=no</em>, provided ssh public keys would be appended to existing ssh public keys. <em>purge_ssh_public_keys</em> and <em>delete_ssh_public_keys</em> are mutually exclusive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -632,6 +647,14 @@ Examples
         db_system_id: "ocid1.dbsystem.aaaa"
         ssh_public_keys: ["/tmp/id_rsa_updated.pub"]
         purge_ssh_public_keys: False
+        state: 'present'
+
+    # Deleting SSH public keys from a database system
+    - name: Update DB System by deleting SSH Public keys
+      oci_db_system:
+        db_system_id: "ocid1.dbsystem.aaaa"
+        ssh_public_keys: ["/tmp/id_rsa_updated.pub"]
+        delete_ssh_public_keys: True
         state: 'present'
 
     # Terminate DB System

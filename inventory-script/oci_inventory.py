@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -25,7 +25,8 @@ usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
                         [--enable-parallel-processing]
                         [--max-thread-count MAX_THREAD_COUNT]
                         [--freeform-tags FREEFORM_TAGS]
-                        [--defined-tags DEFINED_TAGS]
+                        [--defined-tags DEFINED_TAGS] [--regions REGIONS]
+                        [--exclude-regions EXCLUDE_REGIONS]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -35,15 +36,19 @@ optional arguments:
                         OCI config file location
   --profile PROFILE     OCI config profile for connecting to OCI
   --compartment COMPARTMENT
-                        Name of the compartment for which dynamic inventory must be generated. If you want to generate a
-                        dynamic inventory for the root compartment of the tenancy, specify the tenancy name as the name
-                        of the compartment.
-  --parent-compartment-ocid
-                        Only valid when --compartment is set. Parent compartment ocid of the specified compartment.
-                        Defaults to tenancy ocid.
+                        Name of the compartment for which dynamic inventory
+                        must be generated. If you want to generate a dynamic
+                        inventory for the root compartment of the tenancy,
+                        specify the tenancy name as the name of the
+                        compartment.
+  --parent-compartment-ocid PARENT_COMPARTMENT_OCID
+                        Only valid when --compartment is set. Parent
+                        compartment ocid of the specified compartment.Defaults
+                        to tenancy ocid.
   --fetch-hosts-from-subcompartments
-                        Only valid when --compartment is set. Default is false. When set to true, inventory
-                        is built with the entire hierarchy of the given compartment.
+                        Only valid when --compartment is set. Default is
+                        false. When set to true, inventory is built with the
+                        entire hierarchy of the given compartment.
   --refresh-cache, -r   Force refresh of cache by making API requests to OCI.
                         Use this option whenever you are building inventory
                         with new filter options to avoid reading cached
@@ -57,13 +62,17 @@ optional arguments:
                         value can also be provided in the
                         OCI_ANSIBLE_AUTH_TYPE environment variable.
   --enable-parallel-processing
-                        Inventory generation for tenants with huge number of instances might take a long time.
-                        When this flag is set, the inventory script uses thread pools to parallelise the
-                        inventory generation.
-  --max-thread-count
-                        Only valid when --enable-parallel-processing is set. When set, this script uses threads to
-                        improve the performance of building the inventory. This option specifies the maximum number of
-                        threads to use. Defaults to 50. This value can also be provided in the settings config file.
+                        Inventory generation for tenants with huge number of
+                        instances might take a long time.When this flag is
+                        set, the inventory script uses thread pools to
+                        parallelise the inventory generation.
+  --max-thread-count MAX_THREAD_COUNT
+                        Only valid when --enable-parallel-processing is set.
+                        When set, this script uses threads to improve the
+                        performance of building the inventory. This option
+                        specifies the maximum number of threads to use.
+                        Defaults to 50. This value can also be provided in the
+                        settings config file.
   --freeform-tags FREEFORM_TAGS
                         Freeform tags provided as a string in valid JSON
                         format. Example: { "stage": "dev", "app": "demo"} Use
@@ -77,6 +86,13 @@ optional arguments:
                         this option to build inventory of only those hosts
                         which are tagged with all the specified key-value
                         pairs.
+  --regions REGIONS     Comma separated region names to build the inventory
+                        from. Default is the region specified in the config.
+                        Please specify 'all' to build inventory from all the
+                        subscribed regions. Example: us-ashburn-1,us-phoenix-1
+  --exclude-regions EXCLUDE_REGIONS
+                        Comma separated region names to exclude while building
+                        the inventory. Example: us-ashburn-1,uk-london-1
 
 The script reads following environment variables:
 OCI_CONFIG_FILE,
@@ -92,6 +108,8 @@ OCI_CACHE_DIR,
 OCI_CACHE_MAX_AGE,
 OCI_HOSTNAME_FORMAT
 OCI_ANSIBLE_AUTH_TYPE
+OCI_INVENTORY_REGIONS
+OCI_INVENTORY_EXCLUDE_REGIONS
 
 The inventory generated is by default grouped by each of the following:
 region
@@ -157,9 +175,13 @@ import re
 import sys
 from time import time
 from ansible.module_utils.six.moves import configparser
+from ansible.module_utils._text import to_bytes
+
 from collections import deque
 from multiprocessing.pool import ThreadPool
 from contextlib import contextmanager
+import hashlib
+from functools import partial
 
 try:
     import oci
@@ -176,7 +198,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 
 
 def _get_retry_strategy():
@@ -260,9 +282,13 @@ class OCIInventory:
     def __init__(self):
         self.inventory = {"all": {"hosts": [], "vars": {}}, "_meta": {"hostvars": {}}}
         self.config = {}
+        self._region_subscriptions = None
+        self._regions = None
+        self._region_short_names = None
         self.params = {
             "ini_file": os.path.join(
-                os.path.dirname(os.path.realpath(__file__)), "oci_inventory.ini"
+                to_bytes(os.path.dirname(os.path.realpath(__file__))),
+                to_bytes("oci_inventory.ini"),
             ),
             "config_file": os.path.join(os.path.expanduser("~"), ".oci", "config"),
             "profile": "DEFAULT",
@@ -274,7 +300,7 @@ class OCIInventory:
             "pass_phrase": None,
             "cache_dir": ".",
             "cache_max_age": 300,
-            "cache_file": "./ansible-oci.cache",
+            "cache_file": None,
             "compartment": None,
             "parent_compartment_ocid": None,
             "fetch_hosts_from_subcompartments": False,
@@ -287,6 +313,8 @@ class OCIInventory:
             "max_thread_count": 50,
             "freeform_tags": None,
             "defined_tags": None,
+            "regions": None,
+            "exclude_regions": None,
         }
         boolean_options = ["sanitize_names", "replace_dash_in_names"]
         dict_options = ["freeform_tags", "defined_tags"]
@@ -299,9 +327,9 @@ class OCIInventory:
 
         if "OCI_INI_PATH" in os.environ:
             oci_ini_file_path = os.path.expanduser(
-                os.path.expandvars(os.environ.get("OCI_INI_PATH"))
+                os.path.expandvars(to_bytes(os.environ.get("OCI_INI_PATH")))
             )
-            if os.path.isfile(oci_ini_file_path):
+            if os.path.isfile(to_bytes(oci_ini_file_path)):
                 self.params["ini_file"] = oci_ini_file_path
 
         self.settings_config = configparser.ConfigParser()
@@ -331,24 +359,36 @@ class OCIInventory:
         self.read_env_vars()
         self.read_cli_args(dict_options)
 
+        self.identity_client = create_service_client(self.params, IdentityClient)
+        # For the case, when auth="instance_principal", tenancy_id & region name are not available.
+        if self.params["auth"] == "instance_principal":
+            self.params.update(self._get_instance_details_from_metadata())
+
+        self.validate_params()
+
         self.log("Using following parameters for OCI dynamic inventory:")
         self.log(self.params)
-        self.compute_client = create_service_client(self.params, ComputeClient)
-        self.identity_client = create_service_client(self.params, IdentityClient)
-        self.virtual_nw_client = create_service_client(
-            self.params, VirtualNetworkClient
-        )
 
-        # For the case, when auth="instance_principal", tenancy_id is not available.
-        if self.params["auth"] == "instance_principal":
-            self.params["tenancy"] = self.get_tenancy_id()
+        self.region_params = {
+            region: dict(self.params, region=region) for region in self.regions
+        }
+        self._compute_clients = {
+            region: create_service_client(self.region_params[region], ComputeClient)
+            for region in self.regions
+        }
+        self._virtual_nw_clients = {
+            region: create_service_client(
+                self.region_params[region], VirtualNetworkClient
+            )
+            for region in self.regions
+        }
 
-        self.params["cache_file"] = os.path.join(
-            self.params["cache_dir"], "ansible-oci.cache"
-        )
+        self.params["cache_file"] = self._get_cache_file()
 
         if not self.args.refresh_cache and self.is_cache_valid():
-            self.log("Reading inventory from cache.")
+            self.log(
+                "Reading inventory from cache {0}.".format(self.params["cache_file"])
+            )
             self.inventory = self.read_from_cache()
         else:
             self.build_inventory()
@@ -372,27 +412,62 @@ class OCIInventory:
         else:
             print(json.dumps(self.inventory, sort_keys=True, indent=2))
 
+    def get_region_from_short_name(self, short_name):
+        if not short_name:
+            return None
+        if not self._region_short_names:
+            self._region_short_names = {
+                region.key.lower(): region.name
+                for region in call_with_backoff(self.identity_client.list_regions).data
+            }
+        return self._region_short_names.get(short_name.lower())
+
+    @property
+    def compute_client(self):
+        return self._compute_clients
+
+    @property
+    def virtual_nw_client(self):
+        return self._virtual_nw_clients
+
     def log(self, *args, **kwargs):
         if self.params["debug"]:
             print(*args, file=sys.stderr, **kwargs)
 
-    def get_tenancy_id(self):
-        # Get the instance metadata using the HTTP endpoint.
-        GET_TENANCY_ID_URL = "http://169.254.169.254/opc/v1/instance/compartmentId"
-        response = requests.get(GET_TENANCY_ID_URL)
-        compartment_id = response.text
-        compartment = call_with_backoff(
-            self.identity_client.get_compartment, compartment_id=compartment_id
-        ).data
-        while compartment.compartment_id:
+    def _get_instance_details_from_metadata(self):
+        """Get and return the instance details using the metadata endpoint"""
+        metadata_url = "http://169.254.169.254/opc/v1/instance"
+        response = requests.get(metadata_url)
+        if not 200 <= response.status_code < 300:
+            self.log(
+                "Getting instance metadata details failed with response code: {0}".format(
+                    response.status_code
+                )
+            )
+            return {}
+        metadata_response = response.json()
+        self.log("Response from metadata: {0}".format(metadata_response))
+        instance_details = {}
+        # get the tenancy ocid by traversing the compartment tree
+        compartment_id = metadata_response["compartmentId"]
+        while compartment_id:
             compartment = call_with_backoff(
-                self.identity_client.get_compartment,
-                compartment_id=compartment.compartment_id,
+                self.identity_client.get_compartment, compartment_id=compartment_id
             ).data
-        return compartment.id
+            compartment_id = compartment.compartment_id
+        if not compartment:
+            self.log("Error getting tenancy details from instance metadata.")
+            return {}
+        instance_details["tenancy"] = compartment.id
+        # get the instance region
+        instance_details["region"] = self.get_region_from_short_name(
+            metadata_response["region"]
+        )
+        self.log("Instance parameters from metadata: {0}".format(instance_details))
+        return instance_details
 
     def read_config(self):
-        if os.path.isfile(self.params["config_file"]):
+        if os.path.isfile(to_bytes(self.params["config_file"])):
             self.config = oci.config.from_file(
                 file_location=self.params["config_file"],
                 profile_name=self.params["profile"],
@@ -418,6 +493,8 @@ class OCIInventory:
             OCI_USER_KEY_PASS_PHRASE="pass_phrase",
             OCI_CONFIG_PROFILE="profile",
             OCI_ANSIBLE_AUTH_TYPE="auth",
+            OCI_INVENTORY_REGIONS="regions",
+            OCI_INVENTORY_EXCLUDE_REGIONS="exclude_regions",
         )
 
         for env_var in os.environ:
@@ -434,9 +511,68 @@ class OCIInventory:
                 else:
                     self.params[setting] = getattr(self.args, setting)
 
+    def validate_params(self):
+        """Validate the parameters passed."""
+        # Check if the regions passed are valid
+        subscribed_regions = [
+            region_subscription.region_name
+            for region_subscription in self.region_subscriptions
+        ]
+        for region in self.regions:
+            if region not in subscribed_regions:
+                self.fail(
+                    "Region {0} is either invalid or not subscribed.".format(region)
+                )
+
+    def _get_cache_file(self):
+        """Calculate and return the cache file name from the parameters passed."""
+        params_str = u""
+        params_str += u"@{0}:{1}@".format("tenancy", self.params["tenancy"])
+        params_str += u"@{0}:{1}@".format("regions", ",".join(sorted(self.regions)))
+        if self.params["compartment"]:
+            params_str += u"@{0}:{1}@".format("compartment", self.params["compartment"])
+        if self.params["parent_compartment_ocid"]:
+            params_str += u"@{0}:{1}@".format(
+                "parent_compartment_ocid", self.params["parent_compartment_ocid"]
+            )
+        params_str += u"@{0}:{1}@".format(
+            "fetch_hosts_from_subcompartments",
+            self.params["fetch_hosts_from_subcompartments"],
+        )
+        params_str += u"@{0}:{1}@".format(
+            "hostname_format", self.params["hostname_format"]
+        )
+        if self.params["freeform_tags"]:
+            freeform_tag_params_str = u""
+            for key in sorted(self.params["freeform_tags"]):
+                freeform_tag_params_str += u"{0}={1},".format(
+                    key, self.params["freeform_tags"][key]
+                )
+            params_str += u"@{0}:{1}@".format("freeform_tags", freeform_tag_params_str)
+        if self.params["defined_tags"]:
+            defined_tag_params_str = u""
+            for namespace in sorted(self.params["defined_tags"]):
+                for key in sorted(self.params["defined_tags"][namespace]):
+                    defined_tag_params_str += u"{0}={1}={2},".format(
+                        namespace, key, self.params["defined_tags"][namespace][key]
+                    )
+            params_str += u"@{0}:{1}@".format("defined_tags", defined_tag_params_str)
+        hashed_params_str = hashlib.md5(
+            params_str.encode(sys.getfilesystemencoding())
+        ).hexdigest()
+        self.log(
+            u"Cache file name formed from the params {0} is {1}.".format(
+                params_str, hashed_params_str
+            )
+        )
+        return os.path.join(
+            to_bytes(self.params["cache_dir"]),
+            to_bytes("ansible-oci-{0}.cache".format(hashed_params_str)),
+        )
+
     def is_cache_valid(self):
-        if os.path.isfile(self.params["cache_file"]):
-            mod_time = os.path.getmtime(self.params["cache_file"])
+        if os.path.isfile(to_bytes(self.params["cache_file"])):
+            mod_time = os.path.getmtime(to_bytes(self.params["cache_file"]))
             current_time = time()
             if (mod_time + float(self.params["cache_max_age"])) > current_time:
                 return True
@@ -447,13 +583,45 @@ class OCIInventory:
         return False
 
     def read_from_cache(self):
-        with open(self.params["cache_file"], "r") as cache:
+        with open(to_bytes(self.params["cache_file"]), "r") as cache:
             return json.loads(cache.read())
 
     def write_to_cache(self, data):
         json_data = json.dumps(data, sort_keys=True, indent=2)
-        with open(self.params["cache_file"], "w") as f:
+        with open(to_bytes(self.params["cache_file"]), "w") as f:
             f.write(json_data)
+
+    @property
+    def region_subscriptions(self):
+        if self._region_subscriptions:
+            return self._region_subscriptions
+        self._region_subscriptions = call_with_backoff(
+            self.identity_client.list_region_subscriptions,
+            tenancy_id=self.params["tenancy"],
+        ).data
+        return self._region_subscriptions
+
+    @property
+    def regions(self):
+        if self._regions:
+            return self._regions
+        subscribed_regions = [
+            region_subscription.region_name
+            for region_subscription in self.region_subscriptions
+        ]
+        if self.params["regions"]:
+            if self.params["regions"] == "all":
+                self._regions = subscribed_regions
+            else:
+                self._regions = [region for region in self.params["regions"].split(",")]
+        else:
+            self._regions = [self.params["region"]]
+        if self.params["exclude_regions"]:
+            exclude_regions = self.params["exclude_regions"].split(",")
+            self._regions = [
+                region for region in self._regions if region not in exclude_regions
+            ]
+        return self._regions
 
     def get_compartments(
         self,
@@ -558,33 +726,46 @@ class OCIInventory:
         instances = []
 
         if self.params["enable_parallel_processing"]:
-            num_threads = min(len(compartment_ocids), self.params["max_thread_count"])
-            self.log(
-                "Parallel processing enabled. Getting instances from compartments in {0} threads.".format(
-                    num_threads
+            for region in self.regions:
+                num_threads = min(
+                    len(compartment_ocids), self.params["max_thread_count"]
                 )
-            )
+                self.log(
+                    "Parallel processing enabled. Getting instances from {0} in {1} threads.".format(
+                        region, num_threads
+                    )
+                )
 
-            with self.pool(processes=num_threads) as pool:
-                lists_of_instances = pool.map(
-                    self.get_filtered_instances, compartment_ocids
-                )
-            for sublist in lists_of_instances:
-                instances.extend(sublist)
+                with self.pool(processes=num_threads) as pool:
+                    get_filtered_instances_for_region = partial(
+                        self.get_filtered_instances, region=region
+                    )
+                    lists_of_instances = pool.map(
+                        get_filtered_instances_for_region, compartment_ocids
+                    )
+                for sublist in lists_of_instances:
+                    instances.extend(sublist)
 
         else:
-            for compartment_ocid in compartment_ocids:
-                instances.extend(self.get_filtered_instances(compartment_ocid))
+            for region in self.regions:
+                for compartment_ocid in compartment_ocids:
+                    instances.extend(
+                        self.get_filtered_instances(compartment_ocid, region)
+                    )
 
         return instances
 
-    def get_filtered_instances(self, compartment_ocid):
+    def get_filtered_instances(self, compartment_ocid, region=None):
         try:
+            if not region:
+                region = self.params["region"]
             self.log(
-                "Listing all RUNNING instances from compartment:", compartment_ocid
+                "Listing all RUNNING instances from compartment: {0} and region: {1}".format(
+                    compartment_ocid, region
+                )
             )
             instances = list_all_resources(
-                target_fn=self.compute_client.list_instances,
+                target_fn=self.compute_client[region].list_instances,
                 compartment_id=compartment_ocid,
                 lifecycle_state="RUNNING",
             )
@@ -630,13 +811,13 @@ class OCIInventory:
             self.log(ex)
             return []
 
-    def get_host_name(self, vnic):
+    def get_host_name(self, vnic, region):
         if self.params["hostname_format"] == "fqdn":
             subnet = call_with_backoff(
-                self.virtual_nw_client.get_subnet, subnet_id=vnic.subnet_id
+                self.virtual_nw_client[region].get_subnet, subnet_id=vnic.subnet_id
             ).data
             vcn = call_with_backoff(
-                self.virtual_nw_client.get_vcn, vcn_id=subnet.vcn_id
+                self.virtual_nw_client[region].get_vcn, vcn_id=subnet.vcn_id
             ).data
 
             oraclevcn_domain_name = ".oraclevcn.com"
@@ -668,6 +849,8 @@ class OCIInventory:
             compartment = self.compartments[instance.compartment_id]
 
             instance_vars = to_dict(instance)
+
+            region = self.get_region_from_short_name(instance.region)
 
             common_groups = {"all"}
             # Group by availability domain
@@ -727,7 +910,7 @@ class OCIInventory:
             vnic_attachments = [
                 vnic_attachment
                 for vnic_attachment in list_all_resources(
-                    target_fn=self.compute_client.list_vnic_attachments,
+                    target_fn=self.compute_client[region].list_vnic_attachments,
                     compartment_id=compartment.id,
                     instance_id=instance.id,
                 )
@@ -739,7 +922,8 @@ class OCIInventory:
             for vnic_attachment in vnic_attachments:
 
                 vnic = call_with_backoff(
-                    self.virtual_nw_client.get_vnic, vnic_id=vnic_attachment.vnic_id
+                    self.virtual_nw_client[region].get_vnic,
+                    vnic_id=vnic_attachment.vnic_id,
                 ).data
                 self.log(
                     "VNIC {0} is attached to instance {1}.".format(
@@ -747,7 +931,7 @@ class OCIInventory:
                     )
                 )
 
-                host_name = self.get_host_name(vnic)
+                host_name = self.get_host_name(vnic, region=region)
 
                 # Skip host which is not addressable using hostname_format
                 if not host_name:
@@ -765,7 +949,7 @@ class OCIInventory:
                 groups = set(common_groups)
 
                 subnet = call_with_backoff(
-                    self.virtual_nw_client.get_subnet, subnet_id=vnic.subnet_id
+                    self.virtual_nw_client[region].get_subnet, subnet_id=vnic.subnet_id
                 ).data
                 groups.add(subnet.id)
                 groups.add(subnet.vcn_id)
@@ -1009,6 +1193,21 @@ class OCIInventory:
             'Example: {"namespace1": {"key1": "value1", "key2": "value2"}, "namespace2": {"key": "value"}} '
             "Use this option to build inventory of only those hosts which are tagged with all the specified "
             "key-value pairs.",
+        )
+
+        parser.add_argument(
+            "--regions",
+            action="store",
+            help="Comma separated region names to build the inventory from. Default is the region specified in "
+            "the config. Please specify 'all' to build inventory from all the subscribed regions. "
+            "Example: us-ashburn-1,us-phoenix-1",
+        )
+
+        parser.add_argument(
+            "--exclude-regions",
+            action="store",
+            help="Comma separated region names to exclude while building the inventory. "
+            "Example: us-ashburn-1,uk-london-1",
         )
 
         self.args = parser.parse_args()

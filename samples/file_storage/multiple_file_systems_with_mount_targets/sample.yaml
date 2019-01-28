@@ -1,5 +1,5 @@
 ---
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -46,7 +46,7 @@
     # or set a valid value for the corresponding environment variable
     #########################################
     compartment_id: "{{ lookup('env', 'SAMPLE_COMPARTMENT_OCID') }}"
-    # This image must be of type Oracle Linux in order for this example to work
+    # This image must be of type Oracle Linux(OL) in order for this example to work
     instance_image: "{{ lookup('env', 'SAMPLE_IMAGE_OCID') }}"
 
   tasks:
@@ -219,7 +219,7 @@
         ansible_connection: local
 #==========================================================================================
     - name: Mount the filesystem in the instance and create a directory
-      # Use "opc" user as this is an OEL image
+      # Use "opc" user as this is an OL image
       # Disable SSH's strict host key checking just for this one command invocation
       # Installs nfs-utils to mount the File System and create a directory in the File System
       command: ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }} "sudo yum -y install nfs-utils > nfs-utils-install.log;sudo mkdir -p /mnt{{ mt1_fs1_export_path }};sudo mount {{ mt1_ip_address }}:{{ mt1_fs1_export_path }} /mnt{{ mt1_fs1_export_path }};cd /mnt{{ mt1_fs1_export_path }};sudo mkdir filesystem_test"

@@ -18,5 +18,5 @@ If you want to author a playbook that is tied to, and only needs to use, instanc
 To run the sample, after ensuring that you have the pre-requisites for OCI ansible cloud modules, please provide values (that are specific to your tenancy) for the following variables in the `vars` section of `sample.yaml`:
 - `sample_tenancy_ocid`
 - `sample_compartment_ocid`
-- `sample_image_ocid` (Provide an Oracle Linux image ocid)
+- `sample_image_ocid` (Provide an Oracle Linux(OL) image ocid)
 - `sample_ad_name`

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019,  Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -61,9 +61,19 @@ options:
     purge_path_routes:
         description: Purge any Path Route in the  Path Route Set named I(name) that is not specified in I(path_routes).
                      This is only applicable in case of updating path route set.If I(purge_path_routes=no), provided
-                     path_routes would be appended to existing path_routes.
+                     path_routes would be appended to existing path_routes.  I(purge_path_routes) and I(delete_path_routes)
+                     are mutually exclusive.
         required: false
         default: 'yes'
+        type: bool
+    delete_path_routes:
+        description: Delete any Path Route in the  Path Route Set named I(name) that is specified in I(path_routes).
+                     This is only applicable in case of updating path route set.If I(delete_path_routes=yes), path
+                     routes provided by I(path_routes) would be deleted from existing path routes, if they are part
+                     of existing path route. If they are not part of existing path routes, they will be ignored.
+                     I(delete_path_routes) and I(purge_path_routes) are mutually exclusive.
+        required: false
+        default: 'no'
         type: bool
 author:
     - "Debayan Gupta(@debayan_gupta)"
@@ -107,6 +117,19 @@ EXAMPLES = """
             path_match_type:
                  match_type: 'FORCE_LONGEST_PREFIX_MATCH'
     purge_path_routes: False
+    state: 'present'
+
+# Update Load Balancer Path Route Set by deleting a path route
+- name: Update Load Balancer Path Route Set by deleting a path route
+  oci_load_balancer_path_route_set:
+    load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
+    name: "ansible_backend_set"
+    path_routes:
+          - backend_set_name: "ansible_backend_set"
+            path: "/admin"
+            path_match_type:
+                 match_type: 'FORCE_LONGEST_PREFIX_MATCH'
+    delete_path_routes: True
     state: 'present'
 
 # Delete Load Balancer Path Route Set
@@ -253,6 +276,7 @@ def update_path_route_set(lb_client, module, lb_id, path_route_set, name):
     result = dict(path_route_set=to_dict(path_route_set), changed=False)
     update_path_route_set_details = UpdatePathRouteSetDetails()
     purge_path_routes = module.params.get("purge_path_routes")
+    delete_path_routes = module.params.get("delete_path_routes")
     input_path_routes = oci_lb_utils.create_path_routes(
         module.params.get("path_routes", None)
     )
@@ -263,7 +287,10 @@ def update_path_route_set(lb_client, module, lb_id, path_route_set, name):
     changed = False
     if input_path_routes is not None:
         path_routes, changed = oci_utils.check_and_return_component_list_difference(
-            input_path_routes, existing_path_routes, purge_path_routes
+            input_path_routes,
+            existing_path_routes,
+            purge_path_routes,
+            delete_path_routes,
         )
     if changed:
         update_path_route_set_details.path_routes = path_routes
@@ -340,6 +367,7 @@ def main():
             load_balancer_id=dict(type="str", required=True, aliases=["id"]),
             path_routes=dict(type="list", required=False),
             purge_path_routes=dict(type="bool", required=False, default=True),
+            delete_path_routes=dict(type="bool", required=False, default=False),
             state=dict(
                 type="str",
                 required=False,
@@ -350,7 +378,9 @@ def main():
     )
 
     module = AnsibleModule(
-        argument_spec=module_args, required_if=[["state", "present", ["path_routes"]]]
+        argument_spec=module_args,
+        required_if=[["state", "present", ["path_routes"]]],
+        mutually_exclusive=[["purge_path_routes", "delete_path_routes"]],
     )
 
     if not HAS_OCI_PY_SDK:

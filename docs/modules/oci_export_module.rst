@@ -119,6 +119,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>delete_export_options</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Delete any export options in the Export that is specified in <em>export_options</em>. If <em>delete_export_options=yes</em>, export options provided by <em>export_options</em> would be deleted from existing export options, if they are part of existing export options. If they are not part of existing export options, they will be ignored. <em>delete_export_options</em> and <em>purge_export_options</em> are mutually exclusive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>export_id</b>
                                                                             </td>
                                 <td>
@@ -270,7 +284,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Purge any export options in the  Export that is not specified in <em>export_options</em>. If <em>purge_export_options=no</em>, provided export options would be appended to existing export options.</div>
+                                                                        <div>Purge any export options in the  Export that is not specified in <em>export_options</em>. If <em>purge_export_options=no</em>, provided export options would be appended to existing export options. <em>purge_export_options</em> and <em>delete_export_options</em> are mutually exclusive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -394,6 +408,18 @@ Examples
                 access: 'READ_ONLY'
                 identity_squash: 'ALL'
         purge_export_options: False
+        state: 'present'
+
+    # Update Export's Export Options by deleting an Export Options
+    - name: Update Export's Export Options by deleting an Export Options
+      oci_export:
+        export_id: 'ocid1.export.oc1..xxxxxEXAMPLExxxxx'
+        export_options:
+              - source: '10.0.0.100'
+                require_privileged_source_port: False
+                access: 'READ_ONLY'
+                identity_squash: 'ALL'
+        delete_export_options: True
         state: 'present'
 
     # Delete Export

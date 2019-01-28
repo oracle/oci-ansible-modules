@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -53,7 +53,18 @@ options:
     purge_user_memberships:
         description: Purge users in existing memberships which are not present in the provided
                      users memberships. If I(purge_user_memberships=no), provided users would be
-                     appended to existing user memberships.
+                     appended to existing user memberships. I(purge_user_memberships) and
+                     I(delete_user_memberships) are mutually exclusive.
+        required: false
+        default: False
+        type: bool
+    delete_user_memberships:
+        description: Delete users in existing memberships which are present in the
+                     users memberships provided by I(users). If I(delete_user_memberships=yes), users
+                     provided by I(users) would be deleted from existing user memberships, if they
+                     are part of existing user memberships. If they are not part of existing user
+                     memberships, they will be ignored. I(delete_user_memberships) and I(purge_user_memberships)
+                     are mutually exclusive.
         required: false
         default: False
         type: bool
@@ -90,6 +101,14 @@ EXAMPLES = """
             description: 'Group for Testing Ansible Module'
             purge_user_memberships: True
             users: ['user1','user3']
+            state: 'present'
+
+- name: Update group by deleting existing user memberships
+  oci_group:
+            id: ocid1.group.oc1..xxxxxEXAMPLExxxxx
+            description: 'Group for Testing Ansible Module'
+            delete_user_memberships: True
+            users: ['user1']
             state: 'present'
 
 - name: Create group without users associations
@@ -304,6 +323,25 @@ def delete_all_users_from_group(identity_client, compartment_id, existing_group)
     return user_changed
 
 
+def delete_input_users_from_group(
+    identity_client, compartment_id, existing_group, removable_user_ids
+):
+    user_changed = False
+    existing_user_group_memberships = oci_utils.list_all_resources(
+        identity_client.list_user_group_memberships,
+        **dict(compartment_id=compartment_id, group_id=existing_group.id)
+    )
+    if existing_user_group_memberships:
+        for existing_user_group_membership in existing_user_group_memberships:
+            if existing_user_group_membership.user_id in removable_user_ids:
+                oci_utils.call_with_backoff(
+                    identity_client.remove_user_from_group,
+                    user_group_membership_id=existing_user_group_membership.id,
+                )
+            user_changed = True
+    return user_changed
+
+
 def update_group_users(
     identity_client,
     compartment_id,
@@ -313,9 +351,21 @@ def update_group_users(
     module,
 ):
     purge_user_memberships = module.params["purge_user_memberships"]
+    delete_user_memberships = module.params["delete_user_memberships"]
     user_changed = False
 
     user_ids = get_user_ids_from_user_names(identity_client, users, module)
+
+    if delete_user_memberships:
+        removable_user_ids = set(existing_group_members).intersection(set(user_ids))
+        if removable_user_ids:
+            user_changed = delete_input_users_from_group(
+                identity_client,
+                compartment_id,
+                existing_group,
+                list(removable_user_ids),
+            )
+        return user_changed
 
     if purge_user_memberships:
         if set(user_ids) ^ (set(existing_group_members)):
@@ -447,6 +497,7 @@ def main():
             description=dict(type="str", required=False, default=""),
             users=dict(type="list", required=False),
             purge_user_memberships=dict(type="bool", required=False, default=False),
+            delete_user_memberships=dict(type="bool", required=False, default=False),
             state=dict(
                 type="str",
                 required=False,
@@ -456,7 +507,10 @@ def main():
             force=dict(type="str", required=False, default="no"),
         )
     )
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        mutually_exclusive=[["purge_user_memberships", "delete_user_memberships"]],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")

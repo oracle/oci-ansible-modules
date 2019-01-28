@@ -127,6 +127,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>display_name</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Use <em>display_name</em> along with the other options to return only resources that match the given display name exactly.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>instance_configuration_id</b>
                                                                             </td>
                                 <td>

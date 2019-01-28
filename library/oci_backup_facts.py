@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -173,7 +173,7 @@ def list_backups(db_client, module):
             existing_backups = oci_utils.list_all_resources(
                 db_client.list_backups,
                 database_id=database_id,
-                display_name=module.params["display_name"],
+                display_name=module.params.get("display_name"),
             )
         elif compartment_id:
             get_logger().debug(
@@ -182,7 +182,7 @@ def list_backups(db_client, module):
             existing_backups = oci_utils.list_all_resources(
                 db_client.list_backups,
                 compartment_id=compartment_id,
-                display_name=module.params["display_name"],
+                display_name=module.params.get("display_name"),
             )
     except ServiceError as ex:
         get_logger().error("Unable to list Database Backups due to %s", ex.message)

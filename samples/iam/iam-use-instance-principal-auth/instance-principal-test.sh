@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -11,7 +11,7 @@
 # all compute instances in the current compartment. It employs the instance
 # principal for authentication
 
-# This script assumes an Centos/RHEL/Oracle Linux instance
+# This script assumes an Centos/RHEL/Oracle Linux(OL) instance
 
 # install pre-reqs (python, git, oci SDK, oci ansible modules)
 sudo yum install -y python-pip

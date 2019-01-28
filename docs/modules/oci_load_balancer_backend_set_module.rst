@@ -200,6 +200,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>delete_backends</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Delete any backends in the  Backend Set named <em>name</em> that is specified in <em>backends</em>. If <em>delete_backends=yes</em>, backends provided by <em>backends</em> would be deleted from existing backends, if they are part of existing backends. If they are not part of existing backends, they will be ignored. <em>delete_backends</em> and <em>purge_backends</em> are mutually exclusive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>health_checker</b>
                                                                             </td>
                                 <td>
@@ -349,7 +363,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Purge any backends in the  Backend Set named <em>name</em> that is not specified in <em>backends</em>. If <em>purge_backends=no</em>, provided backends would be appended to existing backends.</div>
+                                                                        <div>Purge any backends in the  Backend Set named <em>name</em> that is not specified in <em>backends</em>. If <em>purge_backends=no</em>, provided backends would be appended to existing backends. <em>purge_backends</em> and <em>delete_backends</em> are mutually exclusive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -554,6 +568,18 @@ Examples
                 port: 8282
         purge_backends: 'no'
         state: 'present'
+
+    # Update Load Balancer Backend Set by deleting backends
+    - name: Update Load Balancer Backend Set by deleting backends
+      oci_load_balancer_backend_set:
+        load_balancer_id: "ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx"
+        name: "ansible_backend_set"
+        backends:
+              - ip_address: "10.159.34.25"
+                port: 8282
+        delete_backends: 'yes'
+        state: 'present'
+
     # Deleted Load Balancer Backend Set
     - name: Update Load Balancer Backend Set
       oci_load_balancer_backend_set:

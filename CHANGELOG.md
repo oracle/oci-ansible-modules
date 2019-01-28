@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2019-01-28
+
+### Added
+- Modules to manage
+    - [FastConnect](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/fastconnectoverview.htm) resources
+- Added the following features in existing modules:
+    - [Pre-Authenticated Requests](https://docs.cloud.oracle.com/iaas/Content/Object/Tasks/usingpreauthenticatedrequests.htm) in Object Storage Service.
+    - `force` option in `oci_bucket` now also supports automatic deletion of bucket-level PARs
+    - Support for listing multi-part uploads and multi-part upload parts, aborting a multi-part upload in `oci_object_facts` and `oci_object` modules
+    - In modules having a module option that supports a list of items, a `delete_*` option is now supported to delete specified list items. See `delete_security_rules` in `oci_security_list` for an example
+    - Options in `oci_tag` module to apply tags
+    - Option to filter by `display_name` in `oci_instance_configuration_facts` module
+- Added the following features in OCI dynamic inventory script:
+    - Option to build inventory from multiple regions
+
+### Changed
+- Minimum supported OCI Python SDK to `2.1.3`
+
 ## [1.4.0] - 2018-12-19
 
 ### Added

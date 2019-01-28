@@ -30,7 +30,8 @@ usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
                         [--enable-parallel-processing]
                         [--max-thread-count MAX_THREAD_COUNT]
                         [--freeform-tags FREEFORM_TAGS]
-                        [--defined-tags DEFINED_TAGS]
+                        [--defined-tags DEFINED_TAGS] [--regions REGIONS]
+                        [--exclude-regions EXCLUDE_REGIONS]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -40,15 +41,19 @@ optional arguments:
                         OCI config file location
   --profile PROFILE     OCI config profile for connecting to OCI
   --compartment COMPARTMENT
-                        Name of the compartment for which dynamic inventory must be generated. If you want to generate a
-                        dynamic inventory for the root compartment of the tenancy, specify the tenancy name as the name
-                        of the compartment.
-  --parent-compartment-ocid
-                        Only valid when --compartment is set. Parent compartment ocid of the specified compartment.
-                        Defaults to tenancy ocid.
+                        Name of the compartment for which dynamic inventory
+                        must be generated. If you want to generate a dynamic
+                        inventory for the root compartment of the tenancy,
+                        specify the tenancy name as the name of the
+                        compartment.
+  --parent-compartment-ocid PARENT_COMPARTMENT_OCID
+                        Only valid when --compartment is set. Parent
+                        compartment ocid of the specified compartment.Defaults
+                        to tenancy ocid.
   --fetch-hosts-from-subcompartments
-                        Only valid when --compartment is set. Default is false. When set to true, inventory
-                        is built with the entire hierarchy of the given compartment.
+                        Only valid when --compartment is set. Default is
+                        false. When set to true, inventory is built with the
+                        entire hierarchy of the given compartment.
   --refresh-cache, -r   Force refresh of cache by making API requests to OCI.
                         Use this option whenever you are building inventory
                         with new filter options to avoid reading cached
@@ -62,13 +67,17 @@ optional arguments:
                         value can also be provided in the
                         OCI_ANSIBLE_AUTH_TYPE environment variable.
   --enable-parallel-processing
-                        Inventory generation for tenants with huge number of instances might take a long time.
-                        When this flag is set, the inventory script uses thread pools to parallelise the
-                        inventory generation.
-  --max-thread-count
-                        Only valid when --enable-parallel-processing is set. When set, this script uses threads to
-                        improve the performance of building the inventory. This option specifies the maximum number of
-                        threads to use. Defaults to 50. This value can also be provided in the settings config file.
+                        Inventory generation for tenants with huge number of
+                        instances might take a long time.When this flag is
+                        set, the inventory script uses thread pools to
+                        parallelise the inventory generation.
+  --max-thread-count MAX_THREAD_COUNT
+                        Only valid when --enable-parallel-processing is set.
+                        When set, this script uses threads to improve the
+                        performance of building the inventory. This option
+                        specifies the maximum number of threads to use.
+                        Defaults to 50. This value can also be provided in the
+                        settings config file.
   --freeform-tags FREEFORM_TAGS
                         Freeform tags provided as a string in valid JSON
                         format. Example: { "stage": "dev", "app": "demo"} Use
@@ -82,6 +91,13 @@ optional arguments:
                         this option to build inventory of only those hosts
                         which are tagged with all the specified key-value
                         pairs.
+  --regions REGIONS     Comma separated region names to build the inventory
+                        from. Default is the region specified in the config.
+                        Please specify 'all' to build inventory from all the
+                        subscribed regions. Example: us-ashburn-1,us-phoenix-1
+  --exclude-regions EXCLUDE_REGIONS
+                        Comma separated region names to exclude while building
+                        the inventory. Example: us-ashburn-1,uk-london-1
 ```
 
 The `oci_inventory.py` script also accepts the following environment variables:
@@ -101,6 +117,8 @@ The `oci_inventory.py` script also accepts the following environment variables:
 | OCI_CACHE_MAX_AGE |  The number of seconds a cache file is considered valid. To disable caching and get the latest inventory from OCI, set this value to 0. |
 | OCI_HOSTNAME_FORMAT | Host naming format to use in the generated inventory. Use 'fqdn' to list hosts using the instance's Fully Qualified Domain Name (FQDN). Use 'public_ip' to list hosts using public IP address. Use 'private_ip' to list hosts using private IP address.|
 | OCI_ANSIBLE_AUTH_TYPE | Specifies the type of authentication to use for making API requests. By default, the API key in your config will be used. Set it to `instance_principal` to use instance principal based authentication.|
+| OCI_INVENTORY_REGIONS | Specifies names of the regions(separated by commas) for which inventory is to be built. Set it to 'all' to build inventory for all the subscribed regions. |
+| OCI_INVENTORY_EXCLUDE_REGIONS | Specifies names of the regions(separated by commas) to be skipped while building inventory. |
 
 The order of precedence for the configuration used by the inventory script is:
 1. command line arguments

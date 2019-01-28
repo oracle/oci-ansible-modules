@@ -141,6 +141,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>delete_route_rules</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                        <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Delete route rules in existing Route Table which are present in the provided Route Rules. If <em>delete_route_rules=yes</em>, route rules provided by <em>route_rules</em> would be deleted from existing route rules, if they are part of existing route rules. If they are not part of existing route rules, they will be ignored. <em>delete_route_rules</em> and <em>purge_route_rules</em> are mutually exclusive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>display_name</b>
                                                                             </td>
                                 <td>
@@ -195,7 +209,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Purge route rules in existing Route Table which are not present in the provided Route Rules. If <em>purge_route_rules=no</em>, provided route rules would be appended to existing route rules.</div>
+                                                                        <div>Purge route rules in existing Route Table which are not present in the provided Route Rules. If <em>purge_route_rules=no</em>, provided route rules would be appended to existing route rules. <em>purge_route_rules</em> and <em>delete_route_rules</em> are mutually exclusive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -398,6 +412,15 @@ Examples
       oci_route_table:
         rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
         purge_route_rules: 'yes'
+        route_rules:
+            - cidr_block: '10.0.0.0/12'
+              network_entity_id: 'ocid1.internetgateway..abcd'
+        state: 'present'
+
+    - name: Update a Route Table by deleting route rules
+      oci_route_table:
+        rt_id: 'ocid1.routetable..xxxxxEXAMPLExxxxx'
+        delete_route_rules: 'yes'
         route_rules:
             - cidr_block: '10.0.0.0/12'
               network_entity_id: 'ocid1.internetgateway..abcd'
