@@ -420,6 +420,8 @@ class OCIInventory:
                 region.key.lower(): region.name
                 for region in call_with_backoff(self.identity_client.list_regions).data
             }
+        if short_name in self._region_short_names.values():
+            return short_name
         return self._region_short_names.get(short_name.lower())
 
     @property
