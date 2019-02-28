@@ -145,8 +145,7 @@ Parameters
                     <b>config_profile_name</b>
                                                                             </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">DEFAULT</div>
-                                    </td>
+                                                                                                                                                            </td>
                                                                 <td>
                                                                         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
                                                                                 </td>
@@ -203,6 +202,21 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>force</b>
+                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                                <td>
+                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Force overwriting existing wallet file when downloading wallet.</div>
+                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: overwrite</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>force_create</b>
                     <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
@@ -251,6 +265,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>password</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The password to encrypt the keys inside the wallet. The password must be at least 8 characters long and must include at least 1 letter and either 1 numeric character or 1 special character. <em>password</em> is required if <em>state='generate_wallet'</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>region</b>
                                                                             </td>
                                 <td>
@@ -270,10 +294,11 @@ Parameters
                                                                                                                                                                                                 <li>restore</li>
                                                                                                                                                                                                 <li>start</li>
                                                                                                                                                                                                 <li>stop</li>
+                                                                                                                                                                                                <li>generate_wallet</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Create, update, terminate, restore, start and stop Autonomous Database. For <em>state=present</em>, if it does not exist, it gets created. If it exists, it gets updated.</div>
+                                                                        <div>Create, update, terminate, restore, start, stop and generate wallet for Autonomous Database. For <em>state=present</em>, if it does not exist, it gets created. If it exists, it gets updated.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -329,6 +354,16 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>The lifecycle state to wait for the resource to transition into when <em>wait=yes</em>. By default, when <em>wait=yes</em>, we wait for the resource to get into ACTIVE/ATTACHED/AVAILABLE/PROVISIONED/ RUNNING applicable lifecycle state during create operation &amp; to get into DELETED/DETACHED/ TERMINATED lifecycle state during delete operation.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>wallet_file</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The destination file path with file name when downloading wallet. The file must have 'zip' extension. <em>wallet_file</em> is required if <em>state='generate_wallet'</em>.</div>
                                                                                 </td>
             </tr>
                         </table>
@@ -394,6 +429,14 @@ Examples
       oci_autonomous_database:
         autonomous_database_id: 'ocid1.autonomousdatabase.oc1..xxxxxEXAMPLExxxxx..qndq'
         state: 'stop'
+
+    # Download wallet for Autonomous Database
+    - name: Download wallet for Autonomous Database
+      oci_autonomous_database:
+        autonomous_database_id: 'ocid1.autonomousdatabase.oc1..xxxxxEXAMPLExxxxx'
+        password: 'BEstr0ng_#1'
+        wallet_file: '/tmp/atp_wallet.zip'
+        state: 'generate_wallet'
 
     # Delete Autonomous Database
     - name: Delete Autonomous Database

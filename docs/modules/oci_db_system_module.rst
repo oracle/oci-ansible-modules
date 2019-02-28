@@ -152,8 +152,7 @@ Parameters
                     <b>config_profile_name</b>
                                                                             </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">DEFAULT</div>
-                                    </td>
+                                                                                                                                                            </td>
                                                                 <td>
                                                                         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
                                                                                 </td>
@@ -165,7 +164,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The number of CPU cores to enable. For VM DB systems, the core count is inferred from the specific VM shape chosen, so this parameter is not used.</div>
+                                                                        <div>The number of CPU cores to enable. For VM DB systems, the core count is inferred from the specific VM shape chosen, so this parameter is not used. Do not provide this attribute if the <em>shape</em> of the DB System is a Virtual Machine shape.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -222,7 +221,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>A valid Oracle database version.</div>
+                                            <div>A valid Oracle database version. This parameter only valid for <em>source=NONE</em>.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -244,7 +243,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The details of the database to be created under the db home. Consists of the following options, ['admin_password' describes A strong password for SYS, SYSTEM, and PDB Admin. The password must be at least nine characters and contain at least two uppercase, two lowercase, two numbers, and two special characters. required - true], ['character_set' describes the character set for the database. The default is AL32UTF8. required - false],['freeform_tags' describes Free-form tags for this database. Each tag is a simple key-value pair with no predefined name, type, or namespace. required - false], ['defined_tags' describes Defined tags for this database. Each key is predefined and scoped to a namespace. required - false] ['db_backup_config' consists of the option 'auto_backup_enabled' to determine whether to configures automatic backups of the databse. required - false], ['db_name' describes the name of the database name. It must begin with an alphabetic character and can contain a maximum of eight alphanumeric characters. Special characters are not permitted. required - true],['db_workload' describes database workload type with allowed values OLTP and DSS.required - false], ['ncharacter_set' describes National character set for the database.The default is AL16UTF16. Allowed values are AL16UTF16 or UTF8. required - false],['pdb_name' describes pluggable database name.It must begin with an alphabetic character and can contain a maximum of eight alphanumeric characters. Special characters are notpermitted. Pluggable database should not be same as database name. required - false]</div>
+                                            <div>The details of the database to be created under the db home. Consists of the following options, ['admin_password' describes A strong password for SYS, SYSTEM, and PDB Admin. The password must be at least nine characters and contain at least two uppercase, two lowercase, two numbers, and two special characters. This parameter valid for <em>source=NONE</em> and <em>source=DB_BACKUP</em>. required - true], ['character_set' describes the character set for the database. The default is AL32UTF8. This parameter only valid for <em>source=NONE</em>. required - false], ['freeform_tags' describes Free-form tags for this database. Each tag is a simple key-value pair with no predefined name, type, or namespace. This parameter only valid for <em>source=NONE</em>.required - false], ['defined_tags' describes Defined tags for this database. Each key is predefined and scoped to a namespace. This parameter only valid for <em>source=NONE</em>. required - false], ['db_backup_config' consists of the option 'auto_backup_enabled' to determine whether to configures automatic backups of the database. This parameter only valid for <em>source=NONE</em>. required - false], ['db_name' describes the name of the database name. It must begin with an alphabetic character and can contain a maximum of eight alphanumeric characters. Special characters are not permitted. This parameter only valid for <em>source=NONE</em>. required - true], ['db_workload' describes database workload type with allowed values OLTP and DSS. This parameter only valid for <em>source=NONE</em>. required - false],['ncharacter_set' describes National character set for the database.The default is AL16UTF16. Allowed values are AL16UTF16 or UTF8. This parameter only valid for <em>source=NONE</em>. required - false], ['pdb_name' describes pluggable database name. It must begin with an alphabetic character and can contain a maximum of eight alphanumeric characters. Special characters are notpermitted. Pluggable database should not be same as database name. This parameter only valid for <em>source=NONE</em>. required - false], ['backup_id' describes the backup OCID. This parameter only valid for <em>source=DB_BACKUP</em>. required - true], ['backup_tde_password' describes the password to open the TDE wallet. This parameter only valid for <em>source=DB_BACKUP</em>. required - true]</div>
                                                         </td>
             </tr>
                     
@@ -433,6 +432,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>source</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>DB_BACKUP</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>NONE</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The source of the database, NONE for creating a new database. DB_BACKUP for creating a new database by restoring from a backup. The default is NONE.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>ssh_public_keys</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
@@ -590,7 +603,7 @@ Examples
                 target_users:
                     division: 'design'
           db_version: '12.2.0.1'
-          display_name: ansible-db-{{random_suffix_1024}}
+          display_name: ansible-db
         disk_redundancy: "NORMAL"
         display_name: "ansibledb"
         hostname: "ansibledbsystem"
@@ -600,6 +613,39 @@ Examples
         shape: "BM.DenseIO1.36"
         ssh_public_keys: ["/tmp/id_rsa.pub"]
         subnet_id: "ocid1.subnet.aaaa"
+        freeform_tags:
+            deployment: 'production'
+        defined_tags:
+            target_users:
+                division: 'documentation'
+        wait: False
+        state: 'present'
+
+    # Create a new DB System Using a Database Backup
+    - name: Create a new DB System Using a Database Backup
+      oci_db_system:
+        compartment_id: "ocid1.compartment.aaaa"
+        availability_domain: "AD-2"
+        cluster_name: "db-cluster"
+        cpu_core_count: 2
+        data_storage_percentage: 80
+        database_edition: "STANDARD_EDITION"
+        source: "DB_BACKUP"
+        db_home:
+          database:
+            admin_password: 'BEstr0ng_#1'
+            backup_id: 'ocid1.dbbackup.oc1.xxxxxEXAMPLExxxxx'
+            backup_tde_password: 'BEstr0ng_#1'
+          display_name: new-ansibledbhome-sourced-from-backup
+        disk_redundancy: "NORMAL"
+        display_name: "new-ansibledb-sourced-from-backup"
+        hostname: "ansibledbsystem"
+        initial_data_storage_size_in_gb: 4096
+        license_model: "LICENSE_INCLUDED"
+        node_count: 1
+        shape: "BM.DenseIO1.36"
+        ssh_public_keys: ["/tmp/id_rsa.pub"]
+        subnet_id: "ocid1.subnet.xxxxxEXAMPLExxxxx"
         freeform_tags:
             deployment: 'production'
         defined_tags:

@@ -42,7 +42,7 @@ except ImportError:
 from ansible.module_utils.basic import _load_params
 from ansible.module_utils._text import to_bytes
 
-__version__ = "1.5.0"
+__version__ = "1.6.0"
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -88,7 +88,7 @@ def get_common_arg_spec(supports_create=False, supports_wait=False):
     # this method would break that error handling logic.
     common_args = dict(
         config_file_location=dict(type="str", required=False),
-        config_profile_name=dict(type="str", required=False, default="DEFAULT"),
+        config_profile_name=dict(type="str", required=False),
         api_user=dict(type="str", required=False),
         api_user_fingerprint=dict(type="str", required=False, no_log=True),
         api_user_key_file=dict(type="str", required=False),
@@ -149,7 +149,7 @@ def get_oci_config(module, service_client_class=None):
     config_file = module.params.get("config_file_location")
     _debug("Config file through module options - {0} ".format(config_file))
     if not config_file:
-        if "OCI_CONFIG_FILE" in os.environ:
+        if "OCI_CONFIG_FILE" in os.environ and os.environ["OCI_CONFIG_FILE"]:
             config_file = os.environ["OCI_CONFIG_FILE"]
             _debug(
                 "Config file through OCI_CONFIG_FILE environment variable - {0}".format(
@@ -162,10 +162,11 @@ def get_oci_config(module, service_client_class=None):
 
     config_profile = module.params.get("config_profile_name")
     if not config_profile:
-        if "OCI_CONFIG_PROFILE" in os.environ:
+        if "OCI_CONFIG_PROFILE" in os.environ and os.environ["OCI_CONFIG_PROFILE"]:
             config_profile = os.environ["OCI_CONFIG_PROFILE"]
         else:
             config_profile = "DEFAULT"
+    _debug("Using Config profile {0}".format(config_profile))
     try:
         config = oci.config.from_file(
             file_location=config_file, profile_name=config_profile
@@ -233,7 +234,9 @@ def get_oci_config(module, service_client_class=None):
     )
 
     # Redirect calls to home region for IAM service.
-    do_not_redirect = module.params.get("do_not_redirect_to_home_region", False)
+    do_not_redirect = module.params.get(
+        "do_not_redirect_to_home_region", False
+    ) or os.environ.get("OCI_IDENTITY_DO_NOT_REDIRECT_TO_HOME_REGION")
     if service_client_class == IdentityClient and not do_not_redirect:
         _debug("Region passed for module invocation - {0} ".format(config["region"]))
         identity_client = IdentityClient(config)
@@ -944,6 +947,14 @@ def does_existing_resource_match_user_inputs(
                         )
                         if default_attribute_value is not None:
                             if existing_resource[attr] != default_attribute_value:
+                                _debug(
+                                    "Mismatch on attribute '{0}'. User provided value is {1} & existing resource's "
+                                    "value is {2}.".format(
+                                        attr,
+                                        user_provided_value_for_attr,
+                                        resources_value_for_attr,
+                                    )
+                                )
                                 return False
                         # Check if attr has a value that is not default. For example, a custom `security_list_id`
                         # is assigned to the subnet's attribute `security_list_ids`. If the attribute is assigned a
@@ -951,6 +962,14 @@ def does_existing_resource_match_user_inputs(
                         elif not is_attr_assigned_default(
                             default_attribute_values, attr, existing_resource[attr]
                         ):
+                            _debug(
+                                "Mismatch on attribute '{0}'. User provided value is {1} & existing resource's value "
+                                "is {2}.".format(
+                                    attr,
+                                    user_provided_value_for_attr,
+                                    resources_value_for_attr,
+                                )
+                            )
                             return False
 
         else:
@@ -1146,20 +1165,22 @@ def check_if_user_value_matches_resources_attr(
                         )
 
     elif resources_value_for_attr != user_provided_value_for_attr:
+        if user_provided_value_for_attr is not None:
+            # User has specified a custom value for that attribute, and so the existing resource is not a match.
+            res[0] = False
+            return
         if (
             exclude_attributes.get(attribute_name) is None
             and default_attribute_values.get(attribute_name) is not None
         ):
             # As the user has not specified a value for an optional attribute, if the existing resource's
-            # current state has a DEFAULT value for that attribute, we must not consider this incongruence
-            # an issue and continue with other checks. If the existing resource's value for the attribute
-            # is not the default value, then the existing resource is not a match.
+            # current state has a non-DEFAULT value for that 'non-excludable' attribute, we must consider this
+            # incongruence an issue and consider the existing resource as a mismatch.
             if not is_attr_assigned_default(
                 default_attribute_values, attribute_name, resources_value_for_attr
             ):
                 res[0] = False
-        elif user_provided_value_for_attr is not None:
-            res[0] = False
+                return
 
 
 def are_dicts_equal(

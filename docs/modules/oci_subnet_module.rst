@@ -139,8 +139,7 @@ Parameters
                     <b>config_profile_name</b>
                                                                             </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">DEFAULT</div>
-                                    </td>
+                                                                                                                                                            </td>
                                                                 <td>
                                                                         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
                                                                                 </td>

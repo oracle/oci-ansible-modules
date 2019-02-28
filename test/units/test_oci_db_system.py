@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -135,6 +135,22 @@ def test_launch_or_update_db_system_service_error(
 def test_launch_db_system(db_client, create_and_wait_patch):
     ssh_public_keys = get_ssh_public_keys(1)
     additional_properties = dict({"ssh_public_keys": ssh_public_keys})
+    module = get_module(additional_properties)
+    db_system = get_db_system()
+    create_and_wait_patch.return_value = {
+        "db_system": to_dict(db_system),
+        "changed": True,
+    }
+    result = oci_db_system.launch_db_system(db_client, module)
+    delete_ssh_public_keys(ssh_public_keys)
+    assert result["db_system"]["display_name"] is db_system.display_name
+
+
+def test_launch_db_system_with_database_from_backup(db_client, create_and_wait_patch):
+    ssh_public_keys = get_ssh_public_keys(1)
+    additional_properties = dict(
+        {"source": "DB_BACKUP", "ssh_public_keys": ssh_public_keys}
+    )
     module = get_module(additional_properties)
     db_system = get_db_system()
     create_and_wait_patch.return_value = {

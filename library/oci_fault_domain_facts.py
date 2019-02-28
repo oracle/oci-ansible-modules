@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -143,6 +143,12 @@ def main():
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module.")
+
+    # oci.identity.identity_client.IdentityClient#list_fault_domains uses the REGION in the config to get fault domains
+    # for a specific region and ad. So do not automatically redirect all
+    # oci.identity.identity_client.IdentityClient#list_fault_domains calls to the Home region while creating the
+    # service client
+    module.params["do_not_redirect_to_home_region"] = True
 
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 

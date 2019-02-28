@@ -1,13 +1,19 @@
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
 from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils._text import to_bytes
 
 try:
-    from oci.database.models import PatchDetails, CreateDatabaseDetails, DbBackupConfig
+    from oci.database.models import (
+        PatchDetails,
+        CreateDatabaseDetails,
+        DbBackupConfig,
+        CreateDatabaseFromBackupDetails,
+    )
     from oci.exceptions import ClientError
 
     HAS_OCI_PY_SDK = True
@@ -103,6 +109,22 @@ def create_database_details(database_dict):
     return create_database_details
 
 
+def create_database_from_backup_details(database_dict):
+    if database_dict is None:
+        raise ClientError(
+            Exception(
+                "Proper value for attribute database is mandatory for creating this component"
+            )
+        )
+    create_database_from_backup_details = CreateDatabaseFromBackupDetails()
+    for attribute in create_database_from_backup_details.attribute_map.keys():
+        create_database_from_backup_details.__setattr__(
+            attribute, database_dict.get(attribute, None)
+        )
+
+    return create_database_from_backup_details
+
+
 def execute_function_and_wait(
     resource_type,
     client,
@@ -125,3 +147,10 @@ def execute_function_and_wait(
         kwargs_get=kwargs_get,
         states=states,
     )
+
+
+def write_stream_to_file(data, file):
+    with open(to_bytes(file), "wb") as f:
+        for d in data:
+            f.write(d)
+    return True

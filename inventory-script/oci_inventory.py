@@ -18,7 +18,9 @@ name is specified.
 This script accepts following command line arguments:
 
 usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
-                        [--profile PROFILE] [--compartment COMPARTMENT]
+                        [--profile PROFILE] [--tenancy TENANCY]
+                        [--compartment-ocid COMPARTMENT_OCID]
+                        [--compartment COMPARTMENT]
                         [--parent-compartment-ocid PARENT_COMPARTMENT_OCID]
                         [--fetch-hosts-from-subcompartments] [--refresh-cache]
                         [--debug] [--auth {api_key,instance_principal}]
@@ -28,6 +30,8 @@ usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
                         [--defined-tags DEFINED_TAGS] [--regions REGIONS]
                         [--exclude-regions EXCLUDE_REGIONS]
 
+Produce an Ansible Inventory file based on OCI
+
 optional arguments:
   -h, --help            show this help message and exit
   --list                List instances (default: True)
@@ -35,6 +39,13 @@ optional arguments:
   -config CONFIG_FILE, --config-file CONFIG_FILE
                         OCI config file location
   --profile PROFILE     OCI config profile for connecting to OCI
+  --tenancy TENANCY     OCID of the tenancy for which dynamic inventory must
+                        be generated.
+  --compartment-ocid COMPARTMENT_OCID
+                        OCID of the compartment for which dynamic inventory
+                        must be generated. If specified, any value specified
+                        for compartment and parent-compartment-ocid options is
+                        ignored.
   --compartment COMPARTMENT
                         Name of the compartment for which dynamic inventory
                         must be generated. If you want to generate a dynamic
@@ -110,6 +121,7 @@ OCI_HOSTNAME_FORMAT
 OCI_ANSIBLE_AUTH_TYPE
 OCI_INVENTORY_REGIONS
 OCI_INVENTORY_EXCLUDE_REGIONS
+OCI_COMPARTMENT_OCID
 
 The inventory generated is by default grouped by each of the following:
 region
@@ -124,6 +136,11 @@ freeform tags with group name as "tag_key=value"
 defined tags with group name as "namespace#key=value"
 metadata (key, value) with group name as "key=value"
 extended metadata (key, value) with group name as "key=value"
+
+By default, the inventory is generated for all the compartments in the tenancy. You must have COMPARTMENT_INSPECT
+permission on the root compartment for this script to be able to get all the compartments. But when compartment_ocid
+is specified, the inventory is generated only for the specific compartment and you need COMPARTMENT_INSPECT permission
+only on the compartment specified.
 
 By default, all non-alphanumeric characters except HASH(#), EQUALS(=), PERIOD(.) and DASH(-) in group names and host
 names are replaced with an UNDERSCORE when the inventory is generated, so that the names can be used as Ansible
@@ -174,18 +191,19 @@ import os
 import re
 import sys
 from time import time
+from ansible.module_utils import six
 from ansible.module_utils.six.moves import configparser
-from ansible.module_utils._text import to_bytes
-
-from collections import deque
+from ansible.module_utils._text import to_bytes, to_text
+from ansible.module_utils.urls import open_url
+from collections import deque, defaultdict
 from multiprocessing.pool import ThreadPool
 from contextlib import contextmanager
 import hashlib
 from functools import partial
+import traceback
 
 try:
     import oci
-    from oci._vendor import requests
     from oci.retry import RetryStrategyBuilder
     from oci.constants import HEADER_NEXT_PAGE
     from oci.core.compute_client import ComputeClient
@@ -198,7 +216,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.5.0"
+__version__ = "1.6.0"
 
 
 def _get_retry_strategy():
@@ -246,33 +264,6 @@ def call_with_backoff(fn, **kwargs):
             return fn(**kwargs)
 
 
-def _is_instance_principal_auth(params):
-    # check if auth is set to `instance_principal`.
-    return params["auth"] == "instance_principal"
-
-
-def create_service_client(params, service_client_class):
-    kwargs = {}
-    if _is_instance_principal_auth(params):
-        try:
-            signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
-        except Exception as ex:
-            message = (
-                "Failed retrieving certificates from localhost. Instance principal based authentication is only"
-                "possible from within OCI compute instances. Exception: {0}".format(
-                    str(ex)
-                )
-            )
-            OCIInventory().log(message)
-            sys.exit()
-        kwargs["signer"] = signer
-
-    # Create service client class with the signer.
-    client = service_client_class(params, **kwargs)
-
-    return client
-
-
 class OCIInventory:
 
     LIFECYCLE_ACTIVE_STATE = "ACTIVE"
@@ -285,6 +276,7 @@ class OCIInventory:
         self._region_subscriptions = None
         self._regions = None
         self._region_short_names = None
+        self._region_long_names = None
         self.params = {
             "ini_file": os.path.join(
                 to_bytes(os.path.dirname(os.path.realpath(__file__))),
@@ -301,6 +293,7 @@ class OCIInventory:
             "cache_dir": ".",
             "cache_max_age": 300,
             "cache_file": None,
+            "compartment_ocid": None,
             "compartment": None,
             "parent_compartment_ocid": None,
             "fetch_hosts_from_subcompartments": False,
@@ -318,152 +311,253 @@ class OCIInventory:
         }
         boolean_options = ["sanitize_names", "replace_dash_in_names"]
         dict_options = ["freeform_tags", "defined_tags"]
+        try:
+            self.parse_cli_args()
 
-        self.parse_cli_args()
+            if self.args.debug:
+                self.params["debug"] = True
+                self.log("Executing in debug mode.")
 
-        if self.args.debug:
-            self.params["debug"] = True
-            self.log("Executing in debug mode.")
+            if "OCI_INI_PATH" in os.environ:
+                oci_ini_file_path = os.path.expanduser(
+                    os.path.expandvars(to_bytes(os.environ.get("OCI_INI_PATH")))
+                )
+                if os.path.isfile(to_bytes(oci_ini_file_path)):
+                    self.params["ini_file"] = oci_ini_file_path
 
-        if "OCI_INI_PATH" in os.environ:
-            oci_ini_file_path = os.path.expanduser(
-                os.path.expandvars(to_bytes(os.environ.get("OCI_INI_PATH")))
-            )
-            if os.path.isfile(to_bytes(oci_ini_file_path)):
-                self.params["ini_file"] = oci_ini_file_path
+            self.settings_config = configparser.ConfigParser()
+            self.settings_config.read(to_text(self.params["ini_file"]))
 
-        self.settings_config = configparser.ConfigParser()
-        self.settings_config.read(self.params["ini_file"])
+            # Preference order: CLI args > environment variable > settings from config file.
+            if (
+                "config_file" in self.args
+                and getattr(self.args, "config_file") is not None
+            ):
+                self.params["config_file"] = os.path.expanduser(self.args.config_file)
+            elif "OCI_CONFIG_FILE" in os.environ:
+                self.params["config_file"] = os.path.expanduser(
+                    os.path.expandvars(os.environ.get("OCI_CONFIG_FILE"))
+                )
+            elif self.settings_config.has_option("oci", "config_file"):
+                self.params["config_file"] = os.path.expanduser(
+                    self.settings_config.get("oci", "config_file")
+                )
 
-        # Preference order: CLI args > environment variable > settings from config file.
-        if "config_file" in self.args and getattr(self.args, "config_file") is not None:
-            self.params["config_file"] = os.path.expanduser(self.args.config_file)
-        elif "OCI_CONFIG_FILE" in os.environ:
-            self.params["config_file"] = os.path.expanduser(
-                os.path.expandvars(os.environ.get("OCI_CONFIG_FILE"))
-            )
-        elif self.settings_config.has_option("oci", "config_file"):
-            self.params["config_file"] = os.path.expanduser(
-                self.settings_config.get("oci", "config_file")
-            )
+            if "profile" in self.args and getattr(self.args, "profile") is not None:
+                self.params["profile"] = self.args.profile
+            elif "OCI_CONFIG_PROFILE" in os.environ:
+                self.params["profile"] = os.environ.get("OCI_CONFIG_PROFILE")
+            elif self.settings_config.has_option("oci", "profile"):
+                self.params["profile"] = self.settings_config.get("oci", "profile")
 
-        if "profile" in self.args and getattr(self.args, "profile") is not None:
-            self.params["profile"] = self.args.profile
-        elif "OCI_CONFIG_PROFILE" in os.environ:
-            self.params["profile"] = os.environ.get("OCI_CONFIG_PROFILE")
-        elif self.settings_config.has_option("oci", "profile"):
-            self.params["profile"] = self.settings_config.get("oci", "profile")
+            self.read_config()
+            self.read_settings_config(boolean_options, dict_options)
+            self.read_env_vars()
+            self.read_cli_args(dict_options)
 
-        self.read_config()
-        self.read_settings_config(boolean_options, dict_options)
-        self.read_env_vars()
-        self.read_cli_args(dict_options)
+            self.identity_client = self.create_service_client(IdentityClient)
+            # For the case, when auth="instance_principal", tenancy_id & region name are not available.
+            if self.params["auth"] == "instance_principal":
+                # self.params.update(self.get_instance_details_from_metadata())
+                instance_details = self.get_instance_details_from_metadata()
+                self.params.update(instance_details)
+                # tenany ocid is not available in case of instance princibal
+                # but it is required when regions are specified explicitly or compartment ocid is not specified explicitly
+                # so try to get the tenancy when required
+                if not self.params["compartment_ocid"] or self.params["regions"]:
+                    # tenancy ocid required in this case to either get the compartments or region subscriptions
+                    if not self.params["tenancy"]:
+                        try:
+                            self.params[
+                                "tenancy"
+                            ] = self.get_tenancy_ocid_from_compartment_ocid(
+                                instance_details["compartmentId"]
+                            )
+                        except ServiceError as se:
+                            if se.status == 404:
+                                raise Exception(
+                                    "Need inspect permission on root compartment to get the tenancy ocid. "
+                                    "To workaround set the tenancy manually."
+                                )
 
-        self.identity_client = create_service_client(self.params, IdentityClient)
-        # For the case, when auth="instance_principal", tenancy_id & region name are not available.
-        if self.params["auth"] == "instance_principal":
-            self.params.update(self._get_instance_details_from_metadata())
+            self.validate_params()
 
-        self.validate_params()
+            self.log("Using following parameters for OCI dynamic inventory:")
+            self.log(self.params)
 
-        self.log("Using following parameters for OCI dynamic inventory:")
-        self.log(self.params)
+            self._compute_clients = {
+                region: self.create_service_client(ComputeClient, region=region)
+                for region in self.regions
+            }
+            self._virtual_nw_clients = {
+                region: self.create_service_client(VirtualNetworkClient, region=region)
+                for region in self.regions
+            }
 
-        self.region_params = {
-            region: dict(self.params, region=region) for region in self.regions
-        }
-        self._compute_clients = {
-            region: create_service_client(self.region_params[region], ComputeClient)
-            for region in self.regions
-        }
-        self._virtual_nw_clients = {
-            region: create_service_client(
-                self.region_params[region], VirtualNetworkClient
-            )
-            for region in self.regions
-        }
+            self.params["cache_file"] = self._get_cache_file()
 
-        self.params["cache_file"] = self._get_cache_file()
-
-        if not self.args.refresh_cache and self.is_cache_valid():
-            self.log(
-                "Reading inventory from cache {0}.".format(self.params["cache_file"])
-            )
-            self.inventory = self.read_from_cache()
-        else:
-            self.build_inventory()
-            self.write_to_cache(self.inventory)
-
-        if self.args.host:
-            if self.args.host in self.inventory["_meta"]["hostvars"]:
-                print(
-                    json.dumps(
-                        self.inventory["_meta"]["hostvars"][self.args.host],
-                        sort_keys=True,
-                        indent=2,
+            if not self.args.refresh_cache and self.is_cache_valid():
+                self.log(
+                    "Reading inventory from cache {0}.".format(
+                        self.params["cache_file"]
                     )
                 )
+                self.inventory = self.read_from_cache()
             else:
+                self.build_inventory()
+                self.write_to_cache(self.inventory)
+
+            if self.args.host:
+                if self.args.host in self.inventory["_meta"]["hostvars"]:
+                    print(
+                        json.dumps(
+                            self.inventory["_meta"]["hostvars"][self.args.host],
+                            sort_keys=True,
+                            indent=2,
+                        )
+                    )
+                else:
+                    self.log(
+                        "Either the specified host does not exist or its facts cannot be retrieved."
+                    )
+                    print({})
+
+            else:
+                print(json.dumps(self.inventory, sort_keys=True, indent=2))
+
+        except Exception as ex:
+            stacktrace = traceback.format_exc()
+            try:
+                error_message = ex.message
+            except AttributeError:
+                error_message = str(ex)
+            self.fail(message=error_message, stacktrace=stacktrace)
+
+    def _is_instance_principal_auth(self):
+        # check if auth is set to `instance_principal`.
+        return self.params["auth"] == "instance_principal"
+
+    def create_service_client(self, service_client_class, region=None):
+        if not region:
+            region = self.params["region"]
+        params = dict(self.params, region=region)
+        kwargs = {}
+        if self._is_instance_principal_auth():
+            try:
+                signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
+            except Exception:
                 self.log(
-                    "Either the specified host does not exist or its facts cannot be retrieved."
+                    "Failed retrieving certificates from localhost. Instance principal based authentication is only"
+                    "possible from within OCI compute instances."
                 )
-                print({})
+                raise
+            kwargs["signer"] = signer
 
-        else:
-            print(json.dumps(self.inventory, sort_keys=True, indent=2))
+        # Create service client class with the signer.
+        client = service_client_class(params, **kwargs)
 
-    def get_region_from_short_name(self, short_name):
-        if not short_name:
-            return None
+        return client
+
+    def get_region_short_name(self, name):
+        if name in self.region_long_names:
+            return self.region_long_names[name]
+        if name.lower() in self.region_long_names:
+            return self.region_long_names[name.lower()]
+        # check if name is already a short name
+        if name.lower() in self.region_short_names:
+            return name.lower()
+        raise ValueError("Could not get the short name of the region {0}.".format(name))
+
+    def get_region_long_name(self, name):
+        if name.lower() in self.region_short_names:
+            return self.region_short_names[name.lower()]
+        # check if name is already a long name
+        if name in self.region_long_names:
+            return name
+        if name.lower() in self.region_long_names:
+            return name.lower()
+        raise ValueError(
+            "Could not get the long region name of the region {0}.".format(name)
+        )
+
+    @property
+    def region_short_names(self):
         if not self._region_short_names:
             self._region_short_names = {
                 region.key.lower(): region.name
                 for region in call_with_backoff(self.identity_client.list_regions).data
             }
-        return self._region_short_names.get(short_name.lower())
+        return self._region_short_names
 
     @property
-    def compute_client(self):
-        return self._compute_clients
+    def region_long_names(self):
+        if not self._region_long_names:
+            self._region_long_names = {
+                region_long_name: region_short_name
+                for region_short_name, region_long_name in six.iteritems(
+                    self.region_short_names
+                )
+            }
+        return self._region_long_names
 
-    @property
-    def virtual_nw_client(self):
-        return self._virtual_nw_clients
+    def get_compute_client_for_region(self, region):
+        if region not in self._compute_clients:
+            raise ValueError(
+                "Could not fetch the compute client for region {0}.".format(region)
+            )
+        return self._compute_clients[region]
+
+    def get_virtual_nw_client_for_region(self, region):
+        if region not in self._compute_clients:
+            raise ValueError(
+                "Could not fetch the virtual network for region {0}.".format(region)
+            )
+        return self._virtual_nw_clients[region]
 
     def log(self, *args, **kwargs):
         if self.params["debug"]:
             print(*args, file=sys.stderr, **kwargs)
 
-    def _get_instance_details_from_metadata(self):
-        """Get and return the instance details using the metadata endpoint"""
-        metadata_url = "http://169.254.169.254/opc/v1/instance"
-        response = requests.get(metadata_url)
-        if not 200 <= response.status_code < 300:
-            self.log(
-                "Getting instance metadata details failed with response code: {0}".format(
-                    response.status_code
-                )
-            )
-            return {}
-        metadata_response = response.json()
-        self.log("Response from metadata: {0}".format(metadata_response))
-        instance_details = {}
+    def get_tenancy_ocid_from_compartment_ocid(self, compartment_ocid):
         # get the tenancy ocid by traversing the compartment tree
-        compartment_id = metadata_response["compartmentId"]
+        compartment_id = compartment_ocid
         while compartment_id:
             compartment = call_with_backoff(
                 self.identity_client.get_compartment, compartment_id=compartment_id
             ).data
             compartment_id = compartment.compartment_id
         if not compartment:
-            self.log("Error getting tenancy details from instance metadata.")
-            return {}
-        instance_details["tenancy"] = compartment.id
+            raise Exception(
+                "Error getting tenancy ocid from compartment ocid: {0}.".format(
+                    compartment_ocid
+                )
+            )
+        return compartment.id
+
+    def get_instance_details_from_metadata(self):
+        """Get and return the instance details using the metadata endpoint"""
+        metadata_url = "http://169.254.169.254/opc/v1/instance"
+        # use ansible provided open_url to avoid external dependencies
+        try:
+            response = open_url(metadata_url, method="GET")
+            metadata_response = json.loads(response.read())
+            self.log("Response from metadata: {0}".format(metadata_response))
+        except Exception as ex:
+            message = "Getting instance metadata details failed with error: {0}".format(
+                str(ex)
+            )
+            self.fail(message=message)
+        instance_details = {}
+        instance_details["compartmentId"] = metadata_response["compartmentId"]
         # get the instance region
-        instance_details["region"] = self.get_region_from_short_name(
+        instance_details["region"] = self.get_region_long_name(
             metadata_response["region"]
         )
         self.log("Instance parameters from metadata: {0}".format(instance_details))
+        if not (instance_details["region"] or instance_details["compartmentId"]):
+            raise Exception(
+                "Error getting region and compartment details from instance metadata."
+            )
         return instance_details
 
     def read_config(self):
@@ -495,6 +589,7 @@ class OCIInventory:
             OCI_ANSIBLE_AUTH_TYPE="auth",
             OCI_INVENTORY_REGIONS="regions",
             OCI_INVENTORY_EXCLUDE_REGIONS="exclude_regions",
+            OCI_COMPARTMENT_OCID="compartment_ocid",
         )
 
         for env_var in os.environ:
@@ -507,34 +602,48 @@ class OCIInventory:
                 if setting in dict_options:
                     self.params[setting] = json.loads(getattr(self.args, setting))
                     if type(self.params[setting]) != dict:
-                        self.fail(message="Invalid JSON input for {0}.".format(setting))
+                        raise TypeError("Invalid JSON input for {0}.".format(setting))
                 else:
                     self.params[setting] = getattr(self.args, setting)
 
     def validate_params(self):
         """Validate the parameters passed."""
-        # Check if the regions passed are valid
-        subscribed_regions = [
-            region_subscription.region_name
-            for region_subscription in self.region_subscriptions
-        ]
-        for region in self.regions:
-            if region not in subscribed_regions:
-                self.fail(
-                    "Region {0} is either invalid or not subscribed.".format(region)
-                )
+        if (
+            not self.params["tenancy"]
+            and not self.params["auth"] == "instance_principal"
+        ):
+            self.fail("Tenany OCID required.")
+        if self.params["regions"]:
+            # Check if the regions passed are valid
+            subscribed_regions = [
+                region_subscription.region_name
+                for region_subscription in self.region_subscriptions
+            ]
+            for region in self.regions:
+                if region not in subscribed_regions:
+                    raise ValueError(
+                        "Region {0} is either invalid or not subscribed.".format(region)
+                    )
 
     def _get_cache_file(self):
         """Calculate and return the cache file name from the parameters passed."""
         params_str = u""
-        params_str += u"@{0}:{1}@".format("tenancy", self.params["tenancy"])
+        if self.params["tenancy"]:
+            params_str += u"@{0}:{1}@".format("tenancy", self.params["tenancy"])
         params_str += u"@{0}:{1}@".format("regions", ",".join(sorted(self.regions)))
-        if self.params["compartment"]:
-            params_str += u"@{0}:{1}@".format("compartment", self.params["compartment"])
-        if self.params["parent_compartment_ocid"]:
+        if self.params["compartment_ocid"]:
             params_str += u"@{0}:{1}@".format(
-                "parent_compartment_ocid", self.params["parent_compartment_ocid"]
+                "compartment", self.params["compartment_ocid"]
             )
+        else:
+            if self.params["compartment"]:
+                params_str += u"@{0}:{1}@".format(
+                    "compartment", self.params["compartment"]
+                )
+            if self.params["parent_compartment_ocid"]:
+                params_str += u"@{0}:{1}@".format(
+                    "parent_compartment_ocid", self.params["parent_compartment_ocid"]
+                )
         params_str += u"@{0}:{1}@".format(
             "fetch_hosts_from_subcompartments",
             self.params["fetch_hosts_from_subcompartments"],
@@ -557,9 +666,7 @@ class OCIInventory:
                         namespace, key, self.params["defined_tags"][namespace][key]
                     )
             params_str += u"@{0}:{1}@".format("defined_tags", defined_tag_params_str)
-        hashed_params_str = hashlib.md5(
-            params_str.encode(sys.getfilesystemencoding())
-        ).hexdigest()
+        hashed_params_str = hashlib.md5(to_bytes(params_str)).hexdigest()
         self.log(
             u"Cache file name formed from the params {0} is {1}.".format(
                 params_str, hashed_params_str
@@ -595,6 +702,8 @@ class OCIInventory:
     def region_subscriptions(self):
         if self._region_subscriptions:
             return self._region_subscriptions
+        if not self.params["tenancy"]:
+            raise Exception("Tenancy OCID required to get the region subscriptions.")
         self._region_subscriptions = call_with_backoff(
             self.identity_client.list_region_subscriptions,
             tenancy_id=self.params["tenancy"],
@@ -605,13 +714,12 @@ class OCIInventory:
     def regions(self):
         if self._regions:
             return self._regions
-        subscribed_regions = [
-            region_subscription.region_name
-            for region_subscription in self.region_subscriptions
-        ]
         if self.params["regions"]:
             if self.params["regions"] == "all":
-                self._regions = subscribed_regions
+                self._regions = [
+                    region_subscription.region_name
+                    for region_subscription in self.region_subscriptions
+                ]
             else:
                 self._regions = [region for region in self.params["regions"].split(",")]
         else:
@@ -625,6 +733,7 @@ class OCIInventory:
 
     def get_compartments(
         self,
+        compartment_ocid=None,
         parent_compartment_ocid=None,
         compartment_name=None,
         fetch_hosts_from_subcompartments=False,
@@ -638,10 +747,13 @@ class OCIInventory:
 
         The tenancy is returned when compartment_name is the tenancy name.
 
+        :param str compartment_ocid: (optional)
+            OCID of the compartment. If None, root compartment is assumed to be parent.
         :param str parent_compartment_ocid: (optional)
             OCID of the parent compartment. If None, root compartment is assumed to be parent.
         :param str compartment_name: (optional)
-            Name of the compartment. If None, all the compartments including the root compartment are returned.
+            Name of the compartment. If None and :attr:`compartment_ocid` is not set, all the compartments including
+            the root compartment are returned.
         :param str fetch_hosts_from_subcompartments: (optional)
             Only applicable when compartment_name is specified. When set to true, the entire hierarchy of compartments
             of the given compartment is returned.
@@ -649,9 +761,42 @@ class OCIInventory:
         :raises MaximumWaitTimeExceededError: When maximum wait time is exceeded while invoking target_fn
         :return: list of :class:`~oci.identity.models.Compartment`
         """
-        tenancy = call_with_backoff(
-            self.identity_client.get_compartment, compartment_id=self.params["tenancy"]
-        ).data
+        if compartment_ocid:
+            try:
+                compartment_with_ocid = call_with_backoff(
+                    self.identity_client.get_compartment,
+                    compartment_id=compartment_ocid,
+                ).data
+            except ServiceError as se:
+                if se.status == 404:
+                    raise Exception(
+                        "Compartment with OCID {0} either does not exist or "
+                        "you do not have permission to access it.".format(
+                            compartment_ocid
+                        )
+                    )
+            else:
+                if not fetch_hosts_from_subcompartments:
+                    return [compartment_with_ocid]
+                return self.get_sub_compartments(compartment_with_ocid)
+
+        if not self.params["tenancy"]:
+            raise Exception(
+                "Tenancy OCID required to get the compartments in the tenancy."
+            )
+
+        try:
+            tenancy = call_with_backoff(
+                self.identity_client.get_compartment,
+                compartment_id=self.params["tenancy"],
+            ).data
+        except ServiceError as se:
+            if se.status == 404:
+                raise Exception(
+                    "Either tenancy ocid is invalid or need inspect permission on root compartment to get the "
+                    "compartments in the tenancy."
+                )
+
         all_compartments = [tenancy] + [
             compartment
             for compartment in list_all_resources(
@@ -663,7 +808,6 @@ class OCIInventory:
                 compartment, lifecycle_state=self.LIFECYCLE_ACTIVE_STATE
             )
         ]
-        compartments = []
 
         # return all the compartments if compartment_name is not passed
         if not compartment_name:
@@ -676,10 +820,10 @@ class OCIInventory:
             else:
                 return [tenancy]
 
-        compartment_with_name = None
         if not parent_compartment_ocid:
             parent_compartment_ocid = tenancy.id
 
+        compartment_with_name = None
         for compartment in all_compartments:
             if (
                 compartment.name == compartment_name
@@ -688,42 +832,53 @@ class OCIInventory:
                 compartment_with_name = compartment
                 break
 
-        if compartment_with_name:
-            if fetch_hosts_from_subcompartments:
-                # OCI SDK does not support fetching sub-compartments for non root compartments
-                # So traverse the compartment tree to fetch all the sub compartments
-                queue = deque()
-                queue.append(compartment_with_name)
-                while len(queue) > 0:
-                    parent_compartment = queue.popleft()
-                    compartments.append(parent_compartment)
-                    child_compartments = [
-                        compartment
-                        for compartment in list_all_resources(
-                            target_fn=self.identity_client.list_compartments,
-                            compartment_id=parent_compartment.id,
-                        )
-                        if self.filter_resource(
-                            compartment, lifecycle_state=self.LIFECYCLE_ACTIVE_STATE
-                        )
-                    ]
-                    for child_compartment in child_compartments:
-                        queue.append(child_compartment)
-            else:
-                compartments = [compartment_with_name]
+        if not compartment_with_name:
+            raise Exception(
+                "Compartment with name {0} not found.".format(compartment_name)
+            )
 
+        if not fetch_hosts_from_subcompartments:
+            return [compartment_with_name]
+
+        return self.get_sub_compartments(compartment_with_name)
+
+    def get_sub_compartments(self, root):
+        # OCI SDK does not support fetching sub-compartments for non root compartments
+        # So traverse the compartment tree to fetch all the sub compartments
+        compartments = []
+        queue = deque()
+        queue.append(root)
+        while len(queue) > 0:
+            parent_compartment = queue.popleft()
+            compartments.append(parent_compartment)
+            child_compartments = [
+                compartment
+                for compartment in list_all_resources(
+                    target_fn=self.identity_client.list_compartments,
+                    compartment_id=parent_compartment.id,
+                )
+                if self.filter_resource(
+                    compartment, lifecycle_state=self.LIFECYCLE_ACTIVE_STATE
+                )
+            ]
+            for child_compartment in child_compartments:
+                queue.append(child_compartment)
         return compartments
 
     @staticmethod
     def filter_resource(resource, **kwargs):
-        for key, val in kwargs.items():
+        for key, val in six.iteritems(kwargs):
             if getattr(resource, key, None) != val:
                 return False
         return True
 
     def get_instances(self, compartment_ocids):
+        """Get and return instances from all the specified compartments and regions.
 
-        instances = []
+        :param compartment_ocids: List of compartment ocid's to fetch the instances from
+        :return: dict with region as key and list of instances of the region as value
+        """
+        instances = defaultdict(list)
 
         if self.params["enable_parallel_processing"]:
             for region in self.regions:
@@ -744,28 +899,27 @@ class OCIInventory:
                         get_filtered_instances_for_region, compartment_ocids
                     )
                 for sublist in lists_of_instances:
-                    instances.extend(sublist)
+                    instances[region].extend(sublist)
 
         else:
             for region in self.regions:
                 for compartment_ocid in compartment_ocids:
-                    instances.extend(
+                    instances[region].extend(
                         self.get_filtered_instances(compartment_ocid, region)
                     )
 
         return instances
 
-    def get_filtered_instances(self, compartment_ocid, region=None):
+    def get_filtered_instances(self, compartment_ocid, region):
         try:
-            if not region:
-                region = self.params["region"]
+            compute_client = self.get_compute_client_for_region(region)
             self.log(
                 "Listing all RUNNING instances from compartment: {0} and region: {1}".format(
                     compartment_ocid, region
                 )
             )
             instances = list_all_resources(
-                target_fn=self.compute_client[region].list_instances,
+                target_fn=compute_client.list_instances,
                 compartment_id=compartment_ocid,
                 lifecycle_state="RUNNING",
             )
@@ -780,7 +934,7 @@ class OCIInventory:
                     for instance in instances
                     if all(
                         instance.freeform_tags.get(key) == value
-                        for key, value in self.params["freeform_tags"].items()
+                        for key, value in six.iteritems(self.params["freeform_tags"])
                     )
                 ]
                 self.log(
@@ -795,7 +949,9 @@ class OCIInventory:
                     if all(
                         (instance.defined_tags.get(namespace, {})).get(key) == value
                         for namespace in self.params["defined_tags"]
-                        for key, value in self.params["defined_tags"][namespace].items()
+                        for key, value in six.iteritems(
+                            self.params["defined_tags"][namespace]
+                        )
                     )
                 ]
                 self.log(
@@ -812,12 +968,13 @@ class OCIInventory:
             return []
 
     def get_host_name(self, vnic, region):
+        virtual_nw_client = self.get_virtual_nw_client_for_region(region)
         if self.params["hostname_format"] == "fqdn":
             subnet = call_with_backoff(
-                self.virtual_nw_client[region].get_subnet, subnet_id=vnic.subnet_id
+                virtual_nw_client.get_subnet, subnet_id=vnic.subnet_id
             ).data
             vcn = call_with_backoff(
-                self.virtual_nw_client[region].get_vcn, vcn_id=subnet.vcn_id
+                virtual_nw_client.get_vcn, vcn_id=subnet.vcn_id
             ).data
 
             oraclevcn_domain_name = ".oraclevcn.com"
@@ -841,16 +998,16 @@ class OCIInventory:
         self.log("Public IP for VNIC: {0} is {1}.".format(vnic.id, vnic.public_ip))
         return vnic.public_ip
 
-    def build_inventory_for_instance(self, instance):
+    def build_inventory_for_instance(self, instance, region):
         """Build and return inventory for an instance"""
         try:
             self.log("Building inventory for instance {0}".format(instance.id))
             instance_inventory = {}
+            compute_client = self.get_compute_client_for_region(region)
+            virtual_nw_client = self.get_virtual_nw_client_for_region(region)
             compartment = self.compartments[instance.compartment_id]
 
             instance_vars = to_dict(instance)
-
-            region = self.get_region_from_short_name(instance.region)
 
             common_groups = {"all"}
             # Group by availability domain
@@ -862,7 +1019,7 @@ class OCIInventory:
             common_groups.add(compartment_name)
 
             # Group by region
-            region_grp = self.sanitize("region_" + instance.region)
+            region_grp = self.sanitize("region_" + self.get_region_short_name(region))
             common_groups.add(region_grp)
 
             # Group by image OCID
@@ -910,7 +1067,7 @@ class OCIInventory:
             vnic_attachments = [
                 vnic_attachment
                 for vnic_attachment in list_all_resources(
-                    target_fn=self.compute_client[region].list_vnic_attachments,
+                    target_fn=compute_client.list_vnic_attachments,
                     compartment_id=compartment.id,
                     instance_id=instance.id,
                 )
@@ -922,8 +1079,7 @@ class OCIInventory:
             for vnic_attachment in vnic_attachments:
 
                 vnic = call_with_backoff(
-                    self.virtual_nw_client[region].get_vnic,
-                    vnic_id=vnic_attachment.vnic_id,
+                    virtual_nw_client.get_vnic, vnic_id=vnic_attachment.vnic_id
                 ).data
                 self.log(
                     "VNIC {0} is attached to instance {1}.".format(
@@ -949,7 +1105,7 @@ class OCIInventory:
                 groups = set(common_groups)
 
                 subnet = call_with_backoff(
-                    self.virtual_nw_client[region].get_subnet, subnet_id=vnic.subnet_id
+                    virtual_nw_client.get_subnet, subnet_id=vnic.subnet_id
                 ).data
                 groups.add(subnet.id)
                 groups.add(subnet.vcn_id)
@@ -992,7 +1148,7 @@ class OCIInventory:
         """Merge all instance inventories into the main inventory"""
         for instance_inventory in instance_inventories:
             if instance_inventory:
-                for host_name, host_inventory in instance_inventory.items():
+                for host_name, host_inventory in six.iteritems(instance_inventory):
                     self.add_host(
                         host_name,
                         vars=host_inventory["vars"],
@@ -1014,68 +1170,69 @@ class OCIInventory:
     def build_inventory(self):
         self.log("Building inventory.")
 
-        try:
-            # Compartments(including the root compartment) from which the instances are to be retrieved.
-            self.compartments = {
-                compartment.id: compartment
-                for compartment in self.get_compartments(
-                    parent_compartment_ocid=self.params["parent_compartment_ocid"],
-                    compartment_name=self.params["compartment"],
-                    fetch_hosts_from_subcompartments=self.params[
-                        "fetch_hosts_from_subcompartments"
-                    ],
-                )
-            }
-
-            if not self.compartments:
-                self.log("No compartments matching the criteria.")
-                return
-
-            self.log(
-                "Building inventory for compartments {0}".format(self.compartments)
+        # Compartments(including the root compartment) from which the instances are to be retrieved.
+        self.compartments = {
+            compartment.id: compartment
+            for compartment in self.get_compartments(
+                compartment_ocid=self.params["compartment_ocid"],
+                parent_compartment_ocid=self.params["parent_compartment_ocid"],
+                compartment_name=self.params["compartment"],
+                fetch_hosts_from_subcompartments=self.params[
+                    "fetch_hosts_from_subcompartments"
+                ],
             )
+        }
 
-            instances = self.get_instances(self.compartments)
-            if not instances:
-                self.log("No instances matching the criteria.")
-                return
+        if not self.compartments:
+            self.log("No compartments matching the criteria.")
+            return
 
-            self.log("Building inventory for instances {0}".format(instances))
+        self.log("Building inventory for compartments {0}".format(self.compartments))
 
+        instances_by_region = self.get_instances(self.compartments)
+
+        self.log("Building inventory for instances {0}".format(instances_by_region))
+
+        instance_inventories = []
+
+        if self.params["enable_parallel_processing"]:
             instance_inventories = []
-
-            if self.params["enable_parallel_processing"]:
-                num_threads = min(len(instances), self.params["max_thread_count"])
-                self.log(
-                    "Parallel processing enabled. Building individual instance inventories {0} threads.".format(
-                        num_threads
+            for region in instances_by_region:
+                instances = instances_by_region[region]
+                if instances:
+                    num_threads = min(len(instances), self.params["max_thread_count"])
+                    self.log(
+                        "Parallel processing enabled. Building individual instance inventories in {0} threads.".format(
+                            num_threads
+                        )
                     )
-                )
-                with self.pool(processes=num_threads) as pool:
-                    instance_inventories = pool.map(
-                        self.build_inventory_for_instance, instances
-                    )
+                    with self.pool(processes=num_threads) as pool:
+                        instance_inventories.extend(
+                            pool.map(
+                                partial(
+                                    self.build_inventory_for_instance, region=region
+                                ),
+                                instances,
+                            )
+                        )
 
-            else:
-                instance_inventories = [
-                    self.build_inventory_for_instance(instance)
-                    for instance in instances
-                ]
+        else:
+            instance_inventories = [
+                self.build_inventory_for_instance(instance, region)
+                for region in instances_by_region
+                for instance in instances_by_region[region]
+            ]
 
-            self.log("Instance inventories: {0}".format(instance_inventories))
-            self.log("Merging instance inventories.")
+        self.log("Instance inventories: {0}".format(instance_inventories))
+        self.log("Merging instance inventories.")
 
-            self.merge_instance_inventories(instance_inventories)
+        self.merge_instance_inventories(instance_inventories)
 
-        except ServiceError as ex:
-            if ex.status == 401:
-                self.log(ex)
-                self.fail(exit_code=1)
-            self.log(ex)
-
-    def fail(self, exit_code=1, message=None):
+    def fail(self, message=None, exit_code=1, stacktrace=None):
+        if stacktrace:
+            self.log(stacktrace)
         if message:
-            print(message)
+            print(message, file=sys.stderr)
         sys.exit(exit_code)
 
     def parse_cli_args(self):
@@ -1109,6 +1266,19 @@ class OCIInventory:
             action="store",
             dest="profile",
             help="OCI config profile for connecting to OCI",
+        )
+
+        parser.add_argument(
+            "--tenancy",
+            action="store",
+            help="OCID of the tenancy for which dynamic inventory must be generated.",
+        )
+
+        parser.add_argument(
+            "--compartment-ocid",
+            action="store",
+            help="OCID of the compartment for which dynamic inventory must be generated. If specified, any value "
+            "specified for compartment and parent-compartment-ocid options is ignored.",
         )
 
         parser.add_argument(

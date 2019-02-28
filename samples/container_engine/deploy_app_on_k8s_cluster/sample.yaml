@@ -1,5 +1,5 @@
 ---
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -46,7 +46,11 @@
     deployment_name: "hello-k8s-deployment"
 
     OKE_ip_address1: "130.35.0.0/16"
-    OKE_ip_address2: "138.1.0.0/17"
+    OKE_ip_address2: "134.70.0.0/17"
+    OKE_ip_address3: "138.1.0.0/16"
+    OKE_ip_address4: "140.91.0.0/17"
+    OKE_ip_address5: "147.154.0.0/16"
+    OKE_ip_address6: "192.29.0.0/16"
 
     #########################################
     # Tenancy specific configuration

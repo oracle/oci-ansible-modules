@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -66,12 +66,27 @@ options:
     timestamp:
         description: The time to restore the database to.
         required: false
+    password:
+        description: The password to encrypt the keys inside the wallet. The password must be at least 8 characters long and
+                     must include at least 1 letter and either 1 numeric character or 1 special character. I(password) is
+                     required if I(state='generate_wallet').
+        required: false
+    wallet_file:
+        description: The destination file path with file name when downloading wallet. The file must have 'zip' extension.
+                     I(wallet_file) is required if I(state='generate_wallet').
+        required: false
+    force:
+        description: Force overwriting existing wallet file when downloading wallet.
+        required: false
+        default: true
+        type: bool
+        aliases: [ 'overwrite' ]
     state:
-        description: Create, update, terminate, restore, start and stop Autonomous Database. For I(state=present), if it
+        description: Create, update, terminate, restore, start, stop and generate wallet for Autonomous Database. For I(state=present), if it
                      does not exist, it gets created. If it exists, it gets updated.
         required: false
         default: 'present'
-        choices: ['present','absent', 'restore', 'start', 'stop']
+        choices: ['present','absent', 'restore', 'start', 'stop', 'generate_wallet']
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
@@ -124,6 +139,14 @@ EXAMPLES = """
   oci_autonomous_database:
     autonomous_database_id: 'ocid1.autonomousdatabase.oc1..xxxxxEXAMPLExxxxx..qndq'
     state: 'stop'
+
+# Download wallet for Autonomous Database
+- name: Download wallet for Autonomous Database
+  oci_autonomous_database:
+    autonomous_database_id: 'ocid1.autonomousdatabase.oc1..xxxxxEXAMPLExxxxx'
+    password: 'BEstr0ng_#1'
+    wallet_file: '/tmp/atp_wallet.zip'
+    state: 'generate_wallet'
 
 # Delete Autonomous Database
 - name: Delete Autonomous Database
@@ -242,6 +265,7 @@ RETURN = """
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 from ansible.module_utils.oracle import oci_db_utils
+from ansible.module_utils._text import to_bytes
 import os
 
 try:
@@ -252,6 +276,7 @@ try:
         CreateAutonomousDatabaseDetails,
         UpdateAutonomousDatabaseDetails,
         RestoreAutonomousDatabaseDetails,
+        GenerateAutonomousDatabaseWalletDetails,
     )
 
     HAS_OCI_PY_SDK = True
@@ -282,7 +307,7 @@ def create_or_update_autonomous_database(db_client, module):
         module.fail_json(msg=ex.message)
     except ClientError as ex:
         get_logger().error(
-            "Unable to launch/update autonomous database due to: %s", str(ex)
+            "Unable to create/update autonomous database due to: %s", str(ex)
         )
         module.fail_json(msg=str(ex))
 
@@ -433,6 +458,46 @@ def get_logger():
     return logger
 
 
+def generate_wallet(db_client, module):
+    result = dict(changed=False)
+    autonomous_database_id = module.params.get("autonomous_database_id")
+    generate_autonomous_database_wallet_details = (
+        GenerateAutonomousDatabaseWalletDetails()
+    )
+    generate_autonomous_database_wallet_details.password = module.params.get("password")
+    wallet_file = module.params.get("wallet_file")
+
+    try:
+        if wallet_file is None or len(wallet_file.strip()) == 0:
+            raise ClientError(Exception("Wallet file must be declared"))
+        if module.params.get("force") or not os.path.isfile(to_bytes(wallet_file)):
+            response = oci_utils.call_with_backoff(
+                db_client.generate_autonomous_database_wallet,
+                autonomous_database_id=autonomous_database_id,
+                generate_autonomous_database_wallet_details=generate_autonomous_database_wallet_details,
+            )
+            result["changed"] = oci_db_utils.write_stream_to_file(
+                response.data, module.params.get("wallet_file")
+            )
+        else:
+            result["msg"] = (
+                "Wallet file  %s already exists. Use force option to overwrite."
+                % wallet_file
+            )
+    except ServiceError as ex:
+        get_logger().error(
+            "Unable to get autonomous database wallet due to: %s", ex.message
+        )
+        module.fail_json(msg=ex.message)
+    except ClientError as ex:
+        get_logger().error(
+            "Unable to get autonomous database wallet due to: %s", str(ex)
+        )
+        module.fail_json(msg=str(ex))
+
+    return result
+
+
 def main():
     logger = oci_utils.get_logger("oci_autonomous_database")
     set_logger(logger)
@@ -444,6 +509,7 @@ def main():
         dict(
             compartment_id=dict(type="str", required=False),
             admin_password=dict(type="str", required=False, no_log=True),
+            password=dict(type="str", required=False, no_log=True),
             autonomous_database_id=dict(type="str", required=False, aliases=["id"]),
             cpu_core_count=dict(type=int, required=False),
             data_storage_size_in_tbs=dict(type=int, required=False),
@@ -455,16 +521,28 @@ def main():
                 choices=["LICENSE_INCLUDED", "BRING_YOUR_OWN_LICENSE"],
             ),
             timestamp=dict(type="str", required=False),
+            wallet_file=dict(type="str", required=False),
+            force=dict(type=bool, required=False, default=True, aliases=["overwrite"]),
             state=dict(
                 type="str",
                 required=False,
                 default="present",
-                choices=["present", "absent", "restore", "start", "stop"],
+                choices=[
+                    "present",
+                    "absent",
+                    "restore",
+                    "start",
+                    "stop",
+                    "generate_wallet",
+                ],
             ),
         )
     )
 
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(
+        argument_spec=module_args,
+        required_if=[("state", "generate_wallet", ["password", "wallet_file"])],
+    )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")
@@ -482,6 +560,8 @@ def main():
         result = delete_autonomous_database(db_client, module)
     elif state == "restore":
         result = restore_autonomous_database(db_client, module)
+    elif state == "generate_wallet":
+        result = generate_wallet(db_client, module)
     else:
         result = start_or_stop_autonomous_database(db_client, module)
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -79,6 +79,16 @@ def execute_function_and_wait_patch(mocker):
     return mocker.patch.object(oci_db_utils, "execute_function_and_wait")
 
 
+@pytest.fixture()
+def call_with_backoff_patch(mocker):
+    return mocker.patch.object(oci_utils, "call_with_backoff")
+
+
+@pytest.fixture()
+def write_stream_to_file_patch(mocker):
+    return mocker.patch.object(oci_db_utils, "write_stream_to_file")
+
+
 def setUpModule():
     logging.basicConfig(
         filename="/tmp/oci_ansible_module.log", filemode="a", level=logging.INFO
@@ -124,7 +134,7 @@ def test_create_or_update_autonomous_data_warehouse_update(
     )
 
 
-def test_launch_or_update_autonomous_data_warehousee_client_error(
+def test_create_or_update_autonomous_data_warehousee_client_error(
     db_client, check_and_create_resource_patch
 ):
     error_message = "databse attribute has no value"
@@ -138,7 +148,7 @@ def test_launch_or_update_autonomous_data_warehousee_client_error(
         assert error_message in ex.args[0]
 
 
-def test_launch_or_update_autonomous_data_warehousee_service_error(
+def test_create_or_update_autonomous_data_warehousee_service_error(
     db_client, check_and_create_resource_patch
 ):
     error_message = "Internal Server Error"
@@ -320,6 +330,56 @@ def test_start_or_stop_autonomous_data_warehouse_stop_idempotent(
         db_client, module
     )
     assert result["changed"] is False
+
+
+def test_generate_wallet(
+    db_client, call_with_backoff_patch, write_stream_to_file_patch
+):
+    call_with_backoff_patch.return_value = get_response(200, None, "test", None)
+    write_stream_to_file_patch.return_value = True
+    module = get_module(dict(password="password123", wallet_file="test_wallet_file"))
+    result = oci_autonomous_data_warehouse.generate_wallet(db_client, module)
+    assert result["changed"] is True
+
+
+def test_generate_wallet_no_wallet_file_defined(db_client):
+    error_message = "Wallet file must be declared"
+    module = get_module(dict(password="password123"))
+    try:
+        oci_autonomous_data_warehouse.generate_wallet(db_client, module)
+    except Exception as ex:
+        assert error_message in ex.args[0]
+
+
+def test_generate_wallet_empty_wallet_file_defined(db_client):
+    error_message = "Wallet file must be declared"
+    module = get_module(dict(password="password123", wallet_file=" "))
+    try:
+        oci_autonomous_data_warehouse.generate_wallet(db_client, module)
+    except Exception as ex:
+        assert error_message in ex.args[0]
+
+
+def test_generate_wallet_service_error(db_client, call_with_backoff_patch):
+    error_message = "Internal Server Error"
+    module = get_module(dict(password="password123", wallet_file="test_wallet_file"))
+    call_with_backoff_patch.side_effect = ServiceError(
+        499, "InternalServerError", dict(), error_message
+    )
+    try:
+        oci_autonomous_data_warehouse.generate_wallet(db_client, module)
+    except Exception as ex:
+        assert error_message in ex.args[0]
+
+
+def test_generate_wallet_client_error(db_client, call_with_backoff_patch):
+    error_message = "Wallet file not valid"
+    module = get_module(dict(password="password123", wallet_file="test_wallet_file"))
+    call_with_backoff_patch.side_effect = ClientError(Exception(error_message))
+    try:
+        oci_autonomous_data_warehouse.generate_wallet(db_client, module)
+    except Exception as ex:
+        assert error_message in ex.args[0]
 
 
 def get_autonomous_data_warehouse():

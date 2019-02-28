@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2019-02-28
+
+### Added
+- Modules to manage
+    - AppCatalog [Listings](https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/AppCatalogListing/), [Subscriptions](https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/AppCatalogSubscription/), and [Agreements](https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/AppCatalogListingResourceVersionAgreements/) to work with Oracle and Partner images published in the Partner Images Catalog.
+- Added the following features in existing modules:
+    - Option to specify `route_table_id` with a create or an update operation in `oci_local_peering_gateway` module
+    - Option to create and download a database wallet from Autonomous Transaction Processing and Autonomous Data Warehouse databases in `oci_autonomous_database` and `oci_autonomous_data_warehouse` modules
+    - Option to create DB System from a source(backup) in `oci_db_system` module
+- Added the following features in OCI dynamic inventory script:
+    - Option to build inventory of a given compartment using its OCID
+
 ## [1.5.0] - 2019-01-28
 
 ### Added

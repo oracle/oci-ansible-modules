@@ -166,6 +166,12 @@ options:
                             between the client and backend servers. A send operation does not reset the timer
                             for receive operations. A receive operation does not reset the timer for send operations.]
                required: false
+            hostname_names:
+                description: An array of hostname resource names.
+                required: false
+            path_route_set_name:
+                description: The name of the set of path-based routing rules, PathRouteSet, applied to this listener's traffic.
+                required: false
         required: false
     path_route_sets:
         description: The configuration details for a load balancer's path route sets
@@ -228,6 +234,8 @@ EXAMPLES = """
         default_backend_set_name: "backend1"
         port: "80"
         protocol: "HTTP"
+        hostname_names: ['hostname_001']
+        path_route_set_name: 'test_path_route_set'
     subnet_ids:
         - "ocid1.subnet.ad1"
         - "ocid1.subnet.ad2"
@@ -237,11 +245,13 @@ EXAMPLES = """
             private_key: "privkey.pem"
             public_certificate: "ca_cert.pem"
             certificate_name: "certs1"
-    path_routes:
-          - backend_set_name: "backend1"
-            path: "/admin"
-            path_match_type:
-                 match_type: 'EXACT_MATCH'
+    path_route_sets:
+          test_path_route_set:
+              path_routes:
+                  - backend_set_name: "backend1"
+                    path: "/admin"
+                    path_match_type:
+                       match_type: 'EXACT_MATCH'
     hostnames:
        ansible_hostname:
            name: 'ansible_hostname'

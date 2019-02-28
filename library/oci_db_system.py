@@ -53,7 +53,8 @@ options:
     cpu_core_count:
         description: The number of CPU cores to enable. For VM DB systems, the core count
                      is inferred from the specific VM shape chosen, so this parameter is
-                     not used.
+                     not used. Do not provide this attribute if the I(shape) of the DB System
+                     is a Virtual Machine shape.
         required: false
     data_storage_percentage:
         description: The percentage assigned to DATA storage (user data and database files).
@@ -78,26 +79,33 @@ options:
                             Consists of the following options, ['admin_password' describes
                             A strong password for SYS, SYSTEM, and PDB Admin. The password
                             must be at least nine characters and contain at least two uppercase,
-                            two lowercase, two numbers, and two special characters. required - true],
+                            two lowercase, two numbers, and two special characters. This parameter
+                            valid for I(source=NONE) and I(source=DB_BACKUP). required - true],
                             ['character_set' describes the character set for the database. The default
-                            is AL32UTF8. required - false],['freeform_tags' describes Free-form tags for
-                            this database. Each tag is a simple key-value pair with no predefined name, type,
-                            or namespace. required - false], ['defined_tags' describes Defined tags for this
-                            database. Each key is predefined and scoped to a namespace. required - false]
-                            ['db_backup_config' consists of the option 'auto_backup_enabled' to determine
-                            whether to configures automatic backups of the databse. required - false],
-                            ['db_name' describes the name of the database name. It must begin with an alphabetic
-                            character and can contain a maximum of eight alphanumeric characters. Special characters
-                            are not permitted. required - true],['db_workload' describes database workload type with
-                            allowed values OLTP and DSS.required - false], ['ncharacter_set' describes National
-                            character set for the database.The default is AL16UTF16. Allowed values are AL16UTF16 or
-                            UTF8. required - false],['pdb_name' describes pluggable database name.It must begin with
-                            an alphabetic character and can contain a maximum of eight alphanumeric characters.
-                            Special characters are notpermitted. Pluggable database should not be same as database name.
-                            required - false]
+                            is AL32UTF8. This parameter only valid for I(source=NONE). required - false],
+                            ['freeform_tags' describes Free-form tags for this database. Each tag is a simple
+                            key-value pair with no predefined name, type, or namespace. This parameter only
+                            valid for I(source=NONE).required - false], ['defined_tags' describes Defined tags
+                            for this database. Each key is predefined and scoped to a namespace. This parameter
+                            only valid for I(source=NONE). required - false], ['db_backup_config' consists of the
+                            option 'auto_backup_enabled' to determine whether to configures automatic backups of
+                            the database. This parameter only valid for I(source=NONE). required - false], ['db_name'
+                            describes the name of the database name. It must begin with an alphabetic character and can
+                            contain a maximum of eight alphanumeric characters. Special characters
+                            are not permitted. This parameter only valid for I(source=NONE). required - true],
+                            ['db_workload' describes database workload type with allowed values OLTP and DSS.
+                            This parameter only valid for I(source=NONE). required - false],['ncharacter_set' describes
+                            National character set for the database.The default is AL16UTF16. Allowed values are AL16UTF16
+                            or UTF8. This parameter only valid for I(source=NONE). required - false], ['pdb_name' describes
+                            pluggable database name. It must begin with an alphabetic character and can contain a maximum of
+                            eight alphanumeric characters. Special characters are notpermitted. Pluggable database should not
+                            be same as database name. This parameter only valid for I(source=NONE). required - false],
+                            ['backup_id' describes the backup OCID. This parameter only valid for I(source=DB_BACKUP). required - true],
+                            ['backup_tde_password' describes the password to open the TDE wallet. This parameter only
+                            valid for I(source=DB_BACKUP). required - true]
                required: true
             db_version:
-               description: A valid Oracle database version.
+               description: A valid Oracle database version. This parameter only valid for I(source=NONE).
                required: true
             display_name:
                description: The user-provided name of the database home.
@@ -152,6 +160,12 @@ options:
         description: The public key portion of the key pair to use for SSH access to the DB System. Multiple public keys
                      can be provided. The length of the combined keys cannot exceed 10,000 characters.
         required: true
+    source:
+        description: The source of the database, NONE for creating a new database. DB_BACKUP for creating a new database
+                     by restoring from a backup. The default is NONE.
+        required: false
+        default: "NONE"
+        choices: ['DB_BACKUP', 'NONE']
     subnet_id:
         description: The OCID of the subnet the DB System is associated with.
         required: false
@@ -221,7 +235,7 @@ EXAMPLES = """
             target_users:
                 division: 'design'
       db_version: '12.2.0.1'
-      display_name: ansible-db-{{random_suffix_1024}}
+      display_name: ansible-db
     disk_redundancy: "NORMAL"
     display_name: "ansibledb"
     hostname: "ansibledbsystem"
@@ -231,6 +245,39 @@ EXAMPLES = """
     shape: "BM.DenseIO1.36"
     ssh_public_keys: ["/tmp/id_rsa.pub"]
     subnet_id: "ocid1.subnet.aaaa"
+    freeform_tags:
+        deployment: 'production'
+    defined_tags:
+        target_users:
+            division: 'documentation'
+    wait: False
+    state: 'present'
+
+# Create a new DB System Using a Database Backup
+- name: Create a new DB System Using a Database Backup
+  oci_db_system:
+    compartment_id: "ocid1.compartment.aaaa"
+    availability_domain: "AD-2"
+    cluster_name: "db-cluster"
+    cpu_core_count: 2
+    data_storage_percentage: 80
+    database_edition: "STANDARD_EDITION"
+    source: "DB_BACKUP"
+    db_home:
+      database:
+        admin_password: 'BEstr0ng_#1'
+        backup_id: 'ocid1.dbbackup.oc1.xxxxxEXAMPLExxxxx'
+        backup_tde_password: 'BEstr0ng_#1'
+      display_name: new-ansibledbhome-sourced-from-backup
+    disk_redundancy: "NORMAL"
+    display_name: "new-ansibledb-sourced-from-backup"
+    hostname: "ansibledbsystem"
+    initial_data_storage_size_in_gb: 4096
+    license_model: "LICENSE_INCLUDED"
+    node_count: 1
+    shape: "BM.DenseIO1.36"
+    ssh_public_keys: ["/tmp/id_rsa.pub"]
+    subnet_id: "ocid1.subnet.xxxxxEXAMPLExxxxx"
     freeform_tags:
         deployment: 'production'
     defined_tags:
@@ -495,7 +542,9 @@ try:
     from oci.util import to_dict
     from oci.database.models import (
         LaunchDbSystemDetails,
+        LaunchDbSystemFromBackupDetails,
         CreateDbHomeDetails,
+        CreateDbHomeFromBackupDetails,
         UpdateDbSystemDetails,
     )
 
@@ -551,10 +600,17 @@ def launch_or_update_db_system(db_client, module):
 
 
 def launch_db_system(db_client, module):
-    launch_db_system_details = LaunchDbSystemDetails()
-    launch_db_system_details.db_home = create_db_home(
-        module.params.get("db_home", None)
-    )
+    launch_db_system_details = None
+    if module.params.get("source") == "DB_BACKUP":
+        launch_db_system_details = LaunchDbSystemFromBackupDetails()
+        launch_db_system_details.db_home = create_db_home_from_backup_details(
+            module.params.get("db_home", None)
+        )
+    else:
+        launch_db_system_details = LaunchDbSystemDetails()
+        launch_db_system_details.db_home = create_db_home(
+            module.params.get("db_home", None)
+        )
     launch_db_system_details.ssh_public_keys = create_ssh_public_keys(
         module.params.get("ssh_public_keys", None)
     )
@@ -590,6 +646,21 @@ def create_db_home(db_home_dict):
     create_db_home_details.db_version = db_home_dict.get("db_version")
     create_db_home_details.display_name = db_home_dict.get("display_name")
     return create_db_home_details
+
+
+def create_db_home_from_backup_details(db_home_dict):
+    if db_home_dict is None:
+        raise ClientError(
+            Exception(
+                "Proper value for attribute db_home is mandatory for creating DB System"
+            )
+        )
+    create_db_home_for_backup_details = CreateDbHomeFromBackupDetails()
+    create_db_home_for_backup_details.database = oci_db_utils.create_database_from_backup_details(
+        db_home_dict.get("database", None)
+    )
+    create_db_home_for_backup_details.display_name = db_home_dict.get("display_name")
+    return create_db_home_for_backup_details
 
 
 def update_db_system(db_client, module, db_system_id):
@@ -758,6 +829,12 @@ def main():
                 type=bool, required=False, default=False, choices=[True, False]
             ),
             version=dict(type=dict, required=False),
+            source=dict(
+                type="str",
+                required=False,
+                default="NONE",
+                choices=["DB_BACKUP", "NONE"],
+            ),
         )
     )
 

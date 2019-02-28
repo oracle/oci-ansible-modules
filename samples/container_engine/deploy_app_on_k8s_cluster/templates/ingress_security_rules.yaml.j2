@@ -1,3 +1,9 @@
+---
+# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
+# This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Apache License v2.0
+# See LICENSE.TXT for details.
 ingress_security_rules_for_default_sec_list:
   # stateless ingress rule for the first worker node subnet
   - source: "{{ subnet1_cidr }}"
@@ -19,6 +25,30 @@ ingress_security_rules_for_default_sec_list:
         min: {{ SSH_port }}
         max: {{ SSH_port }}
   - source: "{{ OKE_ip_address2 }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ SSH_port }}
+        max: {{ SSH_port }}
+  - source: "{{ OKE_ip_address3 }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ SSH_port }}
+        max: {{ SSH_port }}
+  - source: "{{ OKE_ip_address4 }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ SSH_port }}
+        max: {{ SSH_port }}
+  - source: "{{ OKE_ip_address5 }}"
+    protocol: "{{ TCP_protocol }}"
+    tcp_options:
+      destination_port_range:
+        min: {{ SSH_port }}
+        max: {{ SSH_port }}
+  - source: "{{ OKE_ip_address6 }}"
     protocol: "{{ TCP_protocol }}"
     tcp_options:
       destination_port_range:

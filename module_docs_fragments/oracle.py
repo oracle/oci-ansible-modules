@@ -25,7 +25,6 @@ class ModuleDocFragment(object):
                   value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the
                   "DEFAULT" profile in C(config_file_location).
             required: false
-            default: "DEFAULT"
         api_user:
             description:
                 - The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the

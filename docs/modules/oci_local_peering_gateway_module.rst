@@ -119,8 +119,7 @@ Parameters
                     <b>config_profile_name</b>
                                                                             </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">DEFAULT</div>
-                                    </td>
+                                                                                                                                                            </td>
                                                                 <td>
                                                                         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
                                                                                 </td>
@@ -209,6 +208,16 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>route_table_id</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the route table the LPG will use. If you don't specify a route table here, the LPG is created without an associated route table. The Networking service does NOT automatically associate the attached VCN's default route table with the LPG.</div>
                                                                                 </td>
             </tr>
                                 <tr>

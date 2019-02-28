@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -514,6 +514,16 @@ def main():
             #  volumes are by default 1 TB but volumes get created with 50 GB size.
             exclude_attributes = {"size_in_mbs": True, "display_name": True}
             default_attribute_values = {"source_details": None, "size_in_gbs": 50}
+
+            # If a user expects volume to be created from a volume backup or from an another volume using option
+            # `source_details` and doesn't specify the option `size_in_gbs`, the default for `size_in_gbs` option should
+            # be set to None and this option should be excluded while matching with existing volumes.
+            if module.params["source_details"]:
+                if not oci_utils.has_user_provided_value_for_option(
+                    module, "size_in_gbs"
+                ):
+                    module.params["size_in_gbs"] = None
+                    exclude_attributes["size_in_gbs"] = True
             result = oci_utils.check_and_create_resource(
                 resource_type="volume",
                 create_fn=handle_create_volume,

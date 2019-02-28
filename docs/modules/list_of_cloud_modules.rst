@@ -16,6 +16,11 @@ Oracle
   * :ref:`oci_ad_facts_module` 
   * :ref:`oci_api_key_module` 
   * :ref:`oci_api_key_facts_module` 
+  * :ref:`oci_app_catalog_listing_agreement_module` 
+  * :ref:`oci_app_catalog_listing_facts_module` 
+  * :ref:`oci_app_catalog_listing_resource_version_facts_module` 
+  * :ref:`oci_app_catalog_subscription_module` 
+  * :ref:`oci_app_catalog_subscription_facts_module` 
   * :ref:`oci_auth_token_module` 
   * :ref:`oci_auth_token_facts_module` 
   * :ref:`oci_autonomous_data_warehouse_module` 

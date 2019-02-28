@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -46,6 +46,11 @@ options:
     peer_id:
         description: The OCID of the LPG you want to peer with. Required to connect I(local_peering_gateway_id) to
                      another LPG in the same region.
+        required: false
+    route_table_id:
+        description: The OCID of the route table the LPG will use. If you don't specify a route table here, the LPG is
+                     created without an associated route table. The Networking service does NOT automatically associate
+                     the attached VCN's default route table with the LPG.
         required: false
     skip_exhaustive_search_for_lpg_peerings:
         description: While connecting a LPG to another peer LPG with I(state=present), an exhaustive search (by default)
@@ -401,6 +406,7 @@ def main():
             local_peering_gateway_id=dict(type="str", required=False, aliases=["id"]),
             peer_id=dict(type="str", required=False),
             vcn_id=dict(type="str", required=False),
+            route_table_id=dict(type="str", required=False),
             skip_exhaustive_search_for_lpg_peerings=dict(
                 type=bool, required=False, default=False
             ),
@@ -459,6 +465,7 @@ def main():
                 module=module,
                 model=CreateLocalPeeringGatewayDetails(),
                 exclude_attributes=exclude_attributes,
+                default_attribute_values={"route_table_id": None},
             )
 
     module.exit_json(**result)

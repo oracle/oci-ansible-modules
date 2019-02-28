@@ -253,8 +253,7 @@ Parameters
                     <b>config_profile_name</b>
                                                                             </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">DEFAULT</div>
-                                    </td>
+                                                                                                                                                            </td>
                                                                 <td>
                                                                         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
                                                                                 </td>
@@ -365,12 +364,12 @@ Parameters
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
-                    <b>connection_configuration</b>
+                    <b>path_route_set_name</b>
                                                                             </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>Configuration details for the connection between the client and backend servers. Consists of following options, ['idle_timeout' describes The maximum idle time, in seconds, allowed between two successive receive or two successive send operations between the client and backend servers. A send operation does not reset the timer for receive operations. A receive operation does not reset the timer for send operations.]</div>
+                                            <div>The name of the set of path-based routing rules, PathRouteSet, applied to this listener's traffic.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -387,23 +386,45 @@ Parameters
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
-                    <b>port</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The communication port for the listener.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
                     <b>default_backend_set_name</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
                                             <div>The name of the associated backend set.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>hostname_names</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>An array of hostname resource names.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>connection_configuration</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Configuration details for the connection between the client and backend servers. Consists of following options, ['idle_timeout' describes The maximum idle time, in seconds, allowed between two successive receive or two successive send operations between the client and backend servers. A send operation does not reset the timer for receive operations. A receive operation does not reset the timer for send operations.]</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>port</b>
+                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The communication port for the listener.</div>
                                                         </td>
             </tr>
                     
@@ -573,6 +594,8 @@ Examples
             default_backend_set_name: "backend1"
             port: "80"
             protocol: "HTTP"
+            hostname_names: ['hostname_001']
+            path_route_set_name: 'test_path_route_set'
         subnet_ids:
             - "ocid1.subnet.ad1"
             - "ocid1.subnet.ad2"
@@ -582,11 +605,13 @@ Examples
                 private_key: "privkey.pem"
                 public_certificate: "ca_cert.pem"
                 certificate_name: "certs1"
-        path_routes:
-              - backend_set_name: "backend1"
-                path: "/admin"
-                path_match_type:
-                     match_type: 'EXACT_MATCH'
+        path_route_sets:
+              test_path_route_set:
+                  path_routes:
+                      - backend_set_name: "backend1"
+                        path: "/admin"
+                        path_match_type:
+                           match_type: 'EXACT_MATCH'
         hostnames:
            ansible_hostname:
                name: 'ansible_hostname'
