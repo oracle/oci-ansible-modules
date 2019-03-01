@@ -145,7 +145,7 @@ def main():
     oracle_module_dir_path = os.path.join(ansible_path, "modules", "cloud", "oracle")
     if not os.path.exists(oracle_module_dir_path):
         print("Creating directory {}".format(oracle_module_dir_path))
-        os.mkdir(oracle_module_dir_path)
+        os.makedirs(oracle_module_dir_path)
 
     # Modules in oci-ansible-modules are stored in library directory.
     roles_library_path = os.path.join(current_path, "library")
