@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -27,32 +27,26 @@ options:
     compartment_id:
         description: The OCID of the compartment containing the instance that needs to be used as the basis for the
                      image. Required when an image needs to be created with I(state=present).
-        required: false
     display_name:
         description: A user-friendly name to be associated with the image. This does not have to be unique, and can be
                      changed later. An Oracle-provided image name cannot be used as the name for a custom image's name.
-        required: false
         aliases: ['name']
     instance_id:
         description: The OCID of the instance that needs to be used as the basis for the image. Either C(instance_id)
                      or C(image_source_details) needs to be specified while creating an image using I(state=present).
-        required: false
     image_id:
         description: The OCID of the image. Required while updating an image using I(state=present), and deleting an
                      existing image using I(state=absent).
-        required: false
         aliases: [ 'id' ]
     image_source_details:
         description: Details for creating an image through import. Either C(instance_id) or C(image_source_details)
                      needs to be specified while creating an image using I(state=present).
-        required: false
         suboptions:
             source_type:
                 description: The source type for the image. Use 'objectStorageTuple' to get the image from an object in
                              Object Storage and specify C(namespace), C(bucket), and C(object). Use
                              'objectStorageUri' when specifying an Object Storage URL to get the image, and specify
                              C(source_uri).
-                required: false
                 aliases: [ 'destination_type' ]
             source_uri:
                 description: The Object Storage URL for the image. See Object Storage URLs at
@@ -62,29 +56,33 @@ options:
                              for constructing URLs for image import/export.
                              Required when creating an image using I(state=present) and the
                              I(source_type=objectStorageUri) under C(image_source_details).
-                required: false
             bucket_name:
                 description: The Object Storage bucket for the image. Required when creating an image using
                              I(state=present) and the I(source_type=objectStorageTuple) under C(image_source_details).
-                required: false
                 aliases: [ 'bucket' ]
             namespace_name:
                  description: The Object Storage namespace for the image. Required when creating an image using
                              I(state=present) and the I(source_type=objectStorageTuple) under C(image_source_details).
-                 required: false
                  aliases: [ 'namespace' ]
             object_name:
                 description: The Object Storage name for the image. Required when creating an image using
                              I(state=present) and the I(source_type=objectStorageTuple) under C(image_source_details).
-                required: false
                 aliases: [ 'object' ]
+            source_image_type:
+                description: The format of source image type to be imported.
+                             Available when creating an image using I(state=present) under C(image_source_details).
+                choices: ['QCOW2', 'VMDK']
+    launch_mode:
+        description: The the launch mode Specifies the configuration mode for launching virtual machine (VM) instances.
+                     The default value for Oracle-provided images is 'NATIVE', it launches with iSCSI boot and VFIO devices.
+        default: "NATIVE"
+        choices: ['NATIVE', 'EMULATED', 'PARAVIRTUALIZED', 'CUSTOM']
     state:
         description: The state of the image that must be asserted to. When I(state=present), and the
                      image doesn't exist, the image is created with the specified details. When I(state=absent),
                      the image is deleted.
                      Creation of an image may take longer than the default value of I(wait_timeout). So if I(wait=true),
                      during creation of an image, it is recommended to set a longer timeout value of I(wait_timeout).
-        required: false
         default: "present"
         choices: ['present', 'absent']
 
@@ -109,6 +107,7 @@ EXAMPLES = """
             bucket: "my_bucket"
             namespace: "my_namespace"
             object: "image-to-import.qcow2"
+            source_image_type: "QCOW2"
 
 - name: Create a new image by importing an exported image, where the image is available through an Object Storage
         Service URL
@@ -119,6 +118,7 @@ EXAMPLES = """
             source_type: "objectStorageUri"
             source_uri: "https://objectstorage.us-phoenix-1.oraclecloud.com/n/my_namespace/b/my_bucket/o/image-to-impor
                         t.qcow2"
+            source_image_type: "QCOW2"
 
 - name: Update an image's display name
   oci_image:
@@ -141,6 +141,15 @@ oci_image:
               "create_image_allowed": true,
               "display_name": "my-image-1",
               "id": "ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx.....dgb3pmci2q",
+              "launch_mode": "NATIVE",
+              "launch_options": {
+                 "boot_volume_type": "ISCSI",
+                 "firmware": "UEFI_64",
+                 "is_consistent_volume_naming_enabled": null,
+                 "is_pv_encryption_in_transit_enabled": null,
+                 "network_type": "VFIO",
+                 "remote_data_volume_type": "PARAVIRTUALIZED"
+               },
               "lifecycle_state": "AVAILABLE",
               "operating_system": "Canonical Ubuntu",
               "operating_system_version": "16.04",
@@ -226,10 +235,12 @@ def _get_create_image_details(module):
     name = module.params["name"]
     instance_id = module.params["instance_id"]
     image_source_details = module.params["image_source_details"]
+    launch_mode = module.params["launch_mode"]
 
     cid = CreateImageDetails()
     cid.compartment_id = comp_id
     cid.display_name = name
+    cid.launch_mode = launch_mode
     oci_utils.add_tags_to_model_from_module(cid, module)
 
     # An image can be created from an instance, or imported from an exported image available in object storage
@@ -245,10 +256,12 @@ def _get_create_image_details(module):
             isd.namespace_name = image_source_details["namespace"]
             isd.bucket_name = image_source_details["bucket"]
             isd.object_name = image_source_details["object"]
+            isd.source_image_type = image_source_details["source_image_type"]
         elif source_type == "objectStorageUri":
             isd = ImageSourceViaObjectStorageUriDetails()
             isd.source_type = source_type
             isd.source_uri = image_source_details["source_uri"]
+            isd.source_image_type = image_source_details["source_image_type"]
         cid.image_source_details = isd
     else:
         module.fail_json(
@@ -291,6 +304,12 @@ def main():
                 default="present",
                 choices=["present", "absent"],
             ),
+            launch_mode=dict(
+                type="str",
+                required=False,
+                default="NATIVE",
+                choices=["NATIVE", "EMULATED", "PARAVIRTUALIZED", "CUSTOM"],
+            ),
         )
     )
 
@@ -310,7 +329,7 @@ def main():
     result = dict(changed=False)
 
     id = module.params.get("image_id", None)
-    exclude_attributes = {"display_name": True, "launch_mode": True}
+    exclude_attributes = {"display_name": True}
     debug("Id is " + str(id))
     if id is not None:
         image_resp = _get_image_from_id(compute_client, id, module)

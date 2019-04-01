@@ -175,11 +175,11 @@ def list_cross_connects(virtual_network_client, module):
                 "cross_connect_group_id",
                 "lifecycle_state",
             ]
-            optional_kwargs = {
-                param: module.params[param]
+            optional_kwargs = dict(
+                (param, module.params[param])
                 for param in optional_list_method_params
                 if module.params.get(param) is not None
-            }
+            )
             existing_cross_connects = oci_utils.list_all_resources(
                 virtual_network_client.list_cross_connects,
                 compartment_id=compartment_id,

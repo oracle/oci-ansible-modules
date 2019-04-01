@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -302,14 +302,14 @@ def test_update_user_success(
 def test_unblock_user_unblocked(identity_client):
     user = get_user()
     identity_client.update_user_state.return_value = get_response(200, None, user, None)
-    _, result = oci_user.unblock_user(identity_client, "no", user)
+    dummy, result = oci_user.unblock_user(identity_client, "no", user)
     assert result is True
 
 
 def test_unblock_user_not_unblocked(identity_client):
     user = get_user()
     identity_client.update_user_state.return_value = user
-    _, result = oci_user.unblock_user(identity_client, None, user)
+    dummy, result = oci_user.unblock_user(identity_client, None, user)
     assert result is False
 
 
@@ -519,7 +519,9 @@ def test_update_user_description_and_tags_description_changed(identity_client):
     module = get_module({"description": "Updated User"})
     user = get_user()
     identity_client.update_user.return_value = get_response(200, None, user, None)
-    _, result = oci_user.update_user_description_and_tags(identity_client, user, module)
+    dummy, result = oci_user.update_user_description_and_tags(
+        identity_client, user, module
+    )
     assert result is True
 
 
@@ -527,7 +529,9 @@ def test_update_user_description_and_tags_description_not_changed(identity_clien
     module = get_module(dict())
     user = get_user()
     identity_client.update_user.return_value = get_response(200, None, user, None)
-    _, result = oci_user.update_user_description_and_tags(identity_client, user, module)
+    dummy, result = oci_user.update_user_description_and_tags(
+        identity_client, user, module
+    )
     assert result is False
 
 
@@ -535,7 +539,9 @@ def test_update_user_description_and_tags_defined_tags_changed(identity_client):
     module = get_module({"defined_tags": {"organisation": {"org_type": "test"}}})
     user = get_user()
     identity_client.update_user.return_value = get_response(200, None, user, None)
-    _, result = oci_user.update_user_description_and_tags(identity_client, user, module)
+    dummy, result = oci_user.update_user_description_and_tags(
+        identity_client, user, module
+    )
     assert result is True
 
 
@@ -543,7 +549,9 @@ def test_update_user_description_and_tags_defined_tags_not_changed(identity_clie
     module = get_module({"defined_tags": {"organisation": {"org_type": "dev"}}})
     user = get_user()
     identity_client.update_user.return_value = get_response(200, None, user, None)
-    _, result = oci_user.update_user_description_and_tags(identity_client, user, module)
+    dummy, result = oci_user.update_user_description_and_tags(
+        identity_client, user, module
+    )
     assert result is False
 
 
@@ -551,7 +559,9 @@ def test_update_user_description_and_tags_freeform_tags_changed(identity_client)
     module = get_module({"freeform_tags": {"user_type": "tester"}})
     user = get_user()
     identity_client.update_user.return_value = get_response(200, None, user, None)
-    _, result = oci_user.update_user_description_and_tags(identity_client, user, module)
+    dummy, result = oci_user.update_user_description_and_tags(
+        identity_client, user, module
+    )
     assert result is True
 
 
@@ -559,7 +569,9 @@ def test_update_user_description_and_tags_freeform_tags_not_changed(identity_cli
     module = get_module({"freeform_tags": {"user_type": "developer"}})
     user = get_user()
     identity_client.update_user.return_value = get_response(200, None, user, None)
-    _, result = oci_user.update_user_description_and_tags(identity_client, user, module)
+    dummy, result = oci_user.update_user_description_and_tags(
+        identity_client, user, module
+    )
     assert result is False
 
 

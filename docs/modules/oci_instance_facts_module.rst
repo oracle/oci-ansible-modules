@@ -246,148 +246,10 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about one or more compute instances</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'TERMINATED', 'availability_domain': 'BnQb:PHX-AD-1', 'extended_metadata': {}, 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx....62xq', 'region': 'phx', 'time_created': '2017-11-20T04:52:54.541000+00:00', 'display_name': 'ansible-modname-968', 'image_id': 'ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....lnoa', 'shape': 'BM.Standard1.36', 'ipxe_script': None, 'volume_attachments': [{'lifecycle_state': 'ATTACHED', 'availability_domain': 'BnQb:PHX-AD-1', 'display_name': 'ansible_volume_attachment', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'chap_username': None, 'time_created': '2017-11-23T11:17:50.139000+00:00', 'id': 'ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx', 'instance_id': 'ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx', 'iqn': 'iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3', 'ipv4': '169.254.2.2', 'volume_id': 'ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx', 'attachment_type': 'iscsi', 'port': 3260, 'chap_secret': None}], 'boot_volume_attachment': {'boot_volume_id': 'ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx', 'availability_domain': 'IwGV:US-ASHBURN-AD-1', 'display_name': 'Remote boot attachment for instance', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'lifecycle_state': 'ATTACHED', 'time_created': '2018-01-15T07:23:10.838000+00:00', 'instance_id': 'ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx', 'id': 'ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx'}, 'id': 'ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx.....2siq', 'metadata': {'foo': 'bar', 'baz': 'quux'}}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'volume_attachments': [{'lifecycle_state': 'ATTACHED', 'availability_domain': 'BnQb:PHX-AD-1', 'display_name': 'ansible_volume_attachment', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'chap_username': None, 'time_created': '2017-11-23T11:17:50.139000+00:00', 'id': 'ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx', 'instance_id': 'ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx', 'iqn': 'iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3', 'ipv4': '169.254.2.2', 'volume_id': 'ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx', 'attachment_type': 'iscsi', 'port': 3260, 'chap_secret': None}], 'time_created': '2017-11-20T04:52:54.541000+00:00', 'primary_public_ip': '140.34.93.209', 'image_id': 'ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....lnoa', 'shape': 'BM.Standard1.36', 'ipxe_script': None, 'display_name': 'ansible-modname-968', 'id': 'ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx.....2siq', 'lifecycle_state': 'TERMINATED', 'availability_domain': 'BnQb:PHX-AD-1', 'extended_metadata': {}, 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx....62xq', 'region': 'phx', 'primary_private_ip': '10.0.0.10', 'boot_volume_attachment': {'boot_volume_id': 'ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx', 'availability_domain': 'IwGV:US-ASHBURN-AD-1', 'display_name': 'Remote boot attachment for instance', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'lifecycle_state': 'ATTACHED', 'time_created': '2018-01-15T07:23:10.838000+00:00', 'instance_id': 'ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx', 'id': 'ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx'}, 'metadata': {'foo': 'bar', 'baz': 'quux'}}</div>
                                     </td>
             </tr>
                                                             <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>lifecycle_state</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The current state of the instance.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">TERMINATED</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>availability_domain</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The Availability Domain the instance is running in.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">BnQb:PHX-AD-1</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>extended_metadata</b>
-                    <br/><div style="font-size: small; color: red">dict(str, str)</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>Additional key-value pairs associated with the instance</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'foo': 'bar'}</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>compartment_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The OCID of the compartment that contains the instance.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxEXAMPLExxxxx....62xq</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>region</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The region that contains the Availability Domain the instance is running in.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">phx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>time_created</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The date and time the instance was created, in the format defined by RFC3339</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-20 04:52:54.541000</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>display_name</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>A user-friendly name for the instance</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible-instance-968</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>image_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The OCID of the image that the instance is based on</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>shape</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The shape of the instance. The shape determines the number of CPUs and the amount of memory allocated to the instance.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">BM.Standard1.36</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>ipxe_script</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>A custom iPXE script that will run when the instance boots</div>
-                                        <br/>
-                                    </td>
-            </tr>
-                                <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="2">
                     <b>volume_attachments</b>
@@ -613,6 +475,186 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="2">
+                    <b>time_created</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The date and time the instance was created, in the format defined by RFC3339</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-20 04:52:54.541000</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>primary_public_ip</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The public IP of the primary VNIC attached to this instance</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">140.34.93.209</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>image_id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the image that the instance is based on</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>shape</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The shape of the instance. The shape determines the number of CPUs and the amount of memory allocated to the instance.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">BM.Standard1.36</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>ipxe_script</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>A custom iPXE script that will run when the instance boots</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>display_name</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>A user-friendly name for the instance</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible-instance-968</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the instance.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>lifecycle_state</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The current state of the instance.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">TERMINATED</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>availability_domain</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The Availability Domain the instance is running in.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">BnQb:PHX-AD-1</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>extended_metadata</b>
+                    <br/><div style="font-size: small; color: red">dict(str, str)</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Additional key-value pairs associated with the instance</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'foo': 'bar'}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>compartment_id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the compartment that contains the instance.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxEXAMPLExxxxx....62xq</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>region</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The region that contains the Availability Domain the instance is running in.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">phx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>primary_private_ip</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The private IP of the primary VNIC attached to this instance</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">10.0.0.10</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
                     <b>boot_volume_attachment</b>
                     <br/><div style="font-size: small; color: red">dict</div>
                                     </td>
@@ -744,20 +786,6 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
             </tr>
                     
                                                 <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="2">
-                    <b>id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The OCID of the instance.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="2">
                     <b>metadata</b>

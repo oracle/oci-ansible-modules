@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -57,7 +57,7 @@ class ModuleDocFragment(object):
             description:
                 - The type of authentication to use for making API requests. By default C(auth_type="api_key") based
                   authentication is performed and the API key (see I(api_user_key_file)) in your config file will be
-                  used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, 
+                  used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE,
                   if any, is used. Use C(auth_type="instance_principal") to use instance principal based authentication
                   when running ansible playbooks within an OCI compute instance.
             choices: ['api_key', 'instance_principal']

@@ -121,11 +121,11 @@ except ImportError:
 def list_app_catalog_subscriptions(compute_client, module):
     compartment_id = module.params["compartment_id"]
     optional_list_method_params = ["listing_id", "display_name"]
-    optional_kwargs = {
-        param: module.params[param]
+    optional_kwargs = dict(
+        (param, module.params[param])
         for param in optional_list_method_params
         if module.params.get(param) is not None
-    }
+    )
     return to_dict(
         oci_utils.list_all_resources(
             compute_client.list_app_catalog_subscriptions,

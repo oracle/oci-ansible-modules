@@ -5,7 +5,7 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-- name: Delete old objects from sample bucket
+- name: List objects from all the buckets
   hosts: localhost
   vars:
     # common vars
@@ -21,31 +21,35 @@
     namespace_name: "{{ lookup('env', 'SAMPLE_OBJECT_NS_NAME') }}"
 
   tasks:
-    # Create a sample bucket and put sample objects in the sample bucket.
-    - import_tasks: setup.yaml
+    - name: Get all the buckets in the namespace
+      oci_bucket_facts:
+        namespace_name: "{{ namespace_name }}"
+        compartment_id: "{{ compartment_id }}"
+      register: ocibuckets
 
-    - name: Get current date-time
-      set_fact:
-        current_date_time: "{{ansible_date_time.iso8601_micro }}"
-
-    - name: Get all objects from bucket
+    - name: Get all objects from all the buckets
       oci_object_facts:
         namespace: "{{ namespace_name }}"
-        bucket: "{{ sample_bucket_name }}"
+        bucket: "{{ item.name }}"
+      with_items: "{{ ocibuckets.buckets }}"
       register: output
     - name: Print objects list
       debug:
-        msg: "{{ output }}"
+        msg: 'Bucket: {{item.item.name}}, Objects: {{item.objects}}'
+      loop: "{{output.results}}"
+      loop_control:
+        label: "{{item.item.name}}"
 
-    - name: Task to DELETE all objects created within last ONE day
-      oci_object:
-        namespace: "{{ namespace_name }}"
-        bucket: "{{ sample_bucket_name }}"
-        object: "{{ item.name }}"
-        state: absent
-      when: ( (current_date_time[:19] | to_datetime('%Y-%m-%dT%H:%M:%S')) - (item.time_created[:19] | to_datetime('%Y-%m-%dT%H:%M:%S')) ).days < 1
-      with_items:
-        - "{{ output.objects }}"
-
-    # Delete sample bucket.
-    - import_tasks: cleanup.yaml
+#     The above variable, output, contains key "results" which is a list of result of individual invocation through
+#     with_items. Each result has "item" key that has the bucket's details and the "objects" key that contains all the
+#     objects within that bucket:
+#      output:
+#      {
+#       results:
+#        [
+#          {
+#            item:{},
+#            objects: []
+#          }
+#        ]
+#      }

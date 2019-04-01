@@ -250,11 +250,11 @@ def list_virtual_circuits(virtual_network_client, module):
     try:
         if compartment_id:
             optional_list_method_params = ["display_name", "lifecycle_state"]
-            optional_kwargs = {
-                param: module.params[param]
+            optional_kwargs = dict(
+                (param, module.params[param])
                 for param in optional_list_method_params
                 if module.params.get(param) is not None
-            }
+            )
             existing_virtual_circuits = oci_utils.list_all_resources(
                 virtual_network_client.list_virtual_circuits,
                 compartment_id=compartment_id,

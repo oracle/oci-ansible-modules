@@ -454,12 +454,12 @@ def get_group_ids_from_group_names(identity_client, group_names, module):
     all_existing_groups = oci_utils.list_all_resources(
         identity_client.list_groups, compartment_id=compartment_id
     )
-    group_id_dict = {
-        group_name: group.id
+    group_id_dict = dict(
+        (group_name, group.id)
         for group in all_existing_groups
         for group_name in group_names
         if group.name == group_name
-    }
+    )
     try:
         group_ids = [group_id_dict[group_name] for group_name in group_names]
     except KeyError as ex:

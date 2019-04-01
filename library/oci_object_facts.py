@@ -275,11 +275,11 @@ def main():
                 "delimiter",
                 "fields",
             ]
-            optional_kwargs = {
-                param: module.params[param]
+            optional_kwargs = dict(
+                (param, module.params[param])
                 for param in optional_list_method_params
                 if module.params.get(param) is not None
-            }
+            )
             # if the user hasn't specified a preference for fields, use the default "fields_to_retrieve"
             if optional_kwargs.get("fields") is None:
                 optional_kwargs["fields"] = fields_to_retrieve

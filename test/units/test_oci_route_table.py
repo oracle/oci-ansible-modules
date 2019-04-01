@@ -289,7 +289,7 @@ def test_get_route_rules_difference_no_existing_route_rule(virtual_network_clien
 
 def test_get_route_rules_difference_no_purge_same_rule(virtual_network_client):
     route_table = get_route_table()
-    _, result = oci_utils.get_component_list_difference(
+    dummy, result = oci_utils.get_component_list_difference(
         get_hashed_route_rules(route_table.route_rules),
         get_hashed_route_rules(route_table.route_rules),
         True,
@@ -319,7 +319,7 @@ def get_route_rules_difference_append_only_different_rules():
 
 def test_get_route_rules_difference_no_different_rules():
     existing_route_rules = get_route_rules() + [(get_common_route_rule())]
-    _, result = oci_utils.get_component_list_difference(
+    dummy, result = oci_utils.get_component_list_difference(
         get_hashed_route_rules([get_common_route_rule()]),
         get_hashed_route_rules(existing_route_rules),
         False,

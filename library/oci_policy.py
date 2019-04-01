@@ -107,7 +107,6 @@ policy:
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_bytes
 from ansible.module_utils.oracle import oci_utils
-from collections import Counter
 
 try:
     from oci.identity.identity_client import IdentityClient
@@ -165,11 +164,6 @@ def delete_policy(identity_client, module):
         module=module,
     )
     return result
-
-
-# Return True if the two lists are same
-def compare_lists(s, t):
-    return Counter(s) == Counter(t)
 
 
 def update_policy(identity_client, module):

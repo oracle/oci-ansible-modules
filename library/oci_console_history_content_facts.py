@@ -103,11 +103,11 @@ def main():
     instance_console_history_id = module.params["instance_console_history_id"]
     try:
         optional_list_method_params = ["offset", "length"]
-        optional_kwargs = {
-            param: module.params[param]
+        optional_kwargs = dict(
+            (param, module.params[param])
             for param in optional_list_method_params
             if module.params.get(param) is not None
-        }
+        )
         console_history_data = oci_utils.call_with_backoff(
             compute_client.get_console_history_content,
             instance_console_history_id=instance_console_history_id,

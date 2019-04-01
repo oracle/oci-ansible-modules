@@ -177,7 +177,7 @@ def test_update_for_group_description_changed_success(
     module = get_module(additional_properties)
     group = create_group_object()
     update_group_description_and_tags_patch.return_value = group, True
-    changed, _ = oci_group.update_group(identity_client, group, module)
+    changed, dummy = oci_group.update_group(identity_client, group, module)
     assert update_group_description_and_tags_patch.called
     assert changed is True
 
@@ -195,7 +195,7 @@ def test_update_user_changed_success(
     group = create_group_object()
     update_group_description_and_tags_patch.return_value = group, False
     mock_update_members.return_value = True
-    changed, _ = oci_group.update_group(identity_client, group, module)
+    changed, dummy = oci_group.update_group(identity_client, group, module)
     assert mock_update_members.called
     assert changed is True
 
@@ -220,7 +220,7 @@ def test_update_user_changed_no_user_success(
     group = create_group_object()
     update_group_description_and_tags_patch.return_value = group, False
     mock_delete_user.return_value = True
-    changed, _ = oci_group.update_group(identity_client, group, module)
+    changed, dummy = oci_group.update_group(identity_client, group, module)
     assert mock_delete_user.called
     assert changed is True
 
@@ -228,7 +228,7 @@ def test_update_user_changed_no_user_success(
 def test_update_group_description_and_tags_description_changed(identity_client):
     group = create_group_object()
     identity_client.update_group.return_value = get_response(200, None, group, None)
-    _, changed = oci_group.update_group_description_and_tags(
+    dummy, changed = oci_group.update_group_description_and_tags(
         identity_client, group, get_module(dict({"description": "Production Group"}))
     )
     assert changed is True
@@ -237,7 +237,7 @@ def test_update_group_description_and_tags_description_changed(identity_client):
 def test_update_group_description_and_tags_description_not_changed(identity_client):
     group = create_group_object()
     identity_client.update_group.return_value = get_response(200, None, group, None)
-    _, changed = oci_group.update_group_description_and_tags(
+    dummy, changed = oci_group.update_group_description_and_tags(
         identity_client, group, get_module(dict({"description": "Test Group"}))
     )
     assert changed is False
@@ -246,7 +246,7 @@ def test_update_group_description_and_tags_description_not_changed(identity_clie
 def test_update_group_description_and_tags_defined_tags_changed(identity_client):
     group = create_group_object()
     identity_client.update_group.return_value = get_response(200, None, group, None)
-    _, changed = oci_group.update_group_description_and_tags(
+    dummy, changed = oci_group.update_group_description_and_tags(
         identity_client,
         group,
         get_module(
@@ -259,7 +259,7 @@ def test_update_group_description_and_tags_defined_tags_changed(identity_client)
 def test_update_group_description_and_tags_defined_tags_not_changed(identity_client):
     group = create_group_object()
     identity_client.update_group.return_value = get_response(200, None, group, None)
-    _, changed = oci_group.update_group_description_and_tags(
+    dummy, changed = oci_group.update_group_description_and_tags(
         identity_client,
         group,
         get_module(dict({"defined_tags": {"organisation": {"division": "finance"}}})),
@@ -270,7 +270,7 @@ def test_update_group_description_and_tags_defined_tags_not_changed(identity_cli
 def test_update_group_description_and_tags_freeform_tags_changed(identity_client):
     group = create_group_object()
     identity_client.update_group.return_value = get_response(200, None, group, None)
-    _, changed = oci_group.update_group_description_and_tags(
+    dummy, changed = oci_group.update_group_description_and_tags(
         identity_client,
         group,
         get_module(dict({"freeform_tags": {"member_type": "developer"}})),
@@ -281,7 +281,7 @@ def test_update_group_description_and_tags_freeform_tags_changed(identity_client
 def test_update_group_description_and_tags_freeform_tags_not_changed(identity_client):
     group = create_group_object()
     identity_client.update_group.return_value = get_response(200, None, group, None)
-    _, changed = oci_group.update_group_description_and_tags(
+    dummy, changed = oci_group.update_group_description_and_tags(
         identity_client,
         group,
         get_module(dict({"freeform_tags": {"member_type": "CA"}})),

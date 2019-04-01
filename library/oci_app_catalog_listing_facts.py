@@ -129,11 +129,11 @@ except ImportError:
 
 def list_app_catalog_listings(compute_client, module):
     optional_list_method_params = ["display_name", "publisher_name", "publisher_type"]
-    optional_kwargs = {
-        param: module.params[param]
+    optional_kwargs = dict(
+        (param, module.params[param])
         for param in optional_list_method_params
         if module.params.get(param) is not None
-    }
+    )
     return to_dict(
         [
             oci_utils.call_with_backoff(

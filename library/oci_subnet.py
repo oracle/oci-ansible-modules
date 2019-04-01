@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -24,8 +24,7 @@ description:
 version_added: "2.5"
 options:
     availability_domain:
-        description: The Availability Domain to contain the subnet. Required when creating a subnet with
-                     I(state=present).
+        description: The Availability Domain to contain the subnet. If not specified while using I(state=present) a regional subnet will be created.
         required: false
     cidr_block:
         description: The CIDR IP address range of the subnet. Required when creating a subnet with I(state=present).
@@ -91,6 +90,13 @@ EXAMPLES = """
 - name: Create a subnet
   oci_subnet:
     availability_domain: BnQb:PHX-AD-1
+    cidr_block: 10.0.1.0/24
+    compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
+    prohibit_public_ip_on_vnic: true
+    vcn_id: ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
+
+- name: Create a regional subnet
+  oci_subnet:
     cidr_block: 10.0.1.0/24
     compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
     prohibit_public_ip_on_vnic: true

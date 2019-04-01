@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -173,11 +173,11 @@ def main():
                 "boot_volume_id",
                 "display_name",
             ]
-            param_map = {
-                k: v
+            param_map = dict(
+                (k, v)
                 for (k, v) in six.iteritems(module.params)
                 if k in key_list and v is not None
-            }
+            )
 
             result = to_dict(
                 oci_utils.list_all_resources(

@@ -1,5 +1,5 @@
 ---
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -56,8 +56,11 @@
     - name: ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }}
       debug: msg="The setup is complete, and an instance is running and can be connected to, with the command in this task's title above. To check if instance-principal based authentication is working, copy over the script, instance-principal-test.sh, to the provisioned instance, and execute the script in that instance"
 
-    # XXX automate the steps of running the script in the newly launched instance
-    # (after publishing a public release that contains this sample)
+    - name: Copy instances principals test script to instance
+      local_action: command scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem instance-principal-test.sh opc@{{ instance_public_ip }}:/home/opc/
+
+    - name: Run instance principals test script remotely on instance
+      local_action: command ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }} /home/opc/instance-principal-test.sh
 
     - import_tasks: teardown.yaml
 

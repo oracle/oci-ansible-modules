@@ -29,6 +29,8 @@ usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
                         [--freeform-tags FREEFORM_TAGS]
                         [--defined-tags DEFINED_TAGS] [--regions REGIONS]
                         [--exclude-regions EXCLUDE_REGIONS]
+                        [--hostname-format {fqdn,private_ip,public_ip}]
+                        [--strict-hostname-checking {yes,no}]
 
 Produce an Ansible Inventory file based on OCI
 
@@ -104,6 +106,13 @@ optional arguments:
   --exclude-regions EXCLUDE_REGIONS
                         Comma separated region names to exclude while building
                         the inventory. Example: us-ashburn-1,uk-london-1
+  --hostname-format {fqdn,private_ip,public_ip}
+                        Host naming format to use.
+  --strict-hostname-checking {yes,no}
+                        The default behavior of this script is to ignore hosts
+                        without valid hostnames(determined according to the
+                        hostname format). When set to yes, the script fails
+                        when any host does not have a valid hostname.
 
 The script reads following environment variables:
 OCI_CONFIG_FILE,
@@ -122,6 +131,7 @@ OCI_ANSIBLE_AUTH_TYPE
 OCI_INVENTORY_REGIONS
 OCI_INVENTORY_EXCLUDE_REGIONS
 OCI_COMPARTMENT_OCID
+OCI_STRICT_HOSTNAME_CHECKING
 
 The inventory generated is by default grouped by each of the following:
 region
@@ -216,7 +226,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.6.0"
+__version__ = "1.7.0"
 
 
 def _get_retry_strategy():
@@ -308,8 +318,13 @@ class OCIInventory:
             "defined_tags": None,
             "regions": None,
             "exclude_regions": None,
+            "strict_hostname_checking": "no",
         }
-        boolean_options = ["sanitize_names", "replace_dash_in_names"]
+        boolean_options = [
+            "sanitize_names",
+            "replace_dash_in_names",
+            "ignore_hostname_errors",
+        ]
         dict_options = ["freeform_tags", "defined_tags"]
         try:
             self.parse_cli_args()
@@ -361,38 +376,24 @@ class OCIInventory:
                 # self.params.update(self.get_instance_details_from_metadata())
                 instance_details = self.get_instance_details_from_metadata()
                 self.params.update(instance_details)
-                # tenany ocid is not available in case of instance princibal
-                # but it is required when regions are specified explicitly or compartment ocid is not specified explicitly
-                # so try to get the tenancy when required
-                if not self.params["compartment_ocid"] or self.params["regions"]:
-                    # tenancy ocid required in this case to either get the compartments or region subscriptions
-                    if not self.params["tenancy"]:
-                        try:
-                            self.params[
-                                "tenancy"
-                            ] = self.get_tenancy_ocid_from_compartment_ocid(
-                                instance_details["compartmentId"]
-                            )
-                        except ServiceError as se:
-                            if se.status == 404:
-                                raise Exception(
-                                    "Need inspect permission on root compartment to get the tenancy ocid. "
-                                    "To workaround set the tenancy manually."
-                                )
 
             self.validate_params()
 
             self.log("Using following parameters for OCI dynamic inventory:")
             self.log(self.params)
 
-            self._compute_clients = {
-                region: self.create_service_client(ComputeClient, region=region)
+            self._compute_clients = dict(
+                (region, self.create_service_client(ComputeClient, region=region))
                 for region in self.regions
-            }
-            self._virtual_nw_clients = {
-                region: self.create_service_client(VirtualNetworkClient, region=region)
+            )
+
+            self._virtual_nw_clients = dict(
+                (
+                    region,
+                    self.create_service_client(VirtualNetworkClient, region=region),
+                )
                 for region in self.regions
-            }
+            )
 
             self.params["cache_file"] = self._get_cache_file()
 
@@ -437,21 +438,26 @@ class OCIInventory:
         # check if auth is set to `instance_principal`.
         return self.params["auth"] == "instance_principal"
 
+    @staticmethod
+    def create_instance_principal_signer():
+        try:
+            signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
+        except Exception as ex:
+            raise Exception(
+                "Failed retrieving certificates from localhost. Instance principal based authentication is only"
+                "possible from within OCI compute instances. Exception: {0}".format(
+                    str(ex)
+                )
+            )
+        return signer
+
     def create_service_client(self, service_client_class, region=None):
         if not region:
             region = self.params["region"]
         params = dict(self.params, region=region)
         kwargs = {}
         if self._is_instance_principal_auth():
-            try:
-                signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
-            except Exception:
-                self.log(
-                    "Failed retrieving certificates from localhost. Instance principal based authentication is only"
-                    "possible from within OCI compute instances."
-                )
-                raise
-            kwargs["signer"] = signer
+            kwargs["signer"] = self.create_instance_principal_signer()
 
         # Create service client class with the signer.
         client = service_client_class(params, **kwargs)
@@ -483,21 +489,21 @@ class OCIInventory:
     @property
     def region_short_names(self):
         if not self._region_short_names:
-            self._region_short_names = {
-                region.key.lower(): region.name
+            self._region_short_names = dict(
+                (region.key.lower(), region.name)
                 for region in call_with_backoff(self.identity_client.list_regions).data
-            }
+            )
         return self._region_short_names
 
     @property
     def region_long_names(self):
         if not self._region_long_names:
-            self._region_long_names = {
-                region_long_name: region_short_name
+            self._region_long_names = dict(
+                (region_long_name, region_short_name)
                 for region_short_name, region_long_name in six.iteritems(
                     self.region_short_names
                 )
-            }
+            )
         return self._region_long_names
 
     def get_compute_client_for_region(self, region):
@@ -518,22 +524,6 @@ class OCIInventory:
         if self.params["debug"]:
             print(*args, file=sys.stderr, **kwargs)
 
-    def get_tenancy_ocid_from_compartment_ocid(self, compartment_ocid):
-        # get the tenancy ocid by traversing the compartment tree
-        compartment_id = compartment_ocid
-        while compartment_id:
-            compartment = call_with_backoff(
-                self.identity_client.get_compartment, compartment_id=compartment_id
-            ).data
-            compartment_id = compartment.compartment_id
-        if not compartment:
-            raise Exception(
-                "Error getting tenancy ocid from compartment ocid: {0}.".format(
-                    compartment_ocid
-                )
-            )
-        return compartment.id
-
     def get_instance_details_from_metadata(self):
         """Get and return the instance details using the metadata endpoint"""
         metadata_url = "http://169.254.169.254/opc/v1/instance"
@@ -543,21 +533,24 @@ class OCIInventory:
             metadata_response = json.loads(response.read())
             self.log("Response from metadata: {0}".format(metadata_response))
         except Exception as ex:
-            message = "Getting instance metadata details failed with error: {0}".format(
-                str(ex)
+            raise Exception(
+                "Getting instance metadata details failed with error: {0}".format(
+                    str(ex)
+                )
             )
-            self.fail(message=message)
-        instance_details = {}
-        instance_details["compartmentId"] = metadata_response["compartmentId"]
-        # get the instance region
-        instance_details["region"] = self.get_region_long_name(
-            metadata_response["region"]
+        instance_details = dict(
+            compartmentId=metadata_response["compartmentId"],
+            region=self.get_region_long_name(metadata_response["region"]),
+            tenancy=self.params["tenancy"]
+            or getattr(self.create_instance_principal_signer(), "tenancy_id", None),
         )
         self.log("Instance parameters from metadata: {0}".format(instance_details))
-        if not (instance_details["region"] or instance_details["compartmentId"]):
-            raise Exception(
-                "Error getting region and compartment details from instance metadata."
-            )
+        if not (
+            instance_details["region"]
+            or instance_details["compartmentId"]
+            or instance_details["tenancy"]
+        ):
+            raise Exception("Error getting details from instance metadata.")
         return instance_details
 
     def read_config(self):
@@ -590,6 +583,7 @@ class OCIInventory:
             OCI_INVENTORY_REGIONS="regions",
             OCI_INVENTORY_EXCLUDE_REGIONS="exclude_regions",
             OCI_COMPARTMENT_OCID="compartment_ocid",
+            OCI_STRICT_HOSTNAME_CHECKING="strict_hostname_checking",
         )
 
         for env_var in os.environ:
@@ -978,6 +972,8 @@ class OCIInventory:
             ).data
 
             oraclevcn_domain_name = ".oraclevcn.com"
+            if not (vnic.hostname_label or subnet.dns_label or vcn.dns_label):
+                return None
             fqdn = (
                 vnic.hostname_label
                 + "."
@@ -1009,7 +1005,7 @@ class OCIInventory:
 
             instance_vars = to_dict(instance)
 
-            common_groups = {"all"}
+            common_groups = set("all")
             # Group by availability domain
             ad = self.sanitize(instance.availability_domain)
             common_groups.add(ad)
@@ -1091,6 +1087,12 @@ class OCIInventory:
 
                 # Skip host which is not addressable using hostname_format
                 if not host_name:
+                    if self.params["strict_hostname_checking"] == "yes":
+                        raise Exception(
+                            "Instance with OCID: {0} does not have a valid hostname.".format(
+                                vnic_attachment.instance_id
+                            )
+                        )
                     self.log(
                         "Skipped instance with OCID:" + vnic_attachment.instance_id
                     )
@@ -1171,8 +1173,8 @@ class OCIInventory:
         self.log("Building inventory.")
 
         # Compartments(including the root compartment) from which the instances are to be retrieved.
-        self.compartments = {
-            compartment.id: compartment
+        self.compartments = dict(
+            (compartment.id, compartment)
             for compartment in self.get_compartments(
                 compartment_ocid=self.params["compartment_ocid"],
                 parent_compartment_ocid=self.params["parent_compartment_ocid"],
@@ -1181,7 +1183,7 @@ class OCIInventory:
                     "fetch_hosts_from_subcompartments"
                 ],
             )
-        }
+        )
 
         if not self.compartments:
             self.log("No compartments matching the criteria.")
@@ -1380,6 +1382,22 @@ class OCIInventory:
             "Example: us-ashburn-1,uk-london-1",
         )
 
+        parser.add_argument(
+            "--hostname-format",
+            action="store",
+            choices=["fqdn", "private_ip", "public_ip"],
+            help="Host naming format to use.",
+        )
+
+        parser.add_argument(
+            "--strict-hostname-checking",
+            action="store",
+            choices=["yes", "no"],
+            help="The default behavior of this script is to ignore hosts without valid hostnames(determined according "
+            "to the hostname format). When set to yes, the script fails when any host does not have a "
+            "valid hostname.",
+        )
+
         self.args = parser.parse_args()
 
     def read_settings_config(self, boolean_options, dict_options):
@@ -1409,7 +1427,7 @@ class OCIInventory:
     def add_host(self, host, groups=None, vars=None):
         """Add host to the inventory"""
         if not groups:
-            groups = {"all"}
+            groups = set("all")
         for group in groups:
             self.add_group(group, children=groups[group].setdefault("children", []))
             if host not in self.inventory[group]["hosts"]:

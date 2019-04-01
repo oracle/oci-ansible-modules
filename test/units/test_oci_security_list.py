@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -860,6 +860,34 @@ def test_get_security_rules_difference_ingress_same_rules_state_unchanged():
     assert changed is False
 
 
+def test_create_or_update_security_list_fails_when_egress_security_rules_are_not_passed(
+    get_existing_resource_patch, check_and_create_resource_patch, virtual_network_client
+):
+    module = get_module(dict(egress_security_rules=None))
+    with pytest.raises(Exception) as exc_info:
+        oci_security_list.create_or_update_security_list(virtual_network_client, module)
+    ex = exc_info.value
+    assert (
+        "ingress_security_rules and egress_security_rules are required for creating security list"
+        in str(ex)
+    )
+    assert check_and_create_resource_patch.call_count == 0
+
+
+def test_create_or_update_security_list_fails_when_ingress_security_rules_are_not_passed(
+    get_existing_resource_patch, check_and_create_resource_patch, virtual_network_client
+):
+    module = get_module(dict(ingress_security_rules=None))
+    with pytest.raises(Exception) as exc_info:
+        oci_security_list.create_or_update_security_list(virtual_network_client, module)
+    ex = exc_info.value
+    assert (
+        "ingress_security_rules and egress_security_rules are required for creating security list"
+        in str(ex)
+    )
+    assert check_and_create_resource_patch.call_count == 0
+
+
 def get_security_rules(
     security_rule_type,
     security_rule_flavour,
@@ -995,7 +1023,11 @@ def get_security_list(egress_security_rules, ingress_security_rules, name):
 
 
 def get_module(additional_properties):
-    params = {"display_name": "ansible_security_list"}
+    params = {
+        "display_name": "ansible_security_list",
+        "ingress_security_rules": [],
+        "egress_security_rules": [],
+    }
     if additional_properties:
         params.update(additional_properties)
     module = FakeModule(**params)
