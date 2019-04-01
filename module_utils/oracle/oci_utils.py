@@ -13,13 +13,12 @@ from datetime import datetime
 from operator import eq
 
 import time
+from ansible.module_utils import six
 
 try:
     import yaml
 
     import oci
-    from oci.constants import HEADER_NEXT_PAGE
-
     from oci.exceptions import (
         InvalidConfig,
         InvalidPrivateKey,
@@ -42,7 +41,7 @@ except ImportError:
 from ansible.module_utils.basic import _load_params
 from ansible.module_utils._text import to_bytes
 
-__version__ = "1.6.0"
+__version__ = "1.7.0"
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -233,26 +232,6 @@ def get_oci_config(module, service_client_class=None):
         config_attr_name="region",
     )
 
-    # Redirect calls to home region for IAM service.
-    do_not_redirect = module.params.get(
-        "do_not_redirect_to_home_region", False
-    ) or os.environ.get("OCI_IDENTITY_DO_NOT_REDIRECT_TO_HOME_REGION")
-    if service_client_class == IdentityClient and not do_not_redirect:
-        _debug("Region passed for module invocation - {0} ".format(config["region"]))
-        identity_client = IdentityClient(config)
-        region_subscriptions = identity_client.list_region_subscriptions(
-            config["tenancy"]
-        ).data
-        # Replace the region in the config with the home region.
-        [config["region"]] = [
-            rs.region_name for rs in region_subscriptions if rs.is_home_region is True
-        ]
-        _debug(
-            "Setting region in the config to home region - {0} ".format(
-                config["region"]
-            )
-        )
-
     return config
 
 
@@ -267,18 +246,7 @@ def create_service_client(module, service_client_class):
     kwargs = {}
 
     if _is_instance_principal_auth(module):
-        try:
-            signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
-        except Exception as ex:
-            message = (
-                "Failed retrieving certificates from localhost. Instance principal based authentication is only"
-                "possible from within OCI compute instances. Exception: {0}".format(
-                    str(ex)
-                )
-            )
-            module.fail_json(msg=message)
-
-        kwargs["signer"] = signer
+        kwargs["signer"] = _create_instance_principal_signer(module)
 
     # XXX: Validate configuration -- this may be redundant, as all Client constructors perform a validation
     try:
@@ -288,10 +256,61 @@ def create_service_client(module, service_client_class):
             msg="Invalid OCI configuration. Exception: {0}".format(str(ic))
         )
 
-    # Create service client class with the signer
+    # Create service client class (optionally with signer)
     client = service_client_class(config, **kwargs)
 
+    # Redirect calls to home region for IAM service.
+    do_not_redirect = module.params.get(
+        "do_not_redirect_to_home_region", False
+    ) or os.environ.get("OCI_IDENTITY_DO_NOT_REDIRECT_TO_HOME_REGION")
+
+    if service_client_class == IdentityClient and not do_not_redirect:
+        if "region" in config:
+            _debug(
+                "Region passed for module invocation - {0} ".format(config["region"])
+            )
+
+        if "tenancy" in config:
+            tenancy_id = config["tenancy"]
+        elif hasattr(kwargs.get("signer"), "tenancy_id"):
+            # the instance principals signer has the tenancy ID from the certificate from the
+            # local metadata service
+            tenancy_id = kwargs.get("signer").tenancy_id
+        else:
+            module.fail_json(
+                msg="Could not identify tenancy OCID from config or local metadata service"
+            )
+
+        region_subscriptions = call_with_backoff(
+            client.list_region_subscriptions, tenancy_id=tenancy_id
+        ).data
+
+        # Replace the region for the client with the home region.
+        home_regions = [
+            rs.region_name for rs in region_subscriptions if rs.is_home_region is True
+        ]
+        if len(home_regions) == 0:
+            module.fail_json(msg="Could not identify home region for this tenancy")
+
+        home_region = home_regions[0]
+        _debug("Creating client targeting home region - {0} ".format(home_region))
+
+        client.base_client.set_region(home_region)
+
     return client
+
+
+def _create_instance_principal_signer(module):
+    try:
+        signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
+    except Exception as ex:
+        message = (
+            "Failed retrieving certificates from localhost. Instance principal based authentication is only"
+            "possible from within OCI compute instances. Exception: {0}".format(str(ex))
+        )
+        module.fail_json(msg=message)
+
+    return signer
 
 
 def _is_instance_principal_auth(module):
@@ -356,16 +375,32 @@ def bucket_details_factory(bucket_details_type, module):
 def filter_resources(all_resources, filter_params):
     if not filter_params:
         return all_resources
-    filtered_resources = []
-    filtered_resources.extend(
-        [
-            resource
-            for resource in all_resources
-            for key, value in filter_params.items()
-            if getattr(resource, key) == value
-        ]
-    )
-    return filtered_resources
+    return [
+        resource
+        for resource in all_resources
+        if all(
+            [
+                getattr(resource, key, None) == value
+                for key, value in six.iteritems(filter_params)
+            ]
+        )
+    ]
+
+
+def filter_response_data(response_data, filter_params):
+    if not filter_params:
+        return response_data
+    if isinstance(response_data, oci.dns.models.RecordCollection) or isinstance(
+        response_data, oci.dns.models.RRSet
+    ):
+        return response_data.__class__(
+            items=filter_resources(response_data.items, filter_params)
+        )
+    if isinstance(response_data, oci.object_storage.models.ListObjects):
+        return response_data.__class__(
+            objects=filter_resources(response_data.objects, filter_params)
+        )
+    return filter_resources(response_data, filter_params)
 
 
 def list_all_resources(target_fn, **kwargs):
@@ -380,7 +415,7 @@ def list_all_resources(target_fn, **kwargs):
     """
     filter_params = None
     try:
-        response = call_with_backoff(target_fn, **kwargs)
+        response = oci.pagination.list_call_get_all_results(target_fn, **kwargs)
     except ValueError as ex:
         if "unknown kwargs" in str(ex):
             if "display_name" in kwargs:
@@ -391,17 +426,11 @@ def list_all_resources(target_fn, **kwargs):
                 if kwargs["name"]:
                     filter_params = {"name": kwargs["name"]}
                 del kwargs["name"]
-        response = call_with_backoff(target_fn, **kwargs)
-
-    existing_resources = response.data
-    while response.has_next_page:
-        kwargs.update(page=response.headers.get(HEADER_NEXT_PAGE))
-        response = call_with_backoff(target_fn, **kwargs)
-        existing_resources += response.data
+        response = oci.pagination.list_call_get_all_results(target_fn, **kwargs)
 
     # If the underlying SDK Service list* method doesn't support filtering by name or display_name, filter the resources
     # and return the matching list of resources
-    return filter_resources(existing_resources, filter_params)
+    return filter_response_data(response.data, filter_params)
 
 
 def _debug(s):
@@ -697,6 +726,7 @@ def check_and_create_resource(
     dead_states=None,
     default_attribute_values=None,
     supports_sort_by_time_created=True,
+    create_model_attr_to_get_model_mapping=None,
 ):
     """
     This function checks whether there is a resource with same attributes as specified in the module options. If not,
@@ -770,6 +800,7 @@ def check_and_create_resource(
                 attributes_to_consider,
                 exclude_attributes,
                 default_attribute_values,
+                create_model_attr_to_get_model_mapping=create_model_attr_to_get_model_mapping,
             ):
                 resource_matched = to_dict(resource)
                 break
@@ -833,9 +864,9 @@ def is_attr_assigned_default(default_attribute_values, attr, assigned_value):
             # only compare keys that are in default_attribute_values[attr]
             # this is to ensure forward compatibility when the API returns new keys that are not known during
             # the time when the module author provided default values for the attribute
-            return default_val_for_attr == {
-                k: v for k, v in assigned_value.items() if k in default_val_for_attr
-            }
+            return default_val_for_attr == dict(
+                (k, v) for k, v in assigned_value.items() if k in default_val_for_attr
+            )
         # non-dict, normal comparison
         return default_val_for_attr == assigned_value
     else:
@@ -892,6 +923,7 @@ def does_existing_resource_match_user_inputs(
     attributes_to_compare,
     exclude_attributes,
     default_attribute_values=None,
+    create_model_attr_to_get_model_mapping=None,
 ):
     """
     Check if 'attributes_to_compare' in an existing_resource match the desired state provided by a user in 'module'.
@@ -910,8 +942,13 @@ def does_existing_resource_match_user_inputs(
         default_attribute_values = {}
     for attr in attributes_to_compare:
         attribute_with_default_metadata = None
-        if attr in existing_resource:
-            resources_value_for_attr = existing_resource[attr]
+        get_model_attr = None
+        if create_model_attr_to_get_model_mapping:
+            get_model_attr = create_model_attr_to_get_model_mapping.get(attr)
+        if not get_model_attr:
+            get_model_attr = attr
+        if get_model_attr in existing_resource:
+            resources_value_for_attr = existing_resource[get_model_attr]
             # Check if the user has explicitly provided the value for attr.
             user_provided_value_for_attr = _get_user_provided_value(module, attr)
             if user_provided_value_for_attr is not None:
@@ -1539,14 +1576,14 @@ def delete_and_wait(
     try:
         resource = to_dict(call_with_backoff(get_fn, **kwargs_get).data)
         if resource:
-            if "lifecycle_state" not in resource or resource["lifecycle_state"] not in {
+            if "lifecycle_state" not in resource or resource["lifecycle_state"] not in [
                 "DETACHING",
                 "DETACHED",
                 "DELETING",
                 "DELETED",
                 "TERMINATING",
                 "TERMINATED",
-            }:
+            ]:
                 response = call_with_backoff(delete_fn, **kwargs_delete)
                 if process_work_request:
                     wr_id = response.headers.get("opc-work-request-id")
@@ -1692,10 +1729,6 @@ def update_model_with_user_options(curr_model, update_model, module):
                     )
                 )
                 setattr(update_model, attr, user_provided_value)
-            else:
-                # Always set current values of the resource in the update model if there is no request for change in
-                # values
-                setattr(update_model, attr, curr_value_for_attr)
     return update_model
 
 
@@ -2026,3 +2059,33 @@ def get_target_resource_from_list(
         return ResponseWrapper(data=None)
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
+
+
+def parse_iso8601_str_as_datetime(date_string):
+    """
+    Converts string to datetime.
+
+    The string should be in iso8601 datetime format.
+
+    :param string: str.
+    :return: datetime.
+    """
+    if not date_string:
+        return None
+    if not isinstance(date_string, six.string_types):
+        return None
+    date_string = date_string.replace("+00:00", "Z")
+    try:
+        naivedatetime = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ")
+    except ValueError:
+        pass
+    else:
+        return naivedatetime
+
+    try:
+        # try without microsecond
+        naivedatetime = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        return None
+    else:
+        return naivedatetime

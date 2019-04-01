@@ -169,7 +169,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Rules for allowing egress IP packets.</div>
+                                                                        <div>Rules for allowing egress IP packets. Required for create operation.</div>
                                                                                 </td>
             </tr>
                                                             <tr>
@@ -294,7 +294,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Rules for allowing ingress IP packets.</div>
+                                                                        <div>Rules for allowing ingress IP packets. Required for create operation.</div>
                                                                                 </td>
             </tr>
                                                             <tr>

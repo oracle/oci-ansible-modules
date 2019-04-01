@@ -205,13 +205,14 @@ Parameters
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
-                    <b>source_uri</b>
+                    <b>object_name</b>
                                                                             </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The Object Storage URL for the image. See Object Storage URLs at <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/Compute/Tasks/imageimportexport.htm#URLs'>https://docs.us-phoenix-1.oraclecloud.com/Content/Compute/Tasks/imageimportexport.htm#URLs</a> and pre-authenticated requests at <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/Object/Tasks/managingaccess.htm#pre-auth'>https://docs.us-phoenix-1.oraclecloud.com/Content/Object/Tasks/managingaccess.htm#pre-auth</a> for constructing URLs for image import/export. Required when creating an image using <em>state=present</em> and the <em>source_type=objectStorageUri</em> under <code>image_source_details</code>.</div>
-                                                        </td>
+                                            <div>The Object Storage name for the image. Required when creating an image using <em>state=present</em> and the <em>source_type=objectStorageTuple</em> under <code>image_source_details</code>.</div>
+                                                                <div style="font-size: small; color: darkgreen"><br/>aliases: object</div>
+                                    </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
@@ -228,14 +229,28 @@ Parameters
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
-                    <b>object_name</b>
+                    <b>source_image_type</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li>QCOW2</li>
+                                                                                                                                                                                                <li>VMDK</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>The format of source image type to be imported. Available when creating an image using <em>state=present</em> under <code>image_source_details</code>.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>source_uri</b>
                                                                             </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The Object Storage name for the image. Required when creating an image using <em>state=present</em> and the <em>source_type=objectStorageTuple</em> under <code>image_source_details</code>.</div>
-                                                                <div style="font-size: small; color: darkgreen"><br/>aliases: object</div>
-                                    </td>
+                                            <div>The Object Storage URL for the image. See Object Storage URLs at <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/Compute/Tasks/imageimportexport.htm#URLs'>https://docs.us-phoenix-1.oraclecloud.com/Content/Compute/Tasks/imageimportexport.htm#URLs</a> and pre-authenticated requests at <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/Object/Tasks/managingaccess.htm#pre-auth'>https://docs.us-phoenix-1.oraclecloud.com/Content/Object/Tasks/managingaccess.htm#pre-auth</a> for constructing URLs for image import/export. Required when creating an image using <em>state=present</em> and the <em>source_type=objectStorageUri</em> under <code>image_source_details</code>.</div>
+                                                        </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
@@ -268,6 +283,22 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>The list of comma-separated attributes of this resource which should be used to uniquely identify an instance of the resource. By default, all the attributes of a resource except <em>freeform_tags</em> are used to uniquely identify a resource.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>launch_mode</b>
+                                                                            </td>
+                                <td>
+                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>NATIVE</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>EMULATED</li>
+                                                                                                                                                                                                <li>PARAVIRTUALIZED</li>
+                                                                                                                                                                                                <li>CUSTOM</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The the launch mode Specifies the configuration mode for launching virtual machine (VM) instances. The default value for Oracle-provided images is 'NATIVE', it launches with iSCSI boot and VFIO devices.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -372,6 +403,7 @@ Examples
                 bucket: "my_bucket"
                 namespace: "my_namespace"
                 object: "image-to-import.qcow2"
+                source_image_type: "QCOW2"
 
     - name: Create a new image by importing an exported image, where the image is available through an Object Storage
             Service URL
@@ -382,6 +414,7 @@ Examples
                 source_type: "objectStorageUri"
                 source_uri: "https://objectstorage.us-phoenix-1.oraclecloud.com/n/my_namespace/b/my_bucket/o/image-to-impor
                             t.qcow2"
+                source_image_type: "QCOW2"
 
     - name: Update an image's display name
       oci_image:
@@ -418,7 +451,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Details of the image</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'AVAILABLE', 'operating_system_version': '16.04', 'operating_system': 'Canonical Ubuntu', 'display_name': 'my-image-1', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx....lwbvm62xq', 'base_image_id': 'ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....qcsa7klnoa', 'time_created': '2017-11-24T13:18:31.579000+00:00', 'create_image_allowed': True, 'id': 'ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx.....dgb3pmci2q'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'AVAILABLE', 'operating_system_version': '16.04', 'operating_system': 'Canonical Ubuntu', 'display_name': 'my-image-1', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx....lwbvm62xq', 'base_image_id': 'ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....qcsa7klnoa', 'launch_options': {'remote_data_volume_type': 'PARAVIRTUALIZED', 'boot_volume_type': 'ISCSI', 'is_consistent_volume_naming_enabled': None, 'firmware': 'UEFI_64', 'network_type': 'VFIO', 'is_pv_encryption_in_transit_enabled': None}, 'time_created': '2017-11-24T13:18:31.579000+00:00', 'launch_mode': 'NATIVE', 'create_image_allowed': True, 'id': 'ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx.....dgb3pmci2q'}</div>
                                     </td>
             </tr>
                         </table>

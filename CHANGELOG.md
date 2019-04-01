@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2019-04-01
+
+### Added
+- Added the following features in existing modules:
+    - Option to specify `boot_volume_size_in_gbs` with a create operation in `oci_instance` module
+    - Options to specify `launch_mode` and `source_image_type` in `oci_image` module
+    - Support for retrieving `primary_private_ip` and `primary_public_ip` in `oci_instance_facts` module
+- Added the following features in OCI dynamic inventory script:
+    - Option to pass hostname format as command line parameter and environment variable
+    - Option to enable strict hostname checking
+- Samples to demonstrate:
+  - how to list objects from all the buckets in a compartment
+
 ## [1.6.0] - 2019-02-28
 
 ### Added

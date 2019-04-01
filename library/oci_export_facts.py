@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -176,11 +176,11 @@ def list_exports(file_storage_client, module):
         if compartment_id or export_set_id or file_system_id:
             get_logger().debug("Listing all Exports under given Identifier")
             optional_list_method_params = ["lifecycle_state"]
-            optional_kwargs = {
-                param: module.params[param]
+            optional_kwargs = dict(
+                (param, module.params[param])
                 for param in optional_list_method_params
                 if module.params.get(param) is not None
-            }
+            )
             existing_exports_summary = to_dict(
                 oci_utils.list_all_resources(
                     file_storage_client.list_exports,

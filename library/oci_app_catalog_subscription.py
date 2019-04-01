@@ -133,9 +133,7 @@ app_catalog_subscription:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils import six
 from ansible.module_utils.oracle import oci_utils
-from datetime import datetime
 
 try:
     from oci.core.compute_client import ComputeClient
@@ -181,37 +179,6 @@ def delete_app_catalog_subscription(compute_client, module):
     return result
 
 
-def _sanitize_time_retrieved(time_retrieved):
-    # The subscription api fails if the number of digits in microseconds is more than 3
-    # This is a temporary fix until the issue is fixed in API/SDK
-    # Try to replace the microsecond values with 000
-    # If input not in the expected format, return the original value.
-    if not time_retrieved:
-        return time_retrieved
-    if not isinstance(time_retrieved, six.string_types):
-        return time_retrieved
-    sanitized_time_retrieved = time_retrieved.replace("+00:00", "Z")
-    try:
-        sanitized_time_retrieved = datetime.strftime(
-            datetime.strptime(sanitized_time_retrieved, "%Y-%m-%dT%H:%M:%S.%fZ"),
-            "%Y-%m-%dT%H:%M:%SZ",
-        )
-        sanitized_time_retrieved = sanitized_time_retrieved.replace("Z", ".000Z")
-    except ValueError:
-        # ignore the value error
-        pass
-    else:
-        return sanitized_time_retrieved
-
-    try:
-        datetime.strptime(sanitized_time_retrieved, "%Y-%m-%dT%H:%M:%SZ")
-        sanitized_time_retrieved = sanitized_time_retrieved.replace("Z", ".000Z")
-    except ValueError:
-        return time_retrieved
-    else:
-        return sanitized_time_retrieved
-
-
 def create_app_catalog_subscription(compute_client, module):
     existing_app_catalog_subscription = get_app_catalog_subscription(
         compute_client, module
@@ -221,12 +188,17 @@ def create_app_catalog_subscription(compute_client, module):
             changed=False, app_catalog_subscription=existing_app_catalog_subscription
         )
     create_app_catalog_subscription_details = CreateAppCatalogSubscriptionDetails()
-    for attr in six.iterkeys(create_app_catalog_subscription_details.swagger_types):
+    for attr in create_app_catalog_subscription_details.swagger_types:
         setattr(create_app_catalog_subscription_details, attr, module.params.get(attr))
-    # sanitize time_retrieved parameter
-    create_app_catalog_subscription_details.time_retrieved = _sanitize_time_retrieved(
+    # The time retrieved passed to the ansible module as string. Convert to datetime.
+    # If there is an error converting to date, pass the original string to the API.
+    agreement_time_retrieved_as_date = oci_utils.parse_iso8601_str_as_datetime(
         create_app_catalog_subscription_details.time_retrieved
     )
+    if agreement_time_retrieved_as_date:
+        create_app_catalog_subscription_details.time_retrieved = (
+            agreement_time_retrieved_as_date
+        )
     oci_utils.to_dict(
         oci_utils.call_with_backoff(
             compute_client.create_app_catalog_subscription,

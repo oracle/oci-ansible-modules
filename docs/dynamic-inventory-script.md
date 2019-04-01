@@ -23,7 +23,9 @@ The `oci_inventory.ini` configuration file can be optionally used to configure t
 The `oci_inventory.py` script accepts the following command line arguments:
 ```
 usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
-                        [--profile PROFILE] [--compartment COMPARTMENT]
+                        [--profile PROFILE] [--tenancy TENANCY]
+                        [--compartment-ocid COMPARTMENT_OCID]
+                        [--compartment COMPARTMENT]
                         [--parent-compartment-ocid PARENT_COMPARTMENT_OCID]
                         [--fetch-hosts-from-subcompartments] [--refresh-cache]
                         [--debug] [--auth {api_key,instance_principal}]
@@ -32,6 +34,10 @@ usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
                         [--freeform-tags FREEFORM_TAGS]
                         [--defined-tags DEFINED_TAGS] [--regions REGIONS]
                         [--exclude-regions EXCLUDE_REGIONS]
+                        [--hostname-format {fqdn,private_ip,public_ip}]
+                        [--strict-hostname-checking {yes,no}]
+
+Produce an Ansible Inventory file based on OCI
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -40,6 +46,13 @@ optional arguments:
   -config CONFIG_FILE, --config-file CONFIG_FILE
                         OCI config file location
   --profile PROFILE     OCI config profile for connecting to OCI
+  --tenancy TENANCY     OCID of the tenancy for which dynamic inventory must
+                        be generated.
+  --compartment-ocid COMPARTMENT_OCID
+                        OCID of the compartment for which dynamic inventory
+                        must be generated. If specified, any value specified
+                        for compartment and parent-compartment-ocid options is
+                        ignored.
   --compartment COMPARTMENT
                         Name of the compartment for which dynamic inventory
                         must be generated. If you want to generate a dynamic
@@ -98,6 +111,13 @@ optional arguments:
   --exclude-regions EXCLUDE_REGIONS
                         Comma separated region names to exclude while building
                         the inventory. Example: us-ashburn-1,uk-london-1
+  --hostname-format {fqdn,private_ip,public_ip}
+                        Host naming format to use.
+  --strict-hostname-checking {yes,no}
+                        The default behavior of this script is to ignore hosts
+                        without valid hostnames(determined according to the
+                        hostname format). When set to yes, the script fails
+                        when any host does not have a valid hostname.
 ```
 
 The `oci_inventory.py` script also accepts the following environment variables:
@@ -119,6 +139,8 @@ The `oci_inventory.py` script also accepts the following environment variables:
 | OCI_ANSIBLE_AUTH_TYPE | Specifies the type of authentication to use for making API requests. By default, the API key in your config will be used. Set it to `instance_principal` to use instance principal based authentication.|
 | OCI_INVENTORY_REGIONS | Specifies names of the regions(separated by commas) for which inventory is to be built. Set it to 'all' to build inventory for all the subscribed regions. |
 | OCI_INVENTORY_EXCLUDE_REGIONS | Specifies names of the regions(separated by commas) to be skipped while building inventory. |
+| OCI_COMPARTMENT_OCID | OCID of the compartment for which dynamic inventory must be generated. If specified, any value specified for compartment and parent-compartment-ocid options is ignored. |
+| OCI_STRICT_HOSTNAME_CHECKING | The default behavior of this script is to ignore hosts without valid hostnames(determined according to the hostname format). When set to yes, the script fails when any host does not have a valid hostname. |
 
 The order of precedence for the configuration used by the inventory script is:
 1. command line arguments

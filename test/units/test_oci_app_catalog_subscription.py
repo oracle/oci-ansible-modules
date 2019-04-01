@@ -9,6 +9,7 @@ from nose.plugins.skip import SkipTest
 from ansible.module_utils import six
 from ansible.module_utils.oracle import oci_utils
 from ansible.modules.cloud.oracle import oci_app_catalog_subscription
+from datetime import datetime
 
 try:
     import oci
@@ -57,8 +58,8 @@ def get_app_catalog_subscription_patch(mocker):
 
 
 @pytest.fixture()
-def sanitize_time_retrieved_patch(mocker):
-    return mocker.patch.object(oci_app_catalog_subscription, "_sanitize_time_retrieved")
+def parse_iso8601_str_as_datetime_patch(mocker):
+    return mocker.patch.object(oci_utils, "parse_iso8601_str_as_datetime")
 
 
 def get_app_catalog_subscription(**kwargs):
@@ -157,7 +158,7 @@ def test_delete_app_catalog_subscription_raises_service_error(
     assert se.message == "Internal Server Error"
 
 
-def test_delete_app_catalog_subscription__when_resource_does_not_exist(
+def test_delete_app_catalog_subscription_when_resource_does_not_exist(
     compute_client, call_with_backoff_patch, get_app_catalog_subscription_patch
 ):
     # Ideally if a subscription does not exist, the get function returns None
@@ -168,7 +169,7 @@ def test_delete_app_catalog_subscription__when_resource_does_not_exist(
     result = oci_app_catalog_subscription.delete_app_catalog_subscription(
         compute_client, get_module()
     )
-    assert result["changed"] == False
+    assert result["changed"] is False
     assert result["app_catalog_subscription"] == dict()
     # for the case when get_app_catalog_subscription returns None.
     get_app_catalog_subscription_patch.return_value = None
@@ -177,7 +178,7 @@ def test_delete_app_catalog_subscription__when_resource_does_not_exist(
     result = oci_app_catalog_subscription.delete_app_catalog_subscription(
         compute_client, get_module()
     )
-    assert result["changed"] == False
+    assert result["changed"] is False
     assert result["app_catalog_subscription"] == dict()
 
 
@@ -190,7 +191,7 @@ def test_delete_app_catalog_subscription_when_resource_exists(
     result = oci_app_catalog_subscription.delete_app_catalog_subscription(
         compute_client, get_module()
     )
-    assert result["changed"] == True
+    assert result["changed"] is True
     assert (
         result["app_catalog_subscription"]["compartment_id"]
         == app_catalog_subscription.compartment_id
@@ -243,7 +244,7 @@ def test_create_app_catalog_subscription_when_resource_does_not_exist_already(
     compute_client,
     call_with_backoff_patch,
     get_app_catalog_subscription_patch,
-    sanitize_time_retrieved_patch,
+    parse_iso8601_str_as_datetime_patch,
 ):
     app_catalog_subscription = get_app_catalog_subscription()
     get_app_catalog_subscription_patch.side_effect = [
@@ -251,17 +252,19 @@ def test_create_app_catalog_subscription_when_resource_does_not_exist_already(
         to_dict(app_catalog_subscription),
     ]
     module = get_module()
-    sanitize_time_retrieved_patch.return_value = module.params.get("time_retrieved")
+    parse_iso8601_str_as_datetime_patch.return_value = module.params.get(
+        "time_retrieved"
+    )
     call_with_backoff_patch.return_value = get_response(data=app_catalog_subscription)
     result = oci_app_catalog_subscription.create_app_catalog_subscription(
         compute_client, module
     )
     assert get_app_catalog_subscription_patch.call_count == 2
-    assert sanitize_time_retrieved_patch.call_count == 1
-    sanitize_time_retrieved_patch.assert_called_with(
+    assert parse_iso8601_str_as_datetime_patch.call_count == 1
+    parse_iso8601_str_as_datetime_patch.assert_called_with(
         module.params.get("time_retrieved")
     )
-    assert result["changed"] == True
+    assert result["changed"] is True
     assert (
         result["app_catalog_subscription"]["compartment_id"]
         == app_catalog_subscription.compartment_id
@@ -280,7 +283,7 @@ def test_create_app_catalog_subscription_when_resource_exists_already(
     compute_client,
     call_with_backoff_patch,
     get_app_catalog_subscription_patch,
-    sanitize_time_retrieved_patch,
+    parse_iso8601_str_as_datetime_patch,
 ):
     app_catalog_subscription = get_app_catalog_subscription()
     get_app_catalog_subscription_patch.return_value = to_dict(app_catalog_subscription)
@@ -289,9 +292,9 @@ def test_create_app_catalog_subscription_when_resource_exists_already(
         compute_client, get_module()
     )
     assert get_app_catalog_subscription_patch.call_count == 1
-    assert sanitize_time_retrieved_patch.call_count == 0
+    assert parse_iso8601_str_as_datetime_patch.call_count == 0
     assert call_with_backoff_patch.call_count == 0
-    assert result["changed"] == False
+    assert result["changed"] is False
     assert (
         result["app_catalog_subscription"]["compartment_id"]
         == app_catalog_subscription.compartment_id
@@ -303,68 +306,4 @@ def test_create_app_catalog_subscription_when_resource_exists_already(
     assert (
         result["app_catalog_subscription"]["listing_resource_version"]
         == app_catalog_subscription.listing_resource_version
-    )
-
-
-def test_sanitize_time_retrieved_returns_orig_time_retrieved_when_input_not_in_expected_format():
-    assert oci_app_catalog_subscription._sanitize_time_retrieved("") == ""
-    assert oci_app_catalog_subscription._sanitize_time_retrieved(None) is None
-    assert oci_app_catalog_subscription._sanitize_time_retrieved([]) == []
-    assert (
-        oci_app_catalog_subscription._sanitize_time_retrieved("notadate") == "notadate"
-    )
-    assert (
-        oci_app_catalog_subscription._sanitize_time_retrieved("2018-03-20")
-        == "2018-03-20"
-    )
-    assert (
-        oci_app_catalog_subscription._sanitize_time_retrieved(
-            "2018-03-20T12.32.53.532Z"
-        )
-        == "2018-03-20T12.32.53.532Z"
-    )
-    assert (
-        oci_app_catalog_subscription._sanitize_time_retrieved(
-            "2018-03-20T12.32.53.532+11:11"
-        )
-        == "2018-03-20T12.32.53.532+11:11"
-    )
-    assert (
-        oci_app_catalog_subscription._sanitize_time_retrieved(
-            "2018-03-20T12:32:53.532+00:00Z"
-        )
-        == "2018-03-20T12:32:53.532+00:00Z"
-    )
-
-
-def test_sanitize_time_retrieved_returns_sanitized_time_retrieved_when_input_in_expected_format():
-    assert (
-        oci_app_catalog_subscription._sanitize_time_retrieved(
-            "2018-03-20T12:32:53.532Z"
-        )
-        == "2018-03-20T12:32:53.000Z"
-    )
-    assert (
-        oci_app_catalog_subscription._sanitize_time_retrieved(
-            "2018-03-20T12:32:53.532876Z"
-        )
-        == "2018-03-20T12:32:53.000Z"
-    )
-    assert (
-        oci_app_catalog_subscription._sanitize_time_retrieved(
-            "2018-03-20T12:32:53.532+00:00"
-        )
-        == "2018-03-20T12:32:53.000Z"
-    )
-    assert (
-        oci_app_catalog_subscription._sanitize_time_retrieved(
-            "2018-03-20T12:32:53.532876+00:00"
-        )
-        == "2018-03-20T12:32:53.000Z"
-    )
-    assert (
-        oci_app_catalog_subscription._sanitize_time_retrieved(
-            "2018-03-20T12:32:53+00:00"
-        )
-        == "2018-03-20T12:32:53.000Z"
     )

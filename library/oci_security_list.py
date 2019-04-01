@@ -51,7 +51,7 @@ options:
         default: 'present'
         choices: ['present','absent']
     ingress_security_rules:
-        description: Rules for allowing ingress IP packets.
+        description: Rules for allowing ingress IP packets. Required for create operation.
         required: false
         suboptions:
             source:
@@ -104,7 +104,7 @@ options:
                              are allowed.
                 required: no
     egress_security_rules:
-        description: Rules for allowing egress IP packets.
+        description: Rules for allowing egress IP packets. Required for create operation.
         required: false
         suboptions:
             destination:
@@ -412,6 +412,14 @@ def create_or_update_security_list(virtual_network_client, module):
                 virtual_network_client, existing_security_list, module
             )
         else:
+            # ingress_security_rules and egress_security_rules are required for create operation
+            if (
+                module.params.get("ingress_security_rules") is None
+                or module.params.get("egress_security_rules") is None
+            ):
+                module.fail_json(
+                    msg="ingress_security_rules and egress_security_rules are required for creating security list."
+                )
             result = oci_utils.check_and_create_resource(
                 resource_type="security_list",
                 create_fn=create_security_list,

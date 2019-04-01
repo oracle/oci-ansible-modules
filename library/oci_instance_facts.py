@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -154,6 +154,16 @@ instances:
             returned: always
             type: dict(str, str)
             sample: {"foo": "bar"}
+        primary_private_ip:
+            description: The private IP of the primary VNIC attached to this instance
+            returned: always
+            type: string
+            sample: 10.0.0.10
+        primary_public_ip:
+            description: The public IP of the primary VNIC attached to this instance
+            returned: always
+            type: string
+            sample: 140.34.93.209
         region:
             description: The region that contains the Availability Domain the instance is running in.
             returned: always
@@ -273,6 +283,8 @@ instances:
       "region": "phx",
       "shape": "BM.Standard1.36",
       "time_created": "2017-11-20T04:52:54.541000+00:00",
+      "primary_public_ip": "140.34.93.209",
+      "primary_private_ip": "10.0.0.10",
       "volume_attachments":  [{
                                 "attachment_type": "iscsi",
                                 "availability_domain": "BnQb:PHX-AD-1",
@@ -298,6 +310,7 @@ from ansible.module_utils.oracle.oci_utils import check_mode
 
 try:
     from oci.core.compute_client import ComputeClient
+    from oci.core.virtual_network_client import VirtualNetworkClient
     from oci.util import to_dict
     from oci.exceptions import ServiceError
 
@@ -306,7 +319,7 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-def list_instances(compute_client, module):
+def list_instances(compute_client, network_client, module):
     try:
         cid = module.params["compartment_id"]
         optional_list_method_params = [
@@ -314,11 +327,11 @@ def list_instances(compute_client, module):
             "availability_domain",
             "lifecycle_state",
         ]
-        optional_kwargs = {
-            param: module.params[param]
+        optional_kwargs = dict(
+            (param, module.params[param])
             for param in optional_list_method_params
             if module.params.get(param) is not None
-        }
+        )
         instances = oci_utils.list_all_resources(
             compute_client.list_instances, compartment_id=cid, **optional_kwargs
         )
@@ -344,7 +357,50 @@ def add_volume_attachment_facts(compute_client, result):
         )
 
 
+def add_primary_ips(compute_client, network_client, result, module):
+    for instance in result:
+        instance["primary_public_ip"] = None
+        instance["primary_private_ip"] = None
+
+        vnic_attachments = oci_utils.list_all_resources(
+            compute_client.list_vnic_attachments,
+            compartment_id=instance["compartment_id"],
+            instance_id=instance["id"],
+        )
+
+        if vnic_attachments:
+            for vnic_attachment in vnic_attachments:
+                if vnic_attachment.lifecycle_state == "ATTACHED":
+                    try:
+                        vnic = network_client.get_vnic(vnic_attachment.vnic_id).data
+                        if vnic.is_primary:
+                            if vnic.public_ip:
+                                instance["primary_public_ip"] = vnic.public_ip
+                            if vnic.private_ip:
+                                instance["primary_private_ip"] = vnic.private_ip
+                    except ServiceError as ex:
+                        if ex.status == 404:
+                            get_logger().debug(
+                                "Either VNIC with ID %s does not exist or you are not authorized to access it.",
+                                vnic_attachment.vnic_id,
+                            )
+                        else:
+                            module.fail_json(msg=ex.message)
+
+
+def set_logger(input_logger):
+    global logger
+    logger = input_logger
+
+
+def get_logger():
+    return logger
+
+
 def main():
+    logger = oci_utils.get_logger("oci_instance_facts")
+    set_logger(logger)
+
     module_args = oci_utils.get_facts_module_arg_spec()
     module_args.update(
         dict(
@@ -378,6 +434,7 @@ def main():
         module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
+    network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
 
     compartment_id = module.params["compartment_id"]
     id = module.params["instance_id"]
@@ -385,7 +442,8 @@ def main():
     result = dict(changed=False)
 
     if compartment_id:
-        result = list_instances(compute_client, module)
+        result = list_instances(compute_client, network_client, module)
+        add_primary_ips(compute_client, network_client, result, module)
     else:
         try:
             inst = oci_utils.call_with_backoff(
@@ -399,6 +457,7 @@ def main():
         try:
             add_volume_attachment_facts(compute_client, result)
             add_boot_volume_attachment_facts(compute_client, result)
+            add_primary_ips(compute_client, network_client, result, module)
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
 

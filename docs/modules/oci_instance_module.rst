@@ -277,7 +277,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the image used to boot the instance. Required to launch an instance using an image with <em>state=present</em>. <em>image_id</em> is mutually exclusive with <em>boot_volume_details</em>. This can also be provided through <em>source_details</em>.</div>
+                                                                        <div>The OCID of the image used to boot the instance. <em>image_id</em> is mutually exclusive with <em>boot_volume_details</em> and <em>source_details</em>. This option is deprecated. Use <em>source_details</em> with <em>source_type=image</em> instead.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -395,6 +395,17 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                             <div>The OCID of the image used to boot the instance. Required if <em>source_type</em> is &quot;image&quot;.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>boot_volume_size_in_gbs</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The size of the boot volume in GBs. Minimum value is 50 GB and maximum value is 16384 GB (16TB). Applicable only when <em>source_type=image</em>.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -639,11 +650,13 @@ Examples
          name: myinstance1
          availability_domain: "BnQb:PHX-AD-1"
          compartment_id: "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq"
-         image_id: "ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx...sa7klnoa"
          shape: "BM.Standard1.36"
          metadata:
             foo: bar
             baz: quux
+         source_details:
+            source_type: image
+            image_id: ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx
          volume_details:
             attachment_state: present
             volume_id: ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx
@@ -669,6 +682,20 @@ Examples
          vnic:
             hostname_label: "myinstance2"
             private_ip: "10.0.0.6"
+            subnet_id: "ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...5iddusmpqpaoa"
+
+    - name: Launch/create an instance using an image with custom boot volume size
+      oci_instance:
+         name: myinstance1
+         availability_domain: "BnQb:PHX-AD-1"
+         compartment_id: "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq"
+         shape: "BM.Standard1.36"
+         source_details:
+            source_type: image
+            image_id: ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx
+            boot_volume_size_in_gbs: 100
+         vnic:
+            hostname_label: "myinstance1"
             subnet_id: "ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...5iddusmpqpaoa"
 
     - name: Update an instance's name

@@ -427,12 +427,12 @@ def get_user_ids_from_user_names(identity_client, user_names, module):
     users = oci_utils.list_all_resources(
         identity_client.list_users, compartment_id=module.params.get("compartment_id")
     )
-    user_id_dict = {
-        user_name: user.id
+    user_id_dict = dict(
+        (user_name, user.id)
         for user in users
         for user_name in user_names
         if user.name.strip() == user_name.strip()
-    }
+    )
     try:
         user_ids = [user_id_dict[user_name] for user_name in user_names]
     except KeyError as ex:

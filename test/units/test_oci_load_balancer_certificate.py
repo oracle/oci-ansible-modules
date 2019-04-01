@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -11,7 +11,7 @@ from ansible.modules.cloud.oracle import oci_load_balancer_certificate
 from ansible.module_utils.oracle import oci_lb_utils
 import tempfile
 import os
-import six
+from ansible.module_utils import six
 
 try:
     import oci
@@ -240,7 +240,7 @@ def get_certificate_bundle():
 
 def delete_cert_bundle(certificate_bundle):
     cert_attributes = ["ca_certificate", "private_key", "public_certificate"]
-    for _, value in six.iteritems(certificate_bundle):
+    for dummy, value in six.iteritems(certificate_bundle):
         os.remove(value)
 
 

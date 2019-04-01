@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -101,9 +101,9 @@ options:
         required: false
         aliases: ['name']
     image_id:
-        description: The OCID of the image used to boot the instance. Required to launch an instance using an image with
-                     I(state=present). I(image_id) is mutually exclusive with I(boot_volume_details). This can
-                     also be provided through I(source_details).
+        description: The OCID of the image used to boot the instance. I(image_id) is mutually exclusive with
+                     I(boot_volume_details) and I(source_details). This option is deprecated. Use I(source_details)
+                     with I(source_type=image) instead.
         required: false
     instance_id:
         description: The OCID of the compute instance. Required for updating an existing compute instance
@@ -147,6 +147,9 @@ options:
             image_id:
                 description: The OCID of the image used to boot the instance. Required if I(source_type) is "image".
                 required: false
+            boot_volume_size_in_gbs:
+                description: The size of the boot volume in GBs. Minimum value is 50 GB and maximum value is
+                             16384 GB (16TB). Applicable only when I(source_type=image).
             boot_volume_id:
                 description: The OCID of the boot volume used to boot the instance. Required if I(source_type) is
                              "bootVolume".
@@ -239,11 +242,13 @@ EXAMPLES = """
      name: myinstance1
      availability_domain: "BnQb:PHX-AD-1"
      compartment_id: "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq"
-     image_id: "ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx...sa7klnoa"
      shape: "BM.Standard1.36"
      metadata:
         foo: bar
         baz: quux
+     source_details:
+        source_type: image
+        image_id: ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx
      volume_details:
         attachment_state: present
         volume_id: ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx
@@ -269,6 +274,20 @@ EXAMPLES = """
      vnic:
         hostname_label: "myinstance2"
         private_ip: "10.0.0.6"
+        subnet_id: "ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...5iddusmpqpaoa"
+
+- name: Launch/create an instance using an image with custom boot volume size
+  oci_instance:
+     name: myinstance1
+     availability_domain: "BnQb:PHX-AD-1"
+     compartment_id: "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq"
+     shape: "BM.Standard1.36"
+     source_details:
+        source_type: image
+        image_id: ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx
+        boot_volume_size_in_gbs: 100
+     vnic:
+        hostname_label: "myinstance1"
         subnet_id: "ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...5iddusmpqpaoa"
 
 - name: Update an instance's name
@@ -1204,7 +1223,7 @@ def detach_volume(compute_client, module, volume_attachment_id):
             compute_client.get_volume_attachment,
             volume_attachment_id=volume_attachment_id,
         ).data
-        if volume_attachment.lifecycle_state in {"DETACHING", "DETACHED"}:
+        if volume_attachment.lifecycle_state in ["DETACHING", "DETACHED"]:
             result["changed"] = False
             result["volume_attachment"] = to_dict(volume_attachment)
         else:
@@ -1426,6 +1445,38 @@ def get_vnic_details(module):
     return cvd
 
 
+def get_source_details_from_module(module):
+    # An instance's source can either be specified by top-level options "image_id" or via "source_details"
+    if "source_details" in module.params and module.params["source_details"]:
+        source_details = module.params["source_details"]
+        source_type = source_details.get("source_type")
+        if source_type == "image":
+            image_id = source_details.get("image_id")
+            boot_volume_size_in_gbs = source_details.get("boot_volume_size_in_gbs")
+            if not image_id:
+                module.fail_json(
+                    msg="state is present, source_details' type is specified as image, but image_id is not"
+                    "specified"
+                )
+            return _create_instance_source_via_image(
+                image_id, boot_volume_size_in_gbs=boot_volume_size_in_gbs
+            )
+        if source_type == "bootVolume":
+            boot_volume_id = source_details.get("boot_volume_id")
+            if not boot_volume_id:
+                module.fail_json(
+                    msg="state is present, source_details' type is specified as bootVolume, but "
+                    "boot_volume_id is not specified"
+                )
+            return _create_instance_source_via_boot_volume(boot_volume_id)
+        module.fail_json(
+            msg="value of source_type must be one of: 'bootVolume', 'image'"
+        )
+    elif "image_id" in module.params and module.params["image_id"]:
+        return _create_instance_source_via_image(module.params["image_id"])
+    return None
+
+
 def get_launch_instance_details(module, display_name_override=None):
     lid = LaunchInstanceDetails()
 
@@ -1454,45 +1505,15 @@ def get_launch_instance_details(module, display_name_override=None):
     lid.ipxe_script = module.params["ipxe_script"]
     lid.shape = module.params["shape"]
     oci_utils.add_tags_to_model_from_module(lid, module)
-
-    # An instance's source can either be specified by top-level options "image_id" or via "source_details"
-    if "image_id" in module.params and module.params["image_id"] is not None:
-        lid.source_details = _create_instance_source_via_image(
-            module.params["image_id"]
-        )
-    elif (
-        "source_details" in module.params
-        and module.params["source_details"] is not None
-    ):
-        source_details = module.params["source_details"]
-        source_type = source_details.get("source_type", None)
-        if source_type == "image":
-            image_id = source_details.get("image_id", None)
-            if not image_id:
-                module.fail_json(
-                    msg="state is present, source_details' type is specified as image, but image_id is not"
-                    "specified"
-                )
-            lid.source_details = _create_instance_source_via_image(image_id)
-        elif source_type == "bootVolume":
-            boot_volume_id = source_details.get("boot_volume_id", None)
-            if not boot_volume_id:
-                module.fail_json(
-                    msg="state is present, source_details' type is specified as bootVolume, but "
-                    "boot_volume_id is not specified"
-                )
-            lid.source_details = _create_instance_source_via_boot_volume(boot_volume_id)
-        else:
-            module.fail_json(
-                msg="value of source_type must be one of: 'bootVolume', 'image'"
-            )
-
+    lid.source_details = get_source_details_from_module(module)
     return lid
 
 
-def _create_instance_source_via_image(image_id):
+def _create_instance_source_via_image(image_id, boot_volume_size_in_gbs=None):
     instance_source_details = InstanceSourceViaImageDetails()
     instance_source_details.image_id = image_id
+    if boot_volume_size_in_gbs:
+        instance_source_details.boot_volume_size_in_gbs = boot_volume_size_in_gbs
     return instance_source_details
 
 
@@ -1533,11 +1554,11 @@ def handle_volume_attachment(compute_client, module, volume_id, instance_id):
             return result
 
     key_list = ["attachment_name", "type"]
-    param_map = {
-        k: v
+    param_map = dict(
+        (k, v)
         for (k, v) in six.iteritems(volume_details)
         if k in key_list and v is not None
-    }
+    )
 
     attach_volume_details = get_attach_volume_details(
         instance_id=instance_id, volume_id=volume_id, **param_map
@@ -1814,13 +1835,10 @@ def _get_default_source_details(module):
     we construct an equivalent source_details for a user-specified "image_id" and set as the default value for
     the "source_details" object, so that an existing resource with the same state matches.
     """
-    if (
-        "source_details" in module.params
-        and module.params["source_details"] is not None
-    ):
+    if "source_details" in module.params and module.params["source_details"]:
         return module.params["source_details"]
 
-    elif "image_id" in module.params and module.params["image_id"] is not None:
+    elif module.params.get("image_id"):
         image_id = module.params["image_id"]
         return {"source_type": "image", "image_id": image_id}
 
@@ -1829,14 +1847,16 @@ def _get_default_source_details(module):
 
 def _get_default_image_id(module):
     """
-    Return the image_id if the image_id was specified through "source_details", or None
+    Return the image_id if the image_id was specified through "source_details" or None.
     """
-    if (
-        "source_details" in module.params
-        and module.params["source_details"] is not None
-    ):
+    if "source_details" in module.params and module.params["source_details"]:
         source_details = module.params["source_details"]
-        source_type = source_details["source_type"]
+        source_type = source_details.get("source_type")
+        if not source_type:
+            if "source_type" not in source_details:
+                module.fail_json(
+                    msg="source_type required and must be one of: 'bootVolume', 'image'"
+                )
         if source_type == "image":
             return source_details["image_id"]
     return None
@@ -1854,11 +1874,12 @@ def get_logger():
 def _get_exclude_attributes(module):
     # display_name is generated by OCI if unspecified, so always exclude it during matching
     exclude_attributes = {"display_name": True}
-    if (
-        "source_details" in module.params
-        and module.params["source_details"] is not None
-    ):
+    if "source_details" in module.params and module.params["source_details"]:
         source_details = module.params["source_details"]
+        if "source_type" not in source_details:
+            module.fail_json(
+                msg="source_type required and must be one of: 'bootVolume', 'image'"
+            )
         if source_details["source_type"] == "bootVolume":
             # if an Instance is being created by a boot volume id, ignore the "image_id" attribute of the existing
             # resources during matching

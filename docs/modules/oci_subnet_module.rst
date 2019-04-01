@@ -101,7 +101,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The Availability Domain to contain the subnet. Required when creating a subnet with <em>state=present</em>.</div>
+                                                                        <div>The Availability Domain to contain the subnet. If not specified while using <em>state=present</em> a regional subnet will be created.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -363,6 +363,13 @@ Examples
     - name: Create a subnet
       oci_subnet:
         availability_domain: BnQb:PHX-AD-1
+        cidr_block: 10.0.1.0/24
+        compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
+        prohibit_public_ip_on_vnic: true
+        vcn_id: ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
+
+    - name: Create a regional subnet
+      oci_subnet:
         cidr_block: 10.0.1.0/24
         compartment_id: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
         prohibit_public_ip_on_vnic: true

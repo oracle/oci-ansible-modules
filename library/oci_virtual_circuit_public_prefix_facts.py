@@ -98,11 +98,11 @@ def list_virtual_circuit_public_prefixes(virtual_network_client, module):
     virtual_circuit_id = module.params.get("virtual_circuit_id")
     try:
         optional_list_method_params = ["verification_state"]
-        optional_kwargs = {
-            param: module.params[param]
+        optional_kwargs = dict(
+            (param, module.params[param])
             for param in optional_list_method_params
             if module.params.get(param) is not None
-        }
+        )
         existing_virtual_circuit_public_prefixes = oci_utils.list_all_resources(
             virtual_network_client.list_virtual_circuit_public_prefixes,
             virtual_circuit_id=virtual_circuit_id,

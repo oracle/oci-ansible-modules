@@ -98,7 +98,7 @@ def test_create_app_catalog_listing_agreement(compute_client, call_with_backoff_
     result = oci_app_catalog_listing_agreement.create_app_catalog_listing_agreement(
         compute_client, get_module()
     )
-    assert result["changed"] == True
+    assert result["changed"] is True
     assert (
         result["app_catalog_listing_agreement"]["eula_link"]
         == app_catalog_listing_agreement.eula_link
