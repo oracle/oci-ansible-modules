@@ -28,19 +28,20 @@ options:
         description: Name of the namespace from which facts of constituent buckets needs to be fetched.
         required: true
     compartment_id:
-        description: Identifier of the compartment from which facts of constituent buckets needs to be fetched. \
+        description: Identifier of the compartment from which facts of constituent buckets needs to be fetched.
                     Required to get details of all buckets in a specified namespace and compartment.
-        required: false
     name:
         description: Name of the bucket. Required to fetch details of a specific bucket.
         required: false
         aliases: [ 'bucket' ]
     fields:
-        description: Bucket summary in list of buckets includes the 'namespace', 'name', 'compartmentId', 'createdBy',
-                     'timeCreated', and 'etag' fields. This parameter can also include 'tags' (freeformTags and
-                     definedTags). The only supported value of this parameter is 'tags' for now.
+        description: Specifies additional fields to be returned in the response.  By default a response includes
+                     the 'namespace', 'name', 'compartment_id', 'created_by', 'time_created', and 'etag' fields.
+                     Specifying "tags" will populate the fields "freeform_tags" and "defined_tags".  Specifying
+                     "approximateSize" will populate the field "approximate_size".  Specifying "approximateCount"
+                     will populate the field "approximate_size".  Any combination of the values may be provided.
         required: false
-        choices: ['tags']
+        choices: ["tags", "approximateCount", "approximateSize"]
         type: 'list'
 author: "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: oracle
@@ -56,11 +57,24 @@ EXAMPLES = """
     namespace_name: 'mynamespace'
     compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
 
-#Fetch facts of a specific bucket
+- name: List bucket facts (including tags)
+  oci_bucket_facts:
+    namespace_name: 'mynamespace'
+    compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+    fields: ["tags"]
+
+# Fetch facts of a specific bucket
 - name: Fetch a bucket
   oci_bucket_facts:
     namespace_name: 'mynamespace'
     name: 'Bucket1'
+
+# Fetch facts of a specific bucket (including approximate size and count)
+- name: Fetch a bucket
+  oci_bucket_facts:
+    namespace_name: 'mynamespace'
+    name: 'Bucket1'
+    fields: ["approximateSize", "approximateCount"]
 """
 
 RETURN = """
@@ -112,6 +126,18 @@ buckets:
             returned: always
             type: string
             sample: 2017-10-07T16:20:33.933000+00:00
+        approximate_size:
+            description: The approximate total size of all objects in the bucket. \
+                         Size statistics are reported periodically. You will see a lag between what is displayed and \
+                         the actual size of the bucket.
+            returned: only when 'approximateSize' is specified in the 'fields' input option
+            type: int
+        approximate_count:
+            description: The approximate number of objects in the bucket.  \
+                         Count statistics are reported periodically. You will see a lag between what is displayed \
+                         and the actual object count.
+            returned: only when 'approximateCount' is specified in the 'fields' input option
+            type: int
     sample: [{"compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
               "created_by": "ocid1.user.oc1..xxxxxEXAMPLExxxxx",
               "etag": "7d48fea5-ghfc",
@@ -142,27 +168,43 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-def list_buckets(object_storage_client, module):
+def list_buckets(object_storage_client, module, get_kwargs, list_kwargs):
     try:
         namespace_name = module.params["namespace_name"]
         compartment_id = module.params["compartment_id"]
 
-        optional_list_method_params = ["fields"]
-        optional_kwargs = dict(
-            (param, module.params[param])
-            for param in optional_list_method_params
-            if module.params.get(param) is not None
-        )
+        buckets_to_return = []
 
         buckets = oci_utils.list_all_resources(
             object_storage_client.list_buckets,
             namespace_name=namespace_name,
             compartment_id=compartment_id,
-            **optional_kwargs
+            **list_kwargs
         )
+
+        # if there are fields requested that are only available on the Get call
+        # we must individually fetch each bucket in the list
+        if get_kwargs:
+            for bucket in buckets:
+                buckets_to_return.append(
+                    object_storage_client.get_bucket(
+                        namespace_name, bucket.name, **get_kwargs
+                    ).data
+                )
+        else:
+            buckets_to_return = buckets
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
-    return to_dict(buckets)
+    return to_dict(buckets_to_return)
+
+
+def filter_to_whitelisted_arguments(argument_list, whitelist):
+    filtered_list = []
+    for value in argument_list:
+        if value in whitelist:
+            filtered_list.append(value)
+
+    return filtered_list
 
 
 def main():
@@ -172,7 +214,11 @@ def main():
             namespace_name=dict(type="str", required=True),
             compartment_id=dict(type="str", required=False),
             name=dict(type="str", required=False, aliases=["bucket"]),
-            fields=dict(type="list", required=False, choices=["tags"]),
+            fields=dict(
+                type="list",
+                required=False,
+                choices=["tags", "approximateSize", "approximateCount"],
+            ),
         )
     )
     module = AnsibleModule(
@@ -186,20 +232,35 @@ def main():
 
     object_storage_client = oci_utils.create_service_client(module, ObjectStorageClient)
 
+    valid_field_values_for_list_call = ["tags"]
+    valid_field_values_for_get_call = ["approximateSize", "approximateCount"]
+
+    get_kwargs = {}
+    list_kwargs = {}
+
+    fields_arg_value = module.params.get("fields")
+    if fields_arg_value:
+        get_kwargs["fields"] = filter_to_whitelisted_arguments(
+            fields_arg_value, valid_field_values_for_get_call
+        )
+        list_kwargs["fields"] = filter_to_whitelisted_arguments(
+            fields_arg_value, valid_field_values_for_list_call
+        )
+
     bucket_name = module.params["name"]
     if bucket_name is not None:
         try:
             result = [
                 to_dict(
                     object_storage_client.get_bucket(
-                        module.params["namespace_name"], bucket_name
+                        module.params["namespace_name"], bucket_name, **get_kwargs
                     ).data
                 )
             ]
         except ServiceError as ex:
             module.fail_json(msg=ex.message)
     else:
-        result = list_buckets(object_storage_client, module)
+        result = list_buckets(object_storage_client, module, get_kwargs, list_kwargs)
 
     module.exit_json(buckets=result)
 

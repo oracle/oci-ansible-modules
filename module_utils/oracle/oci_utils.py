@@ -41,7 +41,7 @@ except ImportError:
 from ansible.module_utils.basic import _load_params
 from ansible.module_utils._text import to_bytes
 
-__version__ = "1.7.0"
+__version__ = "1.8.0"
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -70,6 +70,12 @@ DEFAULT_READY_STATES = [
     "PENDING_PROVIDER",
 ]
 
+CANCELLED_STATES = ["CANCELLED"]
+
+WORK_REQUEST_COMPLETED_STATES = ["SUCCEEDED", "SUCCESS", "FAILED"]
+WORK_REQUEST_SUCCESS_STATES = ["SUCCEEDED", "SUCCESS"]
+WORK_REQUEST_FAILED_STATES = ["FAILED"]
+
 # If a resource is in one of these states, it would be considered deleted
 DEFAULT_TERMINATED_STATES = ["TERMINATED", "DETACHED", "DELETED"]
 
@@ -86,50 +92,65 @@ def get_common_arg_spec(supports_create=False, supports_wait=False):
     # can check for absence of OCI Python SDK and fail with an appropriate message. Introducing an OCI dependency in
     # this method would break that error handling logic.
     common_args = dict(
-        config_file_location=dict(type="str", required=False),
-        config_profile_name=dict(type="str", required=False),
-        api_user=dict(type="str", required=False),
-        api_user_fingerprint=dict(type="str", required=False, no_log=True),
-        api_user_key_file=dict(type="str", required=False),
-        api_user_key_pass_phrase=dict(type="str", required=False, no_log=True),
+        config_file_location=dict(type="str"),
+        config_profile_name=dict(type="str"),
+        api_user=dict(type="str"),
+        api_user_fingerprint=dict(type="str", no_log=True),
+        api_user_key_file=dict(type="str"),
+        api_user_key_pass_phrase=dict(type="str", no_log=True),
         auth_type=dict(
-            type="str",
-            required=False,
-            choices=["api_key", "instance_principal"],
-            default="api_key",
+            type="str", choices=["api_key", "instance_principal"], default="api_key"
         ),
-        tenancy=dict(type="str", required=False),
-        region=dict(type="str", required=False),
+        tenancy=dict(type="str"),
+        region=dict(type="str"),
     )
 
     if supports_create:
         common_args.update(
-            key_by=dict(type="list", required=False),
-            force_create=dict(type="bool", required=False, default=False),
+            key_by=dict(type="list"), force_create=dict(type="bool", default=False)
         )
 
     if supports_wait:
         common_args.update(
-            wait=dict(type="bool", required=False, default=True),
-            wait_timeout=dict(
-                type="int", required=False, default=MAX_WAIT_TIMEOUT_IN_SECONDS
-            ),
-            wait_until=dict(type="str", required=False),
+            wait=dict(type="bool", default=True),
+            wait_timeout=dict(type="int", default=MAX_WAIT_TIMEOUT_IN_SECONDS),
+            wait_until=dict(type="str"),
         )
 
     return common_args
 
 
-def get_facts_module_arg_spec(filter_by_name=False):
+def get_facts_module_arg_spec(
+    filter_by_name=False,
+    filter_by_display_name=True,
+    supports_sort=False,
+    supports_sort_by=True,
+    sort_by_choices=None,
+    supports_sort_order=True,
+    sort_order_choices=None,
+):
     # Note: This method is used by most OCI ansible fact modules during initialization. When making changes to this
     # method, ensure that no `oci` python sdk dependencies are introduced in this method. This ensures that the modules
     # can check for absence of OCI Python SDK and fail with an appropriate message. Introducing an OCI dependency in
     # this method would break that error handling logic.
     facts_module_arg_spec = get_common_arg_spec()
     if filter_by_name:
-        facts_module_arg_spec.update(name=dict(type="str", required=False))
-    else:
-        facts_module_arg_spec.update(display_name=dict(type="str", required=False))
+        facts_module_arg_spec.update(name=dict(type="str"))
+    elif filter_by_display_name:
+        facts_module_arg_spec.update(display_name=dict(type="str"))
+    if supports_sort:
+        if supports_sort_by:
+            if not sort_by_choices:
+                sort_by_choices = ["TIMECREATED", "DISPLAYNAME"]
+            facts_module_arg_spec.update(
+                sort_by=dict(type="str", choices=sort_by_choices)
+            )
+        if supports_sort_order:
+            if not sort_order_choices:
+                sort_order_choices = ["ASC", "DESC"]
+            facts_module_arg_spec.update(
+                sort_order=dict(type="str", choices=sort_order_choices)
+            )
     return facts_module_arg_spec
 
 
@@ -471,7 +492,7 @@ def setup_logging(
         log_level_str = os.getenv(env_log_level, default_level)
         log_level = logging.getLevelName(log_level_str)
 
-        log_file_path = os.path.join(tempfile.gettempdir(), "oci_ansible_module.log")
+        log_file_path = os.path.join(log_path, "oci_ansible_module.log")
 
         logging.basicConfig(filename=log_file_path, filemode="a", level=log_level)
     return logging
@@ -511,6 +532,7 @@ def check_and_update_resource(
     sub_attributes_of_update_model=None,
     wait_applicable=True,
     states=None,
+    required_update_attributes=[],
 ):
 
     """
@@ -534,12 +556,14 @@ def check_and_update_resource(
                    e.g. [module.params['wait_until'], "FAULTY"]
     :param sub_attributes_of_update_model: Dictionary of non-primitive sub-attributes of update model. for example,
         {'services': [ServiceIdRequestDetails()]} as in UpdateServiceGatewayDetails.
+    :param required_update_attributes: Attributes in update model that must be passed, even if their value already matches
+        the value on the resource.
     :return: Returns a dictionary containing the "changed" status and the resource.
     """
     try:
         result = dict(changed=False)
         attributes_to_update, resource = get_attr_to_update(
-            get_fn, kwargs_get, module, update_attributes
+            get_fn, kwargs_get, module, update_attributes, required_update_attributes
         )
 
         if attributes_to_update:
@@ -638,7 +662,9 @@ def are_lists_equal(s, t):
         return not t
 
 
-def get_attr_to_update(get_fn, kwargs_get, module, update_attributes):
+def get_attr_to_update(
+    get_fn, kwargs_get, module, update_attributes, required_update_attributes=[]
+):
     try:
         resource = call_with_backoff(get_fn, **kwargs_get).data
     except ServiceError as ex:
@@ -656,7 +682,7 @@ def get_attr_to_update(get_fn, kwargs_get, module, update_attributes):
         unequal_attr = type(resources_attr_value) != list and to_dict(
             resources_attr_value
         ) != to_dict(user_provided_attr_value)
-        if unequal_list_attr or unequal_attr:
+        if unequal_list_attr or unequal_attr or attr in required_update_attributes:
             # only update if the user has explicitly provided a value for this attribute
             # otherwise, no update is necessary because the user hasn't expressed a particular
             # value for that attribute
@@ -723,10 +749,13 @@ def check_and_create_resource(
     model,
     existing_resources=None,
     exclude_attributes=None,
+    exclude_attributes_even_when_user_provides_value=None,
     dead_states=None,
     default_attribute_values=None,
     supports_sort_by_time_created=True,
     create_model_attr_to_get_model_mapping=None,
+    get_resource_from_summary_fn=None,
+    get_resource_from_summary_fn_kwargs=None,
 ):
     """
     This function checks whether there is a resource with same attributes as specified in the module options. If not,
@@ -744,6 +773,14 @@ def check_and_create_resource(
     :param dead_states: List of states which can't transition to any of the usable states of the resource. This deafults
     to ["TERMINATING", "TERMINATED", "FAULTY", "FAILED", "DELETING", "DELETED", "UNKNOWN_ENUM_VALUE"]
     :param default_attribute_values: A dictionary containing default values for attributes.
+    :param supports_sort_by_time_created: Whether the list function supports sort_by.
+    :param create_model_attr_to_get_model_mapping: Mapping between attribute names in create and get model.
+                                                   For some resources, the attribute names in the create model and
+                                                   get model are different. In that cases, idempotency fails. For ex:
+                                                   api keys.
+    :param get_resource_from_summary_dict_fn: Function to get the full resource from a summary resource dict. First
+                                               parameter of this function should be the summary resource.
+    :param get_resource_from_summary_dict_fn_kwargs: kwargs to pass to get_resource_from_summary_dict_fn
     :return: A dictionary containing the resource & the "changed" status. e.g. {"vcn":{x:y}, "changed":True}
     """
 
@@ -774,10 +811,27 @@ def check_and_create_resource(
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
+    try:
+        if get_resource_from_summary_fn:
+            get_resource_from_summary_fn_kwargs = (
+                get_resource_from_summary_fn_kwargs or {}
+            )
+            existing_resources = [
+                get_resource_from_summary_fn(
+                    existing_resource, **get_resource_from_summary_fn_kwargs
+                )
+                for existing_resource in existing_resources
+            ]
+    except Exception as ex:
+        module.fail_json(msg=str(ex))
+
     result = dict()
 
     attributes_to_consider = _get_attributes_to_consider(
-        exclude_attributes, model, module
+        exclude_attributes,
+        model,
+        module,
+        exclude_attributes_even_when_user_provides_value=exclude_attributes_even_when_user_provides_value,
     )
     if "defined_tags" not in default_attribute_values:
         default_attribute_values["defined_tags"] = {}
@@ -816,7 +870,12 @@ def check_and_create_resource(
     return result
 
 
-def _get_attributes_to_consider(exclude_attributes, model, module):
+def _get_attributes_to_consider(
+    exclude_attributes,
+    model,
+    module,
+    exclude_attributes_even_when_user_provides_value=None,
+):
     """
     Determine the attributes to detect if an existing resource already matches the requested resource state
     :param exclude_attributes: Attributes to not consider for matching
@@ -837,6 +896,10 @@ def _get_attributes_to_consider(exclude_attributes, model, module):
         # Temporarily removing node_count as the exisiting resource does not reflect it
         if "node_count" in attributes_to_consider:
             attributes_to_consider.remove("node_count")
+        if exclude_attributes_even_when_user_provides_value:
+            for exclude_attr in exclude_attributes_even_when_user_provides_value:
+                if exclude_attr in attributes_to_consider:
+                    attributes_to_consider.remove(exclude_attr)
     _debug("attributes to consider: {0}".format(attributes_to_consider))
     return attributes_to_consider
 
@@ -896,6 +959,10 @@ def has_user_provided_value_for_option(module, option):
         return True
 
     return False
+
+
+def get_work_request_id(response):
+    return response.headers.get("opc-work-request-id")
 
 
 def create_resource(resource_type, create_fn, kwargs_create, module):
@@ -1344,6 +1411,52 @@ def create_and_wait(
         module.fail_json(msg=ex.message)
 
 
+def create_and_wait_on_work_request(
+    resource_type,
+    create_fn,
+    kwargs_create,
+    module,
+    client,
+    get_work_request_id_fn=get_work_request_id,
+    get_resource_from_work_request_response_fn=None,
+    wait_applicable=True,
+):
+    """
+    A utility function to create or update a resource and wait for the resource to get into the state as specified in
+    the module options.
+    :param resource_type: Type of the resource to be created. e.g. "vcn"
+    :param function: Function in the SDK to create or update the resource.
+    :param kwargs_function: Dictionary containing arguments to be used to call the create or update function
+    :param module: Instance of AnsibleModule.
+    :param wait_applicable: Specifies if wait for create is applicable for this resource
+    :param client: OCI service client instance to call the service periodically to retrieve data.
+                   e.g. VirtualNetworkClient()
+    :param get_work_request_id_fn: Function to get the work request ocid from the response. Applicable only when
+                                   `process_work_request` is True.
+    :param get_resource_from_work_request_response_fn: Function to get the resource from the work request response.
+    :return: A dictionary containing the resource & the "changed" status. e.g. {"vcn":{x:y}, "changed":True}
+    """
+    try:
+        result = dict(changed=False)
+        response = call_with_backoff(create_fn, **kwargs_create)
+        result["changed"] = True
+        result[resource_type] = to_dict(response.data)
+        work_request_id = get_work_request_id_fn(response)
+        _debug("Work request id: {0}".format(work_request_id))
+        result[resource_type] = wait_for_work_request(
+            client,
+            module,
+            wait_applicable,
+            work_request_id,
+            get_resource_from_work_request_response_fn=get_resource_from_work_request_response_fn,
+        )
+        return result
+    except MaximumWaitTimeExceeded as mwteex:
+        module.fail_json(msg=str(mwteex))
+    except ServiceError as se:
+        module.fail_json(msg=se.message)
+
+
 def update_and_wait(
     resource_type,
     client,
@@ -1438,6 +1551,66 @@ def create_or_update_resource_and_wait(
     return result
 
 
+def _is_work_request_success(work_request_response, status_attr=None):
+    if status_attr:
+        return (
+            getattr(work_request_response.data, status_attr, None)
+            in WORK_REQUEST_SUCCESS_STATES
+        )
+    if hasattr(work_request_response.data, "lifecycle_state"):
+        return work_request_response.data.lifecycle_state in WORK_REQUEST_SUCCESS_STATES
+    if hasattr(work_request_response, "status"):
+        return work_request_response.data.status in WORK_REQUEST_SUCCESS_STATES
+    return False
+
+
+def get_work_request_errors(work_request_response, errors_attr=None):
+    if errors_attr:
+        return getattr(work_request_response.data, errors_attr, None)
+    if hasattr(work_request_response.data, "errors"):
+        return work_request_response.data.errors
+    if hasattr(work_request_response.data, "error_details"):
+        return work_request_response.data.error_details
+    return None
+
+
+def wait_for_work_request(
+    client,
+    module,
+    wait_applicable,
+    work_request_id,
+    errors_attr=None,
+    states=None,
+    get_resource_from_work_request_response_fn=None,
+):
+    if not (wait_applicable and module.params.get("wait")):
+        return None
+    if not work_request_id:
+        module.fail_json(msg="Unable to get the work request for the operation.")
+    work_request_response = call_with_backoff(
+        client.get_work_request, work_request_id=work_request_id
+    )
+    states = states or module.params.get("wait_until") or WORK_REQUEST_COMPLETED_STATES
+    work_request_response = oci.wait_until(
+        client,
+        work_request_response,
+        evaluate_response=lambda response: response.data.status in states,
+        max_wait_seconds=module.params.get("wait_timeout", MAX_WAIT_TIMEOUT_IN_SECONDS),
+    )
+    if not _is_work_request_success(work_request_response):
+        module.fail_json(
+            "Work request {0} failed with errors: {1}".format(
+                work_request_id,
+                get_work_request_errors(work_request_response, errors_attr=errors_attr),
+            )
+        )
+    if not get_resource_from_work_request_response_fn:
+        return None
+    return get_resource_from_work_request_response_fn(
+        work_request_response=work_request_response, module=module, client=client
+    )
+
+
 def wait_for_resource_lifecycle_state(
     client,
     module,
@@ -1480,6 +1653,9 @@ def wait_for_resource_lifecycle_state(
                     kwargs_get
                 )
             )
+            if get_param:
+                kwargs_get[get_param] = resource["id"]
+
             response_get = call_with_backoff(get_fn, **kwargs_get)
         else:
             _debug(

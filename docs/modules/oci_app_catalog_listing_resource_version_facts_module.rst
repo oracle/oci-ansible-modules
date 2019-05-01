@@ -206,7 +206,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of resource versions for a particular listing</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'available_regions': ['us-ashburn-1', 'us-phoenix-1'], 'listing_resource_version': '1.0.0', 'allowed_actions': [], 'listing_id': 'ocid1.appcataloglisting.oc1..xxxxxEXAMPLExxxxx', 'accessible_ports': [], 'compatible_shapes': ['VM.Standard1.1', 'VM.Standard1.2'], 'listing_resource_id': 'ocid1.image.oc1..xxxxxEXAMPLExxxxx', 'time_published': '2019-02-14T19:53:30.878000+00:00'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'available_regions': ['us-ashburn-1', 'us-phoenix-1'], 'listing_resource_version': '1.0.0', 'allowed_actions': [], 'listing_id': 'ocid1.appcataloglisting.oc1..xxxxxEXAMPLExxxxx', 'accessible_ports': [], 'compatible_shapes': ['VM.Standard2.1', 'VM.Standard2.2'], 'listing_resource_id': 'ocid1.image.oc1..xxxxxEXAMPLExxxxx', 'time_published': '2019-02-14T19:53:30.878000+00:00'}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -286,7 +286,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of shapes compatible with this resource.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">['VM.Standard1.1', 'VM.Standard1.2']</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">['VM.Standard2.1', 'VM.Standard2.2']</div>
                                     </td>
             </tr>
                                 <tr>

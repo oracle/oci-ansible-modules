@@ -71,7 +71,7 @@ app_catalog_listing_resource_versions:
             description: List of shapes compatible with this resource.
             returned: always
             type: list
-            sample: ["VM.Standard1.1", "VM.Standard1.2"]
+            sample: ["VM.Standard2.1", "VM.Standard2.2"]
         listing_id:
             description: The OCID of the listing this resource version belongs to.
             returned: always
@@ -100,8 +100,8 @@ app_catalog_listing_resource_versions:
                 "us-phoenix-1"
             ],
             "compatible_shapes": [
-                "VM.Standard1.1",
-                "VM.Standard1.2",
+                "VM.Standard2.1",
+                "VM.Standard2.2",
             ],
             "listing_id": "ocid1.appcataloglisting.oc1..xxxxxEXAMPLExxxxx",
             "listing_resource_id": "ocid1.image.oc1..xxxxxEXAMPLExxxxx",

@@ -39,12 +39,12 @@ Parameters
 
     <table  border=0 cellpadding=0 class="documentation-table">
         <tr>
-            <th colspan="2">Parameter</th>
+            <th colspan="3">Parameter</th>
             <th>Choices/<font color="blue">Defaults</font></th>
                         <th width="100%">Comments</th>
         </tr>
                     <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>api_user</b>
                                                                             </td>
                                 <td>
@@ -54,7 +54,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>api_user_fingerprint</b>
                                                                             </td>
                                 <td>
@@ -64,7 +64,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>api_user_key_file</b>
                                                                             </td>
                                 <td>
@@ -74,7 +74,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>api_user_key_pass_phrase</b>
                                                                             </td>
                                 <td>
@@ -84,7 +84,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>auth_type</b>
                                                                             </td>
                                 <td>
@@ -98,7 +98,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>compartment_id</b>
                                                                             </td>
                                 <td>
@@ -108,7 +108,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>config_file_location</b>
                                                                             </td>
                                 <td>
@@ -118,7 +118,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>config_profile_name</b>
                                                                             </td>
                                 <td>
@@ -128,7 +128,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>defined_tags</b>
                                                                             </td>
                                 <td>
@@ -138,7 +138,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>delete_security_rules</b>
                     <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
@@ -152,7 +152,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>display_name</b>
                                                                             </td>
                                 <td>
@@ -163,7 +163,7 @@ Parameters
                                     </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>egress_security_rules</b>
                                                                             </td>
                                 <td>
@@ -174,7 +174,7 @@ Parameters
             </tr>
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>icmp_options</b>
                                                                             </td>
                                 <td>
@@ -185,7 +185,7 @@ Parameters
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>udp_options</b>
                                                                             </td>
                                 <td>
@@ -196,7 +196,7 @@ Parameters
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>destination_type</b>
                                                                             </td>
                                 <td>
@@ -211,7 +211,7 @@ Parameters
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>tcp_options</b>
                                                                             </td>
                                 <td>
@@ -220,9 +220,34 @@ Parameters
                                             <div>Valid only for TCP. Use to specify particular destination ports for TCP rules. If TCP specified as the protocol but omit this object, then all destination ports are allowed.</div>
                                                         </td>
             </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>source_port_range</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The source port range for the egress rule. Intger values for min port number and max port number should be provided.</div>
+                                                        </td>
+            </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
+                    <b>destination_port_range</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The destination port range for the egress rule. Intger values for min port number and max port number should be provided.</div>
+                                                        </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
                     <b>destination</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
@@ -233,7 +258,7 @@ Parameters
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>is_stateless</b>
                                                                             </td>
                                 <td>
@@ -248,7 +273,7 @@ Parameters
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>protocol</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
@@ -264,7 +289,7 @@ Parameters
             </tr>
                     
                                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>force_create</b>
                     <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
@@ -278,7 +303,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>freeform_tags</b>
                                                                             </td>
                                 <td>
@@ -288,7 +313,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>ingress_security_rules</b>
                                                                             </td>
                                 <td>
@@ -299,7 +324,7 @@ Parameters
             </tr>
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>source_type</b>
                                                                             </td>
                                 <td>
@@ -314,7 +339,7 @@ Parameters
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>icmp_options</b>
                                                                             </td>
                                 <td>
@@ -325,7 +350,7 @@ Parameters
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>udp_options</b>
                                                                             </td>
                                 <td>
@@ -336,7 +361,7 @@ Parameters
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>source</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
@@ -347,7 +372,7 @@ Parameters
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>tcp_options</b>
                                                                             </td>
                                 <td>
@@ -356,9 +381,34 @@ Parameters
                                             <div>Valid only for TCP. Use to specify particular destination ports for TCP rules. If TCP specified as the protocol but omit this object, then all destination ports are allowed.</div>
                                                         </td>
             </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>source_port_range</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The source port range for the ingress rule. Intger values for min port number and max port number should be provided.</div>
+                                                        </td>
+            </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
+                    <b>destination_port_range</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The destination port range for the ingress rule. Intger values for min port number and max port number should be provided.</div>
+                                                        </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
                     <b>is_stateless</b>
                                                                             </td>
                                 <td>
@@ -373,7 +423,7 @@ Parameters
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
+                                                <td colspan="2">
                     <b>protocol</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
@@ -389,7 +439,7 @@ Parameters
             </tr>
                     
                                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>key_by</b>
                                                                             </td>
                                 <td>
@@ -399,7 +449,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>purge_security_rules</b>
                     <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
@@ -413,7 +463,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>region</b>
                                                                             </td>
                                 <td>
@@ -423,7 +473,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>security_list_id</b>
                                                                             </td>
                                 <td>
@@ -434,7 +484,7 @@ Parameters
                                     </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>state</b>
                                                                             </td>
                                 <td>
@@ -448,7 +498,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>tenancy</b>
                                                                             </td>
                                 <td>
@@ -458,7 +508,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>vcn_id</b>
                                                                             </td>
                                 <td>
@@ -468,7 +518,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>wait</b>
                     <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
                                 <td>
@@ -482,7 +532,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>wait_timeout</b>
                                                                             </td>
                                 <td>
@@ -493,7 +543,7 @@ Parameters
                                                                                 </td>
             </tr>
                                 <tr>
-                                                                <td colspan="2">
+                                                                <td colspan="3">
                     <b>wait_until</b>
                                                                             </td>
                                 <td>
@@ -538,8 +588,8 @@ Examples
             protocol: '6'
             tcp_options:
                 destination_port_range:
-                    min: '22'
-                    max: '22'
+                    min: 22
+                    max: 22
           - source: 'oci-iad-objectstorage'
             source_type: 'SERVICE_CIDR_BLOCK'
             is_stateless: False
@@ -563,8 +613,8 @@ Examples
               protocol: '6'
               tcp_options:
                   destination_port_range:
-                     min: '25'
-                     max: '30'
+                     min: 25
+                     max: 30
         purge_security_rules: 'yes'
         state: 'present'
 
@@ -577,8 +627,8 @@ Examples
               protocol: '6'
               tcp_options:
                   destination_port_range:
-                     min: '25'
-                     max: '30'
+                     min: 25
+                     max: 30
         delete_security_rules: 'yes'
         state: 'present'
 

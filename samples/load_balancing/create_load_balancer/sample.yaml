@@ -26,7 +26,7 @@
 
     sample_app_server_instance_one_name: 'AS-1'
     sample_app_server_instance_two_name: 'AS-2'
-    sample_app_server_shape: 'VM.Standard1.1'
+    sample_app_server_shape: "{{ lookup('env', 'SAMPLE_INSTANCE_SHAPE') | default('VM.Standard2.1', true) }}"
 
     lb_name: "sample_load_balancer"
     sample_shape: "100Mbps"

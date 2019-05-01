@@ -907,7 +907,7 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Create an instance configuration that describes launch details for a compute instance of VM.Standard1.1 shape
+    - name: Create an instance configuration that describes launch details for a compute instance of VM.Standard2.1 shape
             and a specific image. No details are provided for additional block volume attachments or secondary VNICs
       oci_instance_configuration:
         name: "backend-servers"
@@ -916,14 +916,14 @@ Examples
             instance_type: "compute"
             launch_details:
                 compartment_id: "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq"
-                shape: "VM.Standard1.1"
+                shape: "VM.Standard2.1"
                 source_details:
                     source_type: "image"
                     image_id: "ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx...sa7klnoa"
                 metadata:
                     foo: bar
 
-    - name: Create an instance configuration that describes launch details for a compute instance of VM.Standard1.1 shape
+    - name: Create an instance configuration that describes launch details for a compute instance of VM.Standard2.1 shape
             and a specific image, with additional block volume details (stating that a new block volume must be created and
             that it must be a clone of an existing volume, and an existing iscsi volume be attached)
       oci_instance_configuration:
@@ -933,7 +933,7 @@ Examples
             instance_type: "compute"
             launch_details:
                 compartment_id: "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq"
-                shape: "VM.Standard1.1"
+                shape: "VM.Standard2.1"
                 source_details:
                     source_type: "image"
                     image_id: "ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx...sa7klnoa"
@@ -981,7 +981,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about the Instance Configuration</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'instance-details': {'block-volumes': None, 'secondary-vnics': None, 'instance-type': 'compute', 'launch-details': {'source-details': {'source-type': 'image', 'image-id': 'ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx...ayda'}, 'extended-metadata': None, 'defined-tags': None, 'compartment-id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...mkwq', 'shape': 'VM.Standard1.1', 'ipxe-script': None, 'create-vnic-details': {'hostname-label': None, 'assign-public-ip': True, 'private-ip': None, 'display-name': 'siva-test-3', 'skip-source-dest-check': False, 'subnet-id': None}, 'availability-domain': None, 'display-name': 'siva-test-3', 'freeform-tags': None, 'metadata': {'user_data': 'dW5kZWZpbmVk', 'ssh_authorized_keys': 'ssh-rsa ...k8Id/ug/xxxxxEXAMPLExxxxx...RYzAEYT foo@bar'}}}, 'time-created': '2018-11-07T04:16:20.454000+00:00', 'defined-tags': {}, 'compartment-id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...mkwq', 'id': 'ocid1.instanceconfiguration.oc1.iad.xxxxxEXAMPLExxxxx...ejka', 'display-name': 'siva-test-conf-3', 'freeform-tags': {}, 'deferred-fields': ['instanceDetails.launchDetails.availabilityDomain', 'instanceDetails.launchDetails.createVnicDetails.subnetId']}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'instance-details': {'block-volumes': None, 'secondary-vnics': None, 'instance-type': 'compute', 'launch-details': {'source-details': {'source-type': 'image', 'image-id': 'ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx...ayda'}, 'extended-metadata': None, 'defined-tags': None, 'compartment-id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...mkwq', 'shape': 'VM.Standard2.1', 'ipxe-script': None, 'create-vnic-details': {'hostname-label': None, 'assign-public-ip': True, 'private-ip': None, 'display-name': 'siva-test-3', 'skip-source-dest-check': False, 'subnet-id': None}, 'availability-domain': None, 'display-name': 'siva-test-3', 'freeform-tags': None, 'metadata': {'user_data': 'dW5kZWZpbmVk', 'ssh_authorized_keys': 'ssh-rsa ...k8Id/ug/xxxxxEXAMPLExxxxx...RYzAEYT foo@bar'}}}, 'time-created': '2018-11-07T04:16:20.454000+00:00', 'defined-tags': {}, 'compartment-id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...mkwq', 'id': 'ocid1.instanceconfiguration.oc1.iad.xxxxxEXAMPLExxxxx...ejka', 'display-name': 'siva-test-conf-3', 'freeform-tags': {}, 'deferred-fields': ['instanceDetails.launchDetails.availabilityDomain', 'instanceDetails.launchDetails.createVnicDetails.subnetId']}</div>
                                     </td>
             </tr>
                                                             <tr>

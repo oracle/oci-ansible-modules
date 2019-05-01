@@ -9,7 +9,7 @@ Oracle Cloud Infrastructure Ansible Modules provide an easy way to create and pr
 - Compute
 - Container Engine for Kubernetes Service (OKE)
 - Database (including support for Autonomous Transaction Processing and Autonomous Data Warehouse Services)
-- Domain Name System (DNS)
+- Edge Services (DNS, WAF)
 - IAM
 - Load Balancing
 - Networking
@@ -33,7 +33,7 @@ This project includes a catalog of Oracle Cloud Infrastructure Ansible module sa
 - Compute
 - Container Engine for Kubernetes Service (OKE)
 - Database (including support for Autonomous Transaction Processing and Autonomous Data Warehouse Services)
-- Domain Name System (DNS)
+- Edge Services (DNS)
 - IAM
 - Load Balancing
 - Networking

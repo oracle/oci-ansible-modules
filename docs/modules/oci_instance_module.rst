@@ -178,7 +178,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Used with <em>exact_count</em> to determine how many compute instances matching the specific tag criteria <code>count_tag</code> must be running. Only <em>defined_tags</em> associated with an instance are considered for matching against <code>count_tag</code>.</div>
+                                                                        <div>Used with <em>exact_count</em> to determine how many compute instances matching the specific tag criteria <code>count_tag</code> must be running. Only <em>defined_tags</em> associated with an instance are considered for matching against <code>count_tag</code>. This option is deprecated and will be removed in a future release. Please use <span class='module'>oci_instance_pool</span> instead to create multiple compute instances.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -213,7 +213,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Whether to scale up and down <em>exact_count</em> instances in parallel. By default, <em>exact_count</em> instances are launched or terminated in parallel.</div>
+                                                                        <div>Whether to scale up and down <em>exact_count</em> instances in parallel. By default, <em>exact_count</em> instances are launched or terminated in parallel. This option is deprecated and will be removed in a future release. Please use <span class='module'>oci_instance_pool</span> instead to create multiple compute instances.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -223,7 +223,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Indicates how many instances that match the <em>count_tag</em> option should be running. This must be used with <em>state=present</em> and a valid <em>count_tag</em>. If the number of compute instances that match <code>count_tag</code> is lesser than <code>exact_count</code>, additional compute instances would be provisioned to match the desired <code>exact_count</code>. If the number of matching compute instances is larger than <code>exact_count</code>, compute instances would be terminated to match the desired <code>exact_count</code>. The latest launch instance(s) from the set of instances that match <code>count_tag</code> are picked for termination. Private IP assignments through <em>private_ip</em>, and specification of <em>hostname_label</em> and <em>volume_details</em> and <em>boot_volume_details</em> is not supported with <em>exact_count</em> and <em>count_tag</em>. By default, an auto-incremented integer value is suffixed to the value of <em>display_name</em> and assigned as the display_name of a newly provisioned instance. For example, if <em>display_name</em> is 'my_web_server', new compute instances would be called 'my_web_server_0', 'my_web_server_1' and so on. To control the generated display name in a fine-grained manner, use &quot;printf&quot; style format in <em>display_name</em> such as 'my_%d_web_server'.</div>
+                                                                        <div>Indicates how many instances that match the <em>count_tag</em> option should be running. This must be used with <em>state=present</em> and a valid <em>count_tag</em>. If the number of compute instances that match <code>count_tag</code> is lesser than <code>exact_count</code>, additional compute instances would be provisioned to match the desired <code>exact_count</code>. If the number of matching compute instances is larger than <code>exact_count</code>, compute instances would be terminated to match the desired <code>exact_count</code>. The latest launch instance(s) from the set of instances that match <code>count_tag</code> are picked for termination. Private IP assignments through <em>private_ip</em>, and specification of <em>hostname_label</em> and <em>volume_details</em> and <em>boot_volume_details</em> is not supported with <em>exact_count</em> and <em>count_tag</em>. By default, an auto-incremented integer value is suffixed to the value of <em>display_name</em> and assigned as the display_name of a newly provisioned instance. For example, if <em>display_name</em> is 'my_web_server', new compute instances would be called 'my_web_server_0', 'my_web_server_1' and so on. To control the generated display name in a fine-grained manner, use &quot;printf&quot; style format in <em>display_name</em> such as 'my_%d_web_server'. This option is deprecated and will be removed in a future release. Please use <span class='module'>oci_instance_pool</span> instead to create multiple compute instances.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -318,7 +318,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>When <em>enable_parallel_requests=True</em>, indicates the number of maximum parallel operations that are used to launch or terminate <em>exact_count</em> instances. The default number of threads used is the number of cores in your machine.</div>
+                                                                        <div>When <em>enable_parallel_requests=True</em>, indicates the number of maximum parallel operations that are used to launch or terminate <em>exact_count</em> instances. The default number of threads used is the number of cores in your machine. This option is deprecated and will be removed in a future release. Please use <span class='module'>oci_instance_pool</span> instead to create multiple compute instances.</div>
                                                                                 </td>
             </tr>
                                 <tr>

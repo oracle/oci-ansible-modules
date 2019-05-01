@@ -41,7 +41,7 @@ In the current version of the OCI Ansible modules, the following Services are su
 - Compute
 - Container Engine for Kubernetes Service (OKE)
 - Database (including support for Autonomous Transaction Processing and Autonomous Data Warehouse Services)
-- Domain Name System (DNS)
+- Edge Services (DNS, WAF)
 - IAM
 - Load Balancing
 - Networking

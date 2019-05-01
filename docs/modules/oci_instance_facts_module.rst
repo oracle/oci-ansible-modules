@@ -97,7 +97,7 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>availability_domain</b>
-                                                                            </td>
+                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -107,7 +107,7 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>compartment_id</b>
-                                                                            </td>
+                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -147,7 +147,7 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>instance_id</b>
-                                                                            </td>
+                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -158,7 +158,7 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>lifecycle_state</b>
-                                                                            </td>
+                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
                                 <td>
                                                                                                                             <ul><b>Choices:</b>
                                                                                                                                                                 <li>PROVISIONING</li>
@@ -172,7 +172,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>A filter to only return resources that match the given lifecycle state.  The state value is case-insensitive. Allowed values are &quot;PROVISIONING&quot;, &quot;RUNNING&quot;, &quot;STARTING&quot;, &quot;STOPPING&quot;, &quot;STOPPED&quot;, &quot;CREATING_IMAGE&quot;, &quot;TERMINATING&quot;, &quot;TERMINATED&quot;</div>
+                                                                        <div>A filter to only return resources that match the given lifecycle state.  The state value is case-insensitive.</div>
                                                                                 </td>
             </tr>
                                 <tr>

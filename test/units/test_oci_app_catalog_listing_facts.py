@@ -50,12 +50,12 @@ def call_with_backoff_patch(mocker):
 
 
 def get_app_catalog_listing(**kwargs):
-    app_catalog_subscription = AppCatalogListing(
+    app_catalog_listing = AppCatalogListing(
         listing_id="ocid1.appcataloglisting.oc1..xxxxxEXAMPLExxxxx"
     )
     for attr, val in six.iteritems(kwargs):
-        setattr(app_catalog_subscription, attr, val)
-    return app_catalog_subscription
+        setattr(app_catalog_listing, attr, val)
+    return app_catalog_listing
 
 
 def get_app_catalog_listings():

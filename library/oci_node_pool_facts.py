@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -112,7 +112,7 @@ node_pools:
             description: The name of the node shape of the nodes in the node pool.
             returned: always
             type: string
-            sample: VM.Standard1.1
+            sample: VM.Standard2.1
         nodes:
             description: The nodes in the node pool.
             returned: when retrieving a specific node pool
@@ -148,7 +148,7 @@ node_pools:
             "name": "test_node_pool",
             "node_image_id": "ocid1.image.oc1..xxxxxEXAMPLExxxxx",
             "node_image_name": "Oracle-Linux-7.4",
-            "node_shape": "VM.Standard1.1",
+            "node_shape": "VM.Standard2.1",
             "nodes": [
                 {
                     "availability_domain": "IwGV:US-ASHBURN-AD-1",

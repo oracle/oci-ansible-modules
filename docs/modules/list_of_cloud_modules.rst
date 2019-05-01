@@ -96,6 +96,10 @@ Oracle
   * :ref:`oci_file_system_facts_module` 
   * :ref:`oci_group_module` 
   * :ref:`oci_group_facts_module` 
+  * :ref:`oci_identity_provider_module` 
+  * :ref:`oci_identity_provider_facts_module` 
+  * :ref:`oci_idp_group_mapping_module` 
+  * :ref:`oci_idp_group_mapping_facts_module` 
   * :ref:`oci_image_module` 
   * :ref:`oci_image_facts_module` 
   * :ref:`oci_instance_module` 
@@ -222,6 +226,14 @@ Oracle
   * :ref:`oci_volume_group_backup_module` 
   * :ref:`oci_volume_group_backup_facts_module` 
   * :ref:`oci_volume_group_facts_module` 
+  * :ref:`oci_waas_certificate_module` 
+  * :ref:`oci_waas_certificate_facts_module` 
+  * :ref:`oci_waas_edge_subnet_facts_module` 
+  * :ref:`oci_waas_policy_module` 
+  * :ref:`oci_waas_policy_facts_module` 
+  * :ref:`oci_waas_recommendation_facts_module` 
+  * :ref:`oci_waas_work_request_module` 
+  * :ref:`oci_waas_work_request_facts_module` 
   * :ref:`oci_zone_module` 
   * :ref:`oci_zone_facts_module` 
   * :ref:`oci_zone_records_module` 

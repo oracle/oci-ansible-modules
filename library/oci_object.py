@@ -188,7 +188,7 @@ import os
 try:
     from oci.object_storage.object_storage_client import ObjectStorageClient
     from oci.exceptions import ServiceError
-    from oci.object_storage import UploadManager, MultipartObjectAssembler
+    from oci.object_storage import UploadManager
 
     HAS_OCI_PY_SDK = True
 except ImportError:
@@ -235,6 +235,15 @@ def get_object(object_storage_client, module):
         )
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
+
+    # create dest file if it does not exist
+    try:
+        with open(dest, "a"):
+            pass
+    except IOError as ioex:
+        module.fail_json(
+            msg="Error opening/creating the dest file: {0}".format(str(ioex))
+        )
 
     # Check if file exists with the same checksum. Get md5 hexdigest of the file content, convert it to binary and then
     #  get base-64 encoded MD5 hash.
@@ -351,14 +360,31 @@ def put_object(object_storage_client, module):
 
 def abort_multipart_upload(object_storage_client, module):
     result = dict(changed=False)
-    multipart_object_assembler = MultipartObjectAssembler(
-        object_storage_client,
-        module.params.get("namespace_name"),
-        module.params.get("bucket_name"),
-        module.params.get("object_name"),
+    multipart_upload_exists = False
+    # oci sdk does not fail even if the upload id does not exist. So check and set changed to False if
+    # the upload id does not exist
+    multipart_uploads = oci_utils.list_all_resources(
+        object_storage_client.list_multipart_uploads,
+        namespace_name=module.params.get("namespace_name"),
+        bucket_name=module.params.get("bucket_name"),
     )
+    for multipart_upload in multipart_uploads:
+        if multipart_upload.object == module.params.get(
+            "object_name"
+        ) and multipart_upload.upload_id == module.params.get("upload_id"):
+            multipart_upload_exists = True
+            break
+    if not multipart_upload_exists:
+        result["msg"] = "upload id {0} does not exist.".format(
+            module.params.get("upload_id")
+        )
+        return result
     oci_utils.call_with_backoff(
-        multipart_object_assembler.abort, upload_id=module.params.get("upload_id")
+        object_storage_client.abort_multipart_upload,
+        namespace_name=module.params.get("namespace_name"),
+        bucket_name=module.params.get("bucket_name"),
+        object_name=module.params.get("object_name"),
+        upload_id=module.params.get("upload_id"),
     )
     result["changed"] = True
     return result
@@ -449,6 +475,10 @@ def main():
     elif state == "absent":
         result = delete_object(object_storage_client, module)
     elif state == "abort_multipart_upload":
+        if not module.params.get("upload_id"):
+            module.fail_json(
+                msg="upload_id required for aborting the multipart upload."
+            )
         result = abort_multipart_upload(object_storage_client, module)
 
     else:

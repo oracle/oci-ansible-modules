@@ -43,7 +43,7 @@
     public_subnet_instance_name: "my_bastion_instance_for_{{vcn_name}}"
     private_subnet_instance_name: "my_private_instance_in_{{private_subnet_name}}"
 
-    instance_shape: "VM.Standard1.1"
+    instance_shape: "{{ lookup('env', 'SAMPLE_INSTANCE_SHAPE') | default('VM.Standard2.1', true) }}"
     public_subnet_instance_hostname: "mypublicinstance"
     private_subnet_instance_hostname: "myprivateinstance"
 

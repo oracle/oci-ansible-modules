@@ -38,7 +38,7 @@
     mt1_fs2_export_path: '/mt1_fs2_path'
 
     instance_hostname_label: 'instancehl'
-    instance_shape: 'VM.Standard1.1'
+    instance_shape: "{{ lookup('env', 'SAMPLE_INSTANCE_SHAPE') | default('VM.Standard2.1', true) }}"
     instance_name: 'sample_instance'
     #########################################
     # Tenancy specific configuration

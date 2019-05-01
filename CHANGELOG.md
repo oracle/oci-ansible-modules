@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2019-05-01
+
+### Added
+- Added modules to manage:
+    - [Web Application Firewall Service](https://docs.cloud.oracle.com/iaas/Content/WAF/Concepts/overview.htm)
+    - [Federating with Identity Providers](https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/federation.htm)
+    - [Oracle Identity Cloud Service Group Mapping](https://docs.cloud.oracle.com/iaas/Content/Identity/Tasks/addingidcsusersandgroups.htm)
+- Added the following features in existing modules:
+    - New allowed values `approximateSize` and `approximateCount` for the `fields` parameter of `oci_bucket_facts` module.  These enable populating `approximate_size` and `approximate_count` in the response.
+    - Adding 'primary_private_ip' and 'primary_public_ip' addresses to instance module
+- Samples to demonstrate:
+  - how to a launch compute instance using an app catalog image
+
+### Changed
+- Minimum supported OCI Python SDK to `2.1.7`
+
+### Fixed
+- Download an object from a bucket fails if file destination does not exists [issue](https://github.com/oracle/oci-ansible-modules/issues/46)
+- OCI ansible module are not respecting LOG_PATH [issue](https://github.com/oracle/oci-ansible-modules/issues/43)
+- Update version of Python SDK [issue](https://github.com/oracle/oci-ansible-modules/issues/42)
+- 'oci_security_list' should handle int values for ports in playbook
+
 ## [1.7.0] - 2019-04-01
 
 ### Added

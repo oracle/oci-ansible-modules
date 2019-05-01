@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -29,10 +29,10 @@ options:
     compartment_id:
         description: The OCID of the compartment to contain the VCN. Required when creating a VCN with I(state=present).
                      This option is mutually exclusive with I(vcn_id).
-        required: false
+        type: str
     display_name:
         description: A user-friendly name. Does not have to be unique, and it's changeable.
-        required: false
+        type: str
         aliases: [ 'name' ]
     dns_label:
         description: A DNS label for the VCN, used in conjunction with the VNIC's hostname and subnet's DNS label to
@@ -40,16 +40,16 @@ options:
                      bminstance-1.subnet123.vcn1.oraclevcn.com). Not required to be unique, but it's a best practice
                      to set unique DNS labels for VCNs in your tenancy. Must be an alphanumeric string that begins
                      with a letter. The value cannot be changed.
-        required: false
+        type: str
     state:
         description: Create or update a VCN with I(state=present). Use I(state=absent) to delete a VCN.
-        required: false
+        type: str
         default: present
         choices: ['present', 'absent']
     vcn_id:
         description: The OCID of the VCN. Required when deleting a VCN with I(state=absent) or updating a VCN
                      with I(state=present). This option is mutually exclusive with I(compartment_id).
-        required: false
+        type: str
         aliases: [ 'id' ]
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]

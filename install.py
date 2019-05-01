@@ -38,7 +38,7 @@ import pkg_resources
 
 debug = False
 
-MIN_OCI_PYTHON_SDK_REQUIRED = "2.1.3"
+MIN_OCI_PYTHON_SDK_REQUIRED = "2.1.7"
 
 
 def parse_cli_args():

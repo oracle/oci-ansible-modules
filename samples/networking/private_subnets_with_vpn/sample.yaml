@@ -34,7 +34,7 @@
     subnet1_dns_label: "mytestsubnet1"
     subnet2_dns_label: "mytestsubnet2"
 
-    instance_shape: "VM.Standard1.1"
+    instance_shape: "{{ lookup('env', 'SAMPLE_INSTANCE_SHAPE') | default('VM.Standard2.1', true) }}"
 
     instance1_name: "test_instance_1"
     instance2_name: "test_instance_2"
