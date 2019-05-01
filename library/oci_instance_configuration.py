@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -285,7 +285,7 @@ extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_tags
 """
 
 EXAMPLES = """
-- name: Create an instance configuration that describes launch details for a compute instance of VM.Standard1.1 shape
+- name: Create an instance configuration that describes launch details for a compute instance of VM.Standard2.1 shape
         and a specific image. No details are provided for additional block volume attachments or secondary VNICs
   oci_instance_configuration:
     name: "backend-servers"
@@ -294,14 +294,14 @@ EXAMPLES = """
         instance_type: "compute"
         launch_details:
             compartment_id: "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq"
-            shape: "VM.Standard1.1"
+            shape: "VM.Standard2.1"
             source_details:
                 source_type: "image"
                 image_id: "ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx...sa7klnoa"
             metadata:
                 foo: bar
 
-- name: Create an instance configuration that describes launch details for a compute instance of VM.Standard1.1 shape
+- name: Create an instance configuration that describes launch details for a compute instance of VM.Standard2.1 shape
         and a specific image, with additional block volume details (stating that a new block volume must be created and
         that it must be a clone of an existing volume, and an existing iscsi volume be attached)
   oci_instance_configuration:
@@ -311,7 +311,7 @@ EXAMPLES = """
         instance_type: "compute"
         launch_details:
             compartment_id: "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq"
-            shape: "VM.Standard1.1"
+            shape: "VM.Standard2.1"
             source_details:
                 source_type: "image"
                 image_id: "ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx...sa7klnoa"
@@ -653,7 +653,7 @@ instance_configuration:
                       "ssh_authorized_keys": "ssh-rsa ...k8Id/ug/xxxxxEXAMPLExxxxx...RYzAEYT foo@bar",
                       "user_data": "dW5kZWZpbmVk"
                     },
-                    "shape": "VM.Standard1.1",
+                    "shape": "VM.Standard2.1",
                     "source-details": {
                       "image-id": "ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx...ayda",
                       "source-type": "image"

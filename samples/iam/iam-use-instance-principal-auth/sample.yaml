@@ -37,7 +37,7 @@
 
     securitylist_name: "mysecuritylist"
 
-    instance_shape: "VM.Standard1.1"
+    instance_shape: "{{ lookup('env', 'SAMPLE_INSTANCE_SHAPE') | default('VM.Standard2.1', true) }}"
     instance_hostname: "mytestinstanceprincipalauth"
 
     #########################################

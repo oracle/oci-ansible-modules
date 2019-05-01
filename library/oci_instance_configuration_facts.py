@@ -376,7 +376,7 @@ instance_configurations:
                       "ssh_authorized_keys": "ssh-rsa ...k8Id/ug/xxxxxEXAMPLExxxxx...RYzAEYT foo@bar",
                       "user_data": "dW5kZWZpbmVk"
                     },
-                    "shape": "VM.Standard1.1",
+                    "shape": "VM.Standard2.1",
                     "source-details": {
                       "image-id": "ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx...ayda",
                       "source-type": "image"

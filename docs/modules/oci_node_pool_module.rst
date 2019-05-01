@@ -377,7 +377,7 @@ Examples
         name: test_node_pool
         kubernetes_version: "v1.9.7"
         node_image_name: "Oracle-Linux-7.4"
-        node_shape: "VM.Standard1.1"
+        node_shape: "VM.Standard2.1"
         quantity_per_subnet: 1
         subnet_ids:
             - "ocid1.subnet.oc1..xxxxxEXAMPLExxxxx...abcd"
@@ -431,7 +431,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about the node pool</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'node_shape': 'VM.Standard1.1', 'name': 'test_node_pool', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'initial_node_labels': [{'key': 'vm_type', 'value': 'standard'}, {'key': 'stage', 'value': 'prod'}], 'node_image_id': 'ocid1.image.oc1..xxxxxEXAMPLExxxxx', 'id': 'ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx', 'cluster_id': 'ocid1.cluster.oc1..xxxxxEXAMPLExxxxx', 'quantity_per_subnet': 1, 'node_image_name': 'Oracle-Linux-7.4', 'ssh_public_key': '', 'subnet_ids': ['ocid1.subnet..xxxxxEXAMPLExxxxx'], 'kubernetes_version': 'v1.9.7', 'nodes': [{'lifecycle_state': 'UPDATING', 'availability_domain': 'IwGV:US-ASHBURN-AD-1', 'name': 'oke-c3dsodfgezw-n3wiztggrrt-st2au5vefpq-0', 'subnet_id': 'ocid1.subnet.oc1..xxxxxEXAMPLExxxxx', 'public_ip': '129.213.129.26', 'node_pool_id': 'ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx', 'node_error': None, 'lifecycle_details': 'waiting for running compute instance', 'id': 'ocid1.instance.oc1..xxxxxEXAMPLExxxxx'}]}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'node_shape': 'VM.Standard2.1', 'name': 'test_node_pool', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'initial_node_labels': [{'key': 'vm_type', 'value': 'standard'}, {'key': 'stage', 'value': 'prod'}], 'node_image_id': 'ocid1.image.oc1..xxxxxEXAMPLExxxxx', 'id': 'ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx', 'cluster_id': 'ocid1.cluster.oc1..xxxxxEXAMPLExxxxx', 'quantity_per_subnet': 1, 'node_image_name': 'Oracle-Linux-7.4', 'ssh_public_key': '', 'subnet_ids': ['ocid1.subnet..xxxxxEXAMPLExxxxx'], 'kubernetes_version': 'v1.9.7', 'nodes': [{'lifecycle_state': 'UPDATING', 'availability_domain': 'IwGV:US-ASHBURN-AD-1', 'name': 'oke-c3dsodfgezw-n3wiztggrrt-st2au5vefpq-0', 'subnet_id': 'ocid1.subnet.oc1..xxxxxEXAMPLExxxxx', 'public_ip': '129.213.129.26', 'node_pool_id': 'ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx', 'node_error': None, 'lifecycle_details': 'waiting for running compute instance', 'id': 'ocid1.instance.oc1..xxxxxEXAMPLExxxxx'}]}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -445,7 +445,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The name of the node shape of the nodes in the node pool.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">VM.Standard1.1</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">VM.Standard2.1</div>
                                     </td>
             </tr>
                                 <tr>

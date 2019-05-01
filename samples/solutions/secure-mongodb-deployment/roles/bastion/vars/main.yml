@@ -6,7 +6,7 @@
 # See LICENSE.TXT for details.
 
 bastion_image_ocid: "{{ lookup('env', 'SAMPLE_OL_IMAGE_OCID') }}"
-bastion_shape: "VM.Standard1.1"
+bastion_shape: "{{ lookup('env', 'SAMPLE_INSTANCE_SHAPE') | default('VM.Standard2.1', true) }}"
 bastion_availability_domain: "{{ lookup('env', 'SAMPLE_AD2_NAME') }}"
 
 demo_bastion_subnet_name: "{{demo_var_prefix}}_bastion_subnet"

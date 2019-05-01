@@ -12,7 +12,7 @@ mongodb_image_id: "{{ lookup('env', 'SAMPLE_OL_IMAGE_OCID') }}"
 availability_domain_1: "{{ lookup('env', 'SAMPLE_AD1_NAME') }}"
 availability_domain_2: "{{ lookup('env', 'SAMPLE_AD2_NAME') }}"
 
-shape: 'VM.Standard1.1'
+shape: "{{ lookup('env', 'SAMPLE_INSTANCE_SHAPE') | default('VM.Standard2.1', true) }}"
 
 mongodb_script: './files/mongodb'
 

@@ -27,19 +27,18 @@ options:
     compartment_id:
         description: The OCID of the compartment (either the tenancy or another compartment in the tenancy). Required
                      for retrieving information about all instances in a Compartment/Tenancy.
-        required: false
+        type: str
     availability_domain:
         description: The name of the Availability Domain.
-        required: false
+        type: str
     instance_id:
         description: The OCID of the instance. Required for retrieving information about a specific instance.
-        required: false
+        type: str
         aliases: ['id']
     lifecycle_state:
         description: A filter to only return resources that match the given lifecycle state.  The state value is
-                     case-insensitive. Allowed values are "PROVISIONING", "RUNNING", "STARTING", "STOPPING",
-                     "STOPPED", "CREATING_IMAGE", "TERMINATING", "TERMINATED"
-        required: false
+                     case-insensitive.
+        type: str
         choices: ["PROVISIONING", "RUNNING", "STARTING", "STOPPING", "STOPPED", "CREATING_IMAGE", "TERMINATING",
                   "TERMINATED"]
 
@@ -319,7 +318,7 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-def list_instances(compute_client, network_client, module):
+def list_instances(compute_client, module):
     try:
         cid = module.params["compartment_id"]
         optional_list_method_params = [
@@ -359,33 +358,16 @@ def add_volume_attachment_facts(compute_client, result):
 
 def add_primary_ips(compute_client, network_client, result, module):
     for instance in result:
-        instance["primary_public_ip"] = None
-        instance["primary_private_ip"] = None
-
-        vnic_attachments = oci_utils.list_all_resources(
-            compute_client.list_vnic_attachments,
-            compartment_id=instance["compartment_id"],
-            instance_id=instance["id"],
-        )
-
-        if vnic_attachments:
-            for vnic_attachment in vnic_attachments:
-                if vnic_attachment.lifecycle_state == "ATTACHED":
-                    try:
-                        vnic = network_client.get_vnic(vnic_attachment.vnic_id).data
-                        if vnic.is_primary:
-                            if vnic.public_ip:
-                                instance["primary_public_ip"] = vnic.public_ip
-                            if vnic.private_ip:
-                                instance["primary_private_ip"] = vnic.private_ip
-                    except ServiceError as ex:
-                        if ex.status == 404:
-                            get_logger().debug(
-                                "Either VNIC with ID %s does not exist or you are not authorized to access it.",
-                                vnic_attachment.vnic_id,
-                            )
-                        else:
-                            module.fail_json(msg=ex.message)
+        try:
+            primary_public_ip, primary_private_ip = oci_compute_utils.get_primary_ips(
+                compute_client, network_client, instance
+            )
+            instance["primary_public_ip"] = primary_public_ip
+            instance["primary_private_ip"] = primary_private_ip
+        except ServiceError as ex:
+            instance["primary_public_ip"] = None
+            instance["primary_private_ip"] = None
+            module.fail_json(msg=ex.message)
 
 
 def set_logger(input_logger):
@@ -442,7 +424,7 @@ def main():
     result = dict(changed=False)
 
     if compartment_id:
-        result = list_instances(compute_client, network_client, module)
+        result = list_instances(compute_client, module)
         add_primary_ips(compute_client, network_client, result, module)
     else:
         try:

@@ -31,17 +31,14 @@ options:
     availability_domain:
         description: The Availability Domain of the instance. Required when creating a compute instance with
                      I(state=present).
-        required: false
     boot_volume_details:
         description: Details for attaching/detaching a boot volume to/from an instance. I(boot_volume_details) is
                      mutually exclusive with I(image_id). This option is only supported in experimental mode. To use
                      an experimental feature, set the environment variable OCI_ANSIBLE_EXPERIMENTAL to True.
-        required: false
         suboptions:
             attachment_state:
                 description: Attach a boot volume to the instance I(instance_id) with I(attachment_state=present).
                              Detach a boot volume from the instance I(instance_id) with I(attachment_state=absent).
-                required: false
                 default: present
                 choices: ['present', 'absent']
             boot_volume_id:
@@ -49,7 +46,6 @@ options:
                 required: true
     compartment_id:
         description: The OCID of the compartment. Required when I(state=present).
-        required: false
     extended_metadata:
         description: Additional metadata key/value pairs that you provide. They serve a similar purpose and
                      functionality from fields in the I(metadata) object. They are distinguished from I(metadata)
@@ -57,7 +53,6 @@ options:
                      only).
                      If you don't need nested metadata values, it is strongly advised to avoid using this object and
                      use the Metadata object instead.
-        required: false
     exact_count:
         description: Indicates how many instances that match the I(count_tag) option should be running. This must be
                      used with I(state=present) and a valid I(count_tag). If the number of compute instances that match
@@ -72,13 +67,13 @@ options:
                      assigned as the display_name of a newly provisioned instance. For example, if I(display_name) is
                      'my_web_server', new compute instances would be called 'my_web_server_0', 'my_web_server_1'
                      and so on. To control the generated display name in a fine-grained manner, use "printf" style
-                     format in I(display_name) such as 'my_%d_web_server'.
-        required: false
+                     format in I(display_name) such as 'my_%d_web_server'. This option is deprecated and will be removed
+                     in a future release. Please use M(oci_instance_pool) instead to create multiple compute instances.
     count_tag:
         description: Used with I(exact_count) to determine how many compute instances matching the specific tag criteria
                      C(count_tag) must be running. Only I(defined_tags) associated with an instance are considered for
-                     matching against C(count_tag).
-        required: false
+                     matching against C(count_tag). This option is deprecated and will be removed in a future release.
+                     Please use M(oci_instance_pool) instead to create multiple compute instances.
     fault_domain:
         description: A fault domain is a grouping of hardware and infrastructure within an availability domain. Each
                      availability domain contains three fault domains. Fault domains let you distribute your instances
@@ -87,53 +82,46 @@ options:
                      other fault domains. If you do not specify the fault domain, the system selects one for you. To
                      change the fault domain for an instance, terminate it and launch a new instance in the preferred
                      fault domain. To get a list of fault domains, use M(oci_fault_domain_facts).
-        required: false
     metadata:
         description: A hash/dictionary of custom key/value pairs that are associated with the instance. This
                      option is also used to provide information to cloud-init and specifying
                      "ssh_authorized_keys" for the default user of the instance. This hash is specified
                      as '{"key":"value"}' and '{"key":"value","key":"value"}'.
-        required: false
     display_name:
         description: A user-friendly name. Does not have to be unique, and it's changeable. Avoid entering confidential
                      information. If a C(display_name) is specified, and if I(exact_count) is specified, the display name
                      would be suffixed with an auto-incrementing integer.
-        required: false
         aliases: ['name']
     image_id:
         description: The OCID of the image used to boot the instance. I(image_id) is mutually exclusive with
                      I(boot_volume_details) and I(source_details). This option is deprecated. Use I(source_details)
                      with I(source_type=image) instead.
-        required: false
     instance_id:
         description: The OCID of the compute instance. Required for updating an existing compute instance
                      when I(state=present), for performing power actions (such as start, stop, softreset
                      or reset) on an instance, and for terminating an instance I(state=absent).
-        required: false
         aliases: [ 'id' ]
     ipxe_script:
         description: custom iPXE script that will run when the instance boots.
-        required: false
     preserve_boot_volume:
         description: Whether to preserve the boot volume when terminating an instance with I(state=absent).
-        required: false
         default: False
         type: bool
     enable_parallel_requests:
         description: Whether to scale up and down I(exact_count) instances in parallel. By default, I(exact_count)
-                     instances are launched or terminated in parallel.
-        required: False
+                     instances are launched or terminated in parallel. This option is deprecated and will be removed in
+                     a future release. Please use M(oci_instance_pool) instead to create multiple compute instances.
         default: True
         type: bool
     max_thread_count:
         description: When I(enable_parallel_requests=True), indicates the number of maximum parallel operations that are
                      used to launch or terminate I(exact_count) instances. The default number of threads used is the
-                     number of cores in your machine.
-        required: False
+                     number of cores in your machine. This option is deprecated and will be removed in a future release.
+                     Please use M(oci_instance_pool) instead
+                     to create multiple compute instances.
         type: int
     shape:
         description: The shape of the instance. Required when creating a compute instance with I(state=present).
-        required: false
     source_details:
         description: Details for creating an instance. Use this parameter to specify whether a boot volume or an image
                      should be used to launch a new instance.
@@ -146,14 +134,12 @@ options:
                 choices: ['image', 'bootVolume']
             image_id:
                 description: The OCID of the image used to boot the instance. Required if I(source_type) is "image".
-                required: false
             boot_volume_size_in_gbs:
                 description: The size of the boot volume in GBs. Minimum value is 50 GB and maximum value is
                              16384 GB (16TB). Applicable only when I(source_type=image).
             boot_volume_id:
                 description: The OCID of the boot volume used to boot the instance. Required if I(source_type) is
                              "bootVolume".
-                required: false
     state:
         description: The state of the instance that must be asserted to. When I(state=present), and the
                      compute instance doesn't exist, the instance is launched/created with the specified
@@ -165,37 +151,30 @@ options:
                      Note that I(state=softreset) and I(state=reset) states are not idempotent. Every time a play is
                      executed with these C(state) options, a shutdown and a power on sequence is executed against the
                      instance.
-        required: false
         default: "present"
         choices: ['present', 'absent', 'running', 'reset', 'softreset', 'stopped']
     volume_details:
         description: Details for attaching or detaching a volume to an instance with I(state=present) or
                      I(state=RUNNING). This option is only supported in experimental mode. To use an experimental
                      feature, set the environment variable OCI_ANSIBLE_EXPERIMENTAL to True.
-        required: false
         suboptions:
             attachment_state:
                 description: Attach a volume to the instance I(instance_id) with I(attachment_state=present). Detach a
                              volume from the instance I(instance_id) with I(attachment_state=absent).
-                required: false
                 default: present
                 choices: ['present', 'absent']
             attachment_name:
                 description: A user-friendly name. Does not have to be unique, and it cannot be changed. Avoid entering
                              confidential information.
-                required: false
             type:
                 description: The type of volume. The only supported value is "iscsi".
-                required: false
                 default: iscsi
                 choices: ['iscsi']
             volume_id:
                 description: The OCID of the volume to be attached to or detached from the instance I(instance_id).
-                required: false
     vnic:
         description: Details for the primary VNIC that is automatically created and attached when the instance is
                      launched. Required when creating a compute instance with I(state=present).
-        required: false
         aliases: ['create_vnic_details']
         suboptions:
             assign_public_ip:
@@ -206,27 +185,22 @@ options:
                              I(prohibitPublicIpOnVnic = false), then a public IP address is
                              assigned. If set to true and I(prohibitPublicIpOnVnic = true),
                              an error is returned.
-                required: false
             hostname_label:
                 description: The hostname for the VNIC's primary private IP. Used for DNS. The value
                              is the hostname portion of the primary private IP's fully qualified
                              domain name (FQDN) (for example, bminstance-1 in FQDN
                              bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all
                              VNICs in the subnet and comply with RFC 952 and RFC 1123.
-                required: false
             name:
                 description: A user-friendly name for the VNIC. Does not have to be unique.
-                required: false
             private_ip:
                 description: The private IP to assign to the VNIC. Must be an available IP address
                              within the subnet's CIDR. If you don't specify a value, Oracle
                              automatically assigns a private IP address from the subnet. This is
                              the VNIC's primary private IP address.
-                required: false
             skip_source_dest_check:
                 description: Determines whether the source/destination check is disabled on the VNIC.
                              Defaults to false, which means the check is performed.
-                required: false
                 default: false
             subnet_id:
                 description: The OCID of the subnet to create the VNIC in.
@@ -1197,6 +1171,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 try:
     import oci
     from oci.core.compute_client import ComputeClient
+    from oci.core.virtual_network_client import VirtualNetworkClient
     from oci.core.models import AttachBootVolumeDetails
     from oci.core.models import AttachVolumeDetails
     from oci.core.models import LaunchInstanceDetails
@@ -1674,6 +1649,21 @@ def attach_boot_volume(compute_client, module, attach_boot_volume_details):
         get_param="boot_volume_attachment_id",
         module=module,
     )
+
+
+def add_primary_ip_info(module, compute_client, network_client, result):
+    if "instances" in result:
+        for instance in result["instances"]:
+            try:
+                primary_public_ip, primary_private_ip = oci_compute_utils.get_primary_ips(
+                    compute_client, network_client, instance
+                )
+                instance["primary_public_ip"] = primary_public_ip
+                instance["primary_private_ip"] = primary_private_ip
+            except ServiceError as ex:
+                instance["primary_public_ip"] = None
+                instance["primary_private_ip"] = None
+                module.fail_json(msg=ex.message)
 
 
 def get_attach_boot_volume_details(instance_id, boot_volume_id, attachment_name=None):
@@ -2161,18 +2151,22 @@ def main():
             availability_domain=dict(type="str", required=False),
             boot_volume_details=dict(type="dict", required=False),
             compartment_id=dict(type="str", required=False),
-            count_tag=dict(type="dict", required=False),
-            exact_count=dict(type="int", required=False),
+            count_tag=dict(type="dict", required=False, removed_in_version="v1.10.0"),
+            exact_count=dict(type="int", required=False, removed_in_version="v1.10.0"),
             extended_metadata=dict(type="dict", required=False),
             fault_domain=dict(type="str", required=False),
             instance_id=dict(type="str", required=False, aliases=["id"]),
             image_id=dict(type="str", required=False),
             ipxe_script=dict(type="str", required=False),
-            max_thread_count=dict(type="int", required=False),
+            max_thread_count=dict(
+                type="int", required=False, removed_in_version="v1.10.0"
+            ),
             metadata=dict(type="dict", required=False),
             name=dict(type="str", required=False, aliases=["display_name"]),
             preserve_boot_volume=dict(type="bool", required=False, default=False),
-            enable_parallel_requests=dict(type="bool", required=False, default=True),
+            enable_parallel_requests=dict(
+                type="bool", required=False, default=True, removed_in_version="v1.10.0"
+            ),
             shape=dict(type="str", required=False),
             state=dict(
                 type="str",
@@ -2211,6 +2205,7 @@ def main():
         module.fail_json(msg="oci python sdk required for this module.")
 
     compute_client = oci_utils.create_service_client(module, ComputeClient)
+    network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
     state = module.params["state"]
 
     result = dict(changed=False)
@@ -2300,6 +2295,7 @@ def main():
         )
         add_volume_attachment_info(module, compute_client, result)
         add_boot_volume_attachment_info(module, compute_client, result)
+        add_primary_ip_info(module, compute_client, network_client, result)
         module.exit_json(**result)
     except ServiceError as se:
         module.fail_json(msg=se.message)

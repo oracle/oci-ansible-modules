@@ -107,7 +107,7 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>compartment_id</b>
-                                                                            </td>
+                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -147,7 +147,7 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>display_name</b>
-                                                                            </td>
+                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -158,7 +158,7 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>dns_label</b>
-                                                                            </td>
+                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -212,7 +212,7 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>state</b>
-                                                                            </td>
+                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
                                 <td>
                                                                                                                             <ul><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
@@ -236,7 +236,7 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>vcn_id</b>
-                                                                            </td>
+                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>

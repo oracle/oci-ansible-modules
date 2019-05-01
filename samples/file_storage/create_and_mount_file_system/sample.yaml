@@ -34,7 +34,7 @@
 
     first_instance_hostname_label: 'instancehl1'
     second_instance_hostname_label: 'instancehl2'
-    instance_shape: 'VM.Standard1.1'
+    instance_shape: "{{ lookup('env', 'SAMPLE_INSTANCE_SHAPE') | default('VM.Standard2.1', true) }}"
     first_instance_name: 'first_instance'
     second_instance_name: 'second_instance'
     nfs_utils_script: './files/nfs-utils'

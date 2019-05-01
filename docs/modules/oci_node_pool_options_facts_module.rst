@@ -195,7 +195,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Options available for node pools</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'images': ['Oracle-Linux-7.4', 'Oracle-Linux-7.5'], 'shapes': ['VM.Standard2.1', 'VM.Standard2.2', 'VM.Standard1.1', 'VM.Standard1.2', 'VM.DenseIO1.4'], 'kubernetes_versions': ['v1.8.11', 'v1.9.7', 'v1.10.3', 'v1.11.1']}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'images': ['Oracle-Linux-7.4', 'Oracle-Linux-7.5'], 'shapes': ['VM.Standard2.1', 'VM.Standard2.2', 'VM.Standard2.4', 'VM.Standard2.8', 'VM.DenseIO2.8'], 'kubernetes_versions': ['v1.8.11', 'v1.9.7', 'v1.10.3', 'v1.11.1']}</div>
                                     </td>
             </tr>
                                                             <tr>

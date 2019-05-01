@@ -101,7 +101,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Identifier of the compartment from which facts of constituent buckets needs to be fetched.                     Required to get details of all buckets in a specified namespace and compartment.</div>
+                                                                        <div>Identifier of the compartment from which facts of constituent buckets needs to be fetched. Required to get details of all buckets in a specified namespace and compartment.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -131,10 +131,12 @@ Parameters
                                 <td>
                                                                                                                             <ul><b>Choices:</b>
                                                                                                                                                                 <li>tags</li>
+                                                                                                                                                                                                <li>approximateCount</li>
+                                                                                                                                                                                                <li>approximateSize</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Bucket summary in list of buckets includes the 'namespace', 'name', 'compartmentId', 'createdBy', 'timeCreated', and 'etag' fields. This parameter can also include 'tags' (freeformTags and definedTags). The only supported value of this parameter is 'tags' for now.</div>
+                                                                        <div>Specifies additional fields to be returned in the response.  By default a response includes the 'namespace', 'name', 'compartment_id', 'created_by', 'time_created', and 'etag' fields. Specifying &quot;tags&quot; will populate the fields &quot;freeform_tags&quot; and &quot;defined_tags&quot;.  Specifying &quot;approximateSize&quot; will populate the field &quot;approximate_size&quot;.  Specifying &quot;approximateCount&quot; will populate the field &quot;approximate_size&quot;.  Any combination of the values may be provided.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -204,11 +206,24 @@ Examples
         namespace_name: 'mynamespace'
         compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
 
-    #Fetch facts of a specific bucket
+    - name: List bucket facts (including tags)
+      oci_bucket_facts:
+        namespace_name: 'mynamespace'
+        compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+        fields: ["tags"]
+
+    # Fetch facts of a specific bucket
     - name: Fetch a bucket
       oci_bucket_facts:
         namespace_name: 'mynamespace'
         name: 'Bucket1'
+
+    # Fetch facts of a specific bucket (including approximate size and count)
+    - name: Fetch a bucket
+      oci_bucket_facts:
+        namespace_name: 'mynamespace'
+        name: 'Bucket1'
+        fields: ["approximateSize", "approximateCount"]
 
 
 
@@ -264,6 +279,18 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxEXAMPLExxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>approximate_count</b>
+                    <br/><div style="font-size: small; color: red">int</div>
+                                    </td>
+                <td>only when 'approximateCount' is specified in the 'fields' input option</td>
+                <td>
+                                            <div>The approximate number of objects in the bucket.                           Count statistics are reported periodically. You will see a lag between what is displayed                          and the actual object count.</div>
+                                        <br/>
                                     </td>
             </tr>
                                 <tr>
@@ -334,6 +361,18 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">NoPublicAccess</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>approximate_size</b>
+                    <br/><div style="font-size: small; color: red">int</div>
+                                    </td>
+                <td>only when 'approximateSize' is specified in the 'fields' input option</td>
+                <td>
+                                            <div>The approximate total size of all objects in the bucket.                          Size statistics are reported periodically. You will see a lag between what is displayed and                          the actual size of the bucket.</div>
+                                        <br/>
                                     </td>
             </tr>
                                 <tr>

@@ -98,6 +98,13 @@ options:
                             If TCP specified as the protocol but omit this object, then all destination ports
                             are allowed.
                 required: no
+                suboptions:
+                    destination_port_range:
+                        description: The destination port range for the ingress rule.
+                                     Intger values for min port number and max port number should be provided.
+                    source_port_range:
+                        description: The source port range for the ingress rule.
+                                     Intger values for min port number and max port number should be provided.
             udp_options:
                 description: Valid only for UDP. Use to specify particular destination ports for UDP rules.
                              If UDP specified as the protocol but omit this object, then all destination ports
@@ -152,6 +159,13 @@ options:
                              If TCP specified as the protocol but omit this object, then all destination ports
                              are allowed.
                 required: no
+                suboptions:
+                    destination_port_range:
+                        description: The destination port range for the egress rule.
+                                     Intger values for min port number and max port number should be provided.
+                    source_port_range:
+                        description: The source port range for the egress rule.
+                                     Intger values for min port number and max port number should be provided.
             udp_options:
                 description: Valid only for UDP. Use to specify particular destination ports for UDP rules.
                              If UDP specified as the protocol but omit this object, then all destination ports
@@ -200,8 +214,8 @@ EXAMPLES = """
         protocol: '6'
         tcp_options:
             destination_port_range:
-                min: '22'
-                max: '22'
+                min: 22
+                max: 22
       - source: 'oci-iad-objectstorage'
         source_type: 'SERVICE_CIDR_BLOCK'
         is_stateless: False
@@ -225,8 +239,8 @@ EXAMPLES = """
           protocol: '6'
           tcp_options:
               destination_port_range:
-                 min: '25'
-                 max: '30'
+                 min: 25
+                 max: 30
     purge_security_rules: 'yes'
     state: 'present'
 
@@ -239,8 +253,8 @@ EXAMPLES = """
           protocol: '6'
           tcp_options:
               destination_port_range:
-                 min: '25'
-                 max: '30'
+                 min: 25
+                 max: 30
     delete_security_rules: 'yes'
     state: 'present'
 
@@ -678,14 +692,14 @@ def get_protocol_option(input_protocol_options, protocol_options):
     )
     if input_destination_port_range:
         port_range = oci_utils.create_hashed_instance(PortRange)
-        port_range.min = input_destination_port_range["min"]
-        port_range.max = input_destination_port_range["max"]
+        port_range.min = int(input_destination_port_range["min"])
+        port_range.max = int(input_destination_port_range["max"])
         protocol_options.destination_port_range = port_range
     input_source_port_range = input_protocol_options.get("source_port_range", None)
     if input_source_port_range:
         port_range = oci_utils.create_hashed_instance(PortRange)
-        port_range.min = input_source_port_range["min"]
-        port_range.max = input_source_port_range["max"]
+        port_range.min = int(input_source_port_range["min"])
+        port_range.max = int(input_source_port_range["max"])
         protocol_options.source_port_range = port_range
 
 

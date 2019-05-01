@@ -14,4 +14,4 @@ demo_public_subnet_security_list_name: "{{ demo_var_prefix }}_public_subnet"
 
 nat_instance_name: "{{ demo_var_prefix }}_nat_instance_for_mongodb_setup"
 nat_instance_image_ocid: "{{ lookup('env', 'SAMPLE_OL_IMAGE_OCID') }}"
-nat_instance_shape: "VM.Standard1.1"
+nat_instance_shape: "{{ lookup('env', 'SAMPLE_INSTANCE_SHAPE') | default('VM.Standard2.1', true) }}"

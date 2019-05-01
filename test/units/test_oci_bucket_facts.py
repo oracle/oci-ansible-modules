@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -67,7 +67,7 @@ def test_list_buckets_success(object_storage_client, list_all_resources_patch):
     bucket_summaries.append(bucket_summary_1)
     bucket_summaries.append(bucket_summary_2)
     list_all_resources_patch.return_value = bucket_summaries
-    result = oci_bucket_facts.list_buckets(object_storage_client, get_module())
+    result = oci_bucket_facts.list_buckets(object_storage_client, get_module(), {}, {})
     assert "Bucket1" in result.__repr__()
 
 
@@ -78,7 +78,7 @@ def test_list_buckets_failure(object_storage_client):
         404, "NamespaceNotFound", dict(), error_message
     )
     try:
-        oci_bucket_facts.list_buckets(object_storage_client, get_module())
+        oci_bucket_facts.list_buckets(object_storage_client, get_module(), {}, {})
     except Exception as ex:
         assert error_message in ex.args[0]
 
@@ -89,7 +89,7 @@ def test_list_buckets_failure_timeout_error(object_storage_client):
         error_message
     )
     try:
-        oci_bucket_facts.list_buckets(object_storage_client, get_module())
+        oci_bucket_facts.list_buckets(object_storage_client, get_module(), {}, {})
     except Exception as ex:
         assert error_message in ex.args[0]
 
