@@ -91,6 +91,6 @@
     - assert:
         that:
           - "'Disk /dev/sdb' in result.stdout"
-        message: "'Disk /dev/sdb' not returned in fdisk output. The block storage volume was not attached."
+        fail_msg: "'Disk /dev/sdb' not returned in fdisk output. The block storage volume was not attached."
 
     - import_tasks: teardown.yaml
