@@ -26,4 +26,3 @@
 
 - set_fact:
     bastion_instance_ocid: "{{ result.instance.id }}"
-

@@ -37,7 +37,7 @@
     id: "{{ rt_id }}"
     route_rules: []
 
-- name : Delete the Internet Gateway
+- name: Delete the Internet Gateway
   oci_internet_gateway:
     id: "{{ ig_id }}"
     state: absent

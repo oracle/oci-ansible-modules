@@ -43,4 +43,3 @@
   oci_vcn:
     vcn_id: "{{ vcn_id }}"
     state: absent
-

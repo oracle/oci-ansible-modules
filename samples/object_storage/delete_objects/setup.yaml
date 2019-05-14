@@ -13,7 +13,7 @@
     - "SAMPLE_COMPARTMENT_OCID"
     - "SAMPLE_OBJECT_NS_NAME"
 
-- name : Create a bucket in OCI to create sample objects
+- name: Create a bucket in OCI to create sample objects
   oci_bucket:
     namespace_name: "{{namespace_name}}"
     compartment_id: "{{compartment_id}}"

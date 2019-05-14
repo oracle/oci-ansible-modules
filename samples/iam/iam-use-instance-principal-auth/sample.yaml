@@ -63,4 +63,3 @@
       local_action: command ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }} /home/opc/instance-principal-test.sh
 
     - import_tasks: teardown.yaml
-

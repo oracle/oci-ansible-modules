@@ -1,5 +1,5 @@
 galaxy_info:
-  author: Debayan Gupta, Rohit Chaware, Sivakumar Thyagarajan
+  author: nalsaber, manojmeda, mross22
   description: OCI modules provides an easy way to create and provision
                resources in Oracle Cloud Infrastructure through Ansible.
   company: Oracle
@@ -17,8 +17,7 @@ galaxy_info:
   github_branch: https://github.com/oracle/oci-ansible-modules
 
   galaxy_tags:
-    - oci
-    - oracle_cloud_infrastructure
+    - oracle cloud infrastructure
     - oracle_cloud
     - oracle
     - cloud
@@ -27,15 +26,12 @@ galaxy_info:
     - networking
     - compute
     - storage
-    - OCI
+    - oci
 
   platforms:
     - name: GenericLinux
       versions:
         - any
-    - name: CentOS
-      versions:
-      - all
     - name: Ubuntu
       versions:
       - all
@@ -47,8 +43,11 @@ galaxy_info:
         - 10.7
         - 10.8
         - 10.9
-        - 10.10
+        - "10.10"
         - 10.11
         - 10.12
 
-  dependencies: []
+  cloud_platforms:
+    - Oracle Cloud Infrastructure
+
+dependencies: []

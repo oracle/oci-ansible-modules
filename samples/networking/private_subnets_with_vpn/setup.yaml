@@ -49,4 +49,3 @@
 - set_fact:
     ad1_subnet_id: "{{ result.results[0].subnet.id }}"
     ad2_subnet_id: "{{ result.results[1].subnet.id }}"
-

@@ -6,13 +6,13 @@
 # See LICENSE.TXT for details.
 
 # Delete Autonomous Data Warehouse
-- name: Delete Autonomous Data Warehouse 
+- name: Delete Autonomous Data Warehouse
   oci_autonomous_data_warehouse:
      autonomous_data_warehouse_id: "{{ autonomous_data_warehouse_id }}"
      state: 'absent'
   register: result
 
-- name : Assert that specified Autonomous Data Warehouse is deleted
+- name: Assert that specified Autonomous Data Warehouse is deleted
   assert:
          that:
             - result.changed == True

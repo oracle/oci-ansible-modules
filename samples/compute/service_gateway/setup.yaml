@@ -144,7 +144,7 @@
   when: '"Object Storage" in item.name'
   with_items: "{{ result.services }}"
 
-- name : Create a new Service Gateway
+- name: Create a new Service Gateway
   oci_service_gateway:
     compartment_id: "{{ instance_compartment }}"
     vcn_id: "{{ vcn_id }}"
@@ -164,7 +164,7 @@
 - set_fact:
     ng_id: "{{ result.nat_gateway.id }}"
 
-- name : Create a new Internet Gateway
+- name: Create a new Internet Gateway
   oci_internet_gateway:
     compartment_id: "{{ instance_compartment }}"
     vcn_id: "{{ vcn_id }}"

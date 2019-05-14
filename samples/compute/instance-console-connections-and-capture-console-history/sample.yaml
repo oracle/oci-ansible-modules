@@ -151,4 +151,3 @@
           - stat_result.stat.exists == True
 
     - import_tasks: teardown.yaml
-

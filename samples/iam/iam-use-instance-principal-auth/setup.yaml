@@ -17,7 +17,7 @@
 
 # Create a Dynamic group. In this dynamic group we provide the matching rules to ensure that all instances under
 # compartment SAMPLE_COMPARTMENT_OCID are allowed to make API calls against OCI Services
-- name : Create a dynamic group for instances under SAMPLE_COMPARTMENT_OCID
+- name: Create a dynamic group for instances under SAMPLE_COMPARTMENT_OCID
   oci_dynamic_group:
     name: "{{ dynamic_group_name }}"
     description: "A group that ensures that all instances in compartment {{ sample_compartment_ocid }} can make API calls against OCI Services"
@@ -72,7 +72,7 @@
 - set_fact:
     vcn_id: "{{ result.vcn.id }}"
 
-- name : Create a new Internet Gateway
+- name: Create a new Internet Gateway
   oci_internet_gateway:
     compartment_id: "{{ sample_compartment_ocid }}"
     vcn_id: "{{ vcn_id }}"
@@ -203,4 +203,3 @@
 - name: Print SSH response from launched instance now that the instance is ready
   debug:
     msg: "SSH response from instance -> {{ result.stdout_lines }}"
-

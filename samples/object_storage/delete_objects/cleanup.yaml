@@ -5,7 +5,7 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-- name : Delete sample bucket
+- name: Delete sample bucket
   oci_bucket:
     name: "{{ sample_bucket_name }}"
     namespace_name: "{{ namespace_name }}"
