@@ -41,4 +41,3 @@
   with_items:
     - "{{ object_readers_policy_ocid }}"
     - "{{ object_writers_policy_ocid }}"
-

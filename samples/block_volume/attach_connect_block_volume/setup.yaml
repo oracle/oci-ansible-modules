@@ -44,7 +44,7 @@
 - set_fact:
     vcn_id: "{{ result.vcn.id }}"
 
-- name : Create a new Internet Gateway
+- name: Create a new Internet Gateway
   oci_internet_gateway:
     compartment_id: "{{ instance_compartment }}"
     vcn_id: "{{ vcn_id }}"

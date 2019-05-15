@@ -58,7 +58,7 @@ cat > basic-sanity-checks.yaml <<EOL
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-- name : Performs some basic OCI operations to validate that configuration is correct
+- name: Performs some basic OCI operations to validate that configuration is correct
   connection: local
   hosts: localhost
   tasks:

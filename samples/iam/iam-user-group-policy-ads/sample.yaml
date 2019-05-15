@@ -52,7 +52,7 @@
   tasks:
     - import_tasks: setup.yaml
 
-    - name : Create new bucket in OCI as Alice
+    - name: Create new bucket in OCI as Alice
       oci_bucket:
         namespace_name: "{{ sample_object_namespace_name }}"
         compartment_id: "{{ sample_compartment_ocid }}"
@@ -62,7 +62,7 @@
       register: result
     - debug: msg="Bucket details - {{ result }}"
 
-    - name : Add an object in the bucket as Alice
+    - name: Add an object in the bucket as Alice
       oci_object:
         namespace: "{{ sample_object_namespace_name }}"
         bucket: "{{ sample_bucket_name }}"
@@ -73,7 +73,7 @@
       register: result
     - debug: msg="Added new object - {{ result }}"
 
-    - name : List objects in the test bucket as Bob
+    - name: List objects in the test bucket as Bob
       oci_object_facts:
         namespace: "{{ sample_object_namespace_name }}"
         bucket: "{{ sample_bucket_name }}"

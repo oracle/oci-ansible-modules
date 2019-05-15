@@ -110,5 +110,3 @@
   register: demopublicsubnetseclist
 - set_fact:
     demo_public_subnet_seclist_ocid: "{{ demopublicsubnetseclist.security_list.id}}"
-
-

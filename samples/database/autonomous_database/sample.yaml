@@ -63,7 +63,7 @@
          display_name: '{{ display_name }}'
       register: result
 
-    - name : Assert that specified Autonomous Database is listed
+    - name: Assert that specified Autonomous Database is listed
       assert:
          that:
             - result.autonomous_databases[0].display_name == display_name
@@ -75,7 +75,7 @@
          state: 'stop'
       register: result
 
-    - name : Assert that specified Autonomous Database is stopped
+    - name: Assert that specified Autonomous Database is stopped
       assert:
          that:
             - result.autonomous_database.lifecycle_state == 'STOPPED'
@@ -87,7 +87,7 @@
          state: 'start'
       register: result
 
-    - name : Assert that specified Autonomous Database is started and available
+    - name: Assert that specified Autonomous Database is started and available
       assert:
          that:
             - result.autonomous_database.lifecycle_state == 'AVAILABLE'
@@ -99,7 +99,7 @@
       register: result
     - debug: # print facts retrieved about the Autonomous Database
           msg: "{{result}}"
-    - name : Assert that specified Autonomous Database is listed
+    - name: Assert that specified Autonomous Database is listed
       assert:
          that:
             - result.autonomous_databases[0].display_name == display_name

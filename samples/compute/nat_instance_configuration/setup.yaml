@@ -84,7 +84,7 @@
     public_subnet_security_list_ocid: "{{ result.security_list.id }}"
 
 
-- name : Create a new Internet Gateway
+- name: Create a new Internet Gateway
   oci_internet_gateway:
     compartment_id: "{{ instance_compartment }}"
     vcn_id: "{{ vcn_id }}"
@@ -275,4 +275,3 @@
 - name: Print the private ip of the newly launched instance
   debug:
     msg: "Private IP of the instance launched in the private subnet {{ private_instance_private_ip }}"
-

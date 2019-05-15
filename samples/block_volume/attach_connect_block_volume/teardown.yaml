@@ -30,7 +30,7 @@
     id: "{{ rt_id }}"
     state: absent
 
-- name : Delete the Internet Gateway
+- name: Delete the Internet Gateway
   oci_internet_gateway:
     id: "{{ ig_id }}"
     state: absent
@@ -39,4 +39,3 @@
   oci_vcn:
     vcn_id: "{{ vcn_id }}"
     state: absent
-

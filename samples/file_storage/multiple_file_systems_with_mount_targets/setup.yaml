@@ -52,7 +52,7 @@
 
 - debug: msg="ADs within the ashburn region {{sample_availability_domain_ad2}}"
 # ===========================================================================================
-- name : Create Internet Gateway
+- name: Create Internet Gateway
   oci_internet_gateway:
             compartment_id: "{{ compartment_id }}"
             vcn_id: '{{ sample_vcn_id }}'

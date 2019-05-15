@@ -15,7 +15,7 @@
     - "SAMPLE_OBJECT_NS_NAME"
 
 # Create groups
-- name : Create a group for Object readers
+- name: Create a group for Object readers
   oci_group:
     name: "{{ object_readers_group_name }}"
     description: "A group that are allows to inspect, get objects in buckets in compartment {{ sample_compartment_ocid }}"
@@ -36,7 +36,7 @@
 - set_fact:
     object_readers_policy_ocid: "{{ result.policy.id }}"
 
-- name : Create a group for Object writers
+- name: Create a group for Object writers
   oci_group:
     name: "{{ object_writers_group_name }}"
     description: "A group that are allows to create, upload, list objects and buckets in compartment {{ sample_compartment_ocid }}"
