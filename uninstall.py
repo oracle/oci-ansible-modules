@@ -65,9 +65,15 @@ def main():
     module_utils_path = os.path.join(ansible_path, "module_utils", "oracle")
     log("Module utilities path: {}".format(module_utils_path))
 
-    document_fragments_path = os.path.join(
+    document_fragments_path_old = os.path.join(
         ansible_path, "utils", "module_docs_fragments"
     )
+    document_fragments_path_new = os.path.join(ansible_path, "plugins", "doc_fragments")
+    if os.path.exists(document_fragments_path_new):
+        document_fragments_path = document_fragments_path_new
+    else:
+        document_fragments_path = document_fragments_path_old
+
     log("Documentation fragments path: {}".format(document_fragments_path))
 
     delete(module_utils_path)

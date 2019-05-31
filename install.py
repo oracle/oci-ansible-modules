@@ -75,7 +75,6 @@ def main():
             "OCI Python SDK version-{0} is required for using oci-ansible-modules. To install OCI Python SDK, use"
             " < pip install oci=={0} >.".format(MIN_OCI_PYTHON_SDK_REQUIRED)
         )
-        sys.exit(1)
 
     elif installed_packages["oci"] < MIN_OCI_PYTHON_SDK_REQUIRED:
         print(
@@ -83,7 +82,6 @@ def main():
                 MIN_OCI_PYTHON_SDK_REQUIRED
             )
         )
-        sys.exit(1)
 
     global debug
     args = parse_cli_args()
@@ -102,13 +100,18 @@ def main():
         sys.exit(1)
     log("Module utilities path: {}".format(module_utils_path))
 
-    document_fragments_path = os.path.join(
+    document_fragments_path_old = os.path.join(
         ansible_path, "utils", "module_docs_fragments"
     )
-    if not os.path.exists(document_fragments_path):
+    document_fragments_path_new = os.path.join(ansible_path, "plugins", "doc_fragments")
+    if os.path.exists(document_fragments_path_new):
+        document_fragments_path = document_fragments_path_new
+    elif os.path.exists(document_fragments_path_old):
+        document_fragments_path = document_fragments_path_old
+    else:
         print(
-            "Documentation fragments directory {} does not exist".format(
-                document_fragments_path
+            "Documentation fragments directory {0} or {1} does not exist".format(
+                document_fragments_path_old, document_fragments_path_new
             )
         )
         sys.exit(1)

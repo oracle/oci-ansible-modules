@@ -17,8 +17,6 @@ galaxy_info:
   github_branch: https://github.com/oracle/oci-ansible-modules
 
   galaxy_tags:
-    - oracle cloud infrastructure
-    - oracle_cloud
     - oracle
     - cloud
     - system

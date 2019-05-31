@@ -327,17 +327,11 @@ def get_route_rules(input_route_rules):
             route_rule.__setattr__(attribute, route_rule_dict.get(attribute))
 
         # This is a temporary fix till deprecated cidr_block parameter gets removed.
-        # Right now, the value of destination gets updated in cidr_block and vice-versa
+        # Right now, the value of cidr_block gets updated in destination but reverse is not true
         # after route rule gets created. This causes problem in idempotency. So performing the same
         # while creating input route table.
         if route_rule_dict.get("destination") is None:
             route_rule.__setattr__("destination", route_rule_dict.get("cidr_block"))
-        elif (
-            route_rule_dict.get("cidr_block") is None
-            and route_rule_dict.get("destination_type")
-            != RouteRule.DESTINATION_TYPE_SERVICE_CIDR_BLOCK
-        ):
-            route_rule.__setattr__("cidr_block", route_rule_dict.get("destination"))
 
         if route_rule_dict.get("destination_type") is None:
             route_rule.__setattr__(

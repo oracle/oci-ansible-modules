@@ -86,3 +86,60 @@ def get_primary_ips(compute_client, network_client, instance):
                         )
 
     return primary_public_ip, primary_private_ip
+
+
+def get_iscsi_attach_commands(volume_attachment):
+    if not volume_attachment.get("attachment_type") == "iscsi":
+        return []
+    iqn = volume_attachment.get("iqn")
+    ipv4 = volume_attachment.get("ipv4")
+    port = volume_attachment.get("port")
+    chap_username = volume_attachment.get("chap_username")
+    chap_secret = volume_attachment.get("chap_secret")
+    iscsi_attach_commands = [
+        "sudo iscsiadm -m node -o new -T {0} -p {1}:{2}".format(iqn, ipv4, port),
+        "sudo iscsiadm -m node -o update -T {0} -n node.startup -v automatic".format(
+            iqn
+        ),
+    ]
+    if chap_username:
+        iscsi_attach_commands.extend(
+            [
+                "sudo iscsiadm -m node -T {0} -p {1}:{2} -o update -n node.session.auth.authmethod -v CHAP".format(
+                    iqn, ipv4, port
+                ),
+                "sudo iscsiadm -m node -T {0} -p {1}:{2} -o update -n node.session.auth.username -v {3}".format(
+                    iqn, ipv4, port, chap_username
+                ),
+                "sudo iscsiadm -m node -T {0} -p {1}:{2} -o update -n node.session.auth.password -v {3}".format(
+                    iqn, ipv4, port, chap_secret
+                ),
+            ]
+        )
+    iscsi_attach_commands.append(
+        "sudo iscsiadm -m node -T {0} -p {1}:{2} -l".format(iqn, ipv4, port)
+    )
+    return iscsi_attach_commands
+
+
+def get_iscsi_detach_commands(volume_attachment):
+    if not volume_attachment.get("attachment_type") == "iscsi":
+        return []
+    return [
+        "sudo iscsiadm -m node -T {0} -p {1}:{2} -u".format(
+            volume_attachment.get("iqn"),
+            volume_attachment.get("ipv4"),
+            volume_attachment.get("port"),
+        ),
+        "sudo iscsiadm -m node -o delete -T {0}".format(volume_attachment.get("iqn")),
+    ]
+
+
+def with_iscsi_commands(volume_attachment):
+    volume_attachment["iscsi_attach_commands"] = get_iscsi_attach_commands(
+        volume_attachment
+    )
+    volume_attachment["iscsi_detach_commands"] = get_iscsi_detach_commands(
+        volume_attachment
+    )
+    return volume_attachment

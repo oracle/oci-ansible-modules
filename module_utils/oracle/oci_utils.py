@@ -41,7 +41,7 @@ except ImportError:
 from ansible.module_utils.basic import _load_params
 from ansible.module_utils._text import to_bytes
 
-__version__ = "1.8.0"
+__version__ = "1.9.0"
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -532,7 +532,7 @@ def check_and_update_resource(
     sub_attributes_of_update_model=None,
     wait_applicable=True,
     states=None,
-    required_update_attributes=[],
+    required_update_attributes=None,
 ):
 
     """
@@ -560,6 +560,7 @@ def check_and_update_resource(
         the value on the resource.
     :return: Returns a dictionary containing the "changed" status and the resource.
     """
+    required_update_attributes = required_update_attributes or []
     try:
         result = dict(changed=False)
         attributes_to_update, resource = get_attr_to_update(
@@ -663,8 +664,9 @@ def are_lists_equal(s, t):
 
 
 def get_attr_to_update(
-    get_fn, kwargs_get, module, update_attributes, required_update_attributes=[]
+    get_fn, kwargs_get, module, update_attributes, required_update_attributes=None
 ):
+    required_update_attributes = required_update_attributes or []
     try:
         resource = call_with_backoff(get_fn, **kwargs_get).data
     except ServiceError as ex:
@@ -1911,9 +1913,9 @@ def update_model_with_user_options(curr_model, update_model, module):
 def _get_retry_strategy():
     retry_strategy_builder = RetryStrategyBuilder(
         max_attempts_check=True,
-        max_attempts=10,
-        retry_max_wait_between_calls_seconds=30,
-        retry_base_sleep_time_seconds=3,
+        max_attempts=3,
+        retry_max_wait_between_calls_seconds=60,
+        retry_base_sleep_time_seconds=10,
         backoff_type=oci.retry.BACKOFF_FULL_JITTER_EQUAL_ON_THROTTLE_VALUE,
     )
     retry_strategy_builder.add_service_error_check(
