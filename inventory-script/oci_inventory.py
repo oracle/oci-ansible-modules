@@ -226,7 +226,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.8.0"
+__version__ = "1.9.0"
 
 
 def _get_retry_strategy():
@@ -971,17 +971,13 @@ class OCIInventory:
                 virtual_nw_client.get_vcn, vcn_id=subnet.vcn_id
             ).data
 
-            oraclevcn_domain_name = ".oraclevcn.com"
-            if not (vnic.hostname_label or subnet.dns_label or vcn.dns_label):
-                return None
-            fqdn = (
-                vnic.hostname_label
-                + "."
-                + subnet.dns_label
-                + "."
-                + vcn.dns_label
-                + oraclevcn_domain_name
-            )
+            values = [
+                vnic.hostname_label,
+                subnet.dns_label,
+                vcn.dns_label,
+                "oraclevcn.com",
+            ]
+            fqdn = None if None in values else ".".join(values)
             self.log("FQDN for VNIC: {0} is {1}.".format(vnic.id, fqdn))
             return fqdn
 

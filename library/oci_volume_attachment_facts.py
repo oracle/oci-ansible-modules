@@ -144,26 +144,52 @@ volume_attachments:
             returned: always
             type: string
             sample: ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx
+        iscsi_attach_commands:
+            description: Commands to attach the iSCSI block volume. Empty if attachment_type is not iscsi.
+            returned: always
+            type: list
+            sample: [
+                "sudo iscsiadm -m node -o new -T iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3 -p 169.254.2.2:3260",
+                "sudo iscsiadm -m node -o update -T iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3 -n node.startup -v automatic",
+                "sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3 -p 169.254.2.2:3260 -l"
+            ]
+        iscsi_detach_commands:
+            description: Commands to detach the iSCSI block volume. Empty if attachment_type is not iscsi.
+            returned: always
+            type: list
+            sample: [
+                "sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3 -p 169.254.2.2:3260 -u",
+                "sudo iscsiadm -m node -o delete -T iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3"
+            ]
     sample: [{
-            "attachment_type": "iscsi",
-            "availability_domain": "BnQb:PHX-AD-1",
-            "chap_secret": null,
-            "chap_username": null,
-            "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
-            "display_name": "ansible_volume_attachment",
-            "id": "ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx",
-            "instance_id": "ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx",
-            "ipv4": "169.254.2.2",
-            "iqn": "iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3",
-            "lifecycle_state": "ATTACHED",
-            "port": 3260,
-            "time_created": "2017-11-23T11:17:50.139000+00:00",
-            "volume_id": "ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx"
-        }]
+                "attachment_type": "iscsi",
+                "availability_domain": "BnQb:PHX-AD-1",
+                "chap_secret": null,
+                "chap_username": null,
+                "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
+                "display_name": "ansible_volume_attachment",
+                "id": "ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx",
+                "instance_id": "ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx",
+                "ipv4": "169.254.2.2",
+                "iqn": "iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3",
+                "lifecycle_state": "ATTACHED",
+                "port": 3260,
+                "time_created": "2017-11-23T11:17:50.139000+00:00",
+                "volume_id": "ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx",
+                "iscsi_attach_commands": [
+                    "sudo iscsiadm -m node -o new -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260",
+                    "sudo iscsiadm -m node -o update -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -n node.startup -v automatic",
+                    "sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260 -l"
+                ],
+                "iscsi_detach_commands": [
+                    "sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260 -u",
+                    "sudo iscsiadm -m node -o delete -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328"
+                ],
+            }]
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_utils, oci_compute_utils
 
 from ansible.module_utils import six
 
@@ -176,6 +202,13 @@ try:
 
 except ImportError:
     HAS_OCI_PY_SDK = False
+
+
+def add_iscsi_commands(volume_attachments):
+    return [
+        oci_compute_utils.with_iscsi_commands(volume_attachment)
+        for volume_attachment in volume_attachments
+    ]
 
 
 def main():
@@ -237,7 +270,7 @@ def main():
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
 
-    module.exit_json(volume_attachments=result)
+    module.exit_json(volume_attachments=add_iscsi_commands(result))
 
 
 if __name__ == "__main__":

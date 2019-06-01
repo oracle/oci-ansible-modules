@@ -412,7 +412,7 @@ RETURN = """
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
-
+from operator import eq
 
 try:
     from oci.core import VirtualNetworkClient
@@ -550,13 +550,14 @@ def update_virtual_circuit(virtual_network_client, existing_virtual_circuit, mod
     update_virtual_circuit_details = UpdateVirtualCircuitDetails()
     for attribute in update_virtual_circuit_details.attribute_map:
         if attribute != "cross_connect_mappings":
-            attributes_changed = oci_utils.check_and_update_attributes(
-                update_virtual_circuit_details,
-                attribute,
+            if module.params.get(attribute) is not None and not eq(
                 module.params.get(attribute),
                 getattr(existing_virtual_circuit, attribute),
-                attributes_changed,
-            )
+            ):
+                attributes_changed = True
+                update_virtual_circuit_details.__setattr__(
+                    attribute, module.params.get(attribute)
+                )
     purge_cross_connect_mappings = module.params.get(
         "purge_cross_connect_mappings", True
     )

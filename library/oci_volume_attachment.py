@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -81,30 +81,42 @@ volume_attachment:
     returned: On successful attach operation
     type: dict
     sample: {
-            "attachment_type": "iscsi",
-            "availability_domain": "BnQb:PHX-AD-1",
-            "chap_secret": null,
-            "chap_username": null,
-            "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
-            "display_name": "ansible_volume_attachment",
-            "id": "ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx",
-            "instance_id": "ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx",
-            "ipv4": "169.254.2.2",
-            "iqn": "iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3",
-            "lifecycle_state": "ATTACHED",
-            "port": 3260,
-            "time_created": "2017-11-23T11:17:50.139000+00:00",
-            "volume_id": "ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx"
-        }
+                "attachment_type": "iscsi",
+                "availability_domain": "BnQb:PHX-AD-1",
+                "chap_secret": null,
+                "chap_username": null,
+                "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
+                "display_name": "ansible_volume_attachment",
+                "id": "ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx",
+                "instance_id": "ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx",
+                "ipv4": "169.254.2.2",
+                "iqn": "iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3",
+                "lifecycle_state": "ATTACHED",
+                "port": 3260,
+                "time_created": "2017-11-23T11:17:50.139000+00:00",
+                "volume_id": "ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx",
+                "iscsi_attach_commands": [
+                    "sudo iscsiadm -m node -o new -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260",
+                    "sudo iscsiadm -m node -o update -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -n node.startup -v automatic",
+                    "sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260 -l"
+                ],
+                "iscsi_detach_commands": [
+                    "sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260 -u",
+                    "sudo iscsiadm -m node -o delete -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328"
+                ],
+            }
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_utils, oci_compute_utils
 
 
 try:
     from oci.core.compute_client import ComputeClient
-    from oci.core.models import AttachVolumeDetails
+    from oci.core.models import (
+        AttachIScsiVolumeDetails,
+        AttachParavirtualizedVolumeDetails,
+    )
 
     HAS_OCI_PY_SDK = True
 except ImportError:
@@ -113,8 +125,15 @@ except ImportError:
 RESOURCE_NAME = "volume_attachment"
 
 
+def get_model_class(module):
+    if module.params.get("type") == "iscsi":
+        return AttachIScsiVolumeDetails
+    return AttachParavirtualizedVolumeDetails
+
+
 def attach_volume(compute_client, module):
-    attach_volume_details = AttachVolumeDetails()
+    model_class = get_model_class(module)
+    attach_volume_details = model_class()
     for attribute in attach_volume_details.attribute_map.keys():
         if attribute in module.params:
             setattr(attach_volume_details, attribute, module.params[attribute])
@@ -127,6 +146,15 @@ def attach_volume(compute_client, module):
         get_fn=compute_client.get_volume_attachment,
         get_param="volume_attachment_id",
         module=module,
+    )
+    return result
+
+
+def add_iscsi_commands(result):
+    if "volume_attachment" not in result:
+        return result
+    result["volume_attachment"] = oci_compute_utils.with_iscsi_commands(
+        result["volume_attachment"]
     )
     return result
 
@@ -184,6 +212,7 @@ def main():
         compartment_id = compute_client.get_instance(
             module.params["instance_id"]
         ).data.compartment_id
+        model_class = get_model_class(module)
         result = oci_utils.check_and_create_resource(
             resource_type=RESOURCE_NAME,
             create_fn=attach_volume,
@@ -195,12 +224,12 @@ def main():
                 "volume_id": module.params["volume_id"],
             },
             module=module,
-            model=AttachVolumeDetails(),
+            model=model_class(),
             exclude_attributes=exclude_attributes,
             default_attribute_values={"is_read_only": False, "use_chap": False},
         )
 
-    module.exit_json(**result)
+    module.exit_json(**add_iscsi_commands(result))
 
 
 if __name__ == "__main__":

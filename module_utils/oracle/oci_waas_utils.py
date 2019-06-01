@@ -554,9 +554,7 @@ def get_waas_policy_id_from_work_request_response(
 ):
     if not work_request_response:
         return None
-    logger.debug(
-        "Work request response: {0}".format(to_dict(work_request_response.data))
-    )
+    logger.debug("Work request response: %s", to_dict(work_request_response.data))
     for work_request_resource in work_request_response.data.resources:
         if (
             work_request_resource.entity_type == entity_type
@@ -572,9 +570,7 @@ def get_waas_policy_from_work_request_response(work_request_response, module, cl
     )
     if not waas_policy_id:
         module.fail_json(msg="Cound not get the waas policy id from the work request.")
-    logger.debug(
-        "WAAS policy id from the work request response: {0}".format(waas_policy_id)
-    )
+    logger.debug("WAAS policy id from the work request response: %s", waas_policy_id)
     waas_policy = oci_utils.call_with_backoff(
         client.get_waas_policy, waas_policy_id=waas_policy_id
     ).data
@@ -590,7 +586,7 @@ def get_waas_policy_from_work_request_response(work_request_response, module, cl
 
 
 def get_waas_policy_from_summary_resource(waas_policy_summary, waas_client=None):
-    logger.debug("Waas policy summary resource: {0}".format(waas_policy_summary))
+    logger.debug("Waas policy summary resource: %s", waas_policy_summary)
     if not waas_policy_summary:
         return None
     if not waas_client:
@@ -611,9 +607,7 @@ def get_waas_policy_from_summary_resource(waas_policy_summary, waas_client=None)
 def get_waas_certificate_from_summary_resource(
     waas_certificate_summary, waas_client=None
 ):
-    logger.debug(
-        "Waas certificate summary resource: {0}".format(waas_certificate_summary)
-    )
+    logger.debug("Waas certificate summary resource: %s", waas_certificate_summary)
     if not waas_certificate_summary:
         return None
     if not waas_client:

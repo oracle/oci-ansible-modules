@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2019-06-01
+
+### Added
+- Added the following features in existing modules:
+    - Added `iscsi_attach_commands` and `iscsi_detach_commands` return values to `oci_volume_attachment` and `oci_volume_attachment_facts` modules. 
+
+### Fixed
+- Fix installation script for Ansible 2.8.0 [issue](https://github.com/oracle/oci-ansible-modules/issues/53)
+- Fix idempotency when updating a route table entry [issue](https://github.com/oracle/oci-ansible-modules/issues/52)
+- Fix invalid options error for FQDN generation in inventory script [issue](https://github.com/oracle/oci-ansible-modules/pull/49)
+- Fix error updating cross connects on a virtual circuit
+
 ## [1.8.0] - 2019-05-01
 
 ### Added
