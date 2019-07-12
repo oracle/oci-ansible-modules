@@ -84,128 +84,71 @@ oci_api_key:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    OCIResourceHelperBase,
+    get_custom_class,
+)
+
 
 try:
-    import oci
     from oci.identity.identity_client import IdentityClient
     from oci.identity.models import CreateApiKeyDetails
-    from oci.util import to_dict
-    from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
 
     HAS_OCI_PY_SDK = True
+
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-logger = None
-RESOURCE_NAME = "api_key"
+class ApiKeyHelperGen(OCIResourceHelperBase):
+    @staticmethod
+    def get_module_resource_id_param():
+        return "api_key_id"
 
+    def get_module_resource_id(self):
+        return self.module.params.get("api_key_id")
 
-def set_logger(provided_logger):
-    global logger
-    logger = provided_logger
+    def get_create_model_class(self):
+        return CreateApiKeyDetails
 
-
-def get_logger():
-    return logger
-
-
-def _get_api_key_from_id(identity_client, user_id, api_key_id, module):
-    try:
-        resp = oci_utils.call_with_backoff(
-            identity_client.list_api_keys, user_id=user_id
-        )
-        if resp is not None:
-            for api_key in resp.data:
-                if api_key.key_id == api_key_id:
-                    return api_key
-        return None
-    except ServiceError as ex:
-        module.fail_json(msg=ex.message)
-
-
-def delete_api_key(identity_client, user_id, id, module):
-    result = {}
-    changed = False
-    try:
-        api_key = _get_api_key_from_id(identity_client, user_id, id, module)
-        oci_utils.call_with_backoff(
-            identity_client.delete_api_key,
-            user_id=user_id,
-            fingerprint=api_key.fingerprint,
-        )
-        get_logger().info("Deleted api password %s", id)
-        changed = True
-
-        # The API key is not returned by list api passwords after it
-        # is deleted, and so we currently reuse the earlier api password object and mark
-        # its lifecycle state as DELETED.
-        # Note: This current approach has problems around idempotency.
-        # We also don't wait, as there is no state transition that we need to wait for.
-        api_key.lifecycle_state = "DELETED"
-        result[RESOURCE_NAME] = to_dict(api_key)
-    except ServiceError as ex:
-        module.fail_json(msg=ex.message)
-
-    result["changed"] = changed
-    return result
-
-
-def _is_api_key_active(api_keys, api_key_id):
-    result = [
-        api_key
-        for api_key in api_keys
-        if api_key.key_id == api_key_id and api_key.lifecycle_state == "ACTIVE"
-    ]
-    return len(result) == 1
-
-
-def create_api_key(identity_client, user_id, key, module):
-    try:
-        cakd = CreateApiKeyDetails()
-        cakd.key = key
-        result = oci_utils.create_resource(
-            resource_type=RESOURCE_NAME,
-            create_fn=identity_client.upload_api_key,
-            kwargs_create={"user_id": user_id, "create_api_key_details": cakd},
-            module=module,
-        )
-        resource = result[RESOURCE_NAME]
-        api_key_id = resource["key_id"]
-        get_logger().info("Created API signing key %s", to_dict(resource))
-
-        # API keys don't have a get<resource> and so we can't use oci_utils.create_and_wait
-        # The following logic manually checks if the API key in `list_api_keys` has reached the desired ACTIVE state
-        response = identity_client.list_api_keys(user_id)
-        # wait until the created API Key reaches Active state
-        oci.wait_until(
-            identity_client,
-            response,
-            evaluate_response=lambda resp: _is_api_key_active(resp.data, api_key_id),
+    def list_resources(self):
+        return oci_common_utils.list_all_resources(
+            self.client.list_api_keys, user_id=self.module.params.get("user_id")
         )
 
-        result[RESOURCE_NAME] = to_dict(
-            _get_api_key_from_id(identity_client, user_id, api_key_id, module)
+    def create_resource(self):
+        create_api_key_details = self.get_create_model()
+        return oci_common_utils.call_with_backoff(
+            self.client.upload_api_key,
+            user_id=self.module.params.get("user_id"),
+            create_api_key_details=create_api_key_details,
         )
-        return result
-    except ServiceError as ex:
-        module.fail_json(msg=ex.message)
-    except MaximumWaitTimeExceeded as mwte:
-        module.fail_json(msg=str(mwte))
+
+    def delete_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.delete_api_key,
+            user_id=self.module.params.get("user_id"),
+            fingerprint=self.module.params.get("fingerprint"),
+        )
+
+
+ApiKeyHelperCustom = get_custom_class("ApiKeyHelperCustom")
+
+
+class ResourceHelper(ApiKeyHelperCustom, ApiKeyHelperGen):
+    pass
 
 
 def main():
-    set_logger(oci_utils.get_logger("oci_api_key"))
-
-    module_args = oci_utils.get_common_arg_spec(
+    module_args = oci_common_utils.get_common_arg_spec(
         supports_create=True, supports_wait=True
     )
     module_args.update(
         dict(
             user_id=dict(type="str", required=True),
             api_key_id=dict(type="str", required=False, aliases=["id"]),
-            api_signing_key=dict(type="str", required=False, aliases=["key"]),
+            key=dict(type="str", required=False, aliases=["api_signing_key"]),
             state=dict(
                 type="str",
                 required=False,
@@ -215,54 +158,32 @@ def main():
         )
     )
 
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
-        required_if=[("state", "absent", ["api_key_id"])],
-    )
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module.")
 
-    identity_client = oci_utils.create_service_client(module, IdentityClient)
-    state = module.params["state"]
+    resource_helper = ResourceHelper(
+        module=module, resource_type="api_key", service_client_class=IdentityClient
+    )
 
     result = dict(changed=False)
 
-    user_id = module.params.get("user_id", None)
-    public_key = module.params.get("api_signing_key", None)
-    api_key_id = module.params.get("api_key_id", None)
-
-    if api_key_id is not None:
-        api_key = _get_api_key_from_id(identity_client, user_id, api_key_id, module)
-
-        if state == "absent":
-            get_logger().debug(
-                "Delete api password %s for user %s requested", api_key_id, user_id
+    if resource_helper.is_delete():
+        if not resource_helper.get_module_resource_id():
+            module.fail_json(
+                msg="Specify {0} with state as 'absent' to delete a {1}.".format(
+                    resource_helper.get_module_resource_id_param(),
+                    resource_helper.resource_type.upper(),
+                )
             )
-            if api_key is not None:
-                get_logger().debug("Deleting %s", api_key.key_id)
-                result = delete_api_key(identity_client, user_id, api_key_id, module)
-            else:
-                get_logger().debug("API Signing Key %s already deleted.", api_key_id)
-        elif state == "present":
-            module.fail_json(msg="API signing key cannot be updated.")
-    else:
-        result = oci_utils.check_and_create_resource(
-            resource_type=RESOURCE_NAME,
-            create_fn=create_api_key,
-            kwargs_create={
-                "identity_client": identity_client,
-                "user_id": user_id,
-                "key": public_key,
-                "module": module,
-            },
-            list_fn=identity_client.list_api_keys,
-            kwargs_list={"user_id": user_id},
-            module=module,
-            model=CreateApiKeyDetails(),
-            create_model_attr_to_get_model_mapping={"key": "key_value"},
-        )
+        result = resource_helper.delete()
+    elif resource_helper.is_update():
+        result = resource_helper.update()
+    elif resource_helper.is_create():
+        result = resource_helper.create()
+    elif resource_helper.is_action():
+        result = resource_helper.perform_action(module.params.get("state"))
 
     module.exit_json(**result)
 

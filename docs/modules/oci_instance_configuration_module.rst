@@ -397,6 +397,19 @@ Parameters
                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
+                    <b>boot_volume_size_in_gbs</b>
+                                                                            </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The size of the boot volume in GBs. The minimum value is 50 GB and the maximum value is 16384 GB (16TB).</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
                     <b>source_type</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>

@@ -2151,21 +2151,21 @@ def main():
             availability_domain=dict(type="str", required=False),
             boot_volume_details=dict(type="dict", required=False),
             compartment_id=dict(type="str", required=False),
-            count_tag=dict(type="dict", required=False, removed_in_version="v1.10.0"),
-            exact_count=dict(type="int", required=False, removed_in_version="v1.10.0"),
+            count_tag=dict(type="dict", required=False, removed_in_version="v1.11.0"),
+            exact_count=dict(type="int", required=False, removed_in_version="v1.11.0"),
             extended_metadata=dict(type="dict", required=False),
             fault_domain=dict(type="str", required=False),
             instance_id=dict(type="str", required=False, aliases=["id"]),
             image_id=dict(type="str", required=False),
             ipxe_script=dict(type="str", required=False),
             max_thread_count=dict(
-                type="int", required=False, removed_in_version="v1.10.0"
+                type="int", required=False, removed_in_version="v1.11.0"
             ),
             metadata=dict(type="dict", required=False),
             name=dict(type="str", required=False, aliases=["display_name"]),
             preserve_boot_volume=dict(type="bool", required=False, default=False),
             enable_parallel_requests=dict(
-                type="bool", required=False, default=True, removed_in_version="v1.10.0"
+                type="bool", required=False, default=True, removed_in_version="v1.11.0"
             ),
             shape=dict(type="str", required=False),
             state=dict(

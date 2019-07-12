@@ -44,7 +44,15 @@ options:
                      If I(public_access_type=ObjectRead), user can perform read operation on the bucket.
         required: false
         default: "NoPublicAccess"
-        choices: ["ObjectRead","NoPublicAccess"]
+        choices: ["ObjectRead","NoPublicAccess","ObjectReadWithoutList"]
+    storage_tier:
+        description: The type of storage tier of this bucket. The bucket will be put in the standard storage tier.
+                     When 'Archive' tier type is set explicitly, the bucket is put in the Archive Storage tier.
+                     This property is immutable after bucket is created.
+        default: "Standard"
+        choices: ["Standard","Archive"]
+    kms_key_id:
+        description: The OCID of a KMS key id used to call KMS to generate the data key or decrypt the encrypted data key.
     state:
         description: Decides whether to create,update or delete bucket. For I(state=present), if the bucket does not
                      exist, it gets created. If it exists, it gets updated. For I(state=absent), the bucket gets
@@ -108,6 +116,8 @@ from ansible.module_utils.oracle import oci_utils
 
 try:
     from oci.object_storage.object_storage_client import ObjectStorageClient
+    from oci.object_storage.models import CreateBucketDetails
+    from oci.object_storage.models import UpdateBucketDetails
     from oci.exceptions import ServiceError
     from oci.util import to_dict
 
@@ -190,9 +200,26 @@ def should_bucket_be_changed(existing_bucket, metadata, public_access_type):
     )
 
 
+def bucket_details_factory(bucket_details_type, module):
+    bucket_details = None
+    if bucket_details_type == "create":
+        bucket_details = CreateBucketDetails()
+        bucket_details.storage_tier = module.params["storage_tier"]
+    elif bucket_details_type == "update":
+        bucket_details = UpdateBucketDetails()
+
+    bucket_details.compartment_id = module.params["compartment_id"]
+    bucket_details.name = module.params["name"]
+    bucket_details.public_access_type = module.params["public_access_type"]
+    bucket_details.kms_key_id = module.params["kms_key_id"]
+    bucket_details.metadata = module.params["metadata"]
+
+    return bucket_details
+
+
 def create_bucket(object_storage_client, module):
     namespace_name = module.params["namespace_name"]
-    create_bucket_details = oci_utils.bucket_details_factory("create", module)
+    create_bucket_details = bucket_details_factory("create", module)
 
     return object_storage_client.create_bucket(namespace_name, create_bucket_details)
 
@@ -200,7 +227,7 @@ def create_bucket(object_storage_client, module):
 def update_bucket(object_storage_client, module):
     namespace_name = module.params["namespace_name"]
     bucket_name = module.params["name"]
-    update_bucket_details = oci_utils.bucket_details_factory("update", module)
+    update_bucket_details = bucket_details_factory("update", module)
 
     return object_storage_client.update_bucket(
         namespace_name, bucket_name, update_bucket_details
@@ -306,7 +333,7 @@ def main():
                 type="str",
                 required=False,
                 default="NoPublicAccess",
-                choices=["NoPublicAccess", "ObjectRead"],
+                choices=["NoPublicAccess", "ObjectRead", "ObjectReadWithoutList"],
             ),
             metadata=dict(type="dict", default={}),
             state=dict(
@@ -315,6 +342,13 @@ def main():
                 default="present",
                 choices=["present", "absent"],
             ),
+            storage_tier=dict(
+                type="str",
+                required=False,
+                default="Standard",
+                choices=["Standard", "Archive"],
+            ),
+            kms_key_id=dict(type="str", required=False),
             force=dict(type="bool", required=False, default=False),
         )
     )

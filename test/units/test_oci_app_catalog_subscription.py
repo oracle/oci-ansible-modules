@@ -7,9 +7,8 @@
 import pytest
 from nose.plugins.skip import SkipTest
 from ansible.module_utils import six
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_utils, oci_date_utils
 from ansible.modules.cloud.oracle import oci_app_catalog_subscription
-from datetime import datetime
 
 try:
     import oci
@@ -59,7 +58,7 @@ def get_app_catalog_subscription_patch(mocker):
 
 @pytest.fixture()
 def parse_iso8601_str_as_datetime_patch(mocker):
-    return mocker.patch.object(oci_utils, "parse_iso8601_str_as_datetime")
+    return mocker.patch.object(oci_date_utils, "parse_iso8601_str_as_datetime")
 
 
 def get_app_catalog_subscription(**kwargs):

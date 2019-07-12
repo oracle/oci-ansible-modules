@@ -72,6 +72,19 @@ def setUpModule():
     oci_bucket.set_logger(logging)
 
 
+def test_bucket_details_factory_create_bucket():
+    bucket_details = oci_bucket.bucket_details_factory("create", get_module())
+    assert "Standard" in bucket_details.storage_tier
+    assert "testbucket" in bucket_details.name
+
+
+def test_bucket_details_factory_update_bucket():
+    bucket_details = oci_bucket.bucket_details_factory("update", get_module())
+    # Update operation has to storage_tier option
+    assert "storage_tier" not in bucket_details.attribute_map
+    assert "testbucket" in bucket_details.name
+
+
 def test_create_or_update_bucket_create_success(
     object_storage_client, get_existing_bucket_patch
 ):
@@ -263,6 +276,8 @@ def get_module():
         "compartment_id": "test_compartment_axxd",
         "public_access_type": "NoPublicAccess",
         "metadata": {"org": "oracle"},
+        "storage_tier": "Standard",
+        "kms_key_id": None,
         "force": False,
     }
     module = FakeModule(**params)

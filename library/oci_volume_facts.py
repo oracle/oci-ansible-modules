@@ -149,9 +149,9 @@ volumes:
             type: datetime
             sample: 2017-11-22T19:40:08.871000+00:00
         attached_instance_information:
-            description: Information of instance currently attached to the block volume.
+            description: Information of instances currently attached to the block volume.
             returned: always
-            type: dict
+            type: list
             contains:
                 attachment_type:
                     description: The type of volume attachment.
@@ -238,7 +238,7 @@ volumes:
                 "type": "volume"
                 },
                 "time_created": "2017-12-05T15:35:28.747000+00:00",
-                "attached_instance_information": {
+                "attached_instance_information": [{
                             "attachment_type": "iscsi",
                             "availability_domain": "IwGV:US-ASHBURN-AD-2",
                             "chap_secret": null,
@@ -253,7 +253,7 @@ volumes:
                             "port": 3260,
                             "time_created": "2017-12-04T12:48:56.497000+00:00",
                             "volume_id": "ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx"
-                }
+                }]
     }]
 """
 
@@ -282,7 +282,7 @@ def add_attached_instance_info(module, volumes, lookup_attached_instance):
             try:
                 volume[
                     "attached_instance_information"
-                ] = oci_utils.get_attached_instance_info(
+                ] = oci_utils.get_attached_instances_info(
                     module,
                     lookup_attached_instance,
                     list_attachments_fn=compute_client.list_volume_attachments,

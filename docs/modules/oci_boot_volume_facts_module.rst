@@ -314,11 +314,11 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="2">
                     <b>attached_instance_information</b>
-                    <br/><div style="font-size: small; color: red">dict</div>
+                    <br/><div style="font-size: small; color: red">list</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>Information of the instance the boot volume is attached to.</div>
+                                            <div>Information of the instances the boot volume is attached to.</div>
                                         <br/>
                                     </td>
             </tr>

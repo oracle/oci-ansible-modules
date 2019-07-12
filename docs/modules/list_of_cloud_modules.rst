@@ -148,6 +148,8 @@ Oracle
   * :ref:`oci_local_peering_gateway_facts_module` 
   * :ref:`oci_mount_target_module` 
   * :ref:`oci_mount_target_facts_module` 
+  * :ref:`oci_namespace_facts_module` 
+  * :ref:`oci_namespace_metadata_facts_module` 
   * :ref:`oci_nat_gateway_module` 
   * :ref:`oci_nat_gateway_facts_module` 
   * :ref:`oci_node_pool_module` 

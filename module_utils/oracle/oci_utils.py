@@ -28,8 +28,6 @@ try:
         MaximumWaitTimeExceeded,
     )
     from oci.identity.identity_client import IdentityClient
-    from oci.object_storage.models import CreateBucketDetails
-    from oci.object_storage.models import UpdateBucketDetails
     from oci.retry import RetryStrategyBuilder
     from oci.util import to_dict, Sentinel
 
@@ -41,7 +39,7 @@ except ImportError:
 from ansible.module_utils.basic import _load_params
 from ansible.module_utils._text import to_bytes
 
-__version__ = "1.9.0"
+__version__ = "1.10.0"
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -376,21 +374,6 @@ def _merge_auth_option(
             )
         )
         config.update({config_attr_name: auth_attribute})
-
-
-def bucket_details_factory(bucket_details_type, module):
-    bucket_details = None
-    if bucket_details_type == "create":
-        bucket_details = CreateBucketDetails()
-    elif bucket_details_type == "update":
-        bucket_details = UpdateBucketDetails()
-
-    bucket_details.compartment_id = module.params["compartment_id"]
-    bucket_details.name = module.params["name"]
-    bucket_details.public_access_type = module.params["public_access_type"]
-    bucket_details.metadata = module.params["metadata"]
-
-    return bucket_details
 
 
 def filter_resources(all_resources, filter_params):
@@ -2097,7 +2080,7 @@ def get_existing_resource(target_fn, module, **kwargs):
     return existing_resource
 
 
-def get_attached_instance_info(
+def get_attached_instances_info(
     module, lookup_attached_instance, list_attachments_fn, list_attachments_args
 ):
     config = get_oci_config(module)
@@ -2134,15 +2117,15 @@ def get_attached_instance_info(
     volume_attachments = to_dict(volume_attachments)
     # volume_attachments has attachments in DETACHING or DETACHED state. Return the volume attachment in ATTACHING or
     # ATTACHED state
+    volume_attachments_filtered = []
+    for volume_attachment in volume_attachments:
+        if volume_attachment["lifecycle_state"] in ["ATTACHING", "ATTACHED"]:
+            volume_attachments_filtered.append(volume_attachment)
 
-    return next(
-        (
-            volume_attachment
-            for volume_attachment in volume_attachments
-            if volume_attachment["lifecycle_state"] in ["ATTACHING", "ATTACHED"]
-        ),
-        None,
-    )
+    if volume_attachments_filtered:
+        return volume_attachments_filtered
+    else:
+        return None
 
 
 def check_mode(fn):
@@ -2237,33 +2220,3 @@ def get_target_resource_from_list(
         return ResponseWrapper(data=None)
     except ServiceError as ex:
         module.fail_json(msg=ex.message)
-
-
-def parse_iso8601_str_as_datetime(date_string):
-    """
-    Converts string to datetime.
-
-    The string should be in iso8601 datetime format.
-
-    :param string: str.
-    :return: datetime.
-    """
-    if not date_string:
-        return None
-    if not isinstance(date_string, six.string_types):
-        return None
-    date_string = date_string.replace("+00:00", "Z")
-    try:
-        naivedatetime = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ")
-    except ValueError:
-        pass
-    else:
-        return naivedatetime
-
-    try:
-        # try without microsecond
-        naivedatetime = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
-    except ValueError:
-        return None
-    else:
-        return naivedatetime

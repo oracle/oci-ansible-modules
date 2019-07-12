@@ -95,7 +95,11 @@ vcn:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_utils, oci_common_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    OCIResourceHelperBase,
+    get_custom_class,
+)
 
 try:
     from oci.core.virtual_network_client import VirtualNetworkClient
@@ -107,50 +111,64 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-def delete_vcn(virtual_network_client, module):
-    result = oci_utils.delete_and_wait(
-        resource_type="vcn",
-        client=virtual_network_client,
-        get_fn=virtual_network_client.get_vcn,
-        kwargs_get={"vcn_id": module.params["vcn_id"]},
-        delete_fn=virtual_network_client.delete_vcn,
-        kwargs_delete={"vcn_id": module.params["vcn_id"]},
-        module=module,
-    )
-    return result
+class VcnHelperGen(OCIResourceHelperBase):
+    @staticmethod
+    def get_module_resource_id_param():
+        return "vcn_id"
+
+    def get_module_resource_id(self):
+        return self.module.params.get("vcn_id")
+
+    def get_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.get_vcn, vcn_id=self.module.params.get("vcn_id")
+        )
+
+    def list_resources(self):
+        return oci_utils.list_all_resources(
+            self.client.list_vcns,
+            compartment_id=self.module.params.get("compartment_id"),
+        )
+
+    def get_create_model(self):
+        create_vcn_details = CreateVcnDetails()
+        for attr in create_vcn_details.attribute_map:
+            if self.module.params.get(attr) is not None:
+                setattr(create_vcn_details, attr, self.module.params[attr])
+        return create_vcn_details
+
+    def create_resource(self):
+        create_vcn_details = self.get_create_model()
+        return oci_common_utils.call_with_backoff(
+            self.client.create_vcn, create_vcn_details=create_vcn_details
+        )
+
+    def get_update_model(self):
+        update_vcn_details = UpdateVcnDetails()
+        for attr in update_vcn_details.attribute_map:
+            if self.module.params.get(attr) is not None:
+                setattr(update_vcn_details, attr, self.module.params[attr])
+        return update_vcn_details
+
+    def update_resource(self):
+        update_vcn_details = self.get_update_model()
+        return oci_common_utils.call_with_backoff(
+            self.client.update_vcn,
+            vcn_id=self.module.params.get("vcn_id"),
+            update_vcn_details=update_vcn_details,
+        )
+
+    def delete_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.delete_vcn, vcn_id=self.module.params.get("vcn_id")
+        )
 
 
-def update_vcn(virtual_network_client, module):
-    result = oci_utils.check_and_update_resource(
-        resource_type="vcn",
-        client=virtual_network_client,
-        get_fn=virtual_network_client.get_vcn,
-        kwargs_get={"vcn_id": module.params["vcn_id"]},
-        update_fn=virtual_network_client.update_vcn,
-        primitive_params_update=["vcn_id"],
-        kwargs_non_primitive_update={UpdateVcnDetails: "update_vcn_details"},
-        module=module,
-        update_attributes=UpdateVcnDetails().attribute_map.keys(),
-    )
-    return result
+VcnHelperCustom = get_custom_class("VcnHelperCustom")
 
 
-def create_vcn(virtual_network_client, module):
-    create_vcn_details = CreateVcnDetails()
-    for attribute in create_vcn_details.attribute_map.keys():
-        if attribute in module.params:
-            setattr(create_vcn_details, attribute, module.params[attribute])
-
-    result = oci_utils.create_and_wait(
-        resource_type="vcn",
-        create_fn=virtual_network_client.create_vcn,
-        kwargs_create={"create_vcn_details": create_vcn_details},
-        client=virtual_network_client,
-        get_fn=virtual_network_client.get_vcn,
-        get_param="vcn_id",
-        module=module,
-    )
-    return result
+class ResourceHelper(VcnHelperCustom, VcnHelperGen):
+    pass
 
 
 def main():
@@ -175,46 +193,27 @@ def main():
 
     module = AnsibleModule(
         argument_spec=module_args,
-        supports_check_mode=False,
+        supports_check_mode=True,
         mutually_exclusive=[["compartment_id", "vcn_id"]],
     )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(
-        module, VirtualNetworkClient
+    resource_helper = ResourceHelper(
+        module=module, resource_type="vcn", service_client_class=VirtualNetworkClient
     )
 
-    exclude_attributes = {"display_name": True, "dns_label": True}
-    state = module.params["state"]
-    vcn_id = module.params["vcn_id"]
+    result = dict(changed=False)
 
-    if state == "absent":
-        if vcn_id is not None:
-            result = delete_vcn(virtual_network_client, module)
-        else:
-            module.fail_json(
-                msg="Specify vcn_id with state as 'absent' to delete a VCN."
-            )
-
-    else:
-        if vcn_id is not None:
-            result = update_vcn(virtual_network_client, module)
-        else:
-            result = oci_utils.check_and_create_resource(
-                resource_type="vcn",
-                create_fn=create_vcn,
-                kwargs_create={
-                    "virtual_network_client": virtual_network_client,
-                    "module": module,
-                },
-                list_fn=virtual_network_client.list_vcns,
-                kwargs_list={"compartment_id": module.params["compartment_id"]},
-                module=module,
-                model=CreateVcnDetails(),
-                exclude_attributes=exclude_attributes,
-            )
+    if resource_helper.is_delete():
+        result = resource_helper.delete()
+    elif resource_helper.is_update():
+        result = resource_helper.update()
+    elif resource_helper.is_create():
+        result = resource_helper.create()
+    elif resource_helper.is_action():
+        result = resource_helper.perform_action(module.params.get("state"))
 
     module.exit_json(**result)
 
