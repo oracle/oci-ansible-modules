@@ -124,9 +124,9 @@ boot_volumes:
             type: datetime
             sample: 2017-11-22T19:40:08.871000+00:00
         attached_instance_information:
-            description: Information of the instance the boot volume is attached to.
+            description: Information of the instances the boot volume is attached to.
             returned: always
-            type: dict
+            type: list
             contains:
                 availability_domain:
                     description: The Availability Domain of an instance.
@@ -215,7 +215,7 @@ def add_attached_instance_info(module, boot_volumes, lookup_attached_instance):
             try:
                 boot_volume[
                     "attached_instance_information"
-                ] = oci_utils.get_attached_instance_info(
+                ] = oci_utils.get_attached_instances_info(
                     module,
                     lookup_attached_instance,
                     list_attachments_fn=compute_client.list_boot_volume_attachments,

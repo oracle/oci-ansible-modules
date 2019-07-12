@@ -132,13 +132,15 @@ vcns:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    OCIResourceFactsHelperBase,
+    get_custom_class,
+)
 
 
 try:
     from oci.core.virtual_network_client import VirtualNetworkClient
-    from oci.util import to_dict
-    from oci.exceptions import ServiceError
 
     HAS_OCI_PY_SDK = True
 
@@ -146,8 +148,41 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
+class VcnFactsHelperGen(OCIResourceFactsHelperBase):
+    def get_required_params_for_get(self):
+        return ["vcn_id"]
+
+    def get_required_params_for_list(self):
+        return ["compartment_id"]
+
+    def get_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.get_vcn, vcn_id=self.module.params.get("vcn_id")
+        )
+
+    def list_resources(self):
+        optional_list_method_params = ["display_name", "lifecycle_state"]
+        optional_kwargs = dict(
+            (param, self.module.params[param])
+            for param in optional_list_method_params
+            if self.module.params.get(param) is not None
+        )
+        return oci_common_utils.list_all_resources(
+            self.client.list_vcns,
+            compartment_id=self.module.params.get("compartment_id"),
+            **optional_kwargs
+        )
+
+
+VcnFactsHelperCustom = get_custom_class("VcnFactsHelperCustom")
+
+
+class ResourceFactsHelper(VcnFactsHelperCustom, VcnFactsHelperGen):
+    pass
+
+
 def main():
-    module_args = oci_utils.get_facts_module_arg_spec()
+    module_args = oci_common_utils.get_facts_module_arg_spec()
     module_args.update(
         dict(
             compartment_id=dict(type="str", required=False),
@@ -165,47 +200,18 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(
-        module, VirtualNetworkClient
+    resource_facts_helper = ResourceFactsHelper(
+        module=module, resource_type="vcn", service_client_class=VirtualNetworkClient
     )
 
-    vcn_id = module.params["vcn_id"]
-    compartment_id = module.params["compartment_id"]
     result = []
 
-    if vcn_id is not None:
-        try:
-            result = [
-                to_dict(
-                    oci_utils.call_with_backoff(
-                        virtual_network_client.get_vcn, vcn_id=vcn_id
-                    ).data
-                )
-            ]
-        except ServiceError as ex:
-            module.fail_json(msg=ex.message)
-    elif compartment_id is not None:
-        try:
-            optional_list_method_params = ["display_name", "lifecycle_state"]
-            optional_kwargs = dict(
-                (param, module.params[param])
-                for param in optional_list_method_params
-                if module.params.get(param) is not None
-            )
-            result = to_dict(
-                oci_utils.list_all_resources(
-                    virtual_network_client.list_vcns,
-                    compartment_id=compartment_id,
-                    **optional_kwargs
-                )
-            )
-        except ServiceError as ex:
-            module.fail_json(msg=ex.message)
+    if resource_facts_helper.is_get():
+        result = resource_facts_helper.get()
+    elif resource_facts_helper.is_list():
+        result = resource_facts_helper.list()
     else:
-        module.fail_json(
-            msg="Specify a compartment_id to get all the VCNs in the compartment or a vcn_id to retrieve \
-                            a specific VCN"
-        )
+        resource_facts_helper.fail()
 
     module.exit_json(vcns=result)
 

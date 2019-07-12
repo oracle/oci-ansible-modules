@@ -173,6 +173,9 @@ options:
                                 description: The OCID of the image used to boot the instance. Required if
                                              I(source_type) is "image".
                                 required: false
+                            boot_volume_size_in_gbs:
+                                description: The size of the boot volume in GBs. The minimum value is 50 GB
+                                             and the maximum value is 16384 GB (16TB).
                             boot_volume_id:
                                 description: The OCID of the boot volume used to boot the instance. Required
                                              if I(source_type) is "bootVolume".
@@ -511,6 +514,10 @@ instance_configuration:
                                     description: The OCID of the image used to boot the instance. Required if
                                                  I(source_type) is "image".
                                     required: false
+                                boot_volume_size_in_gbs:
+                                    description: The size of the boot volume in GBs. The minimum value is 50 GB
+                                                 and the maximum value is 16384 GB (16TB).
+                                    type: int
                                 boot_volume_id:
                                     description: The OCID of the boot volume used to boot the instance. Required
                                                  if I(source_type) is "bootVolume".

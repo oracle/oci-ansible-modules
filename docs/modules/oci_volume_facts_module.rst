@@ -269,7 +269,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of volume information</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'lifecycle_state': 'AVAILABLE', 'availability_domain': 'IwGV:US-ASHBURN-AD-2', 'display_name': 'ansible_test_volume', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'attached_instance_information': {'lifecycle_state': 'ATTACHED', 'availability_domain': 'IwGV:US-ASHBURN-AD-2', 'display_name': 'volumeattachment20171204124856', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'chap_username': None, 'time_created': '2017-12-04T12:48:56.497000+00:00', 'id': 'ocid1.volumeattachment.oc1.iad.xxxxxEXAMPLExxxxx', 'instance_id': 'ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx', 'iqn': 'iqn.2015-12.com.oracleiaas:8ea342ff-4687-4038-b733-d20cb1025b48', 'ipv4': '169.254.2.7', 'volume_id': 'ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx', 'attachment_type': 'iscsi', 'port': 3260, 'chap_secret': None}, 'size_in_mbs': 51200, 'time_created': '2017-12-05T15:35:28.747000+00:00', 'source_details': {'type': 'volume', 'id': 'ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx'}, 'size_in_gbs': 50, 'is_hydrated': True, 'id': 'ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'lifecycle_state': 'AVAILABLE', 'availability_domain': 'IwGV:US-ASHBURN-AD-2', 'display_name': 'ansible_test_volume', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'attached_instance_information': [{'lifecycle_state': 'ATTACHED', 'availability_domain': 'IwGV:US-ASHBURN-AD-2', 'display_name': 'volumeattachment20171204124856', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'chap_username': None, 'time_created': '2017-12-04T12:48:56.497000+00:00', 'id': 'ocid1.volumeattachment.oc1.iad.xxxxxEXAMPLExxxxx', 'instance_id': 'ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx', 'iqn': 'iqn.2015-12.com.oracleiaas:8ea342ff-4687-4038-b733-d20cb1025b48', 'ipv4': '169.254.2.7', 'volume_id': 'ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx', 'attachment_type': 'iscsi', 'port': 3260, 'chap_secret': None}], 'size_in_mbs': 51200, 'time_created': '2017-12-05T15:35:28.747000+00:00', 'source_details': {'type': 'volume', 'id': 'ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx'}, 'size_in_gbs': 50, 'is_hydrated': True, 'id': 'ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx'}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -332,11 +332,11 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="2">
                     <b>attached_instance_information</b>
-                    <br/><div style="font-size: small; color: red">dict</div>
+                    <br/><div style="font-size: small; color: red">list</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>Information of instance currently attached to the block volume.</div>
+                                            <div>Information of instances currently attached to the block volume.</div>
                                         <br/>
                                     </td>
             </tr>

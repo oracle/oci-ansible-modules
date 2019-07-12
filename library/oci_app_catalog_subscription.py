@@ -133,7 +133,7 @@ app_catalog_subscription:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_utils, oci_date_utils
 
 try:
     from oci.core.compute_client import ComputeClient
@@ -192,13 +192,9 @@ def create_app_catalog_subscription(compute_client, module):
         setattr(create_app_catalog_subscription_details, attr, module.params.get(attr))
     # The time retrieved passed to the ansible module as string. Convert to datetime.
     # If there is an error converting to date, pass the original string to the API.
-    agreement_time_retrieved_as_date = oci_utils.parse_iso8601_str_as_datetime(
+    create_app_catalog_subscription_details.time_retrieved = oci_date_utils.parse_iso8601_str_as_datetime(
         create_app_catalog_subscription_details.time_retrieved
     )
-    if agreement_time_retrieved_as_date:
-        create_app_catalog_subscription_details.time_retrieved = (
-            agreement_time_retrieved_as_date
-        )
     oci_utils.to_dict(
         oci_utils.call_with_backoff(
             compute_client.create_app_catalog_subscription,

@@ -849,92 +849,80 @@ waas_policy:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils, oci_waas_utils
-
+from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    OCIResourceHelperBase,
+    get_custom_class,
+)
 
 try:
     from oci.waas.waas_client import WaasClient
     from oci.waas.models import CreateWaasPolicyDetails
     from oci.waas.models import UpdateWaasPolicyDetails
-    from oci.util import to_dict
 
     HAS_OCI_PY_SDK = True
 
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-RESOURCE_TYPE = "waas_policy"
+
+class WaasPolicyHelperGen(OCIResourceHelperBase):
+    @staticmethod
+    def get_module_resource_id_param():
+        return "waas_policy_id"
+
+    def get_module_resource_id(self):
+        return self.module.params.get("waas_policy_id")
+
+    def get_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.get_waas_policy,
+            waas_policy_id=self.module.params.get("waas_policy_id"),
+        )
+
+    def get_create_model_class(self):
+        return CreateWaasPolicyDetails
+
+    def get_update_model_class(self):
+        return UpdateWaasPolicyDetails
+
+    def list_resources(self):
+        return oci_common_utils.list_all_resources(
+            self.client.list_waas_policies,
+            compartment_id=self.module.params.get("compartment_id"),
+        )
+
+    def create_resource(self):
+        create_waas_policy_details = self.get_create_model()
+        return oci_common_utils.call_with_backoff(
+            self.client.create_waas_policy,
+            create_waas_policy_details=create_waas_policy_details,
+        )
+
+    def update_resource(self):
+        update_waas_policy_details = self.get_update_model()
+        return oci_common_utils.call_with_backoff(
+            self.client.update_waas_policy,
+            waas_policy_id=self.module.params.get("waas_policy_id"),
+            update_waas_policy_details=update_waas_policy_details,
+        )
+
+    def delete_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.delete_waas_policy,
+            waas_policy_id=self.module.params.get("waas_policy_id"),
+        )
 
 
-def create_waas_policy(waas_client, module):
-    create_waas_policy_details = oci_waas_utils.get_waas_policy_create_model(module)
-    result = oci_utils.create_and_wait_on_work_request(
-        resource_type=RESOURCE_TYPE,
-        create_fn=waas_client.create_waas_policy,
-        kwargs_create={"create_waas_policy_details": create_waas_policy_details},
-        module=module,
-        client=waas_client,
-        get_resource_from_work_request_response_fn=oci_waas_utils.get_waas_policy_from_work_request_response,
-    )
-    return result
+WaasPolicyHelperCustom = get_custom_class("WaasPolicyHelperCustom")
 
 
-def update_waas_policy(waas_client, module):
-    origins = oci_waas_utils.get_waas_origins(module)
-    policy_config = oci_waas_utils.get_waas_policy_config(module)
-    waf_config = oci_waas_utils.get_waf_config_for_update(module)
-    result = oci_utils.check_and_update_resource(
-        resource_type=RESOURCE_TYPE,
-        client=waas_client,
-        get_fn=waas_client.get_waas_policy,
-        kwargs_get={"waas_policy_id": module.params["waas_policy_id"]},
-        update_fn=waas_client.update_waas_policy,
-        primitive_params_update=["waas_policy_id"],
-        kwargs_non_primitive_update={
-            UpdateWaasPolicyDetails: "update_waas_policy_details"
-        },
-        module=module,
-        update_attributes=UpdateWaasPolicyDetails().attribute_map.keys(),
-        sub_attributes_of_update_model={
-            "origins": origins,
-            "policy_config": policy_config,
-            "waf_config": waf_config,
-        },
-    )
-    return result
-
-
-def delete_waas_policy(waas_client, module):
-    result = oci_utils.delete_and_wait(
-        resource_type=RESOURCE_TYPE,
-        client=waas_client,
-        get_fn=waas_client.get_waas_policy,
-        kwargs_get={"waas_policy_id": module.params["waas_policy_id"]},
-        delete_fn=waas_client.delete_waas_policy,
-        kwargs_delete={"waas_policy_id": module.params["waas_policy_id"]},
-        module=module,
-    )
-    return result
-
-
-def list_waas_policies(waas_client, module):
-    if not module.params.get("compartment_id"):
-        module.fail_json("compartment_id required to list waas policies.")
-    compartment_id = module.params["compartment_id"]
-    return to_dict(
-        [
-            oci_utils.call_with_backoff(
-                waas_client.get_waas_policy, waas_policy_id=waas_policy.id
-            ).data
-            for waas_policy in oci_utils.list_all_resources(
-                waas_client.list_waas_policies, compartment_id=compartment_id
-            )
-        ]
-    )
+class ResourceHelper(WaasPolicyHelperCustom, WaasPolicyHelperGen):
+    pass
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(
+    module_args = oci_common_utils.get_taggable_arg_spec(
         supports_create=True, supports_wait=True
     )
     module_args.update(
@@ -962,43 +950,23 @@ def main():
         mutually_exclusive=[("compartment_id", "waas_policy_id")],
     )
 
-    waas_client = oci_utils.create_service_client(module, WaasClient)
-    exclude_attributes = {"display_name": True}
-    exclude_attributes_even_when_user_provides_value = {"waf_config": True}
-    state = module.params["state"]
-    waas_policy_id = module.params["waas_policy_id"]
+    if not HAS_OCI_PY_SDK:
+        module.fail_json(msg="oci python sdk required for this module.")
 
-    if state == "absent":
-        if not waas_policy_id:
-            module.fail_json(
-                msg="Specify waas_policy_id with state as 'absent' to delete the waas policy."
-            )
-        result = delete_waas_policy(waas_client, module)
+    resource_helper = ResourceHelper(
+        module=module, resource_type="waas_policy", service_client_class=WaasClient
+    )
 
-    else:
-        if waas_policy_id:
-            result = update_waas_policy(waas_client, module)
-        else:
-            result = oci_utils.check_and_create_resource(
-                resource_type="waas_policy",
-                create_fn=create_waas_policy,
-                kwargs_create={"waas_client": waas_client, "module": module},
-                list_fn=waas_client.list_waas_policies,
-                kwargs_list={"compartment_id": module.params["compartment_id"]},
-                module=module,
-                model=CreateWaasPolicyDetails(),
-                exclude_attributes=exclude_attributes,
-                exclude_attributes_even_when_user_provides_value=exclude_attributes_even_when_user_provides_value,
-                default_attribute_values={
-                    "policy_config": {
-                        "certificate_id": None,
-                        "is_https_enabled": False,
-                        "is_https_forced": False,
-                    }
-                },
-                get_resource_from_summary_fn=oci_waas_utils.get_waas_policy_from_summary_resource,
-                get_resource_from_summary_fn_kwargs={"waas_client": waas_client},
-            )
+    result = dict(changed=False)
+
+    if resource_helper.is_delete():
+        result = resource_helper.delete()
+    elif resource_helper.is_update():
+        result = resource_helper.update()
+    elif resource_helper.is_create():
+        result = resource_helper.create()
+    elif resource_helper.is_action():
+        result = resource_helper.perform_action(module.params.get("state"))
 
     module.exit_json(**result)
 

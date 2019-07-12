@@ -1,12 +1,12 @@
-:source: cloud/oracle/oci_bucket.py
+:source: cloud/oracle/oci_namespace_metadata_facts.py
 
 :orphan:
 
-.. _oci_bucket_module:
+.. _oci_namespace_metadata_facts_module:
 
 
-oci_bucket - Create,update and delete oci buckets
-+++++++++++++++++++++++++++++++++++++++++++++++++
+oci_namespace_metadata_facts - Gets the metadata for the Object Storage namespace
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,9 +17,7 @@ oci_bucket - Create,update and delete oci buckets
 
 Synopsis
 --------
-- Creates OCI bucket if not present.
-- Update OCI bucket, if present.
-- Delete OCI bucket, if present.
+- Gets the metadata for the Object Storage namespace, which contains defaultS3CompartmentId and defaultSwiftCompartmentId.
 
 
 
@@ -98,16 +96,6 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>compartment_id</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>Identifier of the compartment in which the bucket is available or should be available. Mandatory for <em>state=present</em>. Not required for <em>state=absent</em></div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
                     <b>config_file_location</b>
                                                                             </td>
                                 <td>
@@ -128,71 +116,12 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>force</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
-                                <td>
-                                                                                                                                                                        <ul><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>If <em>force='no'</em> and the bucket contains objects and pre-authenticared request at the bucket level, bucket will not be deleted. To delete a bucket which has objects and pre-authenticated request at the bucket level, <em>force='yes'</em> should be specified.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>kms_key_id</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>The OCID of a KMS key id used to call KMS to generate the data key or decrypt the encrypted data key.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>metadata</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>Use defined metadata dict(str,str) for the bucket. Limit is 4KB.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>name</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>Name of the bucket. Bucket name must be unique within a namespace. For naming conventions, refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/Object/Tasks/managingbuckets.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/Object/Tasks/managingbuckets.htm</a></div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
                     <b>namespace_name</b>
                                         <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Name of the namespace in which the bucket is available or should be available</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>public_access_type</b>
-                                                                            </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li>ObjectRead</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>NoPublicAccess</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>ObjectReadWithoutList</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>The type of public access  of the bucket. By default, no public access is allowed on the bucket. If <em>public_access_type=ObjectRead</em>, user can perform read operation on the bucket.</div>
+                                                                        <div>The Object Storage namespace.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -203,34 +132,6 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>The Oracle Cloud Infrastructure region to use for all OCI API requests. If not set, then the value of the OCI_REGION variable, if any, is used. This option is required if the region is not specified through a configuration file (See <code>config_file_location</code>). Please refer to <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/regions.htm</a> for more information on OCI regions.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>state</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>absent</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>Decides whether to create,update or delete bucket. For <em>state=present</em>, if the bucket does not exist, it gets created. If it exists, it gets updated. For <em>state=absent</em>, the bucket gets deleted.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>storage_tier</b>
-                                                                            </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>Standard</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>Archive</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>The type of storage tier of this bucket. The bucket will be put in the standard storage tier. When 'Archive' tier type is set explicitly, the bucket is put in the Archive Storage tier. This property is immutable after bucket is created.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -260,28 +161,9 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    #Note: These examples do not set authentication details.
-
-    #Bucket creation or update
-    - name: Create or Update bucket
-      oci_bucket:
-        namespace_name: 'ansibletestspace'
-        compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
-        name: 'AnsibleTestBucket'
-        public_access_type: 'NoPublicAccess'
-        metadata:
-            project: 'Test Project'
-        state: 'present'
-
-    #Delete bucket
-    - name: Delete bucket with 'force' to delete the bucket
-            along with all the containing objects
-      oci_bucket:
-        namespace_name: 'ansibletestspace'
-        name: 'AnsibleTestBucket'
-        force: 'yes'
-        state: 'absent'
-
+    - name: Get the object storage namespace metadata
+      oci_namespace_metadata_facts:
+        namespace_name: examplenamespace
 
 
 
@@ -294,24 +176,65 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
 
     <table border=0 cellpadding=0 class="documentation-table">
         <tr>
-            <th colspan="1">Key</th>
+            <th colspan="2">Key</th>
             <th>Returned</th>
             <th width="100%">Description</th>
         </tr>
                     <tr>
-                                <td colspan="1">
-                    <b>bucket</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                                <td colspan="2">
+                    <b>namespace_metadatas</b>
+                    <br/><div style="font-size: small; color: red">complex</div>
                                     </td>
-                <td>success</td>
+                <td>on success</td>
                 <td>
-                                            <div>Attributes of the created/updated bucket. Applicable only for create and update.</div>
+                                            <div>The metadata for the Object Storage namespace, which contains defaultS3CompartmentId and defaultSwiftCompartmentId.</div>
                                         <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'name': 'AnsibleTestBucket', 'compartment_id': 'ocid1....62xq', 'namespace': 'ansibletestspace', 'created_by': 'ocid1.user.oc1..xxxxxEXAMPLExxxxx..qndq', 'etag': 'cb734ffe-da3a-48f4-....-161fd4604cf1', 'time_created': '2017-10-01T11:30:33.655000+00:00', 'public_access_type': 'ObjectRead', 'metadata': {}}</div>
                                     </td>
             </tr>
-                        </table>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>namespace</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                            <div>The Object Storage namespace to which the metadata belongs.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">examplenamespace</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>default_s3_compartment_id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                            <div>The default compartment assignment for the Amazon S3 Compatibility API.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>default_swift_compartment_id</b>
+                    <br/><div style="font-size: small; color: red">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                            <div>The default compartment assignment for the Swift API.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx</div>
+                                    </td>
+            </tr>
+                    
+                                        </table>
     <br/><br/>
 
 
@@ -330,8 +253,8 @@ This module is flagged as **preview** which means that it is not guaranteed to h
 Author
 ~~~~~~
 
-- Debayan Gupta(@debayan_gupta)
+- Manoj Meda (@manojmeda)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_bucket.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_namespace_metadata_facts.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

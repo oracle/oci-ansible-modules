@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2019-07-12
+
+### Added
+- Fact modules `oci_namespace_facts` and `oci_namespace_metadata_facts` modules to fetch object storage namespace details.
+- Added the following features in existing modules:
+    - Add support for ObjectReadWithoutList access_type for buckets `oci_bucket` module.
+
+### Changed
+- Minimum supported OCI Python SDK to `2.2.13`
+
+### Breaking Change
+- In multiple volume modules, the type for the return value `attached_instance_information` is changed to a list instead of a dict.
+  This will support returning multiple attached instances to a volume.
+
 ## [1.9.0] - 2019-06-01
 
 ### Added

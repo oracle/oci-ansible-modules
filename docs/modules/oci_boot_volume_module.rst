@@ -445,7 +445,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about the boot volume</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'AVAILABLE', 'availability_domain': 'IwGV:US-ASHBURN-AD-1', 'display_name': 'demo-20171214-100_bastion_instance (Boot Volume)', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'attached_instance_information': {'boot_volume_id': 'ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx', 'availability_domain': 'IwGV:US-ASHBURN-AD-1', 'display_name': 'Remote boot attachment for instance', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'lifecycle_state': 'ATTACHED', 'time_created': '2018-01-14T19:02:49.085000+00:00', 'instance_id': 'ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx', 'id': 'ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx'}, 'size_in_mbs': 47694, 'time_created': '2018-01-14T19:02:49.042000+00:00', 'image_id': 'ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx', 'size_in_gbs': 46, 'id': 'ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'AVAILABLE', 'availability_domain': 'IwGV:US-ASHBURN-AD-1', 'display_name': 'demo-20171214-100_bastion_instance (Boot Volume)', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'attached_instance_information': [{'boot_volume_id': 'ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx', 'availability_domain': 'IwGV:US-ASHBURN-AD-1', 'display_name': 'Remote boot attachment for instance', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'lifecycle_state': 'ATTACHED', 'time_created': '2018-01-14T19:02:49.085000+00:00', 'instance_id': 'ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx', 'id': 'ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx'}], 'size_in_mbs': 47694, 'time_created': '2018-01-14T19:02:49.042000+00:00', 'image_id': 'ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx', 'size_in_gbs': 46, 'id': 'ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx'}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -508,11 +508,11 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="2">
                     <b>attached_instance_information</b>
-                    <br/><div style="font-size: small; color: red">dict</div>
+                    <br/><div style="font-size: small; color: red">list</div>
                                     </td>
                 <td>In experimental mode.</td>
                 <td>
-                                            <div>Information of the instance the boot volume is attached to.</div>
+                                            <div>Information of the instances the boot volume is attached to.</div>
                                         <br/>
                                     </td>
             </tr>

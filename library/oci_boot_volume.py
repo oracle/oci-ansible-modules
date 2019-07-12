@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -179,9 +179,9 @@ boot_volume:
             type: datetime
             sample: 2017-11-22T19:40:08.871000+00:00
         attached_instance_information:
-            description: Information of the instance the boot volume is attached to.
+            description: Information of the instances the boot volume is attached to.
             returned: In experimental mode.
-            type: dict
+            type: list
             contains:
                 availability_domain:
                     description: The Availability Domain of an instance.
@@ -224,7 +224,7 @@ boot_volume:
                     type: string
                     sample: 2016-08-25T21:10:29.600Z
     sample: {
-                "attached_instance_information": {
+                "attached_instance_information": [{
                     "availability_domain": "IwGV:US-ASHBURN-AD-1",
                     "boot_volume_id": "ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx",
                     "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
@@ -233,7 +233,7 @@ boot_volume:
                     "instance_id": "ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx",
                     "lifecycle_state": "ATTACHED",
                     "time_created": "2018-01-14T19:02:49.085000+00:00"
-                },
+                }],
                 "availability_domain": "IwGV:US-ASHBURN-AD-1",
                 "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
                 "display_name": "demo-20171214-100_bastion_instance (Boot Volume)",
@@ -300,7 +300,7 @@ def add_attached_instance_info(module, result, lookup_attached_instance):
     try:
         result["boot_volume"][
             "attached_instance_information"
-        ] = oci_utils.get_attached_instance_info(
+        ] = oci_utils.get_attached_instances_info(
             module,
             lookup_attached_instance,
             list_attachments_fn=compute_client.list_boot_volume_attachments,

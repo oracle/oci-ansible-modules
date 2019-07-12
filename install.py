@@ -25,7 +25,7 @@ import argparse
 import os.path
 import shutil
 import sys
-
+from distutils.dir_util import copy_tree
 
 try:
     import ansible
@@ -38,7 +38,7 @@ import pkg_resources
 
 debug = False
 
-MIN_OCI_PYTHON_SDK_REQUIRED = "2.1.7"
+MIN_OCI_PYTHON_SDK_REQUIRED = "2.2.13"
 
 
 def parse_cli_args():
@@ -143,7 +143,7 @@ def main():
             utilities_src_path, utilities_dest_path
         )
     )
-    copy_files(os.listdir(utilities_src_path), utilities_src_path, utilities_dest_path)
+    copy_tree(utilities_src_path, utilities_dest_path)
 
     oracle_module_dir_path = os.path.join(ansible_path, "modules", "cloud", "oracle")
     if not os.path.exists(oracle_module_dir_path):
