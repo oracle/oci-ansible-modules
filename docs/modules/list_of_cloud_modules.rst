@@ -1,3 +1,5 @@
+:orphan:
+
 .. _cloud_modules:
 
 Cloud modules
@@ -21,6 +23,9 @@ Oracle
   * :ref:`oci_app_catalog_listing_resource_version_facts_module` 
   * :ref:`oci_app_catalog_subscription_module` 
   * :ref:`oci_app_catalog_subscription_facts_module` 
+  * :ref:`oci_audit_configuration_module` 
+  * :ref:`oci_audit_configuration_facts_module` 
+  * :ref:`oci_audit_event_facts_module` 
   * :ref:`oci_auth_token_module` 
   * :ref:`oci_auth_token_facts_module` 
   * :ref:`oci_autonomous_data_warehouse_module` 
@@ -31,6 +36,13 @@ Oracle
   * :ref:`oci_autonomous_database_backup_module` 
   * :ref:`oci_autonomous_database_backup_facts_module` 
   * :ref:`oci_autonomous_database_facts_module` 
+  * :ref:`oci_autonomous_exadata_infrastructure_module` 
+  * :ref:`oci_autonomous_exadata_infrastructure_facts_module` 
+  * :ref:`oci_autonomous_exadata_infrastructure_shape_facts_module` 
+  * :ref:`oci_autoscaling_auto_scaling_configuration_module` 
+  * :ref:`oci_autoscaling_auto_scaling_configuration_facts_module` 
+  * :ref:`oci_autoscaling_auto_scaling_configuration_policy_module` 
+  * :ref:`oci_autoscaling_auto_scaling_configuration_policy_facts_module` 
   * :ref:`oci_backup_module` 
   * :ref:`oci_backup_facts_module` 
   * :ref:`oci_boot_volume_module` 
@@ -98,9 +110,12 @@ Oracle
   * :ref:`oci_group_facts_module` 
   * :ref:`oci_identity_provider_module` 
   * :ref:`oci_identity_provider_facts_module` 
+  * :ref:`oci_identity_tag_default_module` 
+  * :ref:`oci_identity_tag_default_facts_module` 
   * :ref:`oci_idp_group_mapping_module` 
   * :ref:`oci_idp_group_mapping_facts_module` 
   * :ref:`oci_image_module` 
+  * :ref:`oci_image_actions_module` 
   * :ref:`oci_image_facts_module` 
   * :ref:`oci_instance_module` 
   * :ref:`oci_instance_configuration_module` 
@@ -157,6 +172,8 @@ Oracle
   * :ref:`oci_node_pool_options_facts_module` 
   * :ref:`oci_object_module` 
   * :ref:`oci_object_facts_module` 
+  * :ref:`oci_object_storage_object_lifecycle_policy_module` 
+  * :ref:`oci_object_storage_object_lifecycle_policy_facts_module` 
   * :ref:`oci_oke_work_request_module` 
   * :ref:`oci_oke_work_request_error_facts_module` 
   * :ref:`oci_oke_work_request_facts_module` 
@@ -196,8 +213,6 @@ Oracle
   * :ref:`oci_subnet_facts_module` 
   * :ref:`oci_suppression_module` 
   * :ref:`oci_suppression_facts_module` 
-  * :ref:`oci_swift_password_module` 
-  * :ref:`oci_swift_password_facts_module` 
   * :ref:`oci_tag_module` 
   * :ref:`oci_tag_facts_module` 
   * :ref:`oci_tag_namespace_module` 

@@ -12,6 +12,9 @@ from ansible.module_utils.oracle import oci_config_utils, oci_common_utils
 from ansible.module_utils import six
 import sys
 import re
+from ansible.module_utils.oracle import resourcehelpers, facthelpers, actionhelpers
+import pkgutil
+import inspect
 
 try:
     import oci
@@ -111,11 +114,15 @@ class OCIResourceHelperBase:
 
     def get_module_resource_id_param(self):
         """Expected to be generated inside the module."""
-        pass
+        raise NotImplementedError(
+            "{0} does not have a resource id.".format(self.resource_type)
+        )
 
     def get_module_resource_id(self):
         """Expected to be generated inside the module."""
-        pass
+        raise NotImplementedError(
+            "{0} does not have a resource id.".format(self.resource_type)
+        )
 
     def get_resource(self):
         """Expected to be generated inside the module."""
@@ -224,6 +231,18 @@ class OCIResourceHelperBase:
                 return resource
         return None
 
+    def get_compartment_id(self, resource_id_name, resource_get):
+        compartment_id = self.module.params.get("compartment_id")
+        resource_id = self.module.params.get(resource_id_name)
+        if not compartment_id and resource_id:
+            try:
+                return oci_common_utils.call_with_backoff(
+                    resource_get, resource_id
+                ).data.compartment_id
+            except Exception:
+                return None
+        return compartment_id
+
     def create(self, check_applicable=True, wait_applicable=True):
 
         if self.module.params.get("force_create"):
@@ -251,7 +270,7 @@ class OCIResourceHelperBase:
             return oci_common_utils.get_result(
                 changed=True,
                 resource_type=self.resource_type,
-                resource=create_response.data,
+                resource=to_dict(create_response.data),
             )
 
         try:
@@ -293,8 +312,12 @@ class OCIResourceHelperBase:
         update_response = self.update_resource()
 
         if not (wait_applicable and self.module.params.get("wait")):
+            updated_resource_response = self.get_resource()
+            updated_resource = to_dict(updated_resource_response.data)
             return oci_common_utils.get_result(
-                changed=True, resource_type=self.resource_type, resource=resource
+                changed=True,
+                resource_type=self.resource_type,
+                resource=updated_resource,
             )
 
         try:
@@ -312,12 +335,20 @@ class OCIResourceHelperBase:
 
     def delete(self, wait_applicable=True):
 
-        if not self.get_module_resource_id():
-            self.module.fail_json(
-                msg="Specify {0} with state as 'absent' to delete a {1}.".format(
-                    self.get_module_resource_id_param(), self.resource_type.upper()
+        try:
+
+            if not self.get_module_resource_id():
+                self.module.fail_json(
+                    msg="Specify {0} with state as 'absent' to delete a {1}.".format(
+                        self.get_module_resource_id_param(), self.resource_type.upper()
+                    )
                 )
-            )
+
+        except NotImplementedError:
+            # a few resources have no resource identifier (because they don't follow the
+            # normal path convention: DELETE /resources/{resourceId} (e.g. AppCatalogSubscription)
+            # so there can be a delete without a resourceId
+            pass
 
         try:
             get_response = self.get_resource()
@@ -378,6 +409,10 @@ class OCIResourceHelperBase:
 
     def perform_action(self, action, check_applicable=True, wait_applicable=True):
 
+        action_fn = self.get_action_fn(action)
+        if not action_fn:
+            self.module.fail_json(msg="{0} not supported by the module.".format(action))
+
         try:
             get_response = self.get_resource()
         except ServiceError as se:
@@ -399,9 +434,6 @@ class OCIResourceHelperBase:
                 changed=True, resource_type=self.resource_type, resource=resource
             )
 
-        action_fn = self.get_action_fn(action)
-        if not action_fn:
-            self.module.fail_json(msg="{0} not supported by the module.".format(action))
         action_response = action_fn()
 
         if not (wait_applicable and self.module.params.get("wait")):
@@ -429,16 +461,20 @@ class OCIResourceHelperBase:
         return action_fn
 
     def is_action_necessary(self, action):
+        if action.upper() in oci_common_utils.ALWAYS_PERFORM_ACTIONS:
+            return True
         resource = self.get_resource().data
         if resource.lifecycle_state in self.get_action_idempotent_states(action):
             return False
         return True
 
     def get_action_idempotent_states(self, action):
-        return []
+        return oci_common_utils.ACTION_IDEMPOTENT_STATES.get(action.upper(), [])
 
     def get_action_desired_states(self, action):
-        return oci_common_utils.DEFAULT_READY_STATES
+        return oci_common_utils.ACTION_DESIRED_STATES.get(
+            action.upper(), oci_common_utils.DEFAULT_READY_STATES
+        )
 
     def action_wait(self, action, action_response):
         get_response = self.get_resource()
@@ -541,10 +577,6 @@ class OCIResourceHelperBase:
             )
         return work_request_response
 
-
-from ansible.module_utils.oracle import resourcehelpers, facthelpers
-import pkgutil
-import inspect
 
 custom_helper_mapping = {}
 
@@ -668,7 +700,9 @@ def get_custom_class_mapping(pkgs):
     return custom_class_mapping
 
 
-custom_helper_mapping = get_custom_class_mapping([resourcehelpers, facthelpers])
+custom_helper_mapping = get_custom_class_mapping(
+    [resourcehelpers, facthelpers, actionhelpers]
+)
 
 
 class DefaultHelperCustom:

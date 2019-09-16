@@ -102,7 +102,7 @@ RETURN = """
 bucket:
     description: Attributes of the created/updated bucket. Applicable only for create and update.
     returned: success
-    type: string
+    type: dict
     sample: {"compartment_id": "ocid1....62xq","created_by":"ocid1.user.oc1..xxxxxEXAMPLExxxxx..qndq",
             "etag": "cb734ffe-da3a-48f4-....-161fd4604cf1","metadata": {},"name":"AnsibleTestBucket",
             "namespace":"ansibletestspace","public_access_type": "ObjectRead",

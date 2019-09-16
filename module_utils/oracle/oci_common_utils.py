@@ -53,6 +53,17 @@ WORK_REQUEST_FAILED_STATES = ["FAILED"]
 # If a resource is in one of these states, it would be considered deleted
 DEFAULT_TERMINATED_STATES = ["TERMINATED", "DETACHED", "DELETED"]
 
+ACTION_IDEMPOTENT_STATES = {"START": DEFAULT_READY_STATES, "STOP": ["STOPPED"]}
+
+ACTION_DESIRED_STATES = {
+    "START": DEFAULT_READY_STATES,
+    "STOP": ["STOPPED"],
+    "SOFTRESET": DEFAULT_READY_STATES,
+    "RESET": DEFAULT_READY_STATES,
+}
+
+ALWAYS_PERFORM_ACTIONS = ["RESET", "SOFTRESET", "EXPORT"]
+
 
 def _get_retry_strategy():
     retry_strategy_builder = RetryStrategyBuilder(
@@ -173,11 +184,34 @@ def is_dict_subset(source_dict, target_dict, attrs=None):
         elif isinstance(source_val, list):
             if not isinstance(target_val, list):
                 return False
-            if not are_lists_equal(source_val, target_val):
+            if not is_list_subset(source_val, target_val):
                 return False
         elif source_val != target_val:
             return False
     return True
+
+
+def is_list_subset(source_list, target_list):
+    if source_list is None or target_list is None:
+        return False
+    if not (isinstance(source_list, list) and isinstance(target_list, list)):
+        return False
+    if all([is_in_list(target_list, element) for element in source_list]):
+        return True
+    return False
+
+
+def is_in_list(l, element):
+    if isinstance(element, dict):
+        if any([is_dict_subset(element, target_element) for target_element in l]):
+            return True
+    elif isinstance(element, list):
+        if any([is_list_subset(element, target_element) for target_element in l]):
+            return True
+    else:
+        if element in l:
+            return True
+    return False
 
 
 def are_dicts_equal(source_dict, target_dict, attrs=None):
@@ -431,3 +465,13 @@ def get_resource_with_state(resource, state):
     if "lifecycle_state" in resource:
         return dict(resource, lifecycle_state=state)
     return resource
+
+
+def merge_dicts(*dictionaries):
+    """Return a new dictionary by merging all the keys from given dictionaries"""
+    merged_dict = dict()
+    for dictionary in dictionaries:
+        if not dictionary:
+            continue
+        merged_dict.update(dictionary)
+    return merged_dict

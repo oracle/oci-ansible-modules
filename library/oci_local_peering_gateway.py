@@ -53,15 +53,13 @@ options:
                      the attached VCN's default route table with the LPG.
         required: false
     skip_exhaustive_search_for_lpg_peerings:
-        description: While connecting a LPG to another peer LPG with I(state=present), an exhaustive search (by default)
+        description: While connecting a LPG to another peer LPG with I(state=present), an exhaustive search
                      looks for all available LPG peerings within the tenancy and tries to detect if the desired LPG
-                     peering already exists. This search may yield false positives.
-                     Set I(skip_exhaustive_search_for_lpg_peerings=True) if you want to skip this exhaustive search and
-                     if the request LPG peering with another LPG must forcefully be attempted. If set to false
-                     (the default), an exhaustive search is conducted and the connect operation fails if it detects
+                     peering already exists. This search may yield false positives and it is disabled by default.
+                     If set to false, an exhaustive search is conducted and the connect operation fails if it detects
                      that there appears to exist a similar LPG peering in the tenancy.
         required: false
-        default: False
+        default: True
     vcn_id:
         description: The OCID of the VCN the LPG belongs to. Required when creating a LPG with I(state=present).
         required: false
@@ -408,7 +406,7 @@ def main():
             vcn_id=dict(type="str", required=False),
             route_table_id=dict(type="str", required=False),
             skip_exhaustive_search_for_lpg_peerings=dict(
-                type=bool, required=False, default=False
+                type=bool, required=False, default=True
             ),
         )
     )

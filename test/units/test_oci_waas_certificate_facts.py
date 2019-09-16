@@ -95,7 +95,7 @@ def test_list_certificates_calls_list_all_resources_with_correct_parameters(
         "ocid1.waascertificate.oc1..xxxxxEXAMPLExxxxx1",
         "ocid1.waascertificate.oc1..xxxxxEXAMPLExxxxx2",
     ]
-    display_name = ["testname1" "testname2"]
+    display_name = "testname1"
     lifecycle_state = ["ACTIVE", "CREATING"]
     module = get_module(
         compartment_id="ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",

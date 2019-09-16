@@ -4,6 +4,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2019-09-16
+
+### Added
+- Added OCI Inventory Plugin
+- Added modules to manage [Exadata DB Systems](https://docs.cloud.oracle.com/iaas/Content/Database/Concepts/exaoverview.htm)
+  - oci_autonomous_exadata_infrastructure
+  - oci_autonomous_exadata_infrastructure_facts
+  - oci_autonomous_exadata_infrastructure_shape_facts
+- Added modules to manage [Tag Defaults](https://docs.cloud.oracle.com/iaas/Content/Identity/Tasks/managingtagdefaults.htm)
+  - oci_tag_default
+  - oci_tag_default_facts
+- Added modules to manage [Audit](https://docs.cloud.oracle.com/iaas/Content/Audit/Concepts/auditoverview.htm)
+  - oci_audit_event_facts
+  - oci_configuration
+  - oci_configuration_facts
+- Added [Object Lifecycle Policy](https://docs.cloud.oracle.com/iaas/Content/Object/Tasks/usinglifecyclepolicies.htm) modules
+  - oci_object_storage_object_lifecycle_policy
+  - oci_object_storage_object_lifecycle_policy_facts
+- Added [Autoscaling](https://docs.cloud.oracle.com/iaas/Content/Compute/Tasks/autoscalinginstancepools.htm) modules
+  - oci_auto_scaling_configuration
+  - oci_auto_scaling_configuration_facts
+  - oci_auto_scaling_configuration_policy
+  - oci_auto_scaling_configuration_policy_facts
+- Added `oci_image_actions` module to support exporting an image.
+
+### Changed
+- Minimum supported OCI Python SDK to `2.2.21`
+
+### Deprecated
+- In `oci_instance` module, these options: exact_count, count_tag, max_thread_count and enable_parallel_requests are deprecated. Use oci_instance_pool module instead to create, update, terminate multiple instances.
+- The `oci_swift_password` and `oci_swift_password_facts` modules have been removed. Use `oci_auth_token` and `oci_auth_token_facts` instead.
+
+### Breaking Change
+- In `oci_local_peering_gateway` module, the default value for skip_exhaustive_search_for_lpg_peerings is changed to True instead of False.
+
 ## [1.10.0] - 2019-07-12
 
 ### Added
@@ -17,7 +52,8 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Breaking Change
 - In multiple volume modules, the type for the return value `attached_instance_information` is changed to a list instead of a dict.
   This will support returning multiple attached instances to a volume.
-
+- In `oci_local_peering_gateway` module, the default value for `skip_exhaustive_search_for_lpg_peerings` is changed to `True` instead of `False`.
+  
 ## [1.9.0] - 2019-06-01
 
 ### Added

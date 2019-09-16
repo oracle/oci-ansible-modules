@@ -899,7 +899,7 @@ def main():
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=["instance_configuration_id", "compartment_id"],
+        mutually_exclusive=[("instance_configuration_id", "compartment_id")],
         required_if=[("state", "absent", ["instance_configuration_id"])],
     )
 

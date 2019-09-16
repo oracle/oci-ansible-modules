@@ -426,7 +426,9 @@ def main():
             ),
             timestamp=dict(type="str", required=False),
             wallet_file=dict(type="str", required=False),
-            force=dict(type=bool, required=False, default=True, aliases=["overwrite"]),
+            force=dict(
+                type="bool", required=False, default=True, aliases=["overwrite"]
+            ),
             state=dict(
                 type="str",
                 required=False,
@@ -446,6 +448,7 @@ def main():
     module = AnsibleModule(
         argument_spec=module_args,
         required_if=[("state", "generate_wallet", ["password", "wallet_file"])],
+        supports_check_mode=True,
     )
 
     if not HAS_OCI_PY_SDK:
