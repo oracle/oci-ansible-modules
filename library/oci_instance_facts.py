@@ -409,7 +409,7 @@ def main():
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=["id", "compartment_id"],
+        mutually_exclusive=[("id", "compartment_id")],
     )
 
     if not HAS_OCI_PY_SDK:

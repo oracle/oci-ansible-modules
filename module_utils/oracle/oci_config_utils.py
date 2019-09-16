@@ -17,12 +17,14 @@ try:
         ConfigFileNotFound,
     )
     from oci.identity.identity_client import IdentityClient
+    from oci.database import DatabaseClient
 
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "v1.9.0-dev"
+__version__ = "v1.11.0"
+agent_name = "Oracle-Ansible/"
 
 
 def get_oci_config(module, service_client_class=None):
@@ -64,7 +66,7 @@ def get_oci_config(module, service_client_class=None):
             # When auth_type is not instance_principal, config file is required
             module.fail_json(msg=str(ex))
 
-    config["additional_user_agent"] = "Oracle-Ansible/{0}".format(__version__)
+    config["additional_user_agent"] = agent_name + __version__
     # Merge any overrides through other IAM options
     _merge_auth_option(
         config,
@@ -110,6 +112,14 @@ def get_oci_config(module, service_client_class=None):
     )
 
     return config
+
+
+def set_db_test_flag(service_client):
+    # This flag helps in quickly testing the Database
+    if service_client == DatabaseClient and os.environ.get("OCI_DB_MOCK") is not None:
+        service_client.client.base_client.session.headers.update(
+            {"opc-host-serial": "FakeHostSerial"}
+        )
 
 
 def create_service_client(module, service_client_class):
@@ -168,6 +178,7 @@ def create_service_client(module, service_client_class):
         home_region = home_regions[0]
 
         client.base_client.set_region(home_region)
+        set_db_test_flag(client)
 
     return client
 

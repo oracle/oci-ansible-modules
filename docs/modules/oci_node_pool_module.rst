@@ -5,14 +5,14 @@
 .. _oci_node_pool_module:
 
 
-oci_node_pool - Manage node pools in OCI Container Engine for Kubernetes Service
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_node_pool -- Manage node pools in OCI Container Engine for Kubernetes Service
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
@@ -22,10 +22,10 @@ Synopsis
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,27 +43,36 @@ Parameters
                     <tr>
                                                                 <td colspan="2">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -73,7 +82,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,21 +95,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
                     <b>cluster_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -107,7 +125,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>compartment_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -117,7 +138,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -127,7 +151,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -137,7 +164,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>count_of_nodes_to_wait</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                                     <b>Default:</b><br/><div style="color: blue">1</div>
                                     </td>
@@ -148,21 +178,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>force_create</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>yes</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn't create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
+                                                                        <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn&#x27;t create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
                     <b>initial_node_labels</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -173,7 +209,10 @@ Parameters
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
                     <b>key</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -184,7 +223,10 @@ Parameters
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
                     <b>value</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -195,7 +237,10 @@ Parameters
                                                 <tr>
                                                                 <td colspan="2">
                     <b>key_by</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -205,7 +250,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>kubernetes_version</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -215,7 +263,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -225,7 +276,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>node_image_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -235,7 +289,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>node_pool_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -246,7 +303,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>node_shape</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -256,7 +316,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>quantity_per_subnet</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -266,7 +329,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -276,7 +342,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>ssh_public_key</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -286,9 +355,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>state</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>absent</li>
                                                                                     </ul>
@@ -300,7 +372,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>subnet_ids</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -310,7 +385,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -320,9 +398,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>wait</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>no</li>
                                                                                                                                                                                                 <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
                                                                                     </ul>
@@ -334,7 +415,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>wait_timeout</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                                     <b>Default:</b><br/><div style="color: blue">1200</div>
                                     </td>
@@ -345,9 +429,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>wait_until</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">ACTIVE</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"ACTIVE"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The lifecycle state of a node in node pool to wait for while creating or updating a node pool with <em>wait=yes</em>.</div>
@@ -361,7 +448,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -424,91 +512,21 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <tr>
                                 <td colspan="2">
                     <b>node_pool</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>On successful create, delete &amp; update operations on node pool</td>
                 <td>
                                             <div>Information about the node pool</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'node_shape': 'VM.Standard2.1', 'name': 'test_node_pool', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'initial_node_labels': [{'key': 'vm_type', 'value': 'standard'}, {'key': 'stage', 'value': 'prod'}], 'node_image_id': 'ocid1.image.oc1..xxxxxEXAMPLExxxxx', 'id': 'ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx', 'cluster_id': 'ocid1.cluster.oc1..xxxxxEXAMPLExxxxx', 'quantity_per_subnet': 1, 'node_image_name': 'Oracle-Linux-7.4', 'ssh_public_key': '', 'subnet_ids': ['ocid1.subnet..xxxxxEXAMPLExxxxx'], 'kubernetes_version': 'v1.9.7', 'nodes': [{'lifecycle_state': 'UPDATING', 'availability_domain': 'IwGV:US-ASHBURN-AD-1', 'name': 'oke-c3dsodfgezw-n3wiztggrrt-st2au5vefpq-0', 'subnet_id': 'ocid1.subnet.oc1..xxxxxEXAMPLExxxxx', 'public_ip': '129.213.129.26', 'node_pool_id': 'ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx', 'node_error': None, 'lifecycle_details': 'waiting for running compute instance', 'id': 'ocid1.instance.oc1..xxxxxEXAMPLExxxxx'}]}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;node_shape&#x27;: &#x27;VM.Standard2.1&#x27;, &#x27;name&#x27;: &#x27;test_node_pool&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;initial_node_labels&#x27;: [{&#x27;key&#x27;: &#x27;vm_type&#x27;, &#x27;value&#x27;: &#x27;standard&#x27;}, {&#x27;key&#x27;: &#x27;stage&#x27;, &#x27;value&#x27;: &#x27;prod&#x27;}], &#x27;node_image_id&#x27;: &#x27;ocid1.image.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;cluster_id&#x27;: &#x27;ocid1.cluster.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;quantity_per_subnet&#x27;: 1, &#x27;node_image_name&#x27;: &#x27;Oracle-Linux-7.4&#x27;, &#x27;ssh_public_key&#x27;: &#x27;&#x27;, &#x27;subnet_ids&#x27;: [&#x27;ocid1.subnet..xxxxxEXAMPLExxxxx&#x27;], &#x27;kubernetes_version&#x27;: &#x27;v1.9.7&#x27;, &#x27;nodes&#x27;: [{&#x27;lifecycle_state&#x27;: &#x27;UPDATING&#x27;, &#x27;availability_domain&#x27;: &#x27;IwGV:US-ASHBURN-AD-1&#x27;, &#x27;name&#x27;: &#x27;oke-c3dsodfgezw-n3wiztggrrt-st2au5vefpq-0&#x27;, &#x27;subnet_id&#x27;: &#x27;ocid1.subnet.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;public_ip&#x27;: &#x27;129.213.129.26&#x27;, &#x27;node_pool_id&#x27;: &#x27;ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;node_error&#x27;: None, &#x27;lifecycle_details&#x27;: &#x27;waiting for running compute instance&#x27;, &#x27;id&#x27;: &#x27;ocid1.instance.oc1..xxxxxEXAMPLExxxxx&#x27;}]}</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>node_shape</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The name of the node shape of the nodes in the node pool.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">VM.Standard2.1</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>name</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The name of the node pool.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">sample_node_pool</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>compartment_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The OCID of the compartment in which the node pool exists.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxEXAMPLExxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>initial_node_labels</b>
-                    <br/><div style="font-size: small; color: red">list</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>A list of key/value pairs to add to nodes after they join the Kubernetes cluster.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'key': 'vm_type', 'value': 'standard'}, {'key': 'stage', 'value': 'prod'}]</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The OCID of the node pool.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
                     <b>cluster_id</b>
-                    <br/><div style="font-size: small; color: red">list</div>
+                    <div style="font-size: small; color: purple">list</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -521,60 +539,50 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>quantity_per_subnet</b>
-                    <br/><div style="font-size: small; color: red">int</div>
+                    <b>compartment_id</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>The number of nodes in each subnet.</div>
+                                            <div>The OCID of the compartment in which the node pool exists.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">1</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxEXAMPLExxxxx</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>node_image_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <b>id</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>The OCID of the image running on the nodes in the node pool.</div>
+                                            <div>The OCID of the node pool.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.image.oc1..xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>ssh_public_key</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <b>initial_node_labels</b>
+                    <div style="font-size: small; color: purple">list</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>The SSH public key on each node in the node pool.</div>
+                                            <div>A list of key/value pairs to add to nodes after they join the Kubernetes cluster.</div>
                                         <br/>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>subnet_ids</b>
-                    <br/><div style="font-size: small; color: red">list</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The OCIDs of the subnets in which to place nodes for this node pool.</div>
-                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;key&#x27;: &#x27;vm_type&#x27;, &#x27;value&#x27;: &#x27;standard&#x27;}, {&#x27;key&#x27;: &#x27;stage&#x27;, &#x27;value&#x27;: &#x27;prod&#x27;}]</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>kubernetes_version</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -587,8 +595,62 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
+                    <b>lifecycle_details</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Details about the state of the cluster masters.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The name of the node pool.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">sample_node_pool</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>node_image_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the image running on the nodes in the node pool.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.image.oc1..xxxxxEXAMPLExxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>node_shape</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The name of the node shape of the nodes in the node pool.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">VM.Standard2.1</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
                     <b>nodes</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -599,12 +661,38 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>lifecycle_details</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <b>quantity_per_subnet</b>
+                    <div style="font-size: small; color: purple">integer</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>Details about the state of the cluster masters.</div>
+                                            <div>The number of nodes in each subnet.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">1</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>ssh_public_key</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The SSH public key on each node in the node pool.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>subnet_ids</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCIDs of the subnets in which to place nodes for this node pool.</div>
                                         <br/>
                                     </td>
             </tr>
@@ -612,21 +700,69 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                 <tr>
                                 <td colspan="2">
                     <b>work_request</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>When a new work request is created</td>
                 <td>
                                             <div>Information of work request</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'status': 'SUCCEEDED', 'time_finished': '2018-08-02T10:24:13+00:00', 'time_started': '2018-08-02T10:24:09+00:00', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'operation_type': 'NODEPOOL_UPDATE', 'time_accepted': '2018-08-02T10:22:22+00:00', 'id': 'ocid1.clustersworkrequest.oc1..xxxxxEXAMPLExxxxx', 'resources': [{'entity_uri': '/nodePools/ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx', 'identifier': 'ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx', 'action_type': 'UPDATED', 'entity_type': 'nodepool'}, {'entity_uri': '/clusters/ocid1.cluster.oc1..xxxxxEXAMPLExxxxx', 'identifier': 'ocid1.cluster.oc1..xxxxxEXAMPLExxxxx', 'action_type': 'RELATED', 'entity_type': 'cluster'}]}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;status&#x27;: &#x27;SUCCEEDED&#x27;, &#x27;time_finished&#x27;: &#x27;2018-08-02T10:24:13+00:00&#x27;, &#x27;time_started&#x27;: &#x27;2018-08-02T10:24:09+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;operation_type&#x27;: &#x27;NODEPOOL_UPDATE&#x27;, &#x27;time_accepted&#x27;: &#x27;2018-08-02T10:22:22+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.clustersworkrequest.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;resources&#x27;: [{&#x27;entity_uri&#x27;: &#x27;/nodePools/ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;identifier&#x27;: &#x27;ocid1.nodepool.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;action_type&#x27;: &#x27;UPDATED&#x27;, &#x27;entity_type&#x27;: &#x27;nodepool&#x27;}, {&#x27;entity_uri&#x27;: &#x27;/clusters/ocid1.cluster.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;identifier&#x27;: &#x27;ocid1.cluster.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;action_type&#x27;: &#x27;RELATED&#x27;, &#x27;entity_type&#x27;: &#x27;cluster&#x27;}]}</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
+                    <b>compartment_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the compartment in which the work request exists.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the work request.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>operation_type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The type of work the work request is doing.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>resources</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The resources this work request affects.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
                     <b>status</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -637,8 +773,20 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
+                    <b>time_accepted</b>
+                    <div style="font-size: small; color: purple">datetime</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The time the work request was accepted.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
                     <b>time_finished</b>
-                    <br/><div style="font-size: small; color: red">datetime</div>
+                    <div style="font-size: small; color: purple">datetime</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -650,71 +798,11 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>time_started</b>
-                    <br/><div style="font-size: small; color: red">datetime</div>
+                    <div style="font-size: small; color: purple">datetime</div>
                                     </td>
                 <td>always</td>
                 <td>
                                             <div>The time the work request was started.</div>
-                                        <br/>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>compartment_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The OCID of the compartment in which the work request exists.</div>
-                                        <br/>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>operation_type</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The type of work the work request is doing.</div>
-                                        <br/>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>time_accepted</b>
-                    <br/><div style="font-size: small; color: red">datetime</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The time the work request was accepted.</div>
-                                        <br/>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The OCID of the work request.</div>
-                                        <br/>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>resources</b>
-                    <br/><div style="font-size: small; color: red">list</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The resources this work request affects.</div>
                                         <br/>
                                     </td>
             </tr>
@@ -728,18 +816,21 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
+
+
+Authors
+~~~~~~~
 
 - Rohit Chaware (@rohitChaware)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_node_pool.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_node_pool.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

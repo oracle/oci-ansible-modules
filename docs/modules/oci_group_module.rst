@@ -5,14 +5,14 @@
 .. _oci_group_module:
 
 
-oci_group - Create,update and delete OCI user groups and specified user associations
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_group -- Create,update and delete OCI user groups and specified user associations
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
@@ -27,10 +27,10 @@ Synopsis
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -48,27 +48,36 @@ Parameters
                     <tr>
                                                                 <td colspan="1">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -78,7 +87,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -88,21 +100,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -112,7 +130,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -122,7 +143,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>defined_tags</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -132,9 +156,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>delete_user_memberships</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>yes</li>
                                                                                     </ul>
@@ -146,7 +173,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>description</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -156,18 +186,24 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>force</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
-                                                                        <div>If <em>force='no'</em> and group has any user assigned, then in the case of <em>state=absent</em>, group will not be deleted. To delete a group which has user associations, <em>force='yes'</em> should be specified.</div>
+                                                                        <div>If <em>force=&#x27;no&#x27;</em> and group has any user assigned, then in the case of <em>state=absent</em>, group will not be deleted. To delete a group which has user associations, <em>force=&#x27;yes&#x27;</em> should be specified.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>freeform_tags</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -177,7 +213,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>group_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -188,7 +227,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>name</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -198,9 +240,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>purge_user_memberships</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>yes</li>
                                                                                     </ul>
@@ -212,7 +257,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -222,9 +270,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>state</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>absent</li>
                                                                                     </ul>
@@ -236,7 +287,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -246,7 +300,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>users</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -256,9 +313,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>wait</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>no</li>
                                                                                                                                                                                                 <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
                                                                                     </ul>
@@ -270,7 +330,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>wait_timeout</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                                     <b>Default:</b><br/><div style="color: blue">1200</div>
                                     </td>
@@ -281,7 +344,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>wait_until</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -296,7 +362,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -374,61 +441,21 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <tr>
                                 <td colspan="2">
                     <b>group</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>success</td>
                 <td>
                                             <div>Attributes of the created/updated group. For delete, deleted group description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'lifecycle_state': 'ACTIVE', 'inactive_status': None, 'name': 'network_admin_group', 'compartment_id': 'ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx', 'defined_tags': {'product': {'type': 'server'}}, 'freeform_tags': {'group_name': 'designer'}, 'time_created': '2017-10-31T16:38:22.289000+00:00', 'id': 'ocid1.group.oc1..xxxxxEXAMPLExxxxx', 'description': 'Network Admin Group'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;inactive_status&#x27;: None, &#x27;name&#x27;: &#x27;network_admin_group&#x27;, &#x27;compartment_id&#x27;: &#x27;ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx&#x27;, &#x27;defined_tags&#x27;: {&#x27;product&#x27;: {&#x27;type&#x27;: &#x27;server&#x27;}}, &#x27;freeform_tags&#x27;: {&#x27;group_name&#x27;: &#x27;designer&#x27;}, &#x27;time_created&#x27;: &#x27;2017-10-31T16:38:22.289000+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.group.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;description&#x27;: &#x27;Network Admin Group&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>lifecycle_state</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>Current state of the group</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ACTIVE</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>inactive_status</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>when group's lifecycle_state is INACTIVE</td>
-                <td>
-                                            <div>The detailed status of INACTIVE life cycle state</div>
-                                        <br/>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>description</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>Description of the group</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">Network Admin Group</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
                     <b>compartment_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -441,8 +468,22 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
+                    <b>description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Description of the group</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">Network Admin Group</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
                     <b>id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -455,22 +496,34 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>time_created</b>
-                    <br/><div style="font-size: small; color: red">datetime</div>
+                    <b>inactive_status</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>when group&#x27;s lifecycle_state is INACTIVE</td>
+                <td>
+                                            <div>The detailed status of INACTIVE life cycle state</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>lifecycle_state</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>Date and time the group was created, in the format defined by RFC3339</div>
+                                            <div>Current state of the group</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ACTIVE</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>name</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -478,6 +531,20 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">network_admin</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>time_created</b>
+                    <div style="font-size: small; color: purple">datetime</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Date and time the group was created, in the format defined by RFC3339</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
                                     </td>
             </tr>
                     
@@ -490,18 +557,21 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
+
+
+Authors
+~~~~~~~
 
 - Debayan Gupta(@debayan_gupta)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_group.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_group.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

@@ -5,27 +5,35 @@
 .. _oci_waas_policy_module:
 
 
-oci_waas_policy - Manage WAAS policies in OCI
-+++++++++++++++++++++++++++++++++++++++++++++
+oci_waas_policy -- Manage a WaasPolicy resource in Oracle Cloud Infrastructure
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
 --------
-- This module allows the user to create, delete and update WAAS policies in OCI.
+- This module allows the user to create, update and delete a WaasPolicy resource in Oracle Cloud Infrastructure
+- For *state=present*, creates a new Web Application Acceleration and Security (WAAS) policy in the specified compartment. A WAAS policy must be established before creating Web Application Firewall (WAF) rules. To use WAF rules, your web application's origin servers must defined in the `WaasPolicy` schema.
+- A domain name must be specified when creating a WAAS policy. The domain name should be different from the origins specified in your `WaasPolicy`. Once domain name is entered and stored, it is unchangeable.
+- Use the record data returned in the `cname` field of the `WaasPolicy` object to create a CNAME record in your DNS configuration that will direct your domain's traffic through the WAF.
+- For the purposes of access control, you must provide the OCID of the compartment where you want the service to reside. For information about access control and compartments, see `Overview of the IAM Service <https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/overview.htm>`_.
+- You must specify a display name and domain for the WAAS policy. The display name does not have to be unique and can be changed. The domain name should be different from every origin specified in `WaasPolicy`.
+- All Oracle Cloud Infrastructure resources, including WAAS policies, receive a unique, Oracle-assigned ID called an Oracle Cloud Identifier (OCID). When a resource is created, you can find its OCID in the response. You can also retrieve a resource's OCID by using a list API operation for that resource type, or by viewing the resource in the Console. Fore more information, see `Resource Identifiers <https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm>`_.
+- **Note:** After sending the POST request, the new object's state will temporarily be `CREATING`. Ensure that the resource's state has changed to `ACTIVE` before use.
+- This resource has the following action operations in the :ref:`oci_waas_policy_actions <oci_waas_policy_actions_module>` module: accept_recommendations.
 
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,7 +51,10 @@ Parameters
                     <tr>
                                                                 <td colspan="4">
                     <b>additional_domains</b>
-                    <br/><div style="font-size: small; color: red">list</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -53,27 +64,36 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="4">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="4">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,7 +103,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -93,31 +116,41 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="4">
                     <b>compartment_id</b>
-                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the compartment.</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the compartment in which to create the WAAS policy.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="4">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -127,7 +160,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -137,17 +173,23 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>defined_tags</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                        <div>A key-value pair with a defined schema that restricts the values of tags. These predefined keys are scoped to namespaces.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="4">
                     <b>display_name</b>
-                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -158,41 +200,54 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>domain</b>
-                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>The web application domain that the WAAS policy protects.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="4">
                     <b>force_create</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>yes</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn't create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
+                                                                        <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn&#x27;t create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="4">
                     <b>freeform_tags</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                        <div>A simple key-value pair without any defined schema.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="4">
                     <b>key_by</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -202,7 +257,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>origins</b>
-                    <br/><div style="font-size: small; color: red">dict</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -212,123 +270,162 @@ Parameters
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="3">
-                    <b>http_port</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The HTTP port on the origin that the web application listens on. If unspecified, defaults to 80.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="3">
                     <b>custom_headers</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>A list of HTTP headers to forward to your origin.</div>
-                                                        </td>
+                                                                        <div>A list of HTTP headers to forward to your origin.</div>
+                                                                                </td>
             </tr>
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
                     <b>name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The name of the header.</div>
-                                                        </td>
+                                                                        <div>The name of the header.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
                     <b>value</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The value of the header.</div>
-                                                        </td>
+                                                                        <div>The value of the header.</div>
+                                                                                </td>
             </tr>
                     
                                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="3">
-                    <b>https_port</b>
-                                                                            </td>
+                    <b>http_port</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The HTTPS port on the origin that the web application listens on. If unspecified, defaults to 443.</div>
-                                                        </td>
+                                                                        <div>The HTTP port on the origin that the web application listens on. If unspecified, defaults to `80`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="3">
+                    <b>https_port</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The HTTPS port on the origin that the web application listens on. If unspecified, defaults to `443`.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="3">
                     <b>uri</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The URI of the origin. Does not support paths. Port numbers should be specified in the http_port and https_port fields.</div>
-                                                        </td>
+                                                                        <div>The URI of the origin. Does not support paths. Port numbers should be specified in the `httpPort` and `httpsPort` fields.</div>
+                                                                                </td>
             </tr>
                     
                                                 <tr>
                                                                 <td colspan="4">
                     <b>policy_config</b>
-                    <br/><div style="font-size: small; color: red">dict</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Config for the WAAS policy.</div>
+                                                                        <div></div>
                                                                                 </td>
             </tr>
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="3">
                     <b>certificate_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The OCID of the SSL certificate to use if HTTPS is supported.</div>
-                                                        </td>
+                                                                        <div>The OCID of the SSL certificate to use if HTTPS is supported.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="3">
                     <b>is_https_enabled</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
                                     </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
-                                            <div>Enable or disable HTTPS support. If true, a certificateId is required.</div>
-                                                        </td>
+                                                                        <div>Enable or disable HTTPS support. If true, a `certificateId` is required. If unspecified, defaults to `false`.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="3">
                     <b>is_https_forced</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
                                     </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
-                                            <div>Force HTTP to HTTPS redirection.</div>
-                                                        </td>
+                                                                        <div>Force HTTP to HTTPS redirection. If unspecified, defaults to `false`.</div>
+                                                                                </td>
             </tr>
                     
                                                 <tr>
                                                                 <td colspan="4">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -338,21 +435,29 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>state</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>absent</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Create or update a WAAS policy with <em>state=present</em>. Use <em>state=absent</em> to delete a WAAS policy.</div>
+                                                                        <div>The state of the WaasPolicy.</div>
+                                                    <div>Use <em>state=present</em> to create or update a WaasPolicy.</div>
+                                                    <div>Use <em>state=absent</em> to delete a WaasPolicy.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="4">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -362,1183 +467,158 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>waas_policy_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the WAAS policy. Required when deleting a WAAS policy with <em>state=absent</em> or updating a WAAS policy with <em>state=present</em>. This option is mutually exclusive with <em>compartment_id</em>.</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the WAAS policy.</div>
+                                                    <div>Required for update using <em>state=present</em>, <em>state=absent</em>.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
             </tr>
                                 <tr>
                                                                 <td colspan="4">
                     <b>waf_config</b>
-                    <br/><div style="font-size: small; color: red">dict</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The WAF config for the WAAS policy.</div>
+                                                                        <div></div>
                                                                                 </td>
             </tr>
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="3">
-                    <b>origin</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The key in the map of origins referencing the origin used for the Web Application Firewall. The origin must already be included in Origins. Required when creating the WafConfig resource, but not on update.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="3">
-                    <b>protection_rules</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>A list of the protection rules and their details.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>action</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
-                                    </td>
-                                                                <td>
-                                            <div>The action to take when the traffic is detected as malicious.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>description</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The description of the protection rule.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>key</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The unique key of the protection rule.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>mod_security_rule_ids</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The list of the ModSecurity rule IDs that apply to this protection rule.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>labels</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The list of labels for the protection rule.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>exclusions</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The exclusions of this ProtectionRule.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>exclusions</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The exclusions of this ProtectionRuleExclusion.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>target</b>
-                                                                            </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li>REQUEST_COOKIES</li>
-                                                                                                                                                                                                <li>REQUEST_COOKIE_NAMES</li>
-                                                                                                                                                                                                <li>ARGS</li>
-                                                                                                                                                                                                <li>ARGS_NAMES</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                            <div>The target of the exclusion.</div>
-                                                        </td>
-            </tr>
-                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>name</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The name of the protection rule.</div>
-                                                        </td>
-            </tr>
-                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="3">
-                    <b>address_rate_limiting</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The IP address rate limiting settings used to limit the number of requests from an address.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>allowed_rate_per_address</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of allowed requests per second from one IP address.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>is_enabled</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Enables or disables the address rate limiting Web Application Firewall feature.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>block_response_code</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">503</div>
-                                    </td>
-                                                                <td>
-                                            <div>The response status code returned when a request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>max_delayed_count_per_address</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">10</div>
-                                    </td>
-                                                                <td>
-                                            <div>The maximum number of requests allowed to be queued before subsequent requests are dropped.</div>
-                                                        </td>
-            </tr>
-                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="3">
-                    <b>js_challenge</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The JavaScript challenge settings. Used to challenge requests with a JavaScript challenge and take the action if a browser has no JavaScript support in order to block bots.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>is_enabled</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Enables or disables the JavaScript challenge Web Application Firewall feature.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>set_http_header</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Adds an additional HTTP header to requests that fail the challenge before being passed to the origin. Only applicable when <em>action=DETECT</em>.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>name</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The name of the header.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>value</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The value of the header.</div>
-                                                        </td>
-            </tr>
-                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>failure_threshold</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">10</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of failed requests before taking action.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>action</b>
-                                                                            </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>DETECT</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>BLOCK</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                            <div>The action to take against requests from detected bots.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>action_expiration_in_seconds</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">60</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of seconds between challenges from the same IP address.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>challenge_settings</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The challenge settings.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_error_page_message</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access to the website is blocked.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The message to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_footer</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Enter the letters and numbers as they are shown in image above.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The text to show in the footer when showing a CAPTCHA challenge when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_error_page_code</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">403</div>
-                                    </td>
-                                                                <td>
-                                            <div>The error code to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_action</b>
-                                                                            </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li>SET_RESPONSE_CODE</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>SHOW_ERROR_PAGE</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>SHOW_CAPTCHA</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                            <div>The method used to block requests that fail the challenge if <em>action=BLOCK</em>.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_title</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Are you human?</div>
-                                    </td>
-                                                                <td>
-                                            <div>The title used when showing a CAPTCHA challenge when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_header</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">We have detected an increased number of attempts to access this webapp. To help us keep this webapp secure, please let us know that you are not a robot by entering the text from captcha below.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The text to show in the header when showing a CAPTCHA challenge when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_response_code</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">403</div>
-                                    </td>
-                                                                <td>
-                                            <div>The response status code to return when <em>action=BLOCK</em>, <em>block_action=SET_RESPONSE_CODE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_error_page_description</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access blocked by website owner. Please contact support.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The description text to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_submit_label</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Yes, I am human.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The text to show on the label of the CAPTCHA challenge submit button when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                    
-                                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="3">
-                    <b>device_fingerprint_challenge</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The device fingerprint challenge settings. Used to detect unique devices based on the device fingerprint information collected in order to block bots.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>is_enabled</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Enables or disables the device fingerprint challenge Web Application Firewall feature.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>failure_threshold_expiration_in_seconds</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">60</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of seconds before the failure threshold resets.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>action_expiration_in_seconds</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">60</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of seconds between challenges for the same IP address.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>max_address_count_expiration_in_seconds</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">60</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of seconds before the maximum addresses count resets.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>failure_threshold</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">10</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of failed requests allowed before taking action.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>action</b>
-                                                                            </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>DETECT</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>BLOCK</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                            <div>The action to take on requests from detected bots.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>max_address_count</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">20</div>
-                                    </td>
-                                                                <td>
-                                            <div>The maximum number of IP addresses permitted with the same device fingerprint.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>challenge_settings</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The challenge settings.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_error_page_message</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access to the website is blocked.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The message to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_footer</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Enter the letters and numbers as they are shown in image above.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The text to show in the footer when showing a CAPTCHA challenge when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_error_page_code</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">403</div>
-                                    </td>
-                                                                <td>
-                                            <div>The error code to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_action</b>
-                                                                            </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li>SET_RESPONSE_CODE</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>SHOW_ERROR_PAGE</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>SHOW_CAPTCHA</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                            <div>The method used to block requests that fail the challenge if <em>action=BLOCK</em>.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_title</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Are you human?</div>
-                                    </td>
-                                                                <td>
-                                            <div>The title used when showing a CAPTCHA challenge when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_header</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">We have detected an increased number of attempts to access this webapp. To help us keep this webapp secure, please let us know that you are not a robot by entering the text from captcha below.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The text to show in the header when showing a CAPTCHA challenge when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_response_code</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">403</div>
-                                    </td>
-                                                                <td>
-                                            <div>The response status code to return when <em>action=BLOCK</em>, <em>block_action=SET_RESPONSE_CODE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_error_page_description</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access blocked by website owner. Please contact support.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The description text to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_submit_label</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Yes, I am human.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The text to show on the label of the CAPTCHA challenge submit button when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                    
-                                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="3">
-                    <b>whitelists</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>A list of IP addresses that bypass the Web Application Firewall.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>addresses</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>A set of IP addresses or CIDR notations to include in the whitelist.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>name</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The unique name of the whitelist.</div>
-                                                        </td>
-            </tr>
-                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="3">
-                    <b>human_interaction_challenge</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The human interaction challenge settings. Used to look for natural human interactions such as mouse movements, time on site, and page scrolling to identify bots.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>is_enabled</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Enables or disables the human interaction challenge Web Application Firewall feature.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>set_http_header</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Adds an additional HTTP header to requests that fail the challenge before being passed to the origin. Only applicable when <em>action=DETECT</em>.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>name</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The name of the header.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>value</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The value of the header.</div>
-                                                        </td>
-            </tr>
-                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>recording_period_in_seconds</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">15</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of seconds to record the interactions from the user.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>failure_threshold_expiration_in_seconds</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">60</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of seconds before the failure threshold resets.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>action_expiration_in_seconds</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">60</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of seconds between challenges for the same IP address.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>failure_threshold</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">10</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of failed requests allowed before taking action.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>action</b>
-                                                                            </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>DETECT</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>BLOCK</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                            <div>The action to take on requests from detected bots.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>interaction_threshold</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">3</div>
-                                    </td>
-                                                                <td>
-                                            <div>The number of interactions required to pass the challenge.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>challenge_settings</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The challenge settings.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_error_page_message</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access to the website is blocked.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The message to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_footer</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Enter the letters and numbers as they are shown in image above.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The text to show in the footer when showing a CAPTCHA challenge when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_error_page_code</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">403</div>
-                                    </td>
-                                                                <td>
-                                            <div>The error code to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_action</b>
-                                                                            </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li>SET_RESPONSE_CODE</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>SHOW_ERROR_PAGE</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>SHOW_CAPTCHA</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                            <div>The method used to block requests that fail the challenge if <em>action=BLOCK</em>.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_title</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Are you human?</div>
-                                    </td>
-                                                                <td>
-                                            <div>The title used when showing a CAPTCHA challenge when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_header</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">We have detected an increased number of attempts to access this webapp. To help us keep this webapp secure, please let us know that you are not a robot by entering the text from captcha below.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The text to show in the header when showing a CAPTCHA challenge when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_response_code</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">403</div>
-                                    </td>
-                                                                <td>
-                                            <div>The response status code to return when <em>action=BLOCK</em>, <em>block_action=SET_RESPONSE_CODE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>block_error_page_description</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access blocked by website owner. Please contact support.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The description text to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>captcha_submit_label</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Yes, I am human.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The text to show on the label of the CAPTCHA challenge submit button when <em>action=BLOCK</em>, <em>block_action=SHOW_CAPTCHA</em>, and the request is blocked.</div>
-                                                        </td>
-            </tr>
-                    
-                                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="3">
-                    <b>good_bots</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>A list of bots allowed to access the web application.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>is_enabled</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Enables or disables the bot.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>description</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The description of the bot.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>key</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The unique key for the bot.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>name</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The bot name.</div>
-                                                        </td>
-            </tr>
-                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="3">
                     <b>access_rules</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The access rules applied to the Web Application Firewall. Used for defining custom access policies with the combination of ALLOW, DETECT, and BLOCK rules, based on different criteria.</div>
-                                                        </td>
+                                                                        <div>The access rules applied to the Web Application Firewall. Used for defining custom access policies with the combination of `ALLOW`, `DETECT`, and `BLOCK` rules, based on different criteria.</div>
+                                                                                </td>
             </tr>
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
-                    <b>block_error_page_message</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access to the website is blocked.</div>
+                    <b>action</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
                                     </td>
-                                                                <td>
-                                            <div>The message to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the access criteria are met.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>name</b>
-                                                                            </td>
                                 <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The unique name of the access rule.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>block_error_page_code</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>ALLOW</li>
+                                                                                                                                                                                                <li>DETECT</li>
+                                                                                                                                                                                                <li>BLOCK</li>
+                                                                                    </ul>
                                                                             </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access rules</div>
-                                    </td>
                                                                 <td>
-                                            <div>The error code to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the access criteria are met.</div>
-                                                        </td>
+                                                                        <div>The action to take when the access criteria are met for a rule. If unspecified, defaults to `ALLOW`.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
                     <b>block_action</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>SET_RESPONSE_CODE</b>&nbsp;&larr;</div></li>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>SET_RESPONSE_CODE</li>
                                                                                                                                                                                                 <li>SHOW_ERROR_PAGE</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                            <div>The method used to block requests if <em>action=BLOCK</em> and the access criteria are met.</div>
-                                                        </td>
+                                                                        <div>The method used to block requests if `action` is set to `BLOCK` and the access criteria are met. If unspecified, defaults to `SET_RESPONSE_CODE`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>block_error_page_code</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The error code to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the access criteria are met. If unspecified, defaults to &#x27;Access rules&#x27;.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>block_error_page_description</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The description text to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the access criteria are met. If unspecified, defaults to &#x27;Access blocked by website owner. Please contact support.&#x27;</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>block_error_page_message</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The message to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the access criteria are met. If unspecified, defaults to &#x27;Access to the website is blocked.&#x27;</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>block_response_code</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The response status code to return when `action` is set to `BLOCK`, `blockAction` is set to `SET_RESPONSE_CODE`, and the access criteria are met. If unspecified, defaults to `403`.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
                     <b>criteria</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The list of access rule criteria.</div>
-                                                        </td>
+                                                                        <div>The list of access rule criteria.</div>
+                                                                                </td>
             </tr>
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
@@ -1546,22 +626,12 @@ Parameters
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
                     <b>condition</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The criteria the access rule uses to determine if action should be taken on a request.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>value</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>URL_IS</li>
                                                                                                                                                                                                 <li>URL_IS_NOT</li>
                                                                                                                                                                                                 <li>URL_STARTS_WITH</li>
@@ -1578,219 +648,1459 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                            <div>The criteria value.</div>
-                                                        </td>
+                                                                        <div>The criteria the access rule uses to determine if action should be taken on a request.</div>
+                                                    <div>- **URL_IS:** Matches if the concatenation of request URL path and query is identical to the contents of the `value` field. - **URL_IS_NOT:** Matches if the concatenation of request URL path and query is not identical to the contents of the `value` field. - **URL_STARTS_WITH:** Matches if the concatenation of request URL path and query starts with the contents of the `value` field. - **URL_PART_ENDS_WITH:** Matches if the concatenation of request URL path and query ends with the contents of the `value` field. - **URL_PART_CONTAINS:** Matches if the concatenation of request URL path and query contains the contents of the `value` field. - **URL_REGEX:** Matches if the request is described by the regular expression in the `value` field. - **IP_IS:** Matches if the request originates from an IP address in the `value` field. - **IP_IS_NOT:** Matches if the request does not originate from an IP address in the `value` field. - **HTTP_HEADER_CONTAINS:** Matches if the request includes an HTTP header field whose name and value correspond to data specified in the `value` field with a separating colon. **Example:** `host:test.example.com` where `host` is the name of the field and `test.example.com` is the value of the host field. Comparison is independently applied to every header field whose name is a case insensitive match, and the value is required to be case-sensitive identical. - **COUNTRY_IS:** Matches if the request originates from a country in the `value` field. Country codes are in ISO 3166-1 alpha-2 format. For a list of codes, see <a href='https://www.iso.org/obp/ui/#search/code/'>ISO&#x27;s website</a>. - **COUNTRY_IS_NOT:** Matches if the request does not originate from a country in the `value` field. Country codes are in ISO 3166-1 alpha-2 format. For a list of codes, see <a href='https://www.iso.org/obp/ui/#search/code/'>ISO&#x27;s website</a>. - **USER_AGENT_IS:** Matches if the requesting user agent is identical to the contents of the `value` field. Example: `Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0` - **USER_AGENT_IS_NOT:** Matches if the requesting user agent is not identical to the contents of the `value` field. Example: `Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0`</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>value</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The criteria value.</div>
+                                                                                </td>
             </tr>
                     
                                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
-                    <b>action</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">ALLOW</div>
+                    <b>name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
                                     </td>
+                                <td>
+                                                                                                                                                            </td>
                                                                 <td>
-                                            <div>The action to take when the access criteria are met for a rule.</div>
-                                                        </td>
+                                                                        <div>The unique name of the access rule.</div>
+                                                                                </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="3">
+                    <b>address_rate_limiting</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The IP address rate limiting settings used to limit the number of requests from an address.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>allowed_rate_per_address</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of allowed requests per second from one IP address. If unspecified, defaults to `1`.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
                     <b>block_response_code</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">403</div>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
                                     </td>
+                                <td>
+                                                                                                                                                            </td>
                                                                 <td>
-                                            <div>The response status code to return when <em>action=BLOCK</em>, <em>block_action=SET_RESPONSE_CODE</em>, and the access criteria are met.</div>
-                                                        </td>
+                                                                        <div>The response status code returned when a request is blocked. If unspecified, defaults to `503`.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
-                    <b>block_error_page_description</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access blocked by website owner. Please contact support.</div>
+                    <b>is_enabled</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                         / <span style="color: red">required</span>                    </div>
                                     </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
-                                            <div>The description text to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the access criteria are met.</div>
-                                                        </td>
+                                                                        <div>Enables or disables the address rate limiting Web Application Firewall feature.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>max_delayed_count_per_address</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The maximum number of requests allowed to be queued before subsequent requests are dropped. If unspecified, defaults to `10`.</div>
+                                                                                </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="3">
+                    <b>captchas</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A list of CAPTCHA challenge settings. These are used to challenge requests with a CAPTCHA to block bots.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>failure_message</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show when incorrect CAPTCHA text is entered. If unspecified, defaults to `The CAPTCHA was incorrect. Try again.`</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>footer_text</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show in the footer when showing a CAPTCHA challenge. If unspecified, defaults to &#x27;Enter the letters and numbers as they are shown in the image above.&#x27;</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>header_text</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show in the header when showing a CAPTCHA challenge. If unspecified, defaults to &#x27;We have detected an increased number of attempts to access this website. To help us keep this site secure, please let us know that you are not a robot by entering the text from the image below.&#x27;</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>session_expiration_in_seconds</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The amount of time before the CAPTCHA expires, in seconds. If unspecified, defaults to `300`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>submit_label</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show on the label of the CAPTCHA challenge submit button. If unspecified, defaults to `Yes, I am human`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>title</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The title used when displaying a CAPTCHA challenge. If unspecified, defaults to `Are you human?`</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>url</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The unique URL path at which to show the CAPTCHA challenge.</div>
+                                                                                </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="3">
+                    <b>device_fingerprint_challenge</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The device fingerprint challenge settings. Used to detect unique devices based on the device fingerprint information collected in order to block bots.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>action</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>DETECT</li>
+                                                                                                                                                                                                <li>BLOCK</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The action to take on requests from detected bots. If unspecified, defaults to `DETECT`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>action_expiration_in_seconds</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of seconds between challenges for the same IP address. If unspecified, defaults to `60`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>challenge_settings</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div></div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_action</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>SET_RESPONSE_CODE</li>
+                                                                                                                                                                                                <li>SHOW_ERROR_PAGE</li>
+                                                                                                                                                                                                <li>SHOW_CAPTCHA</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The method used to block requests that fail the challenge, if `action` is set to `BLOCK`. If unspecified, defaults to `SHOW_ERROR_PAGE`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_error_page_code</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The error code to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE` and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_error_page_description</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The description text to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access blocked by website owner. Please contact support.`</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_error_page_message</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The message to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access to the website is blocked`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_response_code</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The response status code to return when `action` is set to `BLOCK`, `blockAction` is set to `SET_RESPONSE_CODE` or `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_footer</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show in the footer when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, default to `Enter the letters and numbers as they are shown in image above`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_header</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show in the header when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `We have detected an increased number of attempts to access this webapp. To help us keep this webapp secure, please let us know that you are not a robot by entering the text from captcha below.`</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_submit_label</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show on the label of the CAPTCHA challenge submit button when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Yes, I am human`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_title</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The title used when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Are you human?`</div>
+                                                                                </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>failure_threshold</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of failed requests allowed before taking action. If unspecified, defaults to `10`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>failure_threshold_expiration_in_seconds</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of seconds before the failure threshold resets. If unspecified, defaults to `60`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>is_enabled</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Enables or disables the device fingerprint challenge Web Application Firewall feature.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>max_address_count</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The maximum number of IP addresses permitted with the same device fingerprint. If unspecified, defaults to `20`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>max_address_count_expiration_in_seconds</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of seconds before the maximum addresses count resets. If unspecified, defaults to `60`.</div>
+                                                                                </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="3">
+                    <b>good_bots</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A list of bots allowed to access the web application.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>description</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The description of the bot.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>is_enabled</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Enables or disables the bot.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>key</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The unique key for the bot.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The bot name.</div>
+                                                                                </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="3">
+                    <b>human_interaction_challenge</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The human interaction challenge settings. Used to look for natural human interactions such as mouse movements, time on site, and page scrolling to identify bots.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>action</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>DETECT</li>
+                                                                                                                                                                                                <li>BLOCK</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The action to take against requests from detected bots. If unspecified, defaults to `DETECT`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>action_expiration_in_seconds</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of seconds between challenges for the same IP address. If unspecified, defaults to `60`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>challenge_settings</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div></div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_action</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>SET_RESPONSE_CODE</li>
+                                                                                                                                                                                                <li>SHOW_ERROR_PAGE</li>
+                                                                                                                                                                                                <li>SHOW_CAPTCHA</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The method used to block requests that fail the challenge, if `action` is set to `BLOCK`. If unspecified, defaults to `SHOW_ERROR_PAGE`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_error_page_code</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The error code to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE` and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_error_page_description</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The description text to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access blocked by website owner. Please contact support.`</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_error_page_message</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The message to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access to the website is blocked`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_response_code</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The response status code to return when `action` is set to `BLOCK`, `blockAction` is set to `SET_RESPONSE_CODE` or `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_footer</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show in the footer when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, default to `Enter the letters and numbers as they are shown in image above`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_header</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show in the header when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `We have detected an increased number of attempts to access this webapp. To help us keep this webapp secure, please let us know that you are not a robot by entering the text from captcha below.`</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_submit_label</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show on the label of the CAPTCHA challenge submit button when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Yes, I am human`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_title</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The title used when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Are you human?`</div>
+                                                                                </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>failure_threshold</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of failed requests before taking action. If unspecified, defaults to `10`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>failure_threshold_expiration_in_seconds</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of seconds before the failure threshold resets. If unspecified, defaults to  `60`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>interaction_threshold</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of interactions required to pass the challenge. If unspecified, defaults to `3`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>is_enabled</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Enables or disables the human interaction challenge Web Application Firewall feature.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>recording_period_in_seconds</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of seconds to record the interactions from the user. If unspecified, defaults to `15`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>set_http_header</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Adds an additional HTTP header to requests that fail the challenge before being passed to the origin. Only applicable when the `action` is set to `DETECT`.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The name of the header.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>value</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The value of the header.</div>
+                                                                                </td>
+            </tr>
+                    
+                                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="3">
+                    <b>js_challenge</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The JavaScript challenge settings. Used to challenge requests with a JavaScript challenge and take the action if a browser has no JavaScript support in order to block bots.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>action</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>DETECT</li>
+                                                                                                                                                                                                <li>BLOCK</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The action to take against requests from detected bots. If unspecified, defaults to `DETECT`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>action_expiration_in_seconds</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of seconds between challenges from the same IP address. If unspecified, defaults to `60`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>challenge_settings</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div></div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_action</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>SET_RESPONSE_CODE</li>
+                                                                                                                                                                                                <li>SHOW_ERROR_PAGE</li>
+                                                                                                                                                                                                <li>SHOW_CAPTCHA</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The method used to block requests that fail the challenge, if `action` is set to `BLOCK`. If unspecified, defaults to `SHOW_ERROR_PAGE`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_error_page_code</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The error code to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE` and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_error_page_description</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The description text to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access blocked by website owner. Please contact support.`</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_error_page_message</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The message to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access to the website is blocked`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>block_response_code</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The response status code to return when `action` is set to `BLOCK`, `blockAction` is set to `SET_RESPONSE_CODE` or `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_footer</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show in the footer when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, default to `Enter the letters and numbers as they are shown in image above`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_header</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show in the header when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `We have detected an increased number of attempts to access this webapp. To help us keep this webapp secure, please let us know that you are not a robot by entering the text from captcha below.`</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_submit_label</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The text to show on the label of the CAPTCHA challenge submit button when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Yes, I am human`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>captcha_title</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The title used when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Are you human?`</div>
+                                                                                </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>failure_threshold</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The number of failed requests before taking action. If unspecified, defaults to `10`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>is_enabled</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Enables or disables the JavaScript challenge Web Application Firewall feature.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>set_http_header</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Adds an additional HTTP header to requests that fail the challenge before being passed to the origin. Only applicable when the `action` is set to `DETECT`.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The name of the header.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>value</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The value of the header.</div>
+                                                                                </td>
+            </tr>
+                    
+                                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="3">
+                    <b>origin</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The key in the map of origins referencing the origin used for the Web Application Firewall. The origin must already be included in `Origins`. Required when creating the `WafConfig` resource, but not on update.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="3">
+                    <b>protection_rules</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A list of the protection rules and their details.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>action</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>OFF</li>
+                                                                                                                                                                                                <li>DETECT</li>
+                                                                                                                                                                                                <li>BLOCK</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The action to take when the traffic is detected as malicious. If unspecified, defaults to `OFF`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>description</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The description of the protection rule.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>exclusions</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div></div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>exclusions</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div></div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>target</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>REQUEST_COOKIES</li>
+                                                                                                                                                                                                <li>REQUEST_COOKIE_NAMES</li>
+                                                                                                                                                                                                <li>ARGS</li>
+                                                                                                                                                                                                <li>ARGS_NAMES</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The target of the exclusion.</div>
+                                                                                </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>key</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The unique key of the protection rule.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>labels</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The list of labels for the protection rule.</div>
+                                                    <div>**Note:** Protection rules with a `ResponseBody` label will have no effect unless `isResponseInspected` is true.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>mod_security_rule_ids</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The list of the ModSecurity rule IDs that apply to this protection rule. For more information about ModSecurity&#x27;s open source WAF rules, see <a href='https://www.modsecurity.org/CRS/Documentation/index.html'>Mod Security&#x27;s documentation</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The name of the protection rule.</div>
+                                                                                </td>
             </tr>
                     
                                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="3">
                     <b>protection_settings</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The settings to apply to protection rules.</div>
-                                                        </td>
+                                                                        <div>The settings to apply to protection rules.</div>
+                                                                                </td>
             </tr>
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
-                    <b>media_types</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[u&#39;text/html&#39;, u&#39;text/plain&#39;, u&#39;text/xml&#39;]</div>
-                                    </td>
-                                                                <td>
-                                            <div>The list of media types to allow for inspection, if <em>is_response_inspected=True</em>. Only responses with MIME types in this list will be inspected.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>block_error_page_message</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access to the website is blocked.</div>
-                                    </td>
-                                                                <td>
-                                            <div>The message to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the traffic is detected as malicious by a protection rule.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>max_total_name_length_of_arguments</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">64000</div>
-                                    </td>
-                                                                <td>
-                                            <div>The maximum length allowed for the sum of all argument names, in characters.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>recommendations_period_in_days</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">10</div>
-                                    </td>
-                                                                <td>
-                                            <div>The length of time to analyze traffic, in days. After the analysis period, WafRecommendations will be populated.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>block_error_page_code</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">403</div>
-                                    </td>
-                                                                <td>
-                                            <div>The error code to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the traffic is detected as malicious by a protection rule.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>max_response_size_in_ki_b</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1024</div>
-                                    </td>
-                                                                <td>
-                                            <div>The maximum response size to be fully inspected, in binary kilobytes (KiB). Anything over this limit will be partially inspected.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>block_action</b>
-                                                                            </td>
-                                <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li>SHOW_ERROR_PAGE</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>SET_RESPONSE_CODE</b>&nbsp;&larr;</div></li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                            <div>If <em>action=BLOCK</em>, this specifies how the traffic is blocked when detected as malicious by a protection rule.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>max_argument_count</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">255</div>
-                                    </td>
-                                                                <td>
-                                            <div>The maximum number of arguments allowed to be passed to your application before an action is taken.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>max_name_length_per_argument</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">400</div>
-                                    </td>
-                                                                <td>
-                                            <div>The maximum length allowed for each argument name, in characters.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>is_response_inspected</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
-                                    </td>
-                                                                <td>
-                                            <div>Inspects the response body of origin responses. Can be used to detect leakage of sensitive data.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>block_response_code</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">403</div>
-                                    </td>
-                                                                <td>
-                                            <div>The response code returned when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the traffic is detected as malicious by a protection rule.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
                     <b>allowed_http_methods</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>OPTIONS</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>GET</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>HEAD</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>POST</b>&nbsp;&larr;</div></li>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>OPTIONS</li>
+                                                                                                                                                                                                <li>GET</li>
+                                                                                                                                                                                                <li>HEAD</li>
+                                                                                                                                                                                                <li>POST</li>
                                                                                                                                                                                                 <li>PUT</li>
                                                                                                                                                                                                 <li>DELETE</li>
                                                                                                                                                                                                 <li>TRACE</li>
@@ -1798,197 +2108,339 @@ Parameters
                                                                                                                                                                                                 <li>PATCH</li>
                                                                                                                                                                                                 <li>PROPFIND</li>
                                                                                     </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">[u&#39;OPTIONS&#39;, u&#39;GET&#39;, u&#39;HEAD&#39;, u&#39;POST&#39;]</div>
-                                    </td>
+                                                                            </td>
                                                                 <td>
-                                            <div>The list of allowed HTTP methods. If unspecified, default to [OPTIONS, GET, HEAD, POST].</div>
-                                                        </td>
+                                                                        <div>The list of allowed HTTP methods. If unspecified, default to `[OPTIONS, GET, HEAD, POST]`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>block_action</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>SHOW_ERROR_PAGE</li>
+                                                                                                                                                                                                <li>SET_RESPONSE_CODE</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>If `action` is set to `BLOCK`, this specifies how the traffic is blocked when detected as malicious by a protection rule. If unspecified, defaults to `SET_RESPONSE_CODE`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>block_error_page_code</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The error code to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the traffic is detected as malicious by a protection rule. If unspecified, defaults to `403`.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
                     <b>block_error_page_description</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Access blocked by website owner. Please contact support.</div>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
                                     </td>
-                                                                <td>
-                                            <div>The description text to show on the error page when <em>action=BLOCK</em>, <em>block_action=SHOW_ERROR_PAGE</em>, and the traffic is detected as malicious by a protection rule.</div>
-                                                        </td>
-            </tr>
-                    
-                                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="3">
-                    <b>captchas</b>
-                                                                            </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>A list of CAPTCHA challenge settings. These are used to challenge requests with a CAPTCHA to block bots.</div>
-                                                        </td>
-            </tr>
-                                                            <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>submit_label</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The text to show on the label of the CAPTCHA challenge submit button.</div>
-                                                        </td>
+                                                                        <div>The description text to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the traffic is detected as malicious by a protection rule. If unspecified, defaults to `Access blocked by website owner. Please contact support.`</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
-                    <b>header_text</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">We have detected an increased number of attempts to access this website. To help us keep this site secure, please let us know that you are not a robot by entering the text from the image below.</div>
+                    <b>block_error_page_message</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
                                     </td>
-                                                                <td>
-                                            <div>The text to show in the header when showing a CAPTCHA challenge.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>title</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The title used when displaying a CAPTCHA challenge.</div>
-                                                        </td>
+                                                                        <div>The message to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the traffic is detected as malicious by a protection rule. If unspecified, defaults to &#x27;Access to the website is blocked.&#x27;</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
-                    <b>url</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The unique URL path at which to show the CAPTCHA challenge.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>session_expiration_in_seconds</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The amount of time before the CAPTCHA expires, in seconds.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="2">
-                    <b>footer_text</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">Enter the letters and numbers as they are shown in the image above.</div>
+                    <b>block_response_code</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
                                     </td>
+                                <td>
+                                                                                                                                                            </td>
                                                                 <td>
-                                            <div>The text to show in the footer when showing a CAPTCHA challenge.</div>
-                                                        </td>
+                                                                        <div>The response code returned when `action` is set to `BLOCK`, `blockAction` is set to `SET_RESPONSE_CODE`, and the traffic is detected as malicious by a protection rule. If unspecified, defaults to `403`.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
-                    <b>failure_message</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <b>is_response_inspected</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Inspects the response body of origin responses. Can be used to detect leakage of sensitive data. If unspecified, defaults to `false`.</div>
+                                                    <div>**Note:** Only origin responses with a Content-Type matching a value in `mediaTypes` will be inspected.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>max_argument_count</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The text to show when incorrect CAPTCHA text is entered.</div>
-                                                        </td>
+                                                                        <div>The maximum number of arguments allowed to be passed to your application before an action is taken. If unspecified, defaults to `255`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>max_name_length_per_argument</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The maximum length allowed for each argument name, in characters. If unspecified, defaults to `400`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>max_response_size_in_ki_b</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The maximum response size to be fully inspected, in binary kilobytes (KiB). Anything over this limit will be partially inspected. If unspecified, defaults to `1024`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>max_total_name_length_of_arguments</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The maximum length allowed for the sum of all argument names, in characters. If unspecified, defaults to `64000`.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>media_types</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The list of media types to allow for inspection, if `isResponseInspected` is enabled. Only responses with MIME types in this list will be inspected. If unspecified, defaults to `[`text/html`, `text/plain`, `text/xml`]`.</div>
+                                                    <div>Supported MIME types include:</div>
+                                                    <div>- text/html - text/plain - text/asp - text/css - text/x-script - application/json - text/webviewhtml - text/x-java-source - application/x-javascript - application/javascript - application/ecmascript - text/javascript - text/ecmascript - text/x-script.perl - text/x-script.phyton - application/plain - application/xml - text/xml</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>recommendations_period_in_days</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The length of time to analyze traffic traffic, in days. After the analysis period, `WafRecommendations` will be populated. If unspecified, defaults to `10`.</div>
+                                                    <div>Use `GET /waasPolicies/{waasPolicyId}/wafRecommendations` to view WAF recommendations.</div>
+                                                                                </td>
             </tr>
                     
                                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="3">
                     <b>threat_feeds</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>A list of threat intelligence feeds and the actions to apply to known malicious traffic based on internet intelligence.</div>
-                                                        </td>
+                                                                        <div>A list of threat intelligence feeds and the actions to apply to known malicious traffic based on internet intelligence.</div>
+                                                                                </td>
             </tr>
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
                     <b>action</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                        <ul><b>Choices:</b>
-                                                                                                                                                                                                                                    <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>OFF</li>
                                                                                                                                                                                                 <li>DETECT</li>
                                                                                                                                                                                                 <li>BLOCK</li>
                                                                                     </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">no</div>
-                                    </td>
+                                                                            </td>
                                                                 <td>
-                                            <div>The action to take when traffic is flagged as malicious by data from the threat intelligence feed.</div>
-                                                        </td>
+                                                                        <div>The action to take when traffic is flagged as malicious by data from the threat intelligence feed. If unspecified, defaults to `OFF`.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
                     <b>description</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The description of the threat intelligence feed.</div>
-                                                        </td>
+                                                                        <div>The description of the threat intelligence feed.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
                     <b>key</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The unique key of the threat intelligence feed.</div>
-                                                        </td>
+                                                                        <div>The unique key of the threat intelligence feed.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="2">
                     <b>name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The name of the threat intelligence feed.</div>
-                                                        </td>
+                                                                        <div>The name of the threat intelligence feed.</div>
+                                                                                </td>
+            </tr>
+                    
+                                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="3">
+                    <b>whitelists</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A list of IP addresses that bypass the Web Application Firewall.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>addresses</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A set of IP addresses or CIDR notations to include in the whitelist.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The unique name of the whitelist.</div>
+                                                                                </td>
             </tr>
                     
                                     
                                                 <tr>
                                                                 <td colspan="4">
                     <b>wait</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>no</li>
                                                                                                                                                                                                 <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
                                                                                     </ul>
@@ -2000,7 +2452,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>wait_timeout</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                                     <b>Default:</b><br/><div style="color: blue">1200</div>
                                     </td>
@@ -2011,7 +2466,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="4">
                     <b>wait_until</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -2026,7 +2484,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -2035,22 +2494,23 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Create a WAAS policy
+    - name: Create waas_policy
       oci_waas_policy:
-        cidr_block: '10.0.0.0/16'
-        compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
-        display_name: my_vcn
-        dns_label: ansiblevcn
+        compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
+        domain: domain_example
 
-    - name: Updates the specified VCN's display name
-      oci_vcn:
-        vcn_id: ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
-        display_name: ansible_vcn
+    - name: Update waas_policy
+      oci_waas_policy:
+        display_name: display_name_example
+        origins:
+          uri: uri_example
+        waas_policy_id: ocid1.waaspolicy.oc1..xxxxxxEXAMPLExxxxxx
 
-    - name: Delete the specified VCN
-      oci_vcn:
-        vcn_id: ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
+    - name: Delete waas_policy
+      oci_waas_policy:
+        waas_policy_id: ocid1.waaspolicy.oc1..xxxxxxEXAMPLExxxxxx
         state: absent
+
 
 
 
@@ -2063,206 +2523,2236 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
 
     <table border=0 cellpadding=0 class="documentation-table">
         <tr>
-            <th colspan="2">Key</th>
+            <th colspan="5">Key</th>
             <th>Returned</th>
             <th width="100%">Description</th>
         </tr>
                     <tr>
-                                <td colspan="2">
+                                <td colspan="5">
                     <b>waas_policy</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>on success</td>
                 <td>
-                                            <div>List of waas policies</div>
-                                        <br/>
+                                                                        <div>Details of the WaasPolicy resource acted upon by the current operation</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'lifecycle_state': 'ACTIVE', 'domain': 'www.example.com', 'display_name': 'ansible_test_waas_policy', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'origins': {'LBaaS': {'http_port': 80, 'custom_headers': [], 'https_port': 443, 'uri': '1.2.3.4'}}, 'waf_config': {'origin': 'LBaaS', 'protection_rules': [{'action': 'OFF', 'description': 'Cross-Site Scripting (XSS) Attempt: XSS Filters from IE', 'key': '941340', 'mod_security_rule_ids': ['941340'], 'labels': ['OWASP', 'OWASP-2017', 'CRS3', 'WASCTC', 'PCI', 'HTTP', 'A2', 'A2-2017', 'XSS', 'Cross-Site Scripting'], 'exclusions': [], 'name': 'Cross-Site Scripting (XSS) Attempt: XSS Filters from Internet Explorer'}], 'address_rate_limiting': {'allowed_rate_per_address': 1, 'is_enabled': False, 'block_response_code': 503, 'max_delayed_count_per_address': 10}, 'js_challenge': {'is_enabled': False, 'set_http_header': {'name': 'x-jsc-alerts', 'value': '{failed_amount}'}, 'failure_threshold': 10, 'action': 'DETECT', 'action_expiration_in_seconds': 60, 'challenge_settings': {'block_error_page_message': 'Access to the website is blocked.', 'captcha_footer': 'Enter the letters and numbers as they are shown in image above.', 'block_error_page_code': 'JSC-403', 'block_action': 'SHOW_ERROR_PAGE', 'captcha_title': 'Are you human?', 'captcha_header': 'We have detected an increased number of attempts to access this website.', 'block_response_code': 403, 'block_error_page_description': 'Access blocked by website owner. Please contact support.', 'captcha_submit_label': 'Yes, I am human.'}}, 'device_fingerprint_challenge': {'is_enabled': False, 'failure_threshold_expiration_in_seconds': 60, 'action_expiration_in_seconds': 60, 'max_address_count_expiration_in_seconds': 60, 'failure_threshold': 10, 'action': 'DETECT', 'max_address_count': 20, 'challenge_settings': {'block_error_page_message': 'Access to the website is blocked.', 'captcha_footer': 'Enter the letters and numbers as they are shown in image above.', 'block_error_page_code': 'DFC', 'block_action': 'SHOW_ERROR_PAGE', 'captcha_title': 'Are you human?', 'captcha_header': 'We have detected an increased number of attempts to access this website.', 'block_response_code': 403, 'block_error_page_description': 'Access blocked by website owner. Please contact support.', 'captcha_submit_label': 'Yes, I am human.'}}, 'whitelists': [], 'human_interaction_challenge': {'is_enabled': False, 'set_http_header': None, 'recording_period_in_seconds': 15, 'failure_threshold_expiration_in_seconds': 60, 'action_expiration_in_seconds': 60, 'failure_threshold': 10, 'action': 'DETECT', 'interaction_threshold': 3, 'challenge_settings': {'block_error_page_message': 'Access to the website is blocked.', 'captcha_footer': 'Enter the letters and numbers as they are shown in image above.', 'block_error_page_code': 'HIC', 'block_action': 'SHOW_ERROR_PAGE', 'captcha_title': 'Are you human?', 'captcha_header': 'We have detected an increased number of attempts to access this website.', 'block_response_code': 403, 'block_error_page_description': 'Access blocked by website owner. Please contact support.', 'captcha_submit_label': 'Yes, I am human.'}}, 'good_bots': [{'is_enabled': False, 'description': 'Googlebot is the search bot software used by Google.', 'key': '4a4c6e7b-4d89-4141-8555-ec3b22b90a73', 'name': 'Googlebot '}], 'access_rules': [], 'captchas': []}, 'defined_tags': {'example_namespace': {'example_key': 'example_value'}}, 'freeform_tags': {'example_freeform_key': 'example_freeform_value'}, 'time_created': '2019-03-22T13:02:55.563000+00:00', 'policy_config': {'certificate_id': None, 'is_https_enabled': False, 'is_https_forced': False}, 'cname': 'www-exampledomain-com.b.waas.oci.oraclecloud.net', 'additional_domains': ['www.exampledomain1.com', 'www.exampledomain2.com'], 'id': 'ocid1.waaspolicy.oc1..xxxxxEXAMPLExxxxx'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;CREATING&#x27;, &#x27;domain&#x27;: &#x27;domain_example&#x27;, &#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;origins&#x27;: {&#x27;http_port&#x27;: 56, &#x27;custom_headers&#x27;: [{&#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;value&#x27;: &#x27;value_example&#x27;}], &#x27;uri&#x27;: &#x27;uri_example&#x27;, &#x27;https_port&#x27;: 56}, &#x27;waf_config&#x27;: {&#x27;origin&#x27;: &#x27;origin_example&#x27;, &#x27;protection_rules&#x27;: [{&#x27;mod_security_rule_ids&#x27;: [], &#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;key&#x27;: &#x27;key_example&#x27;, &#x27;action&#x27;: &#x27;OFF&#x27;, &#x27;labels&#x27;: [], &#x27;exclusions&#x27;: [{&#x27;target&#x27;: &#x27;REQUEST_COOKIES&#x27;, &#x27;exclusions&#x27;: []}], &#x27;description&#x27;: &#x27;description_example&#x27;}], &#x27;address_rate_limiting&#x27;: {&#x27;is_enabled&#x27;: True, &#x27;allowed_rate_per_address&#x27;: 56, &#x27;block_response_code&#x27;: 56, &#x27;max_delayed_count_per_address&#x27;: 56}, &#x27;js_challenge&#x27;: {&#x27;is_enabled&#x27;: True, &#x27;set_http_header&#x27;: {&#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;value&#x27;: &#x27;value_example&#x27;}, &#x27;failure_threshold&#x27;: 56, &#x27;action&#x27;: &#x27;DETECT&#x27;, &#x27;action_expiration_in_seconds&#x27;: 56, &#x27;challenge_settings&#x27;: {&#x27;block_error_page_message&#x27;: &#x27;block_error_page_message_example&#x27;, &#x27;captcha_footer&#x27;: &#x27;captcha_footer_example&#x27;, &#x27;block_error_page_code&#x27;: &#x27;block_error_page_code_example&#x27;, &#x27;block_action&#x27;: &#x27;SET_RESPONSE_CODE&#x27;, &#x27;captcha_title&#x27;: &#x27;captcha_title_example&#x27;, &#x27;captcha_header&#x27;: &#x27;captcha_header_example&#x27;, &#x27;block_response_code&#x27;: 56, &#x27;block_error_page_description&#x27;: &#x27;block_error_page_description_example&#x27;, &#x27;captcha_submit_label&#x27;: &#x27;captcha_submit_label_example&#x27;}}, &#x27;device_fingerprint_challenge&#x27;: {&#x27;is_enabled&#x27;: True, &#x27;failure_threshold_expiration_in_seconds&#x27;: 56, &#x27;action_expiration_in_seconds&#x27;: 56, &#x27;max_address_count_expiration_in_seconds&#x27;: 56, &#x27;failure_threshold&#x27;: 56, &#x27;action&#x27;: &#x27;DETECT&#x27;, &#x27;max_address_count&#x27;: 56, &#x27;challenge_settings&#x27;: {&#x27;block_error_page_message&#x27;: &#x27;block_error_page_message_example&#x27;, &#x27;captcha_footer&#x27;: &#x27;captcha_footer_example&#x27;, &#x27;block_error_page_code&#x27;: &#x27;block_error_page_code_example&#x27;, &#x27;block_action&#x27;: &#x27;SET_RESPONSE_CODE&#x27;, &#x27;captcha_title&#x27;: &#x27;captcha_title_example&#x27;, &#x27;captcha_header&#x27;: &#x27;captcha_header_example&#x27;, &#x27;block_response_code&#x27;: 56, &#x27;block_error_page_description&#x27;: &#x27;block_error_page_description_example&#x27;, &#x27;captcha_submit_label&#x27;: &#x27;captcha_submit_label_example&#x27;}}, &#x27;whitelists&#x27;: [{&#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;addresses&#x27;: []}], &#x27;human_interaction_challenge&#x27;: {&#x27;is_enabled&#x27;: True, &#x27;set_http_header&#x27;: {&#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;value&#x27;: &#x27;value_example&#x27;}, &#x27;recording_period_in_seconds&#x27;: 56, &#x27;failure_threshold_expiration_in_seconds&#x27;: 56, &#x27;action_expiration_in_seconds&#x27;: 56, &#x27;failure_threshold&#x27;: 56, &#x27;action&#x27;: &#x27;DETECT&#x27;, &#x27;interaction_threshold&#x27;: 56, &#x27;challenge_settings&#x27;: {&#x27;block_error_page_message&#x27;: &#x27;block_error_page_message_example&#x27;, &#x27;captcha_footer&#x27;: &#x27;captcha_footer_example&#x27;, &#x27;block_error_page_code&#x27;: &#x27;block_error_page_code_example&#x27;, &#x27;block_action&#x27;: &#x27;SET_RESPONSE_CODE&#x27;, &#x27;captcha_title&#x27;: &#x27;captcha_title_example&#x27;, &#x27;captcha_header&#x27;: &#x27;captcha_header_example&#x27;, &#x27;block_response_code&#x27;: 56, &#x27;block_error_page_description&#x27;: &#x27;block_error_page_description_example&#x27;, &#x27;captcha_submit_label&#x27;: &#x27;captcha_submit_label_example&#x27;}}, &#x27;good_bots&#x27;: [{&#x27;is_enabled&#x27;: True, &#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;key&#x27;: &#x27;key_example&#x27;, &#x27;description&#x27;: &#x27;description_example&#x27;}], &#x27;access_rules&#x27;: [{&#x27;block_error_page_message&#x27;: &#x27;block_error_page_message_example&#x27;, &#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;block_error_page_code&#x27;: &#x27;block_error_page_code_example&#x27;, &#x27;block_action&#x27;: &#x27;SET_RESPONSE_CODE&#x27;, &#x27;criteria&#x27;: [{&#x27;condition&#x27;: &#x27;Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0&#x27;, &#x27;value&#x27;: &#x27;value_example&#x27;}], &#x27;action&#x27;: &#x27;ALLOW&#x27;, &#x27;block_response_code&#x27;: 56, &#x27;block_error_page_description&#x27;: &#x27;block_error_page_description_example&#x27;}], &#x27;protection_settings&#x27;: {&#x27;media_types&#x27;: [], &#x27;block_error_page_message&#x27;: &#x27;block_error_page_message_example&#x27;, &#x27;max_total_name_length_of_arguments&#x27;: 56, &#x27;recommendations_period_in_days&#x27;: 56, &#x27;block_error_page_code&#x27;: &#x27;block_error_page_code_example&#x27;, &#x27;max_response_size_in_ki_b&#x27;: 56, &#x27;block_action&#x27;: &#x27;SHOW_ERROR_PAGE&#x27;, &#x27;max_argument_count&#x27;: 56, &#x27;max_name_length_per_argument&#x27;: 56, &#x27;is_response_inspected&#x27;: True, &#x27;block_response_code&#x27;: 56, &#x27;allowed_http_methods&#x27;: [], &#x27;block_error_page_description&#x27;: &#x27;block_error_page_description_example&#x27;}, &#x27;captchas&#x27;: [{&#x27;submit_label&#x27;: &#x27;submit_label_example&#x27;, &#x27;header_text&#x27;: &#x27;header_text_example&#x27;, &#x27;title&#x27;: &#x27;title_example&#x27;, &#x27;url&#x27;: &#x27;url_example&#x27;, &#x27;session_expiration_in_seconds&#x27;: 56, &#x27;footer_text&#x27;: &#x27;footer_text_example&#x27;, &#x27;failure_message&#x27;: &#x27;failure_message_example&#x27;}], &#x27;threat_feeds&#x27;: [{&#x27;action&#x27;: &#x27;OFF&#x27;, &#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;key&#x27;: &#x27;key_example&#x27;, &#x27;description&#x27;: &#x27;description_example&#x27;}]}, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;time_created&#x27;: &#x27;2018-11-16T21:10:29Z&#x27;, &#x27;policy_config&#x27;: {&#x27;certificate_id&#x27;: &#x27;ocid1.certificate.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;is_https_enabled&#x27;: True, &#x27;is_https_forced&#x27;: True}, &#x27;cname&#x27;: &#x27;cname_example&#x27;, &#x27;additional_domains&#x27;: [], &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>lifecycle_state</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The current lifecycle state of the WAAS policy.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ACTIVE</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>domain</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The web application domain that the WAAS policy protects.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">www.exampledomain.com</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>display_name</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The user-friendly name of the WAAS policy.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">examplewaaspolicy1</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>compartment_id</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The OCID of the WAAS policy's compartment.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxEXAMPLExxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>origins</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>A map of host to origin for the web application.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'LBaaS': {'http_port': 80, 'custom_headers': [], 'https_port': 443, 'uri': '1.2.3.4'}}</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>waf_config</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The waf_config of this WaasPolicy.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'origin': 'LBaaS', 'protection_rules': [{'action': 'OFF', 'description': 'Cross-Site Scripting (XSS) Attempt: XSS Filters from IE', 'key': '941340', 'mod_security_rule_ids': ['941340'], 'labels': ['OWASP', 'OWASP-2017', 'CRS3', 'WASCTC', 'PCI', 'HTTP', 'A2', 'A2-2017', 'XSS', 'Cross-Site Scripting'], 'exclusions': [], 'name': 'Cross-Site Scripting (XSS) Attempt: XSS Filters from Internet Explorer'}], 'address_rate_limiting': {'allowed_rate_per_address': 1, 'is_enabled': False, 'block_response_code': 503, 'max_delayed_count_per_address': 10}, 'js_challenge': {'is_enabled': False, 'set_http_header': {'name': 'x-jsc-alerts', 'value': '{failed_amount}'}, 'failure_threshold': 10, 'action': 'DETECT', 'action_expiration_in_seconds': 60, 'challenge_settings': {'block_error_page_message': 'Access to the website is blocked.', 'captcha_footer': 'Enter the letters and numbers as they are shown in image above.', 'block_error_page_code': 'JSC-403', 'block_action': 'SHOW_ERROR_PAGE', 'captcha_title': 'Are you human?', 'captcha_header': 'We have detected an increased number of attempts to access this website.', 'block_response_code': 403, 'block_error_page_description': 'Access blocked by website owner. Please contact support.', 'captcha_submit_label': 'Yes, I am human.'}}, 'device_fingerprint_challenge': {'is_enabled': False, 'failure_threshold_expiration_in_seconds': 60, 'action_expiration_in_seconds': 60, 'max_address_count_expiration_in_seconds': 60, 'failure_threshold': 10, 'action': 'DETECT', 'max_address_count': 20, 'challenge_settings': {'block_error_page_message': 'Access to the website is blocked.', 'captcha_footer': 'Enter the letters and numbers as they are shown in image above.', 'block_error_page_code': 'DFC', 'block_action': 'SHOW_ERROR_PAGE', 'captcha_title': 'Are you human?', 'captcha_header': 'We have detected an increased number of attempts to access this website.', 'block_response_code': 403, 'block_error_page_description': 'Access blocked by website owner. Please contact support.', 'captcha_submit_label': 'Yes, I am human.'}}, 'whitelists': [], 'human_interaction_challenge': {'is_enabled': False, 'set_http_header': None, 'recording_period_in_seconds': 15, 'failure_threshold_expiration_in_seconds': 60, 'action_expiration_in_seconds': 60, 'failure_threshold': 10, 'action': 'DETECT', 'interaction_threshold': 3, 'challenge_settings': {'block_error_page_message': 'Access to the website is blocked.', 'captcha_footer': 'Enter the letters and numbers as they are shown in image above.', 'block_error_page_code': 'HIC', 'block_action': 'SHOW_ERROR_PAGE', 'captcha_title': 'Are you human?', 'captcha_header': 'We have detected an increased number of attempts to access this website.', 'block_response_code': 403, 'block_error_page_description': 'Access blocked by website owner. Please contact support.', 'captcha_submit_label': 'Yes, I am human.'}}, 'good_bots': [{'is_enabled': False, 'description': 'Googlebot is the search bot software used by Google', 'key': '4a4c6e7b-4d89-4141-8555-ec3b22b90a73', 'name': 'Googlebot '}], 'access_rules': [], 'captchas': []}</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>defined_tags</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>A key-value pair with a defined schema that restricts the values of tags. These predefined keys are scoped to namespaces.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'example_namespace': {'example_key': 'example_value'}}</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>freeform_tags</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>A simple key-value pair without any defined schema.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'example_freeform_key': 'example_freeform_value'}</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>time_created</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The date and time the policy was created, expressed in RFC 3339 timestamp format.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-03-22 13:02:55.563000</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>policy_config</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The policy_config of the WaasPolicy.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'certificate_id': None, 'is_https_enabled': False, 'is_https_forced': False}</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>cname</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The CNAME record to add to your DNS configuration to route traffic for the domain, and all additional domains, through the WAF.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">www-exampledomain-com.b.waas.oci.oraclecloud.net</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
+                                <td colspan="4">
                     <b>additional_domains</b>
-                    <br/><div style="font-size: small; color: red">list</div>
+                    <div style="font-size: small; color: purple">list</div>
                                     </td>
-                <td>success</td>
+                <td>on success</td>
                 <td>
-                                            <div>An array of additional domains for this web application.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">['www.exampledomain1.com', 'www.exampledomain2.com']</div>
+                                                                        <div>An array of additional domains for this web application.</div>
+                                                                <br/>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>id</b>
-                    <br/><div style="font-size: small; color: red">str</div>
+                                <td colspan="4">
+                    <b>cname</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>success</td>
+                <td>on success</td>
                 <td>
-                                            <div>The OCID of the WAAS policy.</div>
-                                        <br/>
+                                                                        <div>The CNAME record to add to your DNS configuration to route traffic for the domain, and all additional domains, through the WAF.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.waaspolicy.oc1..xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">cname_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>compartment_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the WAAS policy&#x27;s compartment.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>defined_tags</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A key-value pair with a defined schema that restricts the values of tags. These predefined keys are scoped to namespaces.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>display_name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The user-friendly name of the WAAS policy. The name can be changed and does not need to be unique.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">display_name_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>domain</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The web application domain that the WAAS policy protects.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">domain_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>freeform_tags</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A simple key-value pair without any defined schema.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;Department&#x27;: &#x27;Finance&#x27;}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the WAAS policy.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>lifecycle_state</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The current lifecycle state of the WAAS policy.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">CREATING</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>origins</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A map of host to origin for the web application. The key should be a customer friendly name for the host, ex. primary, secondary, etc.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>custom_headers</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A list of HTTP headers to forward to your origin.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The name of the header.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>value</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The value of the header.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">value_example</div>
                                     </td>
             </tr>
                     
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>http_port</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The HTTP port on the origin that the web application listens on. If unspecified, defaults to `80`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>https_port</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The HTTPS port on the origin that the web application listens on. If unspecified, defaults to `443`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>uri</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The URI of the origin. Does not support paths. Port numbers should be specified in the `httpPort` and `httpsPort` fields.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">uri_example</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>policy_config</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div></div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>certificate_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The OCID of the SSL certificate to use if HTTPS is supported.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.certificate.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>is_https_enabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Enable or disable HTTPS support. If true, a `certificateId` is required. If unspecified, defaults to `false`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>is_https_forced</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Force HTTP to HTTPS redirection. If unspecified, defaults to `false`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>time_created</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The date and time the policy was created, expressed in RFC 3339 timestamp format.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-11-16 21:10:29</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="4">
+                    <b>waf_config</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div></div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>access_rules</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The access rules applied to the Web Application Firewall. Used for defining custom access policies with the combination of `ALLOW`, `DETECT`, and `BLOCK` rules, based on different criteria.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The action to take when the access criteria are met for a rule. If unspecified, defaults to `ALLOW`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ALLOW</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The method used to block requests if `action` is set to `BLOCK` and the access criteria are met. If unspecified, defaults to `SET_RESPONSE_CODE`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">SET_RESPONSE_CODE</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_error_page_code</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The error code to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the access criteria are met. If unspecified, defaults to &#x27;Access rules&#x27;.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_code_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_error_page_description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The description text to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the access criteria are met. If unspecified, defaults to &#x27;Access blocked by website owner. Please contact support.&#x27;</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_description_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_error_page_message</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The message to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the access criteria are met. If unspecified, defaults to &#x27;Access to the website is blocked.&#x27;</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_message_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_response_code</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The response status code to return when `action` is set to `BLOCK`, `blockAction` is set to `SET_RESPONSE_CODE`, and the access criteria are met. If unspecified, defaults to `403`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>criteria</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The list of access rule criteria.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>condition</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The criteria the access rule uses to determine if action should be taken on a request.</div>
+                                                    <div>- **URL_IS:** Matches if the concatenation of request URL path and query is identical to the contents of the `value` field. - **URL_IS_NOT:** Matches if the concatenation of request URL path and query is not identical to the contents of the `value` field. - **URL_STARTS_WITH:** Matches if the concatenation of request URL path and query starts with the contents of the `value` field. - **URL_PART_ENDS_WITH:** Matches if the concatenation of request URL path and query ends with the contents of the `value` field. - **URL_PART_CONTAINS:** Matches if the concatenation of request URL path and query contains the contents of the `value` field. - **URL_REGEX:** Matches if the request is described by the regular expression in the `value` field. - **IP_IS:** Matches if the request originates from an IP address in the `value` field. - **IP_IS_NOT:** Matches if the request does not originate from an IP address in the `value` field. - **HTTP_HEADER_CONTAINS:** Matches if the request includes an HTTP header field whose name and value correspond to data specified in the `value` field with a separating colon. **Example:** `host:test.example.com` where `host` is the name of the field and `test.example.com` is the value of the host field. Comparison is independently applied to every header field whose name is a case insensitive match, and the value is required to be case-sensitive identical. - **COUNTRY_IS:** Matches if the request originates from a country in the `value` field. Country codes are in ISO 3166-1 alpha-2 format. For a list of codes, see <a href='https://www.iso.org/obp/ui/#search/code/'>ISO&#x27;s website</a>. - **COUNTRY_IS_NOT:** Matches if the request does not originate from a country in the `value` field. Country codes are in ISO 3166-1 alpha-2 format. For a list of codes, see <a href='https://www.iso.org/obp/ui/#search/code/'>ISO&#x27;s website</a>. - **USER_AGENT_IS:** Matches if the requesting user agent is identical to the contents of the `value` field. Example: `Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0` - **USER_AGENT_IS_NOT:** Matches if the requesting user agent is not identical to the contents of the `value` field. Example: `Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>value</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The criteria value.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">value_example</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The unique name of the access rule.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>address_rate_limiting</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The IP address rate limiting settings used to limit the number of requests from an address.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>allowed_rate_per_address</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of allowed requests per second from one IP address. If unspecified, defaults to `1`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_response_code</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The response status code returned when a request is blocked. If unspecified, defaults to `503`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>is_enabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Enables or disables the address rate limiting Web Application Firewall feature.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>max_delayed_count_per_address</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The maximum number of requests allowed to be queued before subsequent requests are dropped. If unspecified, defaults to `10`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>captchas</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A list of CAPTCHA challenge settings. These are used to challenge requests with a CAPTCHA to block bots.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>failure_message</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show when incorrect CAPTCHA text is entered. If unspecified, defaults to `The CAPTCHA was incorrect. Try again.`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">failure_message_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>footer_text</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show in the footer when showing a CAPTCHA challenge. If unspecified, defaults to &#x27;Enter the letters and numbers as they are shown in the image above.&#x27;</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">footer_text_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>header_text</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show in the header when showing a CAPTCHA challenge. If unspecified, defaults to &#x27;We have detected an increased number of attempts to access this website. To help us keep this site secure, please let us know that you are not a robot by entering the text from the image below.&#x27;</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">header_text_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>session_expiration_in_seconds</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The amount of time before the CAPTCHA expires, in seconds. If unspecified, defaults to `300`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>submit_label</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show on the label of the CAPTCHA challenge submit button. If unspecified, defaults to `Yes, I am human`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">submit_label_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>title</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The title used when displaying a CAPTCHA challenge. If unspecified, defaults to `Are you human?`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">title_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>url</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The unique URL path at which to show the CAPTCHA challenge.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">url_example</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>device_fingerprint_challenge</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The device fingerprint challenge settings. Used to detect unique devices based on the device fingerprint information collected in order to block bots.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The action to take on requests from detected bots. If unspecified, defaults to `DETECT`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">DETECT</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>action_expiration_in_seconds</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of seconds between challenges for the same IP address. If unspecified, defaults to `60`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>challenge_settings</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div></div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The method used to block requests that fail the challenge, if `action` is set to `BLOCK`. If unspecified, defaults to `SHOW_ERROR_PAGE`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">SET_RESPONSE_CODE</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_error_page_code</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The error code to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE` and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_code_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_error_page_description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The description text to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access blocked by website owner. Please contact support.`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_description_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_error_page_message</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The message to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access to the website is blocked`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_message_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_response_code</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The response status code to return when `action` is set to `BLOCK`, `blockAction` is set to `SET_RESPONSE_CODE` or `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_footer</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show in the footer when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, default to `Enter the letters and numbers as they are shown in image above`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_footer_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_header</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show in the header when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `We have detected an increased number of attempts to access this webapp. To help us keep this webapp secure, please let us know that you are not a robot by entering the text from captcha below.`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_header_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_submit_label</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show on the label of the CAPTCHA challenge submit button when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Yes, I am human`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_submit_label_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_title</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The title used when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Are you human?`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_title_example</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>failure_threshold</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of failed requests allowed before taking action. If unspecified, defaults to `10`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>failure_threshold_expiration_in_seconds</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of seconds before the failure threshold resets. If unspecified, defaults to `60`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>is_enabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Enables or disables the device fingerprint challenge Web Application Firewall feature.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>max_address_count</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The maximum number of IP addresses permitted with the same device fingerprint. If unspecified, defaults to `20`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>max_address_count_expiration_in_seconds</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of seconds before the maximum addresses count resets. If unspecified, defaults to `60`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>good_bots</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A list of bots allowed to access the web application.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The description of the bot.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">description_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>is_enabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Enables or disables the bot.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>key</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The unique key for the bot.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">key_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The bot name.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>human_interaction_challenge</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The human interaction challenge settings. Used to look for natural human interactions such as mouse movements, time on site, and page scrolling to identify bots.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The action to take against requests from detected bots. If unspecified, defaults to `DETECT`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">DETECT</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>action_expiration_in_seconds</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of seconds between challenges for the same IP address. If unspecified, defaults to `60`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>challenge_settings</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div></div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The method used to block requests that fail the challenge, if `action` is set to `BLOCK`. If unspecified, defaults to `SHOW_ERROR_PAGE`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">SET_RESPONSE_CODE</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_error_page_code</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The error code to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE` and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_code_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_error_page_description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The description text to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access blocked by website owner. Please contact support.`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_description_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_error_page_message</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The message to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access to the website is blocked`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_message_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_response_code</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The response status code to return when `action` is set to `BLOCK`, `blockAction` is set to `SET_RESPONSE_CODE` or `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_footer</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show in the footer when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, default to `Enter the letters and numbers as they are shown in image above`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_footer_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_header</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show in the header when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `We have detected an increased number of attempts to access this webapp. To help us keep this webapp secure, please let us know that you are not a robot by entering the text from captcha below.`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_header_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_submit_label</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show on the label of the CAPTCHA challenge submit button when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Yes, I am human`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_submit_label_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_title</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The title used when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Are you human?`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_title_example</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>failure_threshold</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of failed requests before taking action. If unspecified, defaults to `10`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>failure_threshold_expiration_in_seconds</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of seconds before the failure threshold resets. If unspecified, defaults to  `60`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>interaction_threshold</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of interactions required to pass the challenge. If unspecified, defaults to `3`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>is_enabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Enables or disables the human interaction challenge Web Application Firewall feature.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>recording_period_in_seconds</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of seconds to record the interactions from the user. If unspecified, defaults to `15`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>set_http_header</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Adds an additional HTTP header to requests that fail the challenge before being passed to the origin. Only applicable when the `action` is set to `DETECT`.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The name of the header.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>value</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The value of the header.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">value_example</div>
+                                    </td>
+            </tr>
+                    
+                                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>js_challenge</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The JavaScript challenge settings. Used to challenge requests with a JavaScript challenge and take the action if a browser has no JavaScript support in order to block bots.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The action to take against requests from detected bots. If unspecified, defaults to `DETECT`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">DETECT</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>action_expiration_in_seconds</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of seconds between challenges from the same IP address. If unspecified, defaults to `60`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>challenge_settings</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div></div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The method used to block requests that fail the challenge, if `action` is set to `BLOCK`. If unspecified, defaults to `SHOW_ERROR_PAGE`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">SET_RESPONSE_CODE</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_error_page_code</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The error code to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE` and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_code_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_error_page_description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The description text to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access blocked by website owner. Please contact support.`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_description_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_error_page_message</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The message to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `Access to the website is blocked`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_message_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>block_response_code</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The response status code to return when `action` is set to `BLOCK`, `blockAction` is set to `SET_RESPONSE_CODE` or `SHOW_ERROR_PAGE`, and the request is blocked. If unspecified, defaults to `403`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_footer</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show in the footer when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, default to `Enter the letters and numbers as they are shown in image above`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_footer_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_header</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show in the header when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `We have detected an increased number of attempts to access this webapp. To help us keep this webapp secure, please let us know that you are not a robot by entering the text from captcha below.`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_header_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_submit_label</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The text to show on the label of the CAPTCHA challenge submit button when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Yes, I am human`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_submit_label_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>captcha_title</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The title used when showing a CAPTCHA challenge when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_CAPTCHA`, and the request is blocked. If unspecified, defaults to `Are you human?`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">captcha_title_example</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>failure_threshold</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of failed requests before taking action. If unspecified, defaults to `10`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>is_enabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Enables or disables the JavaScript challenge Web Application Firewall feature.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>set_http_header</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Adds an additional HTTP header to requests that fail the challenge before being passed to the origin. Only applicable when the `action` is set to `DETECT`.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The name of the header.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>value</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The value of the header.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">value_example</div>
+                                    </td>
+            </tr>
+                    
+                                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>origin</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The key in the map of origins referencing the origin used for the Web Application Firewall. The origin must already be included in `Origins`. Required when creating the `WafConfig` resource, but not on update.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">origin_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>protection_rules</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A list of the protection rules and their details.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The action to take when the traffic is detected as malicious. If unspecified, defaults to `OFF`.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The description of the protection rule.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">description_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>exclusions</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div></div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>exclusions</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div></div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>target</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The target of the exclusion.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">REQUEST_COOKIES</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>key</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The unique key of the protection rule.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">key_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>labels</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The list of labels for the protection rule.</div>
+                                                    <div>**Note:** Protection rules with a `ResponseBody` label will have no effect unless `isResponseInspected` is true.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>mod_security_rule_ids</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The list of the ModSecurity rule IDs that apply to this protection rule. For more information about ModSecurity&#x27;s open source WAF rules, see <a href='https://www.modsecurity.org/CRS/Documentation/index.html'>Mod Security&#x27;s documentation</a>.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The name of the protection rule.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>protection_settings</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The settings to apply to protection rules.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>allowed_http_methods</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The list of allowed HTTP methods. If unspecified, default to `[OPTIONS, GET, HEAD, POST]`.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>If `action` is set to `BLOCK`, this specifies how the traffic is blocked when detected as malicious by a protection rule. If unspecified, defaults to `SET_RESPONSE_CODE`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">SHOW_ERROR_PAGE</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_error_page_code</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The error code to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the traffic is detected as malicious by a protection rule. If unspecified, defaults to `403`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_code_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_error_page_description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The description text to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the traffic is detected as malicious by a protection rule. If unspecified, defaults to `Access blocked by website owner. Please contact support.`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_description_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_error_page_message</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The message to show on the error page when `action` is set to `BLOCK`, `blockAction` is set to `SHOW_ERROR_PAGE`, and the traffic is detected as malicious by a protection rule. If unspecified, defaults to &#x27;Access to the website is blocked.&#x27;</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">block_error_page_message_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>block_response_code</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The response code returned when `action` is set to `BLOCK`, `blockAction` is set to `SET_RESPONSE_CODE`, and the traffic is detected as malicious by a protection rule. If unspecified, defaults to `403`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>is_response_inspected</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Inspects the response body of origin responses. Can be used to detect leakage of sensitive data. If unspecified, defaults to `false`.</div>
+                                                    <div>**Note:** Only origin responses with a Content-Type matching a value in `mediaTypes` will be inspected.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>max_argument_count</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The maximum number of arguments allowed to be passed to your application before an action is taken. If unspecified, defaults to `255`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>max_name_length_per_argument</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The maximum length allowed for each argument name, in characters. If unspecified, defaults to `400`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>max_response_size_in_ki_b</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The maximum response size to be fully inspected, in binary kilobytes (KiB). Anything over this limit will be partially inspected. If unspecified, defaults to `1024`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>max_total_name_length_of_arguments</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The maximum length allowed for the sum of all argument names, in characters. If unspecified, defaults to `64000`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>media_types</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The list of media types to allow for inspection, if `isResponseInspected` is enabled. Only responses with MIME types in this list will be inspected. If unspecified, defaults to `[`text/html`, `text/plain`, `text/xml`]`.</div>
+                                                    <div>Supported MIME types include:</div>
+                                                    <div>- text/html - text/plain - text/asp - text/css - text/x-script - application/json - text/webviewhtml - text/x-java-source - application/x-javascript - application/javascript - application/ecmascript - text/javascript - text/ecmascript - text/x-script.perl - text/x-script.phyton - application/plain - application/xml - text/xml</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>recommendations_period_in_days</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The length of time to analyze traffic traffic, in days. After the analysis period, `WafRecommendations` will be populated. If unspecified, defaults to `10`.</div>
+                                                    <div>Use `GET /waasPolicies/{waasPolicyId}/wafRecommendations` to view WAF recommendations.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>threat_feeds</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A list of threat intelligence feeds and the actions to apply to known malicious traffic based on internet intelligence.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The action to take when traffic is flagged as malicious by data from the threat intelligence feed. If unspecified, defaults to `OFF`.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The description of the threat intelligence feed.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">description_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>key</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The unique key of the threat intelligence feed.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">key_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The name of the threat intelligence feed.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="3">
+                    <b>whitelists</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A list of IP addresses that bypass the Web Application Firewall.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>addresses</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A set of IP addresses or CIDR notations to include in the whitelist.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The unique name of the whitelist.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
+                                    </td>
+            </tr>
+                    
+                                    
+                                    
                                         </table>
     <br/><br/>
 
@@ -2272,18 +4762,23 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
+
+
+Authors
+~~~~~~~
 
 - Manoj Meda (@manojmeda)
+- Mike Ross (@mross22)
+- Nabeel Al-Saber (@nalsaber)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_waas_policy.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_waas_policy.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

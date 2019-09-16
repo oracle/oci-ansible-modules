@@ -5,27 +5,30 @@
 .. _oci_drg_attachment_module:
 
 
-oci_drg_attachment - Manage Dynamic Routing Gateways(DRG) attachments in OCI
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_drg_attachment -- Manage a DrgAttachment resource in Oracle Cloud Infrastructure
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
 --------
-- This module allows the user to create, delete and update a dynamic routing gateway(DRG) attachment in OCI.
+- This module allows the user to create, update and delete a DrgAttachment resource in Oracle Cloud Infrastructure
+- For *state=present*, attaches the specified DRG to the specified VCN. A VCN can be attached to only one DRG at a time, and vice versa. The response includes a `DrgAttachment` object with its own OCID. For more information about DRGs, see L(Dynamic Routing Gateways (DRGs),https://docs.cloud.oracle.com/Content/Network/Tasks/managingDRGs.htm).
+- You may optionally specify a *display name* for the attachment, otherwise a default is provided. It does not have to be unique, and you can change it. Avoid entering confidential information.
+- For the purposes of access control, the DRG attachment is automatically placed into the same compartment as the VCN. For more information about compartments and access control, see `Overview of the IAM Service <https://docs.cloud.oracle.com/Content/Identity/Concepts/overview.htm>`_.
 
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,27 +46,36 @@ Parameters
                     <tr>
                                                                 <td colspan="1">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -73,7 +85,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,21 +98,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -107,7 +128,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -117,53 +141,70 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>display_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>A user-friendly name. Does not have to be unique, and it's changeable. Avoid entering confidential information.</div>
+                                                                        <div>A user-friendly name. Does not have to be unique. Avoid entering confidential information.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: name</div>
                                     </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>drg_attachment_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the DRG attachment. Required when deleting a DRG attachment with <em>state=absent</em> or updating a DRG attachment with <em>state=present</em>.</div>
+                                                                        <div>The OCID of the DRG attachment.</div>
+                                                    <div>Required for update using <em>state=present</em>, <em>state=absent</em>.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>drg_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the DRG. Required when creating a DRG attachment with <em>state=present</em>.</div>
+                                                                        <div>The OCID of the DRG.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>force_create</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>yes</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn't create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
+                                                                        <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn&#x27;t create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>key_by</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -173,7 +214,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -182,22 +226,45 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>state</b>
-                                                                            </td>
+                    <b>route_table_id</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the route table the DRG attachment will use.</div>
+                                                    <div>If you don&#x27;t specify a route table here, the DRG attachment is created without an associated route table. The Networking service does NOT automatically associate the attached VCN&#x27;s default route table with the DRG attachment.</div>
+                                                    <div>For information about why you would associate a route table with a DRG attachment, see <a href='https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm'>Advanced Scenario: Transit Routing</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>state</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>absent</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Create or update a DRG attachment with <em>state=present</em>. Use <em>state=absent</em> to delete a DRG attachment.</div>
+                                                                        <div>The state of the DrgAttachment.</div>
+                                                    <div>Use <em>state=present</em> to create or update a DrgAttachment.</div>
+                                                    <div>Use <em>state=absent</em> to delete a DrgAttachment.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -207,19 +274,26 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>vcn_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the VCN. Required when creating a DRG attachment with <em>state=present</em>.</div>
+                                                                        <div>The OCID of the VCN.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>wait</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>no</li>
                                                                                                                                                                                                 <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
                                                                                     </ul>
@@ -231,7 +305,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>wait_timeout</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                                     <b>Default:</b><br/><div style="color: blue">1200</div>
                                     </td>
@@ -242,7 +319,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>wait_until</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -257,7 +337,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -266,21 +347,22 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Attach a DRG to a VCN
+    - name: Create drg_attachment
       oci_drg_attachment:
-        drg_id: ocid1.drg.oc1.phx.xxxxxEXAMPLExxxxx
-        vcn_id: ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
-        name: sample-attachment
+        drg_id: ocid1.drg.oc1..xxxxxxEXAMPLExxxxxx
+        vcn_id: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
 
-    - name: Update the specified DRG attachment's display name
+    - name: Update drg_attachment
       oci_drg_attachment:
-        id: ocid1.drgatttachment.oc1.phx.xxxxxEXAMPLExxxxx
-        display_name: ansible-drg-attachment
+        display_name: display_name_example
+        route_table_id: ocid1.routetable.oc1..xxxxxxEXAMPLExxxxxx
+        drg_attachment_id: ocid1.drgattachment.oc1..xxxxxxEXAMPLExxxxxx
 
-    - name: Delete DRG attachment to detach the corresponding DRG from the VCN
+    - name: Delete drg_attachment
       oci_drg_attachment:
-        id: ocid1.drgatttachment.oc1.phx.xxxxxEXAMPLExxxxx
+        drg_attachment_id: ocid1.drgattachment.oc1..xxxxxxEXAMPLExxxxxx
         state: absent
+
 
 
 
@@ -293,24 +375,138 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
 
     <table border=0 cellpadding=0 class="documentation-table">
         <tr>
-            <th colspan="1">Key</th>
+            <th colspan="2">Key</th>
             <th>Returned</th>
             <th width="100%">Description</th>
         </tr>
                     <tr>
-                                <td colspan="1">
+                                <td colspan="2">
                     <b>drg_attachment</b>
-                    <br/><div style="font-size: small; color: red">dict</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
-                <td>On successful operation</td>
+                <td>on success</td>
                 <td>
-                                            <div>Information about the DRG attachment</div>
-                                        <br/>
+                                                                        <div>Details of the DrgAttachment resource acted upon by the current operation</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'ATTACHED', 'drg_id': 'ocid1.drg.oc1.phx.xxxxxEXAMPLExxxxx', 'display_name': 'ansible-drg-attachment', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'vcn_id': 'ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx', 'id': 'ocid1.drgatttachment.oc1.phx.xxxxxEXAMPLExxxxx', 'time_created': '2017-11-13T20:22:40.626000+00:00'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;ATTACHING&#x27;, &#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;vcn_id&#x27;: &#x27;ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;drg_id&#x27;: &#x27;ocid1.drg.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;route_table_id&#x27;: &#x27;ocid1.routetable.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;}</div>
                                     </td>
             </tr>
-                        </table>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>compartment_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The OCID of the compartment containing the DRG attachment.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>display_name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A user-friendly name. Does not have to be unique, and it&#x27;s changeable. Avoid entering confidential information.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">display_name_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>drg_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The OCID of the DRG.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.drg.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The DRG attachment&#x27;s Oracle ID (OCID).</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>lifecycle_state</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The DRG attachment&#x27;s current state.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ATTACHING</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>route_table_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The OCID of the route table the DRG attachment is using. For information about why you would associate a route table with a DRG attachment, see <a href='https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm'>Advanced Scenario: Transit Routing</a>.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.routetable.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>time_created</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The date and time the DRG attachment was created, in the format defined by RFC3339.</div>
+                                                    <div>Example: `2016-08-25T21:10:29.600Z`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>vcn_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The OCID of the VCN.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                    
+                                        </table>
     <br/><br/>
 
 
@@ -319,18 +515,23 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
 
-- Rohit Chaware (@rohitChaware)
+
+Authors
+~~~~~~~
+
+- Manoj Meda (@manojmeda)
+- Mike Ross (@mross22)
+- Nabeel Al-Saber (@nalsaber)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_drg_attachment.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_drg_attachment.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -288,7 +288,7 @@ def main():
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=["id", "create_vnic_details"],
+        mutually_exclusive=[("id", "create_vnic_details")],
         required_if=[("state", "absent", ["vnic_attachment_id"])],
     )
 

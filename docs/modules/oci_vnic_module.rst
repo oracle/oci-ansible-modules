@@ -5,14 +5,14 @@
 .. _oci_vnic_module:
 
 
-oci_vnic - Update a VNIC
-++++++++++++++++++++++++
+oci_vnic -- Update a VNIC
++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
@@ -22,10 +22,10 @@ Synopsis
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,27 +43,36 @@ Parameters
                     <tr>
                                                                 <td colspan="1">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -73,7 +82,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,21 +95,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -107,7 +125,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -117,17 +138,23 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>hostname_label</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The hostname for the VNIC's primary private IP. Used for DNS. The value is the hostname portion of the primary private IP's fully qualified domain name (FQDN) (for example, bminstance-1 in FQDN bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all VNICs in the subnet and comply with RFC 952 and RFC 1123.</div>
+                                                                        <div>The hostname for the VNIC&#x27;s primary private IP. Used for DNS. The value is the hostname portion of the primary private IP&#x27;s fully qualified domain name (FQDN) (for example, bminstance-1 in FQDN bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all VNICs in the subnet and comply with RFC 952 and RFC 1123.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -138,7 +165,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -148,9 +178,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>skip_source_dest_check</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>yes</li>
                                                                                     </ul>
@@ -162,9 +195,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>state</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
                                                                                     </ul>
                                                                             </td>
@@ -175,7 +211,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -185,7 +224,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>vnic_id</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -201,7 +243,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -238,14 +281,14 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <tr>
                                 <td colspan="1">
                     <b>vnic</b>
-                    <br/><div style="font-size: small; color: red">dict</div>
+                    <div style="font-size: small; color: purple">dictionary</div>
                                     </td>
                 <td>On success</td>
                 <td>
                                             <div>Details of the VNIC attachment</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'AVAILABLE', 'availability_domain': 'BnQb:PHX-AD-1', 'display_name': 'my_test_secondary_vnic_name_mod', 'hostname_label': 'ansible-test-45-1', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...lwbvm62xq', 'subnet_id': 'ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...smpqpaoa', 'is_primary': False, 'time_created': '2017-11-26T16:24:39.642000+00:00', 'public_ip': None, 'skip_source_dest_check': False, 'private_ip': '10.0.0.11', 'mac_address': '00:00:17:00:BC:6A', 'id': 'ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...2beqa'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;my_test_secondary_vnic_name_mod&#x27;, &#x27;hostname_label&#x27;: &#x27;ansible-test-45-1&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...lwbvm62xq&#x27;, &#x27;subnet_id&#x27;: &#x27;ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...smpqpaoa&#x27;, &#x27;is_primary&#x27;: False, &#x27;time_created&#x27;: &#x27;2017-11-26T16:24:39.642000+00:00&#x27;, &#x27;public_ip&#x27;: None, &#x27;skip_source_dest_check&#x27;: False, &#x27;private_ip&#x27;: &#x27;10.0.0.11&#x27;, &#x27;mac_address&#x27;: &#x27;00:00:17:00:BC:6A&#x27;, &#x27;id&#x27;: &#x27;ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...2beqa&#x27;}</div>
                                     </td>
             </tr>
                         </table>
@@ -257,18 +300,21 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
+
+
+Authors
+~~~~~~~
 
 - Sivakumar Thyagarajan (@sivakumart)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_vnic.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_vnic.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

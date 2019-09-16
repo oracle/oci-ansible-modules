@@ -51,15 +51,25 @@
     sample_ad_name: "{{ lookup('env', 'SAMPLE_AD_NAME') }}"
 
   tasks:
-    - import_tasks: setup.yaml
+    - block:
 
-    - name: ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }}
-      debug: msg="The setup is complete, and an instance is running and can be connected to, with the command in this task's title above. To check if instance-principal based authentication is working, copy over the script, instance-principal-test.sh, to the provisioned instance, and execute the script in that instance"
+        - import_tasks: setup.yaml
 
-    - name: Copy instances principals test script to instance
-      local_action: command scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem instance-principal-test.sh opc@{{ instance_public_ip }}:/home/opc/
+        - name: ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }}
+          debug: msg="The setup is complete, and an instance is running and can be connected to, with the command in this task's title above. To check if instance-principal based authentication is working, copy over the script, instance-principal-test.sh, to the provisioned instance, and execute the script in that instance"
 
-    - name: Run instance principals test script remotely on instance
-      local_action: command ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }} /home/opc/instance-principal-test.sh
+        - name: Copy instances principals test script to instance
+          local_action: command scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem instance-principal-test.sh opc@{{ instance_public_ip }}:/home/opc/
 
-    - import_tasks: teardown.yaml
+        - name: Run instance principals test script remotely on instance
+          local_action: command ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i {{ temp_certificates_path }}/private_key.pem opc@{{ instance_public_ip }} /home/opc/instance-principal-test.sh
+
+        - import_tasks: teardown.yaml
+
+      rescue:
+
+        - import_tasks: teardown.yaml
+          ignore_errors: yes
+
+        - fail:
+            msg: "The sample execution failed."

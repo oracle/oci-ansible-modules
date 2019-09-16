@@ -16,28 +16,36 @@
     - "{{ sample_bucket_name }}"
     - another_bucket
 
-- name: Delete users
+- name: Delete alice user
   oci_user:
-    id: "{{ item }}"
+    id: "{{ alice_user_ocid }}"
     state: absent
     force: yes
-  with_items:
-    - "{{ alice_user_ocid }}"
-    - "{{ bob_user_ocid }}"
+
+- name: Delete bob user
+  oci_user:
+    id: "{{ bob_user_ocid }}"
+    state: absent
+    force: yes
 
 - name: Delete groups
   oci_group:
-    id: "{{ item }}"
+    id: "{{ object_readers_group_ocid }}"
     state: absent
     force: yes
-  with_items:
-    - "{{ object_readers_group_ocid }}"
-    - "{{ object_writers_group_ocid }}"
+
+- name: Delete groups
+  oci_group:
+    id: "{{ object_writers_group_ocid }}"
+    state: absent
+    force: yes
 
 - name: Delete policies
   oci_policy:
-    id: "{{ item }}"
+    id: "{{ object_readers_policy_ocid }}"
     state: absent
-  with_items:
-    - "{{ object_readers_policy_ocid }}"
-    - "{{ object_writers_policy_ocid }}"
+
+- name: Delete policies
+  oci_policy:
+    id: "{{ object_writers_policy_ocid }}"
+    state: absent

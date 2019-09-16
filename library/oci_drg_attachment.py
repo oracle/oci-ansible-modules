@@ -1,9 +1,10 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+
 
 from __future__ import absolute_import, division, print_function
 
@@ -18,76 +19,159 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: oci_drg_attachment
-short_description: Manage Dynamic Routing Gateways(DRG) attachments in OCI
+short_description: Manage a DrgAttachment resource in Oracle Cloud Infrastructure
 description:
-    - This module allows the user to create, delete and update a dynamic routing gateway(DRG) attachment in OCI.
+    - This module allows the user to create, update and delete a DrgAttachment resource in Oracle Cloud Infrastructure
+    - For I(state=present), attaches the specified DRG to the specified VCN. A VCN can be attached to only one DRG at a time,
+      and vice versa. The response includes a `DrgAttachment` object with its own OCID. For more
+      information about DRGs, see
+      L(Dynamic Routing Gateways (DRGs),https://docs.cloud.oracle.com/Content/Network/Tasks/managingDRGs.htm).
+    - "You may optionally specify a *display name* for the attachment, otherwise a default is provided.
+      It does not have to be unique, and you can change it. Avoid entering confidential information."
+    - For the purposes of access control, the DRG attachment is automatically placed into the same compartment
+      as the VCN. For more information about compartments and access control, see
+      L(Overview of the IAM Service,https://docs.cloud.oracle.com/Content/Identity/Concepts/overview.htm).
 version_added: "2.5"
 options:
-    drg_id:
-        description: The OCID of the DRG. Required when creating a DRG attachment with I(state=present).
-        required: false
     display_name:
-        description: A user-friendly name. Does not have to be unique, and it's changeable. Avoid entering confidential
-                     information.
-        required: false
-        aliases: [ 'name' ]
-    drg_attachment_id:
-        description: The OCID of the DRG attachment. Required when deleting a DRG attachment with I(state=absent) or
-                     updating a DRG attachment with I(state=present).
-        required: false
-        aliases: [ 'id' ]
-    state:
-        description: Create or update a DRG attachment with I(state=present). Use I(state=absent) to delete a DRG
-                     attachment.
-        required: false
-        default: present
-        choices: ['present', 'absent']
+        description:
+            - A user-friendly name. Does not have to be unique. Avoid entering confidential information.
+        aliases: ["name"]
+    drg_id:
+        description:
+            - The OCID of the DRG.
+            - Required for create using I(state=present).
+    route_table_id:
+        description:
+            - The OCID of the route table the DRG attachment will use.
+            - If you don't specify a route table here, the DRG attachment is created without an associated route
+              table. The Networking service does NOT automatically associate the attached VCN's default route table
+              with the DRG attachment.
+            - "For information about why you would associate a route table with a DRG attachment, see
+              L(Advanced Scenario: Transit Routing,https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm)."
     vcn_id:
-        description: The OCID of the VCN. Required when creating a DRG attachment with I(state=present).
+        description:
+            - The OCID of the VCN.
+            - Required for create using I(state=present).
+    drg_attachment_id:
+        description:
+            - The OCID of the DRG attachment.
+            - Required for update using I(state=present), I(state=absent).
+        aliases: ["id"]
+    state:
+        description:
+            - The state of the DrgAttachment.
+            - Use I(state=present) to create or update a DrgAttachment.
+            - Use I(state=absent) to delete a DrgAttachment.
         required: false
-author: "Rohit Chaware (@rohitChaware)"
+        default: 'present'
+        choices: ["present", "absent"]
+author:
+    - Manoj Meda (@manojmeda)
+    - Mike Ross (@mross22)
+    - Nabeel Al-Saber (@nalsaber)
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options ]
 """
 
 EXAMPLES = """
-- name: Attach a DRG to a VCN
+- name: Create drg_attachment
   oci_drg_attachment:
-    drg_id: ocid1.drg.oc1.phx.xxxxxEXAMPLExxxxx
-    vcn_id: ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
-    name: sample-attachment
+    drg_id: ocid1.drg.oc1..xxxxxxEXAMPLExxxxxx
+    vcn_id: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
 
-- name: Update the specified DRG attachment's display name
+- name: Update drg_attachment
   oci_drg_attachment:
-    id: ocid1.drgatttachment.oc1.phx.xxxxxEXAMPLExxxxx
-    display_name: ansible-drg-attachment
+    display_name: display_name_example
+    route_table_id: ocid1.routetable.oc1..xxxxxxEXAMPLExxxxxx
+    drg_attachment_id: ocid1.drgattachment.oc1..xxxxxxEXAMPLExxxxxx
 
-- name: Delete DRG attachment to detach the corresponding DRG from the VCN
+- name: Delete drg_attachment
   oci_drg_attachment:
-    id: ocid1.drgatttachment.oc1.phx.xxxxxEXAMPLExxxxx
+    drg_attachment_id: ocid1.drgattachment.oc1..xxxxxxEXAMPLExxxxxx
     state: absent
+
 """
 
 RETURN = """
 drg_attachment:
-    description: Information about the DRG attachment
-    returned: On successful operation
-    type: dict
+    description:
+        - Details of the DrgAttachment resource acted upon by the current operation
+    returned: on success
+    type: complex
+    contains:
+        compartment_id:
+            description:
+                - The OCID of the compartment containing the DRG attachment.
+            returned: on success
+            type: string
+            sample: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
+        display_name:
+            description:
+                - A user-friendly name. Does not have to be unique, and it's changeable.
+                  Avoid entering confidential information.
+            returned: on success
+            type: string
+            sample: display_name_example
+        drg_id:
+            description:
+                - The OCID of the DRG.
+            returned: on success
+            type: string
+            sample: ocid1.drg.oc1..xxxxxxEXAMPLExxxxxx
+        id:
+            description:
+                - The DRG attachment's Oracle ID (OCID).
+            returned: on success
+            type: string
+            sample: ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx
+        lifecycle_state:
+            description:
+                - The DRG attachment's current state.
+            returned: on success
+            type: string
+            sample: ATTACHING
+        route_table_id:
+            description:
+                - "The OCID of the route table the DRG attachment is using. For information about why you
+                  would associate a route table with a DRG attachment, see
+                  L(Advanced Scenario: Transit Routing,https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm)."
+            returned: on success
+            type: string
+            sample: ocid1.routetable.oc1..xxxxxxEXAMPLExxxxxx
+        time_created:
+            description:
+                - The date and time the DRG attachment was created, in the format defined by RFC3339.
+                - "Example: `2016-08-25T21:10:29.600Z`"
+            returned: on success
+            type: string
+            sample: 2016-08-25T21:10:29.600Z
+        vcn_id:
+            description:
+                - The OCID of the VCN.
+            returned: on success
+            type: string
+            sample: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
     sample: {
-            "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
-            "display_name": "ansible-drg-attachment",
-            "drg_id": "ocid1.drg.oc1.phx.xxxxxEXAMPLExxxxx",
-            "id": "ocid1.drgatttachment.oc1.phx.xxxxxEXAMPLExxxxx",
-            "lifecycle_state": "ATTACHED",
-            "time_created": "2017-11-13T20:22:40.626000+00:00",
-            "vcn_id": "ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx"
-        }
+        "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
+        "display_name": "display_name_example",
+        "drg_id": "ocid1.drg.oc1..xxxxxxEXAMPLExxxxxx",
+        "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
+        "lifecycle_state": "ATTACHING",
+        "route_table_id": "ocid1.routetable.oc1..xxxxxxEXAMPLExxxxxx",
+        "time_created": "2016-08-25T21:10:29.600Z",
+        "vcn_id": "ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx"
+    }
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    OCIResourceHelperBase,
+    get_custom_class,
+)
 
 try:
-    from oci.core.virtual_network_client import VirtualNetworkClient
+    from oci.core import VirtualNetworkClient
     from oci.core.models import CreateDrgAttachmentDetails
     from oci.core.models import UpdateDrgAttachmentDetails
 
@@ -96,120 +180,119 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-def delete_drg_attachment(virtual_network_client, module):
-    result = oci_utils.delete_and_wait(
-        resource_type="drg_attachment",
-        client=virtual_network_client,
-        get_fn=virtual_network_client.get_drg_attachment,
-        kwargs_get={"drg_attachment_id": module.params["drg_attachment_id"]},
-        delete_fn=virtual_network_client.delete_drg_attachment,
-        kwargs_delete={"drg_attachment_id": module.params["drg_attachment_id"]},
-        module=module,
-    )
-    return result
+class DrgAttachmentHelperGen(OCIResourceHelperBase):
+    """Supported operations: create, update, get, list and delete"""
+
+    @staticmethod
+    def get_module_resource_id_param():
+        return "drg_attachment_id"
+
+    def get_module_resource_id(self):
+        return self.module.params.get("drg_attachment_id")
+
+    def get_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.get_drg_attachment,
+            drg_attachment_id=self.module.params.get("drg_attachment_id"),
+        )
+
+    def list_resources(self):
+        required_list_method_params = ["compartment_id"]
+
+        optional_list_method_params = ["vcn_id", "drg_id"]
+        self.module.params["compartment_id"] = self.get_compartment_id(
+            "vcn_id", self.client.get_vcn
+        )
+
+        required_kwargs = dict(
+            (param, self.module.params[param]) for param in required_list_method_params
+        )
+
+        optional_kwargs = dict(
+            (param, self.module.params[param])
+            for param in optional_list_method_params
+            if self.module.params.get(param) is not None
+            and (
+                not self.module.params.get("key_by")
+                or param in self.module.params.get("key_by")
+            )
+        )
+
+        kwargs = oci_common_utils.merge_dicts(required_kwargs, optional_kwargs)
+
+        return oci_common_utils.list_all_resources(
+            self.client.list_drg_attachments, **kwargs
+        )
+
+    def get_create_model_class(self):
+        return CreateDrgAttachmentDetails
+
+    def create_resource(self):
+        create_details = self.get_create_model()
+        return oci_common_utils.call_with_backoff(
+            self.client.create_drg_attachment,
+            create_drg_attachment_details=create_details,
+        )
+
+    def get_update_model_class(self):
+        return UpdateDrgAttachmentDetails
+
+    def update_resource(self):
+        update_details = self.get_update_model()
+        return oci_common_utils.call_with_backoff(
+            self.client.update_drg_attachment,
+            drg_attachment_id=self.module.params.get("drg_attachment_id"),
+            update_drg_attachment_details=update_details,
+        )
+
+    def delete_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.delete_drg_attachment,
+            drg_attachment_id=self.module.params.get("drg_attachment_id"),
+        )
 
 
-def update_drg_attachment(virtual_network_client, module):
-    result = oci_utils.check_and_update_resource(
-        resource_type="drg_attachment",
-        client=virtual_network_client,
-        get_fn=virtual_network_client.get_drg_attachment,
-        kwargs_get={"drg_attachment_id": module.params["drg_attachment_id"]},
-        update_fn=virtual_network_client.update_drg_attachment,
-        primitive_params_update=["drg_attachment_id"],
-        kwargs_non_primitive_update={
-            UpdateDrgAttachmentDetails: "update_drg_attachment_details"
-        },
-        module=module,
-        update_attributes=UpdateDrgAttachmentDetails().attribute_map.keys(),
-    )
-    return result
+DrgAttachmentHelperCustom = get_custom_class("DrgAttachmentHelperCustom")
 
 
-def create_drg_attachment(virtual_network_client, module):
-    create_drg_attachment_details = CreateDrgAttachmentDetails()
-    for attribute in create_drg_attachment_details.attribute_map.keys():
-        if attribute in module.params:
-            setattr(create_drg_attachment_details, attribute, module.params[attribute])
-
-    result = oci_utils.create_and_wait(
-        resource_type="drg_attachment",
-        create_fn=virtual_network_client.create_drg_attachment,
-        kwargs_create={"create_drg_attachment_details": create_drg_attachment_details},
-        client=virtual_network_client,
-        get_fn=virtual_network_client.get_drg_attachment,
-        get_param="drg_attachment_id",
-        module=module,
-    )
-    return result
+class ResourceHelper(DrgAttachmentHelperCustom, DrgAttachmentHelperGen):
+    pass
 
 
 def main():
-    module_args = oci_utils.get_common_arg_spec(
+    module_args = oci_common_utils.get_common_arg_spec(
         supports_create=True, supports_wait=True
     )
     module_args.update(
         dict(
-            drg_attachment_id=dict(type="str", required=False, aliases=["id"]),
-            display_name=dict(type="str", required=False, aliases=["name"]),
-            state=dict(
-                type="str",
-                required=False,
-                default="present",
-                choices=["absent", "present"],
-            ),
-            drg_id=dict(type="str", required=False),
-            vcn_id=dict(type="str", required=False),
+            display_name=dict(aliases=["name"], type="str"),
+            drg_id=dict(type="str"),
+            route_table_id=dict(type="str"),
+            vcn_id=dict(type="str"),
+            drg_attachment_id=dict(aliases=["id"], type="str"),
+            state=dict(type="str", default="present", choices=["present", "absent"]),
         )
     )
 
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
-        required_if=[("state", "absent", ["drg_attachment_id"])],
-    )
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(
-        module, VirtualNetworkClient
+    resource_helper = ResourceHelper(
+        module=module,
+        resource_type="drg_attachment",
+        service_client_class=VirtualNetworkClient,
     )
 
-    exclude_attributes = {"display_name": True}
-    state = module.params["state"]
+    result = dict(changed=False)
 
-    if state == "absent":
-        result = delete_drg_attachment(virtual_network_client, module)
-
-    else:
-        drg_attachment_id = module.params["drg_attachment_id"]
-        if drg_attachment_id is not None:
-            result = update_drg_attachment(virtual_network_client, module)
-        else:
-            # To list existing DRG attachments, compartment_id is required.
-            # DRG attachment is created in same compartment as the VCN. Retrieve VCN details to get compartment_id.
-            compartment_id = oci_utils.call_with_backoff(
-                virtual_network_client.get_vcn, vcn_id=module.params["vcn_id"]
-            ).data.compartment_id
-
-            result = oci_utils.check_and_create_resource(
-                resource_type="drg_attachment",
-                create_fn=create_drg_attachment,
-                kwargs_create={
-                    "virtual_network_client": virtual_network_client,
-                    "module": module,
-                },
-                list_fn=virtual_network_client.list_drg_attachments,
-                kwargs_list={
-                    "compartment_id": compartment_id,
-                    "vcn_id": module.params["vcn_id"],
-                    "drg_id": module.params["drg_id"],
-                },
-                module=module,
-                model=CreateDrgAttachmentDetails(),
-                exclude_attributes=exclude_attributes,
-            )
+    if resource_helper.is_delete():
+        result = resource_helper.delete()
+    elif resource_helper.is_update():
+        result = resource_helper.update()
+    elif resource_helper.is_create():
+        result = resource_helper.create()
 
     module.exit_json(**result)
 

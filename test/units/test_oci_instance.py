@@ -135,7 +135,7 @@ def test_launch_instance_success(compute_client, get_oci_utils_create_and_wait_p
         "instance": to_dict(inst_created),
     }
 
-    resp = oci_instance.launch_instance(compute_client, module, None)
+    resp = oci_instance.launch_instance(compute_client, module)
     assert resp["instance"]["lifecycle_state"] == "RUNNING"
 
 

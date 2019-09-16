@@ -5,27 +5,29 @@
 .. _oci_vcn_facts_module:
 
 
-oci_vcn_facts - Retrieve facts of Virtual Cloud Networks(VCNs)
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_vcn_facts -- Fetches details about one or multiple Vcn resources in Oracle Cloud Infrastructure
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
 --------
-- This module retrieves information of a specified virtual cloud network(VCN) or lists all the VCNs in the specified compartment.
+- Fetches details about one or multiple Vcn resources in Oracle Cloud Infrastructure
+- Lists the virtual cloud networks (VCNs) in the specified compartment.
+- If *vcn_id* is specified, the details of a single Vcn will be returned.
 
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,27 +45,36 @@ Parameters
                     <tr>
                                                                 <td colspan="1">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -73,7 +84,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,31 +97,41 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>compartment_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the compartment. <em>compartment_id</em> is required to get all the VCNs in the compartment.</div>
+                                                                        <div>The OCID of the compartment.</div>
+                                                    <div>Required to list multiple vcns.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -117,7 +141,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -127,19 +154,26 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>display_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Use <em>display_name</em> along with the other options to return only resources that match the given display name exactly.</div>
-                                                                                </td>
+                                                                        <div>A filter to return only resources that match the given display name exactly.</div>
+                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: name</div>
+                                    </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>lifecycle_state</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>PROVISIONING</li>
                                                                                                                                                                                                 <li>AVAILABLE</li>
                                                                                                                                                                                                 <li>TERMINATING</li>
@@ -147,13 +181,16 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>A filter to only return resources that match the given lifecycle state.  The state value is case-insensitive. Allowed values are &quot;PROVISIONING&quot;, &quot;AVAILABLE&quot;, &quot;TERMINATING&quot;, &quot;TERMINATED&quot;</div>
+                                                                        <div>A filter to only return resources that match the given lifecycle state.  The state value is case-insensitive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -162,8 +199,46 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>tenancy</b>
+                    <b>sort_by</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>TIMECREATED</li>
+                                                                                                                                                                                                <li>DISPLAYNAME</li>
+                                                                                    </ul>
                                                                             </td>
+                                                                <td>
+                                                                        <div>The field to sort by. You can provide one sort order (`sortOrder`). Default order for TIMECREATED is descending. Default order for DISPLAYNAME is ascending. The DISPLAYNAME sort order is case sensitive.</div>
+                                                    <div>**Note:** In general, some &quot;List&quot; operations (for example, `ListInstances`) let you optionally filter by availability domain if the scope of the resource type is within a single availability domain. If you call one of these &quot;List&quot; operations without specifying an availability domain, the resources are grouped by availability domain, then sorted.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>sort_order</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>ASC</li>
+                                                                                                                                                                                                <li>DESC</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The sort order to use, either ascending (`ASC`) or descending (`DESC`). The DISPLAYNAME sort order is case sensitive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>tenancy</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -173,12 +248,17 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>vcn_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the VCN. <em>vcn_id</em> is required to get a specific VCN's information.</div>
-                                                                                </td>
+                                                                        <div>The OCID of the VCN.</div>
+                                                    <div>Required to get a specific vcn.</div>
+                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
+                                    </td>
             </tr>
                         </table>
     <br/>
@@ -188,7 +268,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -197,18 +278,14 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Get all the VCNs in a compartment
+    - name: List vcns
       oci_vcn_facts:
-        compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+        compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
 
-    - name: Get a specific VCN using its OCID
+    - name: Get a specific vcn
       oci_vcn_facts:
-        vcn_id: ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
+        vcn_id: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
 
-    - name: Get VCNs in a compartment having the specified display name
-      oci_vcn_facts:
-        compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
-        display_name: 'oci_ansible_vcn'
 
 
 
@@ -228,168 +305,205 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <tr>
                                 <td colspan="2">
                     <b>vcns</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>List of VCN details</div>
-                                        <br/>
+                                                                        <div>List of Vcn resources</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'lifecycle_state': 'AVAILABLE', 'dns_label': 'ansiblevcn', 'display_name': 'ansible_vcn', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'default_dhcp_options_id': 'ocid1.dhcpoptions.oc1.phx.xxxxxEXAMPLExxxxx', 'time_created': '2017-11-13T20:22:40.626000+00:00', 'vcn_domain_name': 'ansiblevcn.oraclevcn.com', 'default_security_list_id': 'ocid1.securitylist.oc1.phx.xxxxxEXAMPLExxxxx', 'cidr_block': '10.0.0.0/16', 'id': 'ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx', 'default_route_table_id': 'ocid1.routetable.oc1.phx.xxxxxEXAMPLExxxxx'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;PROVISIONING&#x27;, &#x27;dns_label&#x27;: &#x27;vcn1&#x27;, &#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;default_dhcp_options_id&#x27;: &#x27;ocid1.defaultdhcpoptions.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;vcn_domain_name&#x27;: &#x27;vcn1.oraclevcn.com&#x27;, &#x27;default_security_list_id&#x27;: &#x27;ocid1.defaultsecuritylist.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;cidr_block&#x27;: &#x27;172.16.0.0/16&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;default_route_table_id&#x27;: &#x27;ocid1.defaultroutetable.oc1..xxxxxxEXAMPLExxxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>lifecycle_state</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <b>cidr_block</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>Current state of the VCN.</div>
-                                        <br/>
+                                                                        <div>The CIDR IP address block of the VCN.</div>
+                                                    <div>Example: `172.16.0.0/16`</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">AVAILABLE</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>dns_label</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>A DNS label for the VCN, used in conjunction with the VNIC's hostname and subnet's DNS                         label to form a fully qualified domain name (FQDN) for each VNIC within this subnet.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansiblevcn</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>display_name</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>Name of the VCN.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible_vcn</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">172.16.0.0/16</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>compartment_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The OCID of the compartment containing the VCN.</div>
-                                        <br/>
+                                                                        <div>The OCID of the compartment containing the VCN.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>default_dhcp_options_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The OCID for the VCN's default set of DHCP options.</div>
-                                        <br/>
+                                                                        <div>The OCID for the VCN&#x27;s default set of DHCP options.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.dhcpoptions.oc1.phx.xxxxxEXAMPLExxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>time_created</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The date and time the VCN was created, in the format defined by RFC3339.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-13 20:22:40.626000</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>vcn_domain_name</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The VCN's domain name, which consists of the VCN's DNS label, and the oraclevcn.com domain.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansiblevcn.oraclevcn.com</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>default_security_list_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The OCID for the VCN's default security list.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.securitylist.oc1.phx.xxxxxEXAMPLExxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>cidr_block</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The CIDR IP address block of the VCN.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">10.0.0.0/16</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>OCID of the VCN.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaultdhcpoptions.oc1..xxxxxxEXAMPLExxxxxx</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>default_route_table_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The OCID for the VCN's default route table.</div>
-                                        <br/>
+                                                                        <div>The OCID for the VCN&#x27;s default route table.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.routetable.oc1.phx.xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaultroutetable.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>default_security_list_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The OCID for the VCN&#x27;s default security list.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaultsecuritylist.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>defined_tags</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>.</div>
+                                                    <div>Example: `{&quot;Operations&quot;: {&quot;CostCenter&quot;: &quot;42&quot;}}`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>display_name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A user-friendly name. Does not have to be unique, and it&#x27;s changeable. Avoid entering confidential information.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">display_name_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>dns_label</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A DNS label for the VCN, used in conjunction with the VNIC&#x27;s hostname and subnet&#x27;s DNS label to form a fully qualified domain name (FQDN) for each VNIC within this subnet (for example, `bminstance-1.subnet123.vcn1.oraclevcn.com`). Must be an alphanumeric string that begins with a letter. The value cannot be changed.</div>
+                                                    <div>The absence of this parameter means the Internet and VCN Resolver will not work for this VCN.</div>
+                                                    <div>For more information, see <a href='https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm'>DNS in Your Virtual Cloud Network</a>.</div>
+                                                    <div>Example: `vcn1`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">vcn1</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>freeform_tags</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>.</div>
+                                                    <div>Example: `{&quot;Department&quot;: &quot;Finance&quot;}`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;Department&#x27;: &#x27;Finance&#x27;}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The VCN&#x27;s Oracle ID (OCID).</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>lifecycle_state</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The VCN&#x27;s current state.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">PROVISIONING</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>time_created</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The date and time the VCN was created, in the format defined by RFC3339.</div>
+                                                    <div>Example: `2016-08-25T21:10:29.600Z`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>vcn_domain_name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The VCN&#x27;s domain name, which consists of the VCN&#x27;s DNS label, and the `oraclevcn.com` domain.</div>
+                                                    <div>For more information, see <a href='https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm'>DNS in Your Virtual Cloud Network</a>.</div>
+                                                    <div>Example: `vcn1.oraclevcn.com`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">vcn1.oraclevcn.com</div>
                                     </td>
             </tr>
                     
@@ -402,18 +516,23 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
 
-- Rohit Chaware (@rohitChaware)
+
+Authors
+~~~~~~~
+
+- Manoj Meda (@manojmeda)
+- Mike Ross (@mross22)
+- Nabeel Al-Saber (@nalsaber)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_vcn_facts.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_vcn_facts.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

@@ -1,9 +1,10 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+
 
 from __future__ import absolute_import, division, print_function
 
@@ -18,162 +19,199 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: oci_drg_attachment_facts
-short_description: Retrieve facts of Dynamic Routing Gateway(DRG) attachments
+short_description: Fetches details about one or multiple DrgAttachment resources in Oracle Cloud Infrastructure
 description:
-    - This module retrieves information of the specified dynamic routing gateway(DRG) attachment or lists all the DRG
-      attachments in the specified compartment.
+    - Fetches details about one or multiple DrgAttachment resources in Oracle Cloud Infrastructure
+    - Lists the `DrgAttachment` objects for the specified compartment. You can filter the
+      results by VCN or DRG.
+    - If I(drg_attachment_id) is specified, the details of a single DrgAttachment will be returned.
 version_added: "2.5"
 options:
-    compartment_id:
-        description: The OCID of the compartment. I(compartment_id) is required to get all the DRG attachments in the
-                     compartment.
-        required: false
     drg_attachment_id:
-        description: The OCID of the DRG attachment. I(drg_attachment_id) is required to get a specific DRG attachment's
-                     information.
-        required: false
-        aliases: [ 'id' ]
+        description:
+            - The OCID of the DRG attachment.
+            - Required to get a specific drg_attachment.
+        aliases: ["id"]
+    compartment_id:
+        description:
+            - The OCID of the compartment.
+            - Required to list multiple drg_attachments.
     vcn_id:
-        description: The OCID of the VCN. Use I(vcn_id) with I(compartment_id) to filter DRG attachments by VCN.
-        required: false
+        description:
+            - The OCID of the VCN.
     drg_id:
-        description: The OCID of the DRG. Use I(drg_id) with I(compartment_id) to filter DRG attachments by DRG.
-        required: false
-author: "Rohit Chaware (@rohitChaware)"
-extends_documentation_fragment: [ oracle, oracle_display_name_option ]
+        description:
+            - The OCID of the DRG.
+author:
+    - Manoj Meda (@manojmeda)
+    - Mike Ross (@mross22)
+    - Nabeel Al-Saber (@nalsaber)
+extends_documentation_fragment: [ oracle ]
 """
 
 EXAMPLES = """
-- name: Get all the DRG attachments in a compartment
+- name: List drg_attachments
   oci_drg_attachment_facts:
-    compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
+    compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
 
-- name: Get a specific DRG_attachment using its OCID
+- name: Get a specific drg_attachment
   oci_drg_attachment_facts:
-    drg_attachment_id: ocid1.drgattachment.oc1.phx.xxxxxEXAMPLExxxxx
+    drg_attachment_id: ocid1.drgattachment.oc1..xxxxxxEXAMPLExxxxxx
 
-- name: Get DRG attachment attached to a VCN in a compartment
-  oci_drg_attachment_facts:
-    compartment_id: 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'
-    vcn_id: 'ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx'
 """
 
 RETURN = """
 drg_attachments:
-    description: List of DRG attachment details
-    returned: always
+    description:
+        - List of DrgAttachment resources
+    returned: on success
     type: complex
     contains:
         compartment_id:
-            description: The OCID of the compartment containing the DRG attachment.
-            returned: always
+            description:
+                - The OCID of the compartment containing the DRG attachment.
+            returned: on success
             type: string
-            sample: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
+            sample: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
         display_name:
-            description: Name of the DRG attachment.
-            returned: always
+            description:
+                - A user-friendly name. Does not have to be unique, and it's changeable.
+                  Avoid entering confidential information.
+            returned: on success
             type: string
-            sample: ansible_drg_attachment
+            sample: display_name_example
         drg_id:
-            description: The OCID of the DRG.
-            returned: always
+            description:
+                - The OCID of the DRG.
+            returned: on success
             type: string
-            sample: ocid1.drg.oc1.phx.xxxxxEXAMPLExxxxx
+            sample: ocid1.drg.oc1..xxxxxxEXAMPLExxxxxx
         id:
-            description: OCID of the DRG attachment.
-            returned: always
+            description:
+                - The DRG attachment's Oracle ID (OCID).
+            returned: on success
             type: string
-            sample: ocid1.drgattachment.oc1.phx.xxxxxEXAMPLExxxxx
+            sample: ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx
         lifecycle_state:
-            description: Current state of the DRG attachment.
-            returned: always
+            description:
+                - The DRG attachment's current state.
+            returned: on success
             type: string
-            sample: ATTACHED
+            sample: ATTACHING
+        route_table_id:
+            description:
+                - "The OCID of the route table the DRG attachment is using. For information about why you
+                  would associate a route table with a DRG attachment, see
+                  L(Advanced Scenario: Transit Routing,https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm)."
+            returned: on success
+            type: string
+            sample: ocid1.routetable.oc1..xxxxxxEXAMPLExxxxxx
         time_created:
-            description: The date and time the DRG_attachment was created, in the format defined by RFC3339.
-            returned: always
+            description:
+                - The date and time the DRG attachment was created, in the format defined by RFC3339.
+                - "Example: `2016-08-25T21:10:29.600Z`"
+            returned: on success
             type: string
-            sample: 2017-11-13T20:22:40.626000+00:00
+            sample: 2016-08-25T21:10:29.600Z
         vcn_id:
-            description: The OCID of the VCN.
-            returned: always
+            description:
+                - The OCID of the VCN.
+            returned: on success
             type: string
-            sample: ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx
+            sample: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
     sample: [{
-            "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
-            "display_name": "ansible-drg-attachment",
-            "drg_id": "ocid1.drg.oc1.phx.xxxxxEXAMPLExxxxx",
-            "id": "ocid1.drgatttachment.oc1.phx.xxxxxEXAMPLExxxxx",
-            "lifecycle_state": "ATTACHED",
-            "time_created": "2017-11-13T20:22:40.626000+00:00",
-            "vcn_id": "ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx"
-            }]
+        "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
+        "display_name": "display_name_example",
+        "drg_id": "ocid1.drg.oc1..xxxxxxEXAMPLExxxxxx",
+        "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
+        "lifecycle_state": "ATTACHING",
+        "route_table_id": "ocid1.routetable.oc1..xxxxxxEXAMPLExxxxxx",
+        "time_created": "2016-08-25T21:10:29.600Z",
+        "vcn_id": "ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx"
+    }]
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    OCIResourceFactsHelperBase,
+    get_custom_class,
+)
 
 try:
-    from oci.core.virtual_network_client import VirtualNetworkClient
-    from oci.util import to_dict
-    from oci.exceptions import ServiceError
+    from oci.core import VirtualNetworkClient
 
     HAS_OCI_PY_SDK = True
-
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
+class DrgAttachmentFactsHelperGen(OCIResourceFactsHelperBase):
+    """Supported operations: get, list"""
+
+    def get_required_params_for_get(self):
+        return ["drg_attachment_id"]
+
+    def get_required_params_for_list(self):
+        return ["compartment_id"]
+
+    def get_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.get_drg_attachment,
+            drg_attachment_id=self.module.params.get("drg_attachment_id"),
+        )
+
+    def list_resources(self):
+        optional_list_method_params = ["vcn_id", "drg_id"]
+        optional_kwargs = dict(
+            (param, self.module.params[param])
+            for param in optional_list_method_params
+            if self.module.params.get(param) is not None
+        )
+        return oci_common_utils.list_all_resources(
+            self.client.list_drg_attachments,
+            compartment_id=self.module.params.get("compartment_id"),
+            **optional_kwargs
+        )
+
+
+DrgAttachmentFactsHelperCustom = get_custom_class("DrgAttachmentFactsHelperCustom")
+
+
+class ResourceFactsHelper(DrgAttachmentFactsHelperCustom, DrgAttachmentFactsHelperGen):
+    pass
+
+
 def main():
-    module_args = oci_utils.get_facts_module_arg_spec()
+    module_args = oci_common_utils.get_common_arg_spec()
     module_args.update(
         dict(
-            compartment_id=dict(type="str", required=False),
-            drg_attachment_id=dict(type="str", required=False, aliases=["id"]),
-            drg_id=dict(type="str", required=False),
-            vcn_id=dict(type="str", required=False),
+            drg_attachment_id=dict(aliases=["id"], type="str"),
+            compartment_id=dict(type="str"),
+            vcn_id=dict(type="str"),
+            drg_id=dict(type="str"),
         )
     )
 
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False,
-        required_one_of=[["compartment_id", "drg_attachment_id"]],
-    )
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module.")
 
-    virtual_network_client = oci_utils.create_service_client(
-        module, VirtualNetworkClient
+    resource_facts_helper = ResourceFactsHelper(
+        module=module,
+        resource_type="drg_attachment",
+        service_client_class=VirtualNetworkClient,
     )
 
-    drg_attachment_id = module.params["drg_attachment_id"]
     result = []
 
-    try:
-        if drg_attachment_id is not None:
-            result = [
-                to_dict(
-                    oci_utils.call_with_backoff(
-                        virtual_network_client.get_drg_attachment,
-                        drg_attachment_id=drg_attachment_id,
-                    ).data
-                )
-            ]
-        else:
-            compartment_id = module.params["compartment_id"]
-            result = to_dict(
-                oci_utils.list_all_resources(
-                    virtual_network_client.list_drg_attachments,
-                    vcn_id=module.params["vcn_id"],
-                    drg_id=module.params["drg_id"],
-                    display_name=module.params["display_name"],
-                    compartment_id=compartment_id,
-                )
-            )
-    except ServiceError as ex:
-        module.fail_json(msg=ex.message)
+    if resource_facts_helper.is_get():
+        result = resource_facts_helper.get()
+    elif resource_facts_helper.is_list():
+        result = resource_facts_helper.list()
+    else:
+        resource_facts_helper.fail()
 
     module.exit_json(drg_attachments=result)
 

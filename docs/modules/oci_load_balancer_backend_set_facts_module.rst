@@ -5,14 +5,14 @@
 .. _oci_load_balancer_backend_set_facts_module:
 
 
-oci_load_balancer_backend_set_facts - Fetches details of backend set(s) that are associated with a load balancer
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_load_balancer_backend_set_facts -- Fetches details of backend set(s) that are associated with a load balancer
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
@@ -22,10 +22,10 @@ Synopsis
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,27 +43,36 @@ Parameters
                     <tr>
                                                                 <td colspan="1">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -73,7 +82,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,21 +95,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -107,7 +125,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -117,7 +138,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>load_balancer_id</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -128,7 +152,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -138,7 +165,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -148,7 +178,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -163,7 +196,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -202,63 +236,49 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <tr>
                                 <td colspan="2">
                     <b>backend_sets</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>success</td>
                 <td>
                                             <div>Attributes of the  Load Balancer Backend Set.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'ssl_configuration': {'certificate_name': 'certs1', 'verify_depth': 3, 'verify_peer_certificate': True}, 'backends': [{'drain': False, 'name': '10.159.34.21:8080', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8080}, {'drain': False, 'name': '10.159.34.21:8282', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8282}], 'health_checker': {'retries': 3, 'protocol': 'HTTP', 'response_body_regex': '^(500|40[1348])$', 'return_code': 500, 'timeout_in_millis': 6000, 'interval_in_millis': 30000, 'url_path': '/healthcheck', 'port': 8080}, 'name': 'backend_set_1', 'policy': 'IP_HASH', 'session_persistence_configuration': {'cookie_name': 'first_backend_set_cookie_updated', 'disable_fallback': True}}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;ssl_configuration&#x27;: {&#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;verify_depth&#x27;: 3, &#x27;verify_peer_certificate&#x27;: True}, &#x27;backends&#x27;: [{&#x27;drain&#x27;: False, &#x27;name&#x27;: &#x27;10.159.34.21:8080&#x27;, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;offline&#x27;: False, &#x27;backup&#x27;: False, &#x27;port&#x27;: 8080}, {&#x27;drain&#x27;: False, &#x27;name&#x27;: &#x27;10.159.34.21:8282&#x27;, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;offline&#x27;: False, &#x27;backup&#x27;: False, &#x27;port&#x27;: 8282}], &#x27;health_checker&#x27;: {&#x27;retries&#x27;: 3, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;response_body_regex&#x27;: &#x27;^(500|40[1348])$&#x27;, &#x27;return_code&#x27;: 500, &#x27;timeout_in_millis&#x27;: 6000, &#x27;interval_in_millis&#x27;: 30000, &#x27;url_path&#x27;: &#x27;/healthcheck&#x27;, &#x27;port&#x27;: 8080}, &#x27;name&#x27;: &#x27;backend_set_1&#x27;, &#x27;policy&#x27;: &#x27;IP_HASH&#x27;, &#x27;session_persistence_configuration&#x27;: {&#x27;cookie_name&#x27;: &#x27;first_backend_set_cookie_updated&#x27;, &#x27;disable_fallback&#x27;: True}}]</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>ssl_configuration</b>
-                    <br/><div style="font-size: small; color: red">dict</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The load balancer's SSL handling configuration details.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'certificate_name': 'certs1', 'verify_depth': 1, 'verify_peer_certificate': True}</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
                     <b>backends</b>
-                    <br/><div style="font-size: small; color: red">list</div>
+                    <div style="font-size: small; color: purple">list</div>
                                     </td>
                 <td>always</td>
                 <td>
                                             <div>A list of configurations related to Backends that are part of the backend set</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'drain': False, 'name': '10.159.34.21:8080', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8080}, {'drain': False, 'name': '10.159.34.21:8282', 'weight': 1, 'ip_address': '10.159.34.21', 'offline': False, 'backup': False, 'port': 8282}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;drain&#x27;: False, &#x27;name&#x27;: &#x27;10.159.34.21:8080&#x27;, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;offline&#x27;: False, &#x27;backup&#x27;: False, &#x27;port&#x27;: 8080}, {&#x27;drain&#x27;: False, &#x27;name&#x27;: &#x27;10.159.34.21:8282&#x27;, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;offline&#x27;: False, &#x27;backup&#x27;: False, &#x27;port&#x27;: 8282}]</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>health_checker</b>
-                    <br/><div style="font-size: small; color: red">dict</div>
+                    <div style="font-size: small; color: purple">dictionary</div>
                                     </td>
                 <td>always</td>
                 <td>
                                             <div>Health check policy for a backend set.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'retries': 3, 'protocol': 'HTTP', 'response_body_regex': '^(500|40[1348])$', 'return_code': 200, 'timeout_in_millis': 6000, 'interval_in_millis': 30000, 'url_path': '/healthcheck', 'port': 8080}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;retries&#x27;: 3, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;response_body_regex&#x27;: &#x27;^(500|40[1348])$&#x27;, &#x27;return_code&#x27;: 200, &#x27;timeout_in_millis&#x27;: 6000, &#x27;interval_in_millis&#x27;: 30000, &#x27;url_path&#x27;: &#x27;/healthcheck&#x27;, &#x27;port&#x27;: 8080}</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>name</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -272,7 +292,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>policy</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -286,14 +306,28 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>session_persistence_configuration</b>
-                    <br/><div style="font-size: small; color: red">dict</div>
+                    <div style="font-size: small; color: purple">dictionary</div>
                                     </td>
                 <td>always</td>
                 <td>
                                             <div>The configuration details for implementing session persistence</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'cookie_name': 'first_backend_set_cookie', 'disable_fallback': True}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;cookie_name&#x27;: &#x27;first_backend_set_cookie&#x27;, &#x27;disable_fallback&#x27;: True}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>ssl_configuration</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The load balancer&#x27;s SSL handling configuration details.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;verify_depth&#x27;: 1, &#x27;verify_peer_certificate&#x27;: True}</div>
                                     </td>
             </tr>
                     
@@ -306,18 +340,21 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
+
+
+Authors
+~~~~~~~
 
 - Debayan Gupta(@debayan_gupta)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_load_balancer_backend_set_facts.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_load_balancer_backend_set_facts.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

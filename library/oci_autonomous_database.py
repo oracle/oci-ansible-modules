@@ -522,7 +522,9 @@ def main():
             ),
             timestamp=dict(type="str", required=False),
             wallet_file=dict(type="str", required=False),
-            force=dict(type=bool, required=False, default=True, aliases=["overwrite"]),
+            force=dict(
+                type="bool", required=False, default=True, aliases=["overwrite"]
+            ),
             state=dict(
                 type="str",
                 required=False,

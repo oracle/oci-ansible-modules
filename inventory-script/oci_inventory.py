@@ -226,7 +226,8 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.10.0"
+__version__ = "1.11.0"
+inventory_agent_name = "Oracle-Ansible-Inv/"
 
 
 def _get_retry_strategy():
@@ -560,7 +561,7 @@ class OCIInventory:
                 profile_name=self.params["profile"],
             )
 
-        self.config["additional_user_agent"] = "Oracle-Ansible/{0}".format(__version__)
+        self.config["additional_user_agent"] = inventory_agent_name + __version__
 
         for setting in self.config:
             self.params[setting] = self.config[setting]
@@ -602,10 +603,7 @@ class OCIInventory:
 
     def validate_params(self):
         """Validate the parameters passed."""
-        if (
-            not self.params["tenancy"]
-            and not self.params["auth"] == "instance_principal"
-        ):
+        if not self.params["tenancy"] and self.params["auth"] != "instance_principal":
             self.fail("Tenany OCID required.")
         if self.params["regions"]:
             # Check if the regions passed are valid

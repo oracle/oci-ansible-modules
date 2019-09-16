@@ -5,14 +5,14 @@
 .. _oci_waas_certificate_facts_module:
 
 
-oci_waas_certificate_facts - Retrieve details about WAAS certificates.
+oci_waas_certificate_facts -- Retrieve details about WAAS certificates
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
@@ -22,10 +22,10 @@ Synopsis
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,27 +43,36 @@ Parameters
                     <tr>
                                                                 <td colspan="1">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -73,7 +82,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,21 +95,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>certificate_id</b>
-                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -107,7 +125,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>compartment_id</b>
-                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -117,7 +138,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -127,7 +151,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -137,7 +164,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>display_name</b>
-                    <br/><div style="font-size: small; color: red">list</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -147,7 +177,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>id</b>
-                    <br/><div style="font-size: small; color: red">list</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -157,9 +190,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>lifecycle_state</b>
-                    <br/><div style="font-size: small; color: red">list</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>CREATING</li>
                                                                                                                                                                                                 <li>ACTIVE</li>
                                                                                                                                                                                                 <li>FAILED</li>
@@ -175,7 +211,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -185,9 +224,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>sort_by</b>
-                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>id</li>
                                                                                                                                                                                                 <li>compartmentId</li>
                                                                                                                                                                                                 <li>displayName</li>
@@ -196,15 +238,18 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The value by which certificate summaries are sorted in a paginated 'List' call. If unspecified, defaults to timeCreated.</div>
+                                                                        <div>The value by which certificate summaries are sorted in a paginated &#x27;List&#x27; call. If unspecified, defaults to timeCreated.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>sort_order</b>
-                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>ASC</li>
                                                                                                                                                                                                 <li>DESC</li>
                                                                                     </ul>
@@ -216,7 +261,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -226,7 +274,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>time_created_greater_than_or_equal_to</b>
-                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -236,7 +287,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>time_created_less_than</b>
-                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -251,7 +305,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -309,133 +364,49 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <tr>
                                 <td colspan="2">
                     <b>waas_certificates</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>on success</td>
                 <td>
                                             <div>List of waas certificates</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'time_not_valid_before': '2019-04-10T08:09:17+00:00', 'subject_name': {'state_province': 'KA', 'organization': 'Ansible', 'organizational_unit': None, 'locality': 'Bangalore', 'common_name': 'testcommonname', 'country': 'IN', 'email_address': None}, 'time_not_valid_after': '2024-04-08T08:09:17+00:00', 'time_created': '2019-04-10T10:05:35.634000+00:00', 'issuer_name': {'state_province': 'KA', 'organization': 'Ansible', 'organizational_unit': None, 'locality': 'Bangalore', 'common_name': 'testcommonname', 'country': 'IN', 'email_address': None}, 'signature_algorithm': None, 'id': 'ocid1.waascertificate.oc1..xxxxxEXAMPLExxxxx', 'lifecycle_state': 'ACTIVE', 'display_name': 'test waas certificate', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'defined_tags': None, 'issued_by': 'Ansible', 'freeform_tags': None, 'version': None, 'extensions': None, 'public_key_info': {'key_size': 2048, 'exponent': 65537, 'algorithm': 'RSA'}, 'serial_number': '9917593779878295042'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;time_not_valid_before&#x27;: &#x27;2019-04-10T08:09:17+00:00&#x27;, &#x27;subject_name&#x27;: {&#x27;state_province&#x27;: &#x27;KA&#x27;, &#x27;organization&#x27;: &#x27;Ansible&#x27;, &#x27;organizational_unit&#x27;: None, &#x27;locality&#x27;: &#x27;Bangalore&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;country&#x27;: &#x27;IN&#x27;, &#x27;email_address&#x27;: None}, &#x27;time_not_valid_after&#x27;: &#x27;2024-04-08T08:09:17+00:00&#x27;, &#x27;time_created&#x27;: &#x27;2019-04-10T10:05:35.634000+00:00&#x27;, &#x27;issuer_name&#x27;: {&#x27;state_province&#x27;: &#x27;KA&#x27;, &#x27;organization&#x27;: &#x27;Ansible&#x27;, &#x27;organizational_unit&#x27;: None, &#x27;locality&#x27;: &#x27;Bangalore&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;country&#x27;: &#x27;IN&#x27;, &#x27;email_address&#x27;: None}, &#x27;signature_algorithm&#x27;: None, &#x27;id&#x27;: &#x27;ocid1.waascertificate.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;display_name&#x27;: &#x27;test waas certificate&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;defined_tags&#x27;: None, &#x27;issued_by&#x27;: &#x27;Ansible&#x27;, &#x27;freeform_tags&#x27;: None, &#x27;version&#x27;: None, &#x27;extensions&#x27;: None, &#x27;public_key_info&#x27;: {&#x27;key_size&#x27;: 2048, &#x27;exponent&#x27;: 65537, &#x27;algorithm&#x27;: &#x27;RSA&#x27;}, &#x27;serial_number&#x27;: &#x27;9917593779878295042&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>time_not_valid_before</b>
-                    <br/><div style="font-size: small; color: red">str</div>
+                    <b>compartment_id</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>success</td>
                 <td>
-                                            <div>The time_not_valid_before of this Certificate.</div>
+                                            <div>The OCID of the certificate&#x27;s compartment.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-04-02 15:29:38</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxEXAMPLExxxxx</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>subject_name</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <b>defined_tags</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>success</td>
                 <td>
-                                            <div>The subject_name of this Certificate.</div>
+                                            <div>A key-value pair with a defined schema that restricts the values of tags. These predefined keys are scoped to namespaces.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'state_province': 'teststate', 'organization': 'testorg', 'organizational_unit': 'testorgunit', 'locality': 'testlocality', 'common_name': 'testcommonname', 'country': 'AU', 'email_address': 'test.email@address.com'}</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>time_not_valid_after</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The date and time the certificate will expire, expressed in RFC 3339 timestamp format.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2020-04-01 15:29:38</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>time_created</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The date and time the certificate was created, expressed in RFC 3339 timestamp format.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-04-02 17:12:42.454000</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>issuer_name</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The issuer_name of this Certificate.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'state_province': 'teststate', 'organization': 'testorg', 'organizational_unit': 'testorgunit', 'locality': 'testlocality', 'common_name': 'testcommonname', 'country': 'AU', 'email_address': 'test.email@address.com'}</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>signature_algorithm</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The signature_algorithm of this Certificate.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">SHA-1</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>id</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The OCID of the certificate.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.waascertificate.oc1..xxxxxEXAMPLExxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>lifecycle_state</b>
-                    <br/><div style="font-size: small; color: red">str</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The current lifecycle state of the SSL certificate.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ACTIVE</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;example_namespace&#x27;: {&#x27;example_key&#x27;: &#x27;example_value&#x27;}}</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>display_name</b>
-                    <br/><div style="font-size: small; color: red">str</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>success</td>
                 <td>
@@ -448,36 +419,50 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>compartment_id</b>
-                    <br/><div style="font-size: small; color: red">str</div>
+                    <b>extensions</b>
+                    <div style="font-size: small; color: purple">list</div>
                                     </td>
                 <td>success</td>
                 <td>
-                                            <div>The OCID of the certificate's compartment.</div>
+                                            <div>The extensions of this Certificate.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;is_critical&#x27;: None, &#x27;name&#x27;: &#x27;subjectKeyIdentifier&#x27;, &#x27;value&#x27;: &#x27;A6:B2:56:1X:1X:1X:1X:8C:F6&#x27;}]</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>defined_tags</b>
-                    <br/><div style="font-size: small; color: red">str</div>
+                    <b>freeform_tags</b>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>success</td>
                 <td>
-                                            <div>A key-value pair with a defined schema that restricts the values of tags. These predefined keys are scoped to namespaces.</div>
+                                            <div>A simple key-value pair without any defined schema.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'example_namespace': {'example_key': 'example_value'}}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;example_freeform_key&#x27;: &#x27;example_freeform_value&#x27;}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>The OCID of the certificate.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.waascertificate.oc1..xxxxxEXAMPLExxxxx</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>issued_by</b>
-                    <br/><div style="font-size: small; color: red">str</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>success</td>
                 <td>
@@ -490,64 +475,50 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>freeform_tags</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <b>issuer_name</b>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>success</td>
                 <td>
-                                            <div>A simple key-value pair without any defined schema.</div>
+                                            <div>The issuer_name of this Certificate.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'example_freeform_key': 'example_freeform_value'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;state_province&#x27;: &#x27;teststate&#x27;, &#x27;organization&#x27;: &#x27;testorg&#x27;, &#x27;organizational_unit&#x27;: &#x27;testorgunit&#x27;, &#x27;locality&#x27;: &#x27;testlocality&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;country&#x27;: &#x27;AU&#x27;, &#x27;email_address&#x27;: &#x27;test.email@address.com&#x27;}</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>version</b>
-                    <br/><div style="font-size: small; color: red">int</div>
+                    <b>lifecycle_state</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>success</td>
                 <td>
-                                            <div>The version of this Certificate.</div>
+                                            <div>The current lifecycle state of the SSL certificate.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>extensions</b>
-                    <br/><div style="font-size: small; color: red">list</div>
-                                    </td>
-                <td>success</td>
-                <td>
-                                            <div>The extensions of this Certificate.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'is_critical': None, 'name': 'subjectKeyIdentifier', 'value': 'A6:B2:56:1X:1X:1X:1X:8C:F6'}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ACTIVE</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>public_key_info</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>success</td>
                 <td>
                                             <div>The public_key_info of this Certificate.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'key_size': 2048, 'exponent': 65537, 'algorithm': 'RSA'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;key_size&#x27;: 2048, &#x27;exponent&#x27;: 65537, &#x27;algorithm&#x27;: &#x27;RSA&#x27;}</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>serial_number</b>
-                    <br/><div style="font-size: small; color: red">str</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>success</td>
                 <td>
@@ -555,6 +526,90 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">100000000000710</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>signature_algorithm</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>The signature_algorithm of this Certificate.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">SHA-1</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>subject_name</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>The subject_name of this Certificate.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;state_province&#x27;: &#x27;teststate&#x27;, &#x27;organization&#x27;: &#x27;testorg&#x27;, &#x27;organizational_unit&#x27;: &#x27;testorgunit&#x27;, &#x27;locality&#x27;: &#x27;testlocality&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;country&#x27;: &#x27;AU&#x27;, &#x27;email_address&#x27;: &#x27;test.email@address.com&#x27;}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>time_created</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>The date and time the certificate was created, expressed in RFC 3339 timestamp format.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-04-02 17:12:42.454000</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>time_not_valid_after</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>The date and time the certificate will expire, expressed in RFC 3339 timestamp format.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2020-04-01 15:29:38</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>time_not_valid_before</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>The time_not_valid_before of this Certificate.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-04-02 15:29:38</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>version</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>The version of this Certificate.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2</div>
                                     </td>
             </tr>
                     
@@ -567,18 +622,21 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
+
+
+Authors
+~~~~~~~
 
 - Manoj Meda (@manojmeda)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_waas_certificate_facts.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_waas_certificate_facts.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

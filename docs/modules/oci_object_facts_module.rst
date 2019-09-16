@@ -5,14 +5,14 @@
 .. _oci_object_facts_module:
 
 
-oci_object_facts - Retrieve details of an object or all the objects in a specific namespace and bucket in OCI Object                     Storage Service
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_object_facts -- Retrieve details of an object or all the objects in a specific namespace and bucket in OCI Object                     Storage Service
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
@@ -22,10 +22,10 @@ Synopsis
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,27 +43,36 @@ Parameters
                     <tr>
                                                                 <td colspan="1">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -73,7 +82,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,21 +95,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>bucket_name</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -108,7 +126,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -118,7 +139,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -128,20 +152,26 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>delimiter</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>/</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>When this parameter is set, only objects whose names do not contain the delimiter character (after an optionally specified prefix) are returned in the objects key of the response body. Scanned objects whose names contain the delimiter have the part of their name up to the first occurrence of the delimiter (including the optional prefix) returned as a set of prefixes. Note that only '/' is a supported delimiter character at this time.</div>
+                                                                        <div>When this parameter is set, only objects whose names do not contain the delimiter character (after an optionally specified prefix) are returned in the objects key of the response body. Scanned objects whose names contain the delimiter have the part of their name up to the first occurrence of the delimiter (including the optional prefix) returned as a set of prefixes. Note that only &#x27;/&#x27; is a supported delimiter character at this time.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>end</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -151,19 +181,25 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>fields</b>
-                    <br/><div style="font-size: small; color: red">str</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Object summary in list of objects includes the 'name' field. This parameter can also include 'size' (object size in bytes), 'md5', and 'timeCreated' (object creation date and time) fields. Value of this parameter should be a comma-separated, case-insensitive list of those field names. For example 'name,timeCreated,md5'. Allowed values are &quot;name&quot;, &quot;size&quot;, &quot;timeCreated&quot;, &quot;md5&quot;</div>
+                                                                        <div>Object summary in list of objects includes the &#x27;name&#x27; field. This parameter can also include &#x27;size&#x27; (object size in bytes), &#x27;md5&#x27;, and &#x27;timeCreated&#x27; (object creation date and time) fields. Value of this parameter should be a comma-separated, case-insensitive list of those field names. For example &#x27;name,timeCreated,md5&#x27;. Allowed values are &quot;name&quot;, &quot;size&quot;, &quot;timeCreated&quot;, &quot;md5&quot;</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>list_multipart_uploads</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                                                         <div>If <em>list_multipart_uploads=True</em>, all in-progress multipart uploads for the given <em>bucket</em> would be listed.</div>
@@ -172,7 +208,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>namespace_name</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -183,7 +222,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>object_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -194,7 +236,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>prefix</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -204,7 +249,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -214,7 +262,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>start</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -224,7 +275,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -234,7 +288,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>upload_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -249,7 +306,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -306,119 +364,21 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <tr>
                                 <td colspan="2">
                     <b>objects</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>On success</td>
                 <td>
                                             <div>List of object details</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{'md5': '3zBENq6MBnedDrpl2+SttQ==', 'name': 'image2a343.png', 'time_created': '2017-10-09T10:27:53.688000+00:00', 'size': 165661}, {'md5': 'LWX13se0YFa6VVlv0R3hqA==', 'name': 'info1.txt', 'time_created': '2017-10-09T08:39:17.411000+00:00', 'size': 1084}, {'namespace': 'ansible_namespace', 'object': 'ansible_object', 'bucket': 'ansible_bucket', 'upload_id': '3f7c3d1f-15cf-97a6-c6d7-f319', 'time_created': '2018-12-26T13:48:18.326000+00:00'}, {'part_number': 2, 'etag': '7DF108FC90D40327E053821BC20AC918', 'md5': 'J0doWIKY7JfZTrS1IPEGvA==', 'size': 28282272}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;md5&#x27;: &#x27;3zBENq6MBnedDrpl2+SttQ==&#x27;, &#x27;name&#x27;: &#x27;image2a343.png&#x27;, &#x27;time_created&#x27;: &#x27;2017-10-09T10:27:53.688000+00:00&#x27;, &#x27;size&#x27;: 165661}, {&#x27;md5&#x27;: &#x27;LWX13se0YFa6VVlv0R3hqA==&#x27;, &#x27;name&#x27;: &#x27;info1.txt&#x27;, &#x27;time_created&#x27;: &#x27;2017-10-09T08:39:17.411000+00:00&#x27;, &#x27;size&#x27;: 1084}, {&#x27;namespace&#x27;: &#x27;ansible_namespace&#x27;, &#x27;object&#x27;: &#x27;ansible_object&#x27;, &#x27;bucket&#x27;: &#x27;ansible_bucket&#x27;, &#x27;upload_id&#x27;: &#x27;3f7c3d1f-15cf-97a6-c6d7-f319&#x27;, &#x27;time_created&#x27;: &#x27;2018-12-26T13:48:18.326000+00:00&#x27;}, {&#x27;part_number&#x27;: 2, &#x27;etag&#x27;: &#x27;7DF108FC90D40327E053821BC20AC918&#x27;, &#x27;md5&#x27;: &#x27;J0doWIKY7JfZTrS1IPEGvA==&#x27;, &#x27;size&#x27;: 28282272}]</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>name</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>Name of the object</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">image2a343.png</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>part_size</b>
-                    <br/><div style="font-size: small; color: red">int</div>
-                                    </td>
-                <td>multipart upload parts listing</td>
-                <td>
-                                            <div>The part number for this part.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>object</b>
-                    <br/><div style="font-size: small; color: red">int</div>
-                                    </td>
-                <td>multipart uploads listing</td>
-                <td>
-                                            <div>The object name of the in-progress multipart upload.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible_object</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>namespace</b>
-                    <br/><div style="font-size: small; color: red">int</div>
-                                    </td>
-                <td>multipart uploads listing</td>
-                <td>
-                                            <div>The Object Storage namespace in which the in-progress multipart upload is stored.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible_namespace</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>time_created</b>
-                    <br/><div style="font-size: small; color: red">datetime</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>Date and time of object creation</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-10-09 08:39:17.411000</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>etag</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>multipart upload parts listing</td>
-                <td>
-                                            <div>The current entity tag for the part.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">7DF108FC90D40327E053821BC20</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>upload_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>multipart uploads listing</td>
-                <td>
-                                            <div>The unique identifier for the in-progress multipart upload.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">3f7c3d1f-15cf-97a6-c6d7-f31</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
                     <b>bucket</b>
-                    <br/><div style="font-size: small; color: red">int</div>
+                    <div style="font-size: small; color: purple">integer</div>
                                     </td>
                 <td>multipart uploads listing</td>
                 <td>
@@ -431,8 +391,92 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
+                    <b>etag</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>multipart upload parts listing</td>
+                <td>
+                                            <div>The current entity tag for the part.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">7DF108FC90D40327E053821BC20</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>md5</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Base64-encoded MD5 hash of the object data</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">3zBENq6MBnedDrpl2+SttQ==</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Name of the object</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">image2a343.png</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>namespace</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>multipart uploads listing</td>
+                <td>
+                                            <div>The Object Storage namespace in which the in-progress multipart upload is stored.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible_namespace</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>object</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>multipart uploads listing</td>
+                <td>
+                                            <div>The object name of the in-progress multipart upload.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansible_object</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>part_size</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>multipart upload parts listing</td>
+                <td>
+                                            <div>The part number for this part.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
                     <b>size</b>
-                    <br/><div style="font-size: small; color: red">int</div>
+                    <div style="font-size: small; color: purple">integer</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -445,15 +489,29 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>md5</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <b>time_created</b>
+                    <div style="font-size: small; color: purple">datetime</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>Base64-encoded MD5 hash of the object data</div>
+                                            <div>Date and time of object creation</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">3zBENq6MBnedDrpl2+SttQ==</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-10-09 08:39:17.411000</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>upload_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>multipart uploads listing</td>
+                <td>
+                                            <div>The unique identifier for the in-progress multipart upload.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">3f7c3d1f-15cf-97a6-c6d7-f31</div>
                                     </td>
             </tr>
                     
@@ -466,18 +524,21 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
+
+
+Authors
+~~~~~~~
 
 - Rohit Chaware (@rohitChaware)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_object_facts.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_object_facts.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

@@ -5,14 +5,14 @@
 .. _oci_object_module:
 
 
-oci_object - Manage objects in OCI Object Storage Service
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_object -- Manage objects in OCI Object Storage Service
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
@@ -22,10 +22,10 @@ Synopsis
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,27 +43,36 @@ Parameters
                     <tr>
                                                                 <td colspan="1">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -73,7 +82,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,21 +95,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>bucket_name</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -108,7 +126,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -118,7 +139,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -128,7 +152,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>content_encoding</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -138,7 +165,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>content_language</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -148,7 +178,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>content_length</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -158,7 +191,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>content_md5</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -168,9 +204,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>content_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">application/octet-stream</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"application/octet-stream"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The content type of the object to be uploaded.</div>
@@ -179,7 +218,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>dest</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -189,9 +231,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>force</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>no</li>
                                                                                                                                                                                                 <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
                                                                                     </ul>
@@ -204,9 +249,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>multipart_upload</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Use <em>multipart_upload=True</em> to use multipart upload feature to upload an large object. Disable multipart upload feature with <em>multipart_upload=False</em></div>
@@ -215,7 +263,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>namespace_name</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -226,7 +277,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>object_name</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -237,7 +291,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>opc_client_request_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -247,7 +304,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>opc_meta</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -258,9 +318,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>parallel_uploads</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Use <em>parallel_uploads=True</em> to use parallel upload feature to upload an object. Disable parallel upload feature with <em>parallel_uploads=False</em>. Parallel upload feature works only when <em>multipart_upload=True</em>.</div>
@@ -269,7 +332,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -279,7 +345,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>src</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -289,9 +358,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>state</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>absent</li>
                                                                                                                                                                                                 <li>abort_multipart_upload</li>
@@ -304,7 +376,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -314,7 +389,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>upload_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -329,7 +407,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -405,14 +484,14 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <tr>
                                 <td colspan="1">
                     <b>object</b>
-                    <br/><div style="font-size: small; color: red">dict</div>
+                    <div style="font-size: small; color: purple">dictionary</div>
                                     </td>
                 <td>On successful operation</td>
                 <td>
                                             <div>OCI object details</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'Content-Length': '165661', 'opc-request-id': '79bcd894-8a9d-fbfe-3717-fd92d518d0a1', 'Access-Control-Expose-Headers': 'Access-Control-Allow-Credentials,Access-Control-Allow-Methods, Access-Control-Allow-Origin,Content-Length,Content-MD5,Content-Type,ETag,Last-Modified,opc-client-info, opc-meta-author,opc-meta-doc-genre,opc-request-id', 'opc-meta-author': 'RC', 'Access-Control-Allow-Credentials': 'true', 'Content-MD5': '3zBENq6MBnedDrpl2+SttQ==', 'Last-Modified': 'Tue, 10 Oct 2017 13:57:20 GMT', 'Connection': 'keep-alive', 'ETag': '5B3287C054A51CB6E053824310AC257B', 'opc-multipart-md5': 'eoYNSi2Jkc2gMKksGkXOrQ', 'Date': 'Tue, 10 Oct 2017 13:58:02 GMT', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST,PUT,GET,HEAD,DELETE,OPTIONS', 'Content-Type': 'image/png'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;Content-Length&#x27;: &#x27;165661&#x27;, &#x27;opc-request-id&#x27;: &#x27;79bcd894-8a9d-fbfe-3717-fd92d518d0a1&#x27;, &#x27;Access-Control-Expose-Headers&#x27;: &#x27;Access-Control-Allow-Credentials,Access-Control-Allow-Methods, Access-Control-Allow-Origin,Content-Length,Content-MD5,Content-Type,ETag,Last-Modified,opc-client-info, opc-meta-author,opc-meta-doc-genre,opc-request-id&#x27;, &#x27;opc-meta-author&#x27;: &#x27;RC&#x27;, &#x27;Access-Control-Allow-Credentials&#x27;: &#x27;true&#x27;, &#x27;Content-MD5&#x27;: &#x27;3zBENq6MBnedDrpl2+SttQ==&#x27;, &#x27;Last-Modified&#x27;: &#x27;Tue, 10 Oct 2017 13:57:20 GMT&#x27;, &#x27;Connection&#x27;: &#x27;keep-alive&#x27;, &#x27;ETag&#x27;: &#x27;5B3287C054A51CB6E053824310AC257B&#x27;, &#x27;opc-multipart-md5&#x27;: &#x27;eoYNSi2Jkc2gMKksGkXOrQ&#x27;, &#x27;Date&#x27;: &#x27;Tue, 10 Oct 2017 13:58:02 GMT&#x27;, &#x27;Access-Control-Allow-Origin&#x27;: &#x27;*&#x27;, &#x27;Access-Control-Allow-Methods&#x27;: &#x27;POST,PUT,GET,HEAD,DELETE,OPTIONS&#x27;, &#x27;Content-Type&#x27;: &#x27;image/png&#x27;}</div>
                                     </td>
             </tr>
                         </table>
@@ -424,18 +503,21 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
+
+
+Authors
+~~~~~~~
 
 - Rohit Chaware (@rohitChaware)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_object.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_object.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

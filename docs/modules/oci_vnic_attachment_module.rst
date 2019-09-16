@@ -5,14 +5,14 @@
 .. _oci_vnic_attachment_module:
 
 
-oci_vnic_attachment - Create a secondary VNIC and attach it to a compute instance, detach or delete VNIC attachments from a compute instance.
+oci_vnic_attachment -- Create a secondary VNIC and attach it to a compute instance, detach or delete VNIC attachments from a compute instance
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
@@ -22,10 +22,10 @@ Synopsis
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,27 +43,36 @@ Parameters
                     <tr>
                                                                 <td colspan="2">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -73,7 +82,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,21 +95,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -107,7 +125,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -117,7 +138,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>display_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -128,7 +152,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>instance_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -138,7 +165,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>nic_index</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -148,7 +178,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -158,21 +191,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>state</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>absent</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The state of the VNIC attachment that must be asserted to. When <em>state=present</em>, and the VNIC attachment doesn't exist, the secondary VNIC is created with the specified details, and is attached to the specified compute instance. When <em>state=absent</em>, the secondary VNIC is detached from the compute instance and deleted.</div>
+                                                                        <div>The state of the VNIC attachment that must be asserted to. When <em>state=present</em>, and the VNIC attachment doesn&#x27;t exist, the secondary VNIC is created with the specified details, and is attached to the specified compute instance. When <em>state=absent</em>, the secondary VNIC is detached from the compute instance and deleted.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -182,7 +221,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>vnic</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -193,41 +235,25 @@ Parameters
                                                             <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
-                    <b>display_name</b>
-                                                                            </td>
+                    <b>assign_public_ip</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>A user-friendly name for the VNIC. Does not have to be unique.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>hostname_label</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The hostname for the VNIC's primary private IP. Used for DNS. The value is the hostname portion of the primary private IP's fully qualified domain name (FQDN) (for example, bminstance-1 in FQDN bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all VNICs in the subnet and comply with RFC 952 and RFC 1123.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>subnet_id</b>
-                                        <br/><div style="font-size: small; color: red">required</div>                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>The OCID of the subnet to create the VNIC in.</div>
+                                            <div>Determines whether the secondary VNIC should be assigned a public IP address.  If not set and the VNIC is being created in a private subnet (that is, where <em>prohibitPublicIpOnVnic = true</em> in the Subnet), then no public IP address is assigned. If not set and the subnet is public <em>prohibitPublicIpOnVnic = false</em>, then a public IP address is assigned. If set to true and <em>prohibitPublicIpOnVnic = true</em>, an error is returned.</div>
                                                         </td>
             </tr>
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
                     <b>defined_tags</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -237,8 +263,25 @@ Parameters
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
+                    <b>display_name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>A user-friendly name for the VNIC. Does not have to be unique.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
                     <b>freeform_tags</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -248,10 +291,41 @@ Parameters
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
-                    <b>skip_source_dest_check</b>
-                                                                            </td>
+                    <b>hostname_label</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The hostname for the VNIC&#x27;s primary private IP. Used for DNS. The value is the hostname portion of the primary private IP&#x27;s fully qualified domain name (FQDN) (for example, bminstance-1 in FQDN bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all VNICs in the subnet and comply with RFC 952 and RFC 1123.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>private_ip</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The private IP to assign to the VNIC. Must be an available IP address within the subnet&#x27;s CIDR. If you don&#x27;t specify a value, Oracle automatically assigns a private IP address from the subnet. This is the VNIC&#x27;s primary private IP address.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>skip_source_dest_check</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                             <div>Determines whether the source/destination check is disabled on the VNIC. Defaults to false, which means the check is performed.</div>
@@ -260,30 +334,25 @@ Parameters
                                 <tr>
                                                     <td class="elbow-placeholder"></td>
                                                 <td colspan="1">
-                    <b>private_ip</b>
-                                                                            </td>
+                    <b>subnet_id</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The private IP to assign to the VNIC. Must be an available IP address within the subnet's CIDR. If you don't specify a value, Oracle automatically assigns a private IP address from the subnet. This is the VNIC's primary private IP address.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                    <td class="elbow-placeholder"></td>
-                                                <td colspan="1">
-                    <b>assign_public_ip</b>
-                                                                            </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Determines whether the secondary VNIC should be assigned a public IP address.  If not set and the VNIC is being created in a private subnet (that is, where <em>prohibitPublicIpOnVnic = true</em> in the Subnet), then no public IP address is assigned. If not set and the subnet is public <em>prohibitPublicIpOnVnic = false</em>, then a public IP address is assigned. If set to true and <em>prohibitPublicIpOnVnic = true</em>, an error is returned.</div>
+                                            <div>The OCID of the subnet to create the VNIC in.</div>
                                                         </td>
             </tr>
                     
                                                 <tr>
                                                                 <td colspan="2">
                     <b>vnic_attachment_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -294,9 +363,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>wait</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>no</li>
                                                                                                                                                                                                 <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
                                                                                     </ul>
@@ -308,7 +380,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>wait_timeout</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                                     <b>Default:</b><br/><div style="color: blue">1200</div>
                                     </td>
@@ -319,7 +394,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="2">
                     <b>wait_until</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -334,7 +412,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -376,35 +455,21 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <tr>
                                 <td colspan="2">
                     <b>vnic_attachment</b>
-                    <br/><div style="font-size: small; color: red">complex</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>On success</td>
                 <td>
                                             <div>Details of the VNIC attachment</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'lifecycle_state': 'DETACHED', 'availability_domain': 'BnQb:PHX-AD-1', 'display_name': 'sec_vnic_1_for_my_instance', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...m62xq', 'subnet_id': 'ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...mpqpaoa', 'time_created': '2017-11-26T16:24:35.487000+00:00', 'instance_id': 'ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx...qkwr6q', 'vnic_id': 'ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...mv2beqa', 'vlan_tag': 41, 'id': 'ocid1.vnicattachment.oc1.phx.xxxxxEXAMPLExxxxx...3momq'}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;DETACHED&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;sec_vnic_1_for_my_instance&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...m62xq&#x27;, &#x27;subnet_id&#x27;: &#x27;ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...mpqpaoa&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-26T16:24:35.487000+00:00&#x27;, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx...qkwr6q&#x27;, &#x27;vnic_id&#x27;: &#x27;ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...mv2beqa&#x27;, &#x27;vlan_tag&#x27;: 41, &#x27;id&#x27;: &#x27;ocid1.vnicattachment.oc1.phx.xxxxxEXAMPLExxxxx...3momq&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>lifecycle_state</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>The current state of the VNIC attachment.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">DETACHED</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
                     <b>availability_domain</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -417,22 +482,8 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>display_name</b>
-                    <br/><div style="font-size: small; color: red">string</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>A user-friendly name. Does not have to be unique.</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">sec_vnic1_for_my_instance</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
                     <b>compartment_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -445,36 +496,36 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>subnet_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <b>display_name</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>The OCID of the VNIC's subnet.</div>
+                                            <div>A user-friendly name. Does not have to be unique.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...mpqpaoa</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">sec_vnic1_for_my_instance</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>time_created</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <b>id</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>The date and time the VNIC attachment was created, in the format defined by RFC3339.</div>
+                                            <div>The OCID of the VNIC attachment.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-26 16:24:35.487000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.vnicattachment.oc1.phx.xxxxxEXAMPLExxxxx...3momq</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>instance_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -487,22 +538,50 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>vnic_id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <b>lifecycle_state</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>The OCID of the VNIC. Available after the attachment process is complete.</div>
+                                            <div>The current state of the VNIC attachment.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...mv2beqa</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">DETACHED</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>subnet_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The OCID of the VNIC&#x27;s subnet.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...mpqpaoa</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>time_created</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>The date and time the VNIC attachment was created, in the format defined by RFC3339.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-26 16:24:35.487000</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>vlan_tag</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
@@ -515,15 +594,15 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>id</b>
-                    <br/><div style="font-size: small; color: red">string</div>
+                    <b>vnic_id</b>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>always</td>
                 <td>
-                                            <div>The OCID of the VNIC attachment.</div>
+                                            <div>The OCID of the VNIC. Available after the attachment process is complete.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.vnicattachment.oc1.phx.xxxxxEXAMPLExxxxx...3momq</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...mv2beqa</div>
                                     </td>
             </tr>
                     
@@ -536,18 +615,21 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
+
+
+Authors
+~~~~~~~
 
 - Sivakumar Thyagarajan (@sivakumart)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_vnic_attachment.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_vnic_attachment.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

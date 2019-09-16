@@ -24,75 +24,85 @@
     license_model: "{{ lookup('env', 'SAMPLE_LICENSE_MODEL') }}" #sample value, license_model: 'LICENSE_INCLUDED'
 
   tasks:
-    - name: Check pre-requisites
-      fail:
-        msg: "Environment variable {{item}} not set. Please declare an environment variable with an appropriate value for the sample to work."
-      when: item not in ansible_env
-      with_items:
-        - "SAMPLE_COMPARTMENT_OCID"
-        - "SAMPLE_CPU_CORE_COUNT"
-        - "SAMPLE_DBW_DISPLAY_NAME"
-        - "SAMPLE_ADMIN_PASSWORD"
-        - "SAMPLE_DBW_NAME"
-        - "SAMPLE_DATA_STORAGE_SIZE_IN_TBS"
-        - "SAMPLE_LICENSE_MODEL"
+    - block:
 
-    - name: Create a new Autonomous Data Warehouse
-      oci_autonomous_data_warehouse:
-          compartment_id: "{{ compartment_ocid }}"
-          cpu_core_count: "{{ cpu_core_count }}"
-          display_name: "{{ display_name }}"
-          admin_password: "{{ admin_password }}"
-          db_name: "{{ db_name }}"
-          data_storage_size_in_tbs: "{{ data_storage_size_in_tbs }}"
-          license_model: "{{ license_model }}"
-          state: 'present'
-      register: result
+        - name: Check pre-requisites
+          fail:
+            msg: "Environment variable {{item}} not set. Please declare an environment variable with an appropriate value for the sample to work."
+          when: item not in ansible_env
+          with_items:
+            - "SAMPLE_COMPARTMENT_OCID"
+            - "SAMPLE_CPU_CORE_COUNT"
+            - "SAMPLE_DBW_DISPLAY_NAME"
+            - "SAMPLE_ADMIN_PASSWORD"
+            - "SAMPLE_DBW_NAME"
+            - "SAMPLE_DATA_STORAGE_SIZE_IN_TBS"
+            - "SAMPLE_LICENSE_MODEL"
 
-    - set_fact:
-         autonomous_data_warehouse_id: "{{ result.autonomous_data_warehouse.id }}"
-    - assert:
-        that:
-          - result.autonomous_data_warehouse.lifecycle_state == "AVAILABLE"
+        - name: Create a new Autonomous Data Warehouse
+          oci_autonomous_data_warehouse:
+              compartment_id: "{{ compartment_ocid }}"
+              cpu_core_count: "{{ cpu_core_count }}"
+              display_name: "{{ display_name }}"
+              admin_password: "{{ admin_password }}"
+              db_name: "{{ db_name }}"
+              data_storage_size_in_tbs: "{{ data_storage_size_in_tbs }}"
+              license_model: "{{ license_model }}"
+              state: 'present'
+          register: result
 
-# List Autonomous Data Warehouses filtered by Display Name
-    - name: List All Autonomous Data Warehouses in a compartment, filtered by Display Name
-      oci_autonomous_data_warehouse_facts:
-         compartment_id: "{{ compartment_ocid }}"
-         display_name: '{{ display_name }}'
-      register: result
+        - set_fact:
+             autonomous_data_warehouse_id: "{{ result.autonomous_data_warehouse.id }}"
+        - assert:
+            that:
+              - result.autonomous_data_warehouse.lifecycle_state == "AVAILABLE"
 
-# Get a specific Autonomous Data Warehouse
-    - name: Get a specific Autonomous Data Warehouse's facts
-      oci_autonomous_data_warehouse_facts:
-         autonomous_data_warehouse_id: "{{ autonomous_data_warehouse_id }}"
-      register: result
-    - debug:
-          msg: "{{result}}"
+    # List Autonomous Data Warehouses filtered by Display Name
+        - name: List All Autonomous Data Warehouses in a compartment, filtered by Display Name
+          oci_autonomous_data_warehouse_facts:
+             compartment_id: "{{ compartment_ocid }}"
+             display_name: '{{ display_name }}'
+          register: result
+
+    # Get a specific Autonomous Data Warehouse
+        - name: Get a specific Autonomous Data Warehouse's facts
+          oci_autonomous_data_warehouse_facts:
+             autonomous_data_warehouse_id: "{{ autonomous_data_warehouse_id }}"
+          register: result
+        - debug:
+              msg: "{{result}}"
 
 
-  # Stop Autonomous Data Warehouse
-    - name: Stop an Autonomous Data Warehouse
-      oci_autonomous_data_warehouse:
-         autonomous_data_warehouse_id: "{{ autonomous_data_warehouse_id }}"
-         state: 'stop'
-      register: result
+      # Stop Autonomous Data Warehouse
+        - name: Stop an Autonomous Data Warehouse
+          oci_autonomous_data_warehouse:
+             autonomous_data_warehouse_id: "{{ autonomous_data_warehouse_id }}"
+             state: 'stop'
+          register: result
 
-    - name: Assert that specified Autonomous Data Warehouse is stopped
-      assert:
-         that:
-            - result.autonomous_data_warehouse.lifecycle_state == 'STOPPED'
+        - name: Assert that specified Autonomous Data Warehouse is stopped
+          assert:
+             that:
+                - result.autonomous_data_warehouse.lifecycle_state == 'STOPPED'
 
-# Start Autonomous Data Warehouse
-    - name: Start an Autonomous Data Warehouse
-      oci_autonomous_data_warehouse:
-         autonomous_data_warehouse_id: "{{ autonomous_data_warehouse_id }}"
-         state: 'start'
-      register: result
+    # Start Autonomous Data Warehouse
+        - name: Start an Autonomous Data Warehouse
+          oci_autonomous_data_warehouse:
+             autonomous_data_warehouse_id: "{{ autonomous_data_warehouse_id }}"
+             state: 'start'
+          register: result
 
-    - name: Assert that specified Autonomous Data Warehouse is started and available
-      assert:
-         that:
-            - result.autonomous_data_warehouse.lifecycle_state == 'AVAILABLE'
+        - name: Assert that specified Autonomous Data Warehouse is started and available
+          assert:
+             that:
+                - result.autonomous_data_warehouse.lifecycle_state == 'AVAILABLE'
 
-    - import_tasks: teardown.yaml
+        - import_tasks: teardown.yaml
+
+      rescue:
+
+        - import_tasks: teardown.yaml
+          ignore_errors: yes
+
+        - fail:
+            msg: "The sample execution failed."

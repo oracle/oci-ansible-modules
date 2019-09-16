@@ -5,14 +5,14 @@
 .. _oci_volume_attachment_module:
 
 
-oci_volume_attachment - Attach or detach a volume in OCI Block Volume service
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_volume_attachment -- Attach or detach a volume in OCI Block Volume service
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 Synopsis
@@ -22,10 +22,10 @@ Synopsis
 
 
 Requirements
-~~~~~~~~~~~~
+------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.6
+- python >= 2.7
 - Python SDK for Oracle Cloud Infrastructure https://oracle-cloud-infrastructure-python-sdk.readthedocs.io
 
 
@@ -43,27 +43,36 @@ Parameters
                     <tr>
                                                                 <td colspan="1">
                     <b>api_user</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user's OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_fingerprint</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair's fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>Fingerprint for the key pair being used. If not set, then the value of the OCI_USER_FINGERPRINT environment variable, if any, is used. This option is required if the key fingerprint is not specified through a configuration file (See <code>config_file_location</code>). To get the key pair&#x27;s fingerprint value please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_file</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -73,7 +82,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>api_user_key_pass_phrase</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -83,21 +95,27 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>auth_type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_file_location</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -107,7 +125,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>config_profile_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -117,7 +138,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>display_name</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -127,7 +151,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>instance_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -137,9 +164,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>is_read_only</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>yes</li>
                                                                                     </ul>
@@ -151,7 +181,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>region</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -161,9 +194,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>state</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>absent</li>
                                                                                     </ul>
@@ -175,7 +211,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>tenancy</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -185,9 +224,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>type</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                            <ul><b>Choices:</b>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>iscsi</li>
                                                                                                                                                                                                 <li>paravirtualized</li>
                                                                                     </ul>
@@ -199,9 +241,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>use_chap</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>yes</li>
                                                                                     </ul>
@@ -213,7 +258,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>volume_attachment_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -224,7 +272,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>volume_id</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -234,9 +285,12 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>wait</b>
-                    <br/><div style="font-size: small; color: red">bool</div>                                                        </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
                                 <td>
-                                                                                                                                                                                                                    <ul><b>Choices:</b>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>no</li>
                                                                                                                                                                                                 <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
                                                                                     </ul>
@@ -248,7 +302,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>wait_timeout</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                                     <b>Default:</b><br/><div style="color: blue">1200</div>
                                     </td>
@@ -259,7 +316,10 @@ Parameters
                                 <tr>
                                                                 <td colspan="1">
                     <b>wait_until</b>
-                                                                            </td>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
@@ -274,7 +334,8 @@ Notes
 -----
 
 .. note::
-    - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+   - For OCI python sdk configuration, please refer to https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/configuration.html
+
 
 
 Examples
@@ -312,14 +373,14 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <tr>
                                 <td colspan="1">
                     <b>volume_attachment</b>
-                    <br/><div style="font-size: small; color: red">dict</div>
+                    <div style="font-size: small; color: purple">dictionary</div>
                                     </td>
                 <td>On successful attach operation</td>
                 <td>
                                             <div>Information about the volume attachment</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{'chap_username': None, 'iscsi_detach_commands': ['sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260 -u', 'sudo iscsiadm -m node -o delete -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328'], 'time_created': '2017-11-23T11:17:50.139000+00:00', 'volume_id': 'ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx', 'port': 3260, 'lifecycle_state': 'ATTACHED', 'availability_domain': 'BnQb:PHX-AD-1', 'display_name': 'ansible_volume_attachment', 'compartment_id': 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx', 'id': 'ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx', 'instance_id': 'ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx', 'iqn': 'iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3', 'ipv4': '169.254.2.2', 'attachment_type': 'iscsi', 'chap_secret': None, 'iscsi_attach_commands': ['sudo iscsiadm -m node -o new -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260', 'sudo iscsiadm -m node -o update -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -n node.startup -v automatic', 'sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260 -l']}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;chap_username&#x27;: None, &#x27;iscsi_detach_commands&#x27;: [&#x27;sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260 -u&#x27;, &#x27;sudo iscsiadm -m node -o delete -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328&#x27;], &#x27;time_created&#x27;: &#x27;2017-11-23T11:17:50.139000+00:00&#x27;, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;port&#x27;: 3260, &#x27;lifecycle_state&#x27;: &#x27;ATTACHED&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;ansible_volume_attachment&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;iqn&#x27;: &#x27;iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3&#x27;, &#x27;ipv4&#x27;: &#x27;169.254.2.2&#x27;, &#x27;attachment_type&#x27;: &#x27;iscsi&#x27;, &#x27;chap_secret&#x27;: None, &#x27;iscsi_attach_commands&#x27;: [&#x27;sudo iscsiadm -m node -o new -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260&#x27;, &#x27;sudo iscsiadm -m node -o update -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -n node.startup -v automatic&#x27;, &#x27;sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:1edac499-4d1b-4451-ba52-b803d0fb7328 -p 169.254.2.2:3260 -l&#x27;]}</div>
                                     </td>
             </tr>
                         </table>
@@ -331,18 +392,21 @@ Status
 
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+- This module is not guaranteed to have a backwards compatible interface. *[preview]*
 
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+- This module is :ref:`maintained by the Ansible Community <modules_support>`. *[community]*
 
 
 
-Author
-~~~~~~
+
+
+Authors
+~~~~~~~
 
 - Rohit Chaware (@rohitChaware)
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_volume_attachment.py?description=%3C!---%20Your%20description%20here%20--%3E%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_volume_attachment.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

@@ -31,29 +31,6 @@ class WaasPolicyHelperCustom:
             ).list_resources()
         ]
 
-    def get_create_model(self):
-        return oci_waas_utils.get_waas_policy_create_model(self.module)
-
-    def get_update_model(self):
-        update_waas_policy_details_class = self.get_update_model_class()
-        update_waas_policy_details = update_waas_policy_details_class()
-        update_waas_policy_details.origins = oci_waas_utils.get_waas_origins(
-            self.module
-        )
-        update_waas_policy_details.policy_config = oci_waas_utils.get_waas_policy_config(
-            self.module
-        )
-        update_waas_policy_details.waf_config = oci_waas_utils.get_waf_config_for_update(
-            self.module
-        )
-        for attr in update_waas_policy_details.attribute_map:
-            if attr in ["origins", "policy_config", "waf_config"]:
-                continue
-            if self.module.params.get(attr) is None:
-                continue
-            setattr(update_waas_policy_details, attr, self.module.params[attr])
-        return update_waas_policy_details
-
     def create_wait(self, create_response):
         work_request_response = self.wait_for_work_request(
             create_response, oci_common_utils.WORK_REQUEST_COMPLETED_STATES

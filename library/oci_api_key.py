@@ -170,13 +170,6 @@ def main():
     result = dict(changed=False)
 
     if resource_helper.is_delete():
-        if not resource_helper.get_module_resource_id():
-            module.fail_json(
-                msg="Specify {0} with state as 'absent' to delete a {1}.".format(
-                    resource_helper.get_module_resource_id_param(),
-                    resource_helper.resource_type.upper(),
-                )
-            )
         result = resource_helper.delete()
     elif resource_helper.is_update():
         result = resource_helper.update()

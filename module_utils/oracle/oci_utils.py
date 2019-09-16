@@ -39,7 +39,9 @@ except ImportError:
 from ansible.module_utils.basic import _load_params
 from ansible.module_utils._text import to_bytes
 
-__version__ = "1.10.0"
+__version__ = "1.11.0"
+agent_name = "Oracle-Ansible/"
+inventory_agent_name = "Oracle-Ansible-Inv/"
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -206,7 +208,7 @@ def get_oci_config(module, service_client_class=None):
             )
             # if instance_principal auth is used, an empty 'config' map is used below.
 
-    config["additional_user_agent"] = "Oracle-Ansible/{0}".format(__version__)
+    config["additional_user_agent"] = agent_name + __version__
     # Merge any overrides through other IAM options
     _merge_auth_option(
         config,

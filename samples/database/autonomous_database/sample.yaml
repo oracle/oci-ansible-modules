@@ -24,84 +24,96 @@
     license_model: "{{ lookup('env', 'SAMPLE_LICENSE_MODEL') }}" #sample value, license_model: 'LICENSE_INCLUDED'
 
   tasks:
-    - name: Check pre-requisites
-      fail:
-        msg: "Environment variable {{item}} not set. Please declare an environment variable with an appropriate value for the sample to work."
-      when: item not in ansible_env
-      with_items:
-        - "SAMPLE_COMPARTMENT_OCID"
-        - "SAMPLE_CPU_CORE_COUNT"
-        - "SAMPLE_DB_DISPLAY_NAME"
-        - "SAMPLE_ADMIN_PASSWORD"
-        - "SAMPLE_DB_NAME"
-        - "SAMPLE_DATA_STORAGE_SIZE_IN_TBS"
-        - "SAMPLE_LICENSE_MODEL"
+    - block:
 
-    - name: Create a new Autonomous Database
-      oci_autonomous_database:
-          compartment_id: "{{ compartment_ocid }}"
-          cpu_core_count: "{{ cpu_core_count }}"
-          display_name: "{{ display_name }}"
-          admin_password: "{{ admin_password }}"
-          db_name: "{{ db_name }}"
-          data_storage_size_in_tbs: "{{ data_storage_size_in_tbs }}"
-          license_model: "{{ license_model }}"
-          state: 'present'
-      register: result
+        - name: Check pre-requisites
+          fail:
+            msg: "Environment variable {{item}} not set. Please declare an environment variable with an appropriate value for the sample to work."
+          when: item not in ansible_env
+          with_items:
+            - "SAMPLE_COMPARTMENT_OCID"
+            - "SAMPLE_CPU_CORE_COUNT"
+            - "SAMPLE_DB_DISPLAY_NAME"
+            - "SAMPLE_ADMIN_PASSWORD"
+            - "SAMPLE_DB_NAME"
+            - "SAMPLE_DATA_STORAGE_SIZE_IN_TBS"
+            - "SAMPLE_LICENSE_MODEL"
 
-    - set_fact:
-         autonomous_database_id: "{{ result.autonomous_database.id }}"
+        - name: Create a new Autonomous Database
+          oci_autonomous_database:
+              compartment_id: "{{ compartment_ocid }}"
+              cpu_core_count: "{{ cpu_core_count }}"
+              display_name: "{{ display_name }}"
+              admin_password: "{{ admin_password }}"
+              db_name: "{{ db_name }}"
+              data_storage_size_in_tbs: "{{ data_storage_size_in_tbs }}"
+              license_model: "{{ license_model }}"
+              state: 'present'
+          register: result
 
-    - assert:
-        that:
-          - result.autonomous_database.lifecycle_state == "AVAILABLE"
+        - set_fact:
+             autonomous_database_id: "{{ result.autonomous_database.id }}"
 
-# List Autonomous Databases filtered by Display Name
-    - name: List All Autonomous Databases in a compartment, filtered by Display Name
-      oci_autonomous_database_facts:
-         compartment_id: "{{ compartment_ocid }}"
-         display_name: '{{ display_name }}'
-      register: result
+        - assert:
+            that:
+              - result.autonomous_database.lifecycle_state == "AVAILABLE"
 
-    - name: Assert that specified Autonomous Database is listed
-      assert:
-         that:
-            - result.autonomous_databases[0].display_name == display_name
+    # List Autonomous Databases filtered by Display Name
+        - name: List All Autonomous Databases in a compartment, filtered by Display Name
+          oci_autonomous_database_facts:
+             compartment_id: "{{ compartment_ocid }}"
+             display_name: '{{ display_name }}'
+          register: result
 
-# Stop Autonomous Databases
-    - name: Stop an Autonomous Database
-      oci_autonomous_database:
-         autonomous_database_id: "{{ autonomous_database_id }}"
-         state: 'stop'
-      register: result
+        - name: Assert that specified Autonomous Database is listed
+          assert:
+             that:
+                - result.autonomous_databases[0].display_name == display_name
 
-    - name: Assert that specified Autonomous Database is stopped
-      assert:
-         that:
-            - result.autonomous_database.lifecycle_state == 'STOPPED'
+    # Stop Autonomous Databases
+        - name: Stop an Autonomous Database
+          oci_autonomous_database:
+             autonomous_database_id: "{{ autonomous_database_id }}"
+             state: 'stop'
+          register: result
 
-# Start Autonomous Databases
-    - name: Start Autonomous Database
-      oci_autonomous_database:
-         autonomous_database_id: "{{ autonomous_database_id }}"
-         state: 'start'
-      register: result
+        - name: Assert that specified Autonomous Database is stopped
+          assert:
+             that:
+                - result.autonomous_database.lifecycle_state == 'STOPPED'
 
-    - name: Assert that specified Autonomous Database is started and available
-      assert:
-         that:
-            - result.autonomous_database.lifecycle_state == 'AVAILABLE'
+    # Start Autonomous Databases
+        - name: Start Autonomous Database
+          oci_autonomous_database:
+             autonomous_database_id: "{{ autonomous_database_id }}"
+             state: 'start'
+          register: result
 
-# Get a specific Autonomous Database
-    - name: Get a specific Autonomous Database's facts
-      oci_autonomous_database_facts:
-         autonomous_database_id: "{{ autonomous_database_id }}"
-      register: result
-    - debug: # print facts retrieved about the Autonomous Database
-          msg: "{{result}}"
-    - name: Assert that specified Autonomous Database is listed
-      assert:
-         that:
-            - result.autonomous_databases[0].display_name == display_name
+        - name: Assert that specified Autonomous Database is started and available
+          assert:
+             that:
+                - result.autonomous_database.lifecycle_state == 'AVAILABLE'
 
-    - import_tasks: teardown.yaml
+    # Get a specific Autonomous Database
+        - name: Get a specific Autonomous Database's facts
+          oci_autonomous_database_facts:
+             autonomous_database_id: "{{ autonomous_database_id }}"
+          register: result
+        - debug: # print facts retrieved about the Autonomous Database
+              msg: "{{result}}"
+        - name: Assert that specified Autonomous Database is listed
+          assert:
+             that:
+                - result.autonomous_databases[0].display_name == display_name
+
+        - import_tasks: teardown.yaml
+
+      rescue:
+
+        - import_tasks: teardown.yaml
+          ignore_errors: yes
+
+        - fail:
+            msg: "The sample execution failed."
+
+

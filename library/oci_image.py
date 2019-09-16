@@ -316,7 +316,7 @@ def main():
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False,
-        mutually_exclusive=["instance_id", "image_source_details"],
+        mutually_exclusive=[("instance_id", "image_source_details")],
         required_if=[("state", "absent", ["image_id"])],
     )
 
