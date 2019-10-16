@@ -100,6 +100,8 @@ def main():
         sys.exit(1)
     log("Module utilities path: {}".format(module_utils_path))
 
+
+    ### document fragments copy ###
     document_fragments_path_old = os.path.join(
         ansible_path, "utils", "module_docs_fragments"
     )
@@ -123,9 +125,7 @@ def main():
         )
         sys.exit(1)
     log("Documentation fragments path: {}".format(document_fragments_path))
-
     current_path = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
-
     doc_src_path = os.path.join(current_path, "module_docs_fragments")
     print(
         "Copying documentation fragments from {} to {}".format(
@@ -134,6 +134,7 @@ def main():
     )
     copy_files(os.listdir(doc_src_path), doc_src_path, document_fragments_path)
 
+    ### Utils copy ###
     utilities_src_path = os.path.join(current_path, "module_utils", "oracle")
     utilities_dest_path = os.path.join(module_utils_path, "oracle")
     if not os.path.exists(utilities_dest_path):
@@ -145,6 +146,21 @@ def main():
     )
     copy_tree(utilities_src_path, utilities_dest_path)
 
+    ### Inventory plugin copy ###
+    inventory_plugin_src_path = os.path.join(current_path, "inventory_plugins")
+    inventory_plugin_dest_path = os.path.join(ansible_path, "plugins", "inventory")
+    if not os.path.exists(inventory_plugin_dest_path):
+        os.mkdir(inventory_plugin_dest_path)
+    print(
+        "Copying oracle inventory plugin files from {} to {}".format(
+            inventory_plugin_src_path, inventory_plugin_dest_path
+        )
+    )
+    copy_files(
+        os.listdir(inventory_plugin_src_path), inventory_plugin_src_path, inventory_plugin_dest_path
+    )
+
+    ### Modules copy ###
     oracle_module_dir_path = os.path.join(ansible_path, "modules", "cloud", "oracle")
     if not os.path.exists(oracle_module_dir_path):
         print("Creating directory {}".format(oracle_module_dir_path))

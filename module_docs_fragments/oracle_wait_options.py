@@ -11,16 +11,15 @@ class ModuleDocFragment(object):
         wait:
             description: Whether to wait for create or delete operation to complete.
             default: yes
-            required: false
             type: bool
         wait_timeout:
             description: Time, in seconds, to wait when I(wait=yes).
-            required: false
             default: 1200
+            type: int
         wait_until:
             description: The lifecycle state to wait for the resource to transition into when I(wait=yes). By default,
                          when I(wait=yes), we wait for the resource to get into ACTIVE/ATTACHED/AVAILABLE/PROVISIONED/
                          RUNNING applicable lifecycle state during create operation & to get into DELETED/DETACHED/
                          TERMINATED lifecycle state during delete operation.
-            required: false
+            type: str
     """

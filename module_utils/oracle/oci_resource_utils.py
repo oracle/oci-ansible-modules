@@ -437,6 +437,12 @@ class OCIResourceHelperBase:
         action_response = action_fn()
 
         if not (wait_applicable and self.module.params.get("wait")):
+            if action_response.data:
+                return oci_common_utils.get_result(
+                    changed=True,
+                    resource_type=self.resource_type,
+                    resource=to_dict(action_response.data),
+                )
             return oci_common_utils.get_result(
                 changed=True, resource_type=self.resource_type, resource=resource
             )
@@ -464,7 +470,9 @@ class OCIResourceHelperBase:
         if action.upper() in oci_common_utils.ALWAYS_PERFORM_ACTIONS:
             return True
         resource = self.get_resource().data
-        if resource.lifecycle_state in self.get_action_idempotent_states(action):
+        if hasattr(
+            resource, "lifecycle_state"
+        ) and resource.lifecycle_state in self.get_action_idempotent_states(action):
             return False
         return True
 
@@ -570,11 +578,11 @@ class OCIResourceHelperBase:
             ),
         )
         if not self.is_work_request_success(work_request_response):
-            self.module.fail_json(
-                msg="Work request {0} failed with errors: {1}".format(
-                    work_request_id, self.get_work_request_errors(work_request_response)
-                )
-            )
+            error_msg = "Work request {0} failed.".format(work_request_id)
+            errors = self.get_work_request_errors(work_request_response)
+            if errors:
+                error_msg += " Errors: {0}".format(errors)
+            self.module.fail_json(msg=error_msg)
         return work_request_response
 
 

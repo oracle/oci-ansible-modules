@@ -9,7 +9,6 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 from ansible.module_utils import six
 
-
 try:
     import oci
     from oci.retry import RetryStrategyBuilder
@@ -19,6 +18,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
+__version__ = "1.12.0"
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 DEAD_STATES = [
     "TERMINATING",
@@ -46,8 +46,8 @@ DEFAULT_READY_STATES = [
 
 CANCELLED_STATES = ["CANCELLED"]
 
-WORK_REQUEST_COMPLETED_STATES = ["SUCCEEDED", "SUCCESS", "FAILED"]
-WORK_REQUEST_SUCCESS_STATES = ["SUCCEEDED", "SUCCESS"]
+WORK_REQUEST_COMPLETED_STATES = ["COMPLETED", "SUCCEEDED", "SUCCESS", "FAILED"]
+WORK_REQUEST_SUCCESS_STATES = ["COMPLETED", "SUCCEEDED", "SUCCESS"]
 WORK_REQUEST_FAILED_STATES = ["FAILED"]
 
 # If a resource is in one of these states, it would be considered deleted

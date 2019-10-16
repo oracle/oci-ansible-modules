@@ -11,5 +11,5 @@ class ModuleDocFragment(object):
         name:
             description: Use I(name) along with the other options to return only resources that match the given name
                          exactly.
-            required: false
+            type: str
     """

@@ -51,6 +51,10 @@ Oracle
   * :ref:`oci_boot_volume_facts_module` 
   * :ref:`oci_bucket_module` 
   * :ref:`oci_bucket_facts_module` 
+  * :ref:`oci_budget_module` 
+  * :ref:`oci_budget_alert_rule_module` 
+  * :ref:`oci_budget_alert_rule_facts_module` 
+  * :ref:`oci_budget_facts_module` 
   * :ref:`oci_cluster_module` 
   * :ref:`oci_cluster_facts_module` 
   * :ref:`oci_cluster_options_facts_module` 
@@ -108,6 +112,7 @@ Oracle
   * :ref:`oci_file_system_facts_module` 
   * :ref:`oci_group_module` 
   * :ref:`oci_group_facts_module` 
+  * :ref:`oci_identity_identity_provider_actions_module` 
   * :ref:`oci_identity_provider_module` 
   * :ref:`oci_identity_provider_facts_module` 
   * :ref:`oci_identity_tag_default_module` 
@@ -167,11 +172,14 @@ Oracle
   * :ref:`oci_namespace_metadata_facts_module` 
   * :ref:`oci_nat_gateway_module` 
   * :ref:`oci_nat_gateway_facts_module` 
+  * :ref:`oci_network_security_group_module` 
+  * :ref:`oci_network_security_group_facts_module` 
   * :ref:`oci_node_pool_module` 
   * :ref:`oci_node_pool_facts_module` 
   * :ref:`oci_node_pool_options_facts_module` 
   * :ref:`oci_object_module` 
   * :ref:`oci_object_facts_module` 
+  * :ref:`oci_object_storage_bucket_actions_module` 
   * :ref:`oci_object_storage_object_lifecycle_policy_module` 
   * :ref:`oci_object_storage_object_lifecycle_policy_facts_module` 
   * :ref:`oci_oke_work_request_module` 
@@ -234,6 +242,7 @@ Oracle
   * :ref:`oci_volume_attachment_module` 
   * :ref:`oci_volume_attachment_facts_module` 
   * :ref:`oci_volume_backup_module` 
+  * :ref:`oci_volume_backup_actions_module` 
   * :ref:`oci_volume_backup_facts_module` 
   * :ref:`oci_volume_backup_policy_assignment_module` 
   * :ref:`oci_volume_backup_policy_assignment_facts_module` 

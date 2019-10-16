@@ -19,14 +19,7 @@ try:
     import yaml
 
     import oci
-    from oci.exceptions import (
-        InvalidConfig,
-        InvalidPrivateKey,
-        MissingPrivateKeyPassphrase,
-        ConfigFileNotFound,
-        ServiceError,
-        MaximumWaitTimeExceeded,
-    )
+    from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
     from oci.identity.identity_client import IdentityClient
     from oci.retry import RetryStrategyBuilder
     from oci.util import to_dict, Sentinel
@@ -39,9 +32,13 @@ except ImportError:
 from ansible.module_utils.basic import _load_params
 from ansible.module_utils._text import to_bytes
 
-__version__ = "1.11.0"
-agent_name = "Oracle-Ansible/"
-inventory_agent_name = "Oracle-Ansible-Inv/"
+# Moved the __version__ to oci_common_utils. But import here as it is used in some places.
+from ansible.module_utils.oracle.oci_common_utils import __version__  # noqa: F401
+
+from ansible.module_utils.oracle.oci_config_utils import (
+    get_oci_config,
+    create_service_client,
+)
 
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 
@@ -152,230 +149,6 @@ def get_facts_module_arg_spec(
                 sort_order=dict(type="str", choices=sort_order_choices)
             )
     return facts_module_arg_spec
-
-
-def get_oci_config(module, service_client_class=None):
-    """Return the OCI configuration to use for all OCI API calls. The effective OCI configuration is derived by merging
-    any overrides specified for configuration attributes through Ansible module options or environment variables. The
-    order of precedence for deriving the effective configuration dict is:
-    1. If a config file is provided, use that to setup the initial config dict.
-    2. If a config profile is specified, use that config profile to setup the config dict.
-    3. For each authentication attribute, check if an override is provided either through
-        a. Ansible Module option
-        b. Environment variable
-        and override the value in the config dict in that order."""
-    config = {}
-
-    config_file = module.params.get("config_file_location")
-    _debug("Config file through module options - {0} ".format(config_file))
-    if not config_file:
-        if "OCI_CONFIG_FILE" in os.environ and os.environ["OCI_CONFIG_FILE"]:
-            config_file = os.environ["OCI_CONFIG_FILE"]
-            _debug(
-                "Config file through OCI_CONFIG_FILE environment variable - {0}".format(
-                    config_file
-                )
-            )
-        else:
-            config_file = "~/.oci/config"
-            _debug("Config file (fallback) - {0} ".format(config_file))
-
-    config_profile = module.params.get("config_profile_name")
-    if not config_profile:
-        if "OCI_CONFIG_PROFILE" in os.environ and os.environ["OCI_CONFIG_PROFILE"]:
-            config_profile = os.environ["OCI_CONFIG_PROFILE"]
-        else:
-            config_profile = "DEFAULT"
-    _debug("Using Config profile {0}".format(config_profile))
-    try:
-        config = oci.config.from_file(
-            file_location=config_file, profile_name=config_profile
-        )
-    except (
-        ConfigFileNotFound,
-        InvalidConfig,
-        InvalidPrivateKey,
-        MissingPrivateKeyPassphrase,
-    ) as ex:
-        if not _is_instance_principal_auth(module):
-            # When auth_type is not instance_principal, config file is required
-            module.fail_json(msg=str(ex))
-        else:
-            _debug(
-                "Ignore {0} as the auth_type is set to instance_principal".format(
-                    str(ex)
-                )
-            )
-            # if instance_principal auth is used, an empty 'config' map is used below.
-
-    config["additional_user_agent"] = agent_name + __version__
-    # Merge any overrides through other IAM options
-    _merge_auth_option(
-        config,
-        module,
-        module_option_name="api_user",
-        env_var_name="OCI_USER_ID",
-        config_attr_name="user",
-    )
-    _merge_auth_option(
-        config,
-        module,
-        module_option_name="api_user_fingerprint",
-        env_var_name="OCI_USER_FINGERPRINT",
-        config_attr_name="fingerprint",
-    )
-    _merge_auth_option(
-        config,
-        module,
-        module_option_name="api_user_key_file",
-        env_var_name="OCI_USER_KEY_FILE",
-        config_attr_name="key_file",
-    )
-    _merge_auth_option(
-        config,
-        module,
-        module_option_name="api_user_key_pass_phrase",
-        env_var_name="OCI_USER_KEY_PASS_PHRASE",
-        config_attr_name="pass_phrase",
-    )
-    _merge_auth_option(
-        config,
-        module,
-        module_option_name="tenancy",
-        env_var_name="OCI_TENANCY",
-        config_attr_name="tenancy",
-    )
-    _merge_auth_option(
-        config,
-        module,
-        module_option_name="region",
-        env_var_name="OCI_REGION",
-        config_attr_name="region",
-    )
-
-    return config
-
-
-def create_service_client(module, service_client_class):
-    """
-    Creates a service client using the common module options provided by the user.
-    :param module: An AnsibleModule that represents user provided options for a Task
-    :param service_client_class: A class that represents a client to an OCI Service
-    :return: A fully configured client
-    """
-    config = get_oci_config(module, service_client_class)
-    kwargs = {}
-
-    if _is_instance_principal_auth(module):
-        kwargs["signer"] = _create_instance_principal_signer(module)
-
-    # XXX: Validate configuration -- this may be redundant, as all Client constructors perform a validation
-    try:
-        oci.config.validate_config(config, **kwargs)
-    except oci.exceptions.InvalidConfig as ic:
-        module.fail_json(
-            msg="Invalid OCI configuration. Exception: {0}".format(str(ic))
-        )
-
-    # Create service client class (optionally with signer)
-    client = service_client_class(config, **kwargs)
-
-    # Redirect calls to home region for IAM service.
-    do_not_redirect = module.params.get(
-        "do_not_redirect_to_home_region", False
-    ) or os.environ.get("OCI_IDENTITY_DO_NOT_REDIRECT_TO_HOME_REGION")
-
-    if service_client_class == IdentityClient and not do_not_redirect:
-        if "region" in config:
-            _debug(
-                "Region passed for module invocation - {0} ".format(config["region"])
-            )
-
-        if "tenancy" in config:
-            tenancy_id = config["tenancy"]
-        elif hasattr(kwargs.get("signer"), "tenancy_id"):
-            # the instance principals signer has the tenancy ID from the certificate from the
-            # local metadata service
-            tenancy_id = kwargs.get("signer").tenancy_id
-        else:
-            module.fail_json(
-                msg="Could not identify tenancy OCID from config or local metadata service"
-            )
-
-        region_subscriptions = call_with_backoff(
-            client.list_region_subscriptions, tenancy_id=tenancy_id
-        ).data
-
-        # Replace the region for the client with the home region.
-        home_regions = [
-            rs.region_name for rs in region_subscriptions if rs.is_home_region is True
-        ]
-        if len(home_regions) == 0:
-            module.fail_json(msg="Could not identify home region for this tenancy")
-
-        home_region = home_regions[0]
-        _debug("Creating client targeting home region - {0} ".format(home_region))
-
-        client.base_client.set_region(home_region)
-
-    return client
-
-
-def _create_instance_principal_signer(module):
-    try:
-        signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
-    except Exception as ex:
-        message = (
-            "Failed retrieving certificates from localhost. Instance principal based authentication is only"
-            "possible from within OCI compute instances. Exception: {0}".format(str(ex))
-        )
-        module.fail_json(msg=message)
-
-    return signer
-
-
-def _is_instance_principal_auth(module):
-    # check if auth type is overridden via module params
-    instance_principal_auth = (
-        "auth_type" in module.params
-        and module.params["auth_type"] == "instance_principal"
-    )
-    if not instance_principal_auth:
-        instance_principal_auth = (
-            "OCI_ANSIBLE_AUTH_TYPE" in os.environ
-            and os.environ["OCI_ANSIBLE_AUTH_TYPE"] == "instance_principal"
-        )
-    return instance_principal_auth
-
-
-def _merge_auth_option(
-    config, module, module_option_name, env_var_name, config_attr_name
-):
-    """Merge the values for an authentication attribute from ansible module options and
-    environment variables with the values specified in a configuration file"""
-    _debug("Merging {0}".format(module_option_name))
-
-    auth_attribute = module.params.get(module_option_name)
-    _debug(
-        "\t Ansible module option {0} = {1}".format(module_option_name, auth_attribute)
-    )
-    if not auth_attribute:
-        if env_var_name in os.environ:
-            auth_attribute = os.environ[env_var_name]
-            _debug(
-                "\t Environment variable {0} = {1}".format(env_var_name, auth_attribute)
-            )
-
-    # An authentication attribute has been provided through an env-variable or an ansible
-    # option and must override the corresponding attribute's value specified in the
-    # config file [profile].
-    if auth_attribute:
-        _debug(
-            "Updating config attribute {0} -> {1} ".format(
-                config_attr_name, auth_attribute
-            )
-        )
-        config.update({config_attr_name: auth_attribute})
 
 
 def filter_resources(all_resources, filter_params):
