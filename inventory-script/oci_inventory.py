@@ -226,7 +226,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.11.0"
+__version__ = "1.12.0"
 inventory_agent_name = "Oracle-Ansible-Inv/"
 
 
@@ -999,7 +999,7 @@ class OCIInventory:
 
             instance_vars = to_dict(instance)
 
-            common_groups = set("all")
+            common_groups = set(["all"])
             # Group by availability domain
             ad = self.sanitize(instance.availability_domain)
             common_groups.add(ad)

@@ -58,8 +58,8 @@ options:
             - Required for create using I(state=present).
     defined_tags:
         description:
-            - Defined tags for this resource. Each key is predefined and scoped to a namespace.
-              For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+            - Defined tags for this resource. Each key is predefined and scoped to a
+              namespace. For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
             - "Example: `{\\"Operations\\": {\\"CostCenter\\": \\"42\\"}}`"
         type: dict
     display_name:
@@ -83,13 +83,13 @@ options:
     freeform_tags:
         description:
             - Free-form tags for this resource. Each tag is a simple key-value pair with no
-              predefined name, type, or namespace. For more information, see
-              L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+              predefined name, type, or namespace. For more information, see L(Resource
+              Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
             - "Example: `{\\"Department\\": \\"Finance\\"}`"
         type: dict
     vcn_id:
         description:
-            - The OCID of the VCN.
+            - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the VCN.
             - Required for update using I(state=present), I(state=absent).
         aliases: ["id"]
     state:
@@ -116,7 +116,7 @@ EXAMPLES = """
 
 - name: Update vcn
   oci_vcn:
-    defined_tags: {Operations: {CostCenter: US}}
+    defined_tags: {'Operations': {'CostCenter': 'US'}}
     display_name: MyVcn
     vcn_id: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
 
@@ -167,12 +167,12 @@ vcn:
             sample: ocid1.defaultsecuritylist.oc1..xxxxxxEXAMPLExxxxxx
         defined_tags:
             description:
-                - Defined tags for this resource. Each key is predefined and scoped to a namespace.
-                  For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+                - Defined tags for this resource. Each key is predefined and scoped to a
+                  namespace. For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
                 - "Example: `{\\"Operations\\": {\\"CostCenter\\": \\"42\\"}}`"
             returned: on success
             type: dict
-            sample: {Operations: {CostCenter: US}}
+            sample: {'Operations': {'CostCenter': 'US'}}
         display_name:
             description:
                 - A user-friendly name. Does not have to be unique, and it's changeable.
@@ -198,12 +198,12 @@ vcn:
         freeform_tags:
             description:
                 - Free-form tags for this resource. Each tag is a simple key-value pair with no
-                  predefined name, type, or namespace. For more information, see
-                  L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+                  predefined name, type, or namespace. For more information, see L(Resource
+                  Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
                 - "Example: `{\\"Department\\": \\"Finance\\"}`"
             returned: on success
             type: dict
-            sample: {Department: Finance}
+            sample: {'Department': 'Finance'}
         id:
             description:
                 - The VCN's Oracle ID (OCID).
@@ -239,10 +239,10 @@ vcn:
         "default_dhcp_options_id": "ocid1.defaultdhcpoptions.oc1..xxxxxxEXAMPLExxxxxx",
         "default_route_table_id": "ocid1.defaultroutetable.oc1..xxxxxxEXAMPLExxxxxx",
         "default_security_list_id": "ocid1.defaultsecuritylist.oc1..xxxxxxEXAMPLExxxxxx",
-        "defined_tags": {Operations: {CostCenter: US}},
+        "defined_tags": {'Operations': {'CostCenter': 'US'}},
         "display_name": "display_name_example",
         "dns_label": "vcn1",
-        "freeform_tags": {Department: Finance},
+        "freeform_tags": {'Department': 'Finance'},
         "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
         "lifecycle_state": "PROVISIONING",
         "time_created": "2016-08-25T21:10:29.600Z",

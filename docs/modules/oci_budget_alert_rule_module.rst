@@ -1,12 +1,12 @@
-:source: cloud/oracle/oci_vcn.py
+:source: cloud/oracle/oci_budget_alert_rule.py
 
 :orphan:
 
-.. _oci_vcn_module:
+.. _oci_budget_alert_rule_module:
 
 
-oci_vcn -- Manage a Vcn resource in Oracle Cloud Infrastructure
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_budget_alert_rule -- Manage a BudgetAlertRule resource in Oracle Cloud Infrastructure
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,14 +17,8 @@ oci_vcn -- Manage a Vcn resource in Oracle Cloud Infrastructure
 
 Synopsis
 --------
-- This module allows the user to create, update and delete a Vcn resource in Oracle Cloud Infrastructure
-- For *state=present*, creates a new virtual cloud network (VCN). For more information, see `VCNs and Subnets <https://docs.cloud.oracle.com/Content/Network/Tasks/managingVCNs.htm>`_.
-- For the VCN you must specify a single, contiguous IPv4 CIDR block. Oracle recommends using one of the private IP address ranges specified in `RFC 1918 <https://tools.ietf.org/html/rfc1918>`_ (10.0.0.0/8, 172.16/12, and 192.168/16). Example: 172.16.0.0/16. The CIDR block can range from /16 to /30, and it must not overlap with your on-premises network. You can't change the size of the VCN after creation.
-- For the purposes of access control, you must provide the OCID of the compartment where you want the VCN to reside. Consult an Oracle Cloud Infrastructure administrator in your organization if you're not sure which compartment to use. Notice that the VCN doesn't have to be in the same compartment as the subnets or other Networking Service components. For more information about compartments and access control, see `Overview of the IAM Service <https://docs.cloud.oracle.com/Content/Identity/Concepts/overview.htm>`_. For information about OCIDs, see `Resource Identifiers <https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm>`_.
-- You may optionally specify a *display name* for the VCN, otherwise a default is provided. It does not have to be unique, and you can change it. Avoid entering confidential information.
-- You can also add a DNS label for the VCN, which is required if you want the instances to use the Interent and VCN Resolver option for DNS in the VCN. For more information, see `DNS in Your Virtual Cloud Network <https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm>`_.
-- The VCN automatically comes with a default route table, default security list, and default set of DHCP options. The OCID for each is returned in the response. You can't delete these default objects, but you can change their contents (that is, change the route rules, security list rules, and so on).
-- The VCN and subnets you create are not accessible until you attach an internet gateway or set up an IPSec VPN or FastConnect. For more information, see `Overview of the Networking Service <https://docs.cloud.oracle.com/Content/Network/Concepts/overview.htm>`_.
+- This module allows the user to create, update and delete a BudgetAlertRule resource in Oracle Cloud Infrastructure
+- For *state=present*, creates a new Alert Rule.
 
 
 
@@ -48,6 +42,21 @@ Parameters
                         <th width="100%">Comments</th>
         </tr>
                     <tr>
+                                                                <td colspan="1">
+                    <b>alert_rule_id</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The unique Alert Rule OCID</div>
+                                                    <div>Required for update using <em>state=present</em>, <em>state=absent</em>.</div>
+                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
+                                    </td>
+            </tr>
+                                <tr>
                                                                 <td colspan="1">
                     <b>api_user</b>
                     <div style="font-size: small">
@@ -118,31 +127,15 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>cidr_block</b>
+                    <b>budget_id</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
-                                            </div>
+                         / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The CIDR IP address block of the VCN.</div>
-                                                    <div>Example: `172.16.0.0/16`</div>
-                                                    <div>Required for create using <em>state=present</em>.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>compartment_id</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>The OCID of the compartment to contain the VCN.</div>
-                                                    <div>Required for create using <em>state=present</em>.</div>
+                                                                        <div>The unique Budget OCID</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -187,6 +180,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>description</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The description of the alert rule.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>display_name</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
@@ -195,25 +201,9 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>A user-friendly name. Does not have to be unique, and it&#x27;s changeable. Avoid entering confidential information.</div>
+                                                                        <div>The name of the alert rule.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: name</div>
                                     </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>dns_label</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>A DNS label for the VCN, used in conjunction with the VNIC&#x27;s hostname and subnet&#x27;s DNS label to form a fully qualified domain name (FQDN) for each VNIC within this subnet (for example, `bminstance-1.subnet123.vcn1.oraclevcn.com`). Not required to be unique, but it&#x27;s a best practice to set unique DNS labels for VCNs in your tenancy. Must be an alphanumeric string that begins with a letter. The value cannot be changed.</div>
-                                                    <div>You must set this value if you want instances to be able to use hostnames to resolve other instances in the VCN. Otherwise the Internet and VCN Resolver will not work.</div>
-                                                    <div>For more information, see <a href='https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm'>DNS in Your Virtual Cloud Network</a>.</div>
-                                                    <div>Example: `vcn1`</div>
-                                                                                </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
@@ -261,6 +251,33 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>message</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The message to be sent to the recipients when alert rule is triggered.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>recipients</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The audience that will received the alert when it triggers.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>region</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -286,9 +303,9 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The state of the Vcn.</div>
-                                                    <div>Use <em>state=present</em> to create or update a Vcn.</div>
-                                                    <div>Use <em>state=absent</em> to delete a Vcn.</div>
+                                                                        <div>The state of the BudgetAlertRule.</div>
+                                                    <div>Use <em>state=present</em> to create or update a BudgetAlertRule.</div>
+                                                    <div>Use <em>state=absent</em> to delete a BudgetAlertRule.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -306,18 +323,53 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>vcn_id</b>
+                    <b>threshold</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">float</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the VCN.</div>
-                                                    <div>Required for update using <em>state=present</em>, <em>state=absent</em>.</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
+                                                                        <div>The threshold for triggering the alert expressed as a whole number or decimal value. If thresholdType is ABSOLUTE, threshold can have at most 12 digits before the decimal point and up to 2 digits after the decimal point. If thresholdType is PERCENTAGE, the maximum value is 10000 and can have up to 2 digits after the decimal point.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>threshold_type</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
                                     </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>PERCENTAGE</li>
+                                                                                                                                                                                                <li>ABSOLUTE</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The type of threshold.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>type</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>ACTUAL</li>
+                                                                                                                                                                                                <li>FORECAST</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Type of alert. Valid values are ACTUAL (the alert will trigger based on actual usage) or FORECAST (the alert will trigger based on predicted usage).</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
@@ -381,21 +433,24 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Create vcn
-      oci_vcn:
-        cidr_block: 10.0.0.0/16
-        compartment_id: ocid1.compartment.oc1..aaaaaaaayzfqeibduyox6iib3olcmdar3ugly4fmameq4h7lcdlihrvur7xq
-        display_name: MyVcn
+    - name: Create budget_alert_rule
+      oci_budget_alert_rule:
+        budget_id: ocid1.budget.oc1..xxxxxxEXAMPLExxxxxx
+        type: ACTUAL
+        threshold: 10
+        threshold_type: PERCENTAGE
+        recipients: recipients_example
 
-    - name: Update vcn
-      oci_vcn:
-        defined_tags: {'Operations': {'CostCenter': 'US'}}
-        display_name: MyVcn
-        vcn_id: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
+    - name: Update budget_alert_rule
+      oci_budget_alert_rule:
+        budget_id: ocid1.budget.oc1..xxxxxxEXAMPLExxxxxx
+        display_name: display_name_example
+        alert_rule_id: ocid1.alertrule.oc1..xxxxxxEXAMPLExxxxxx
 
-    - name: Delete vcn
-      oci_vcn:
-        vcn_id: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
+    - name: Delete budget_alert_rule
+      oci_budget_alert_rule:
+        budget_id: ocid1.budget.oc1..xxxxxxEXAMPLExxxxxx
+        alert_rule_id: ocid1.alertrule.oc1..xxxxxxEXAMPLExxxxxx
         state: absent
 
 
@@ -416,86 +471,29 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
         </tr>
                     <tr>
                                 <td colspan="2">
-                    <b>vcn</b>
+                    <b>budget_alert_rule</b>
                     <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>Details of the Vcn resource acted upon by the current operation</div>
+                                                                        <div>Details of the BudgetAlertRule resource acted upon by the current operation</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;PROVISIONING&#x27;, &#x27;dns_label&#x27;: &#x27;vcn1&#x27;, &#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;default_dhcp_options_id&#x27;: &#x27;ocid1.defaultdhcpoptions.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;vcn_domain_name&#x27;: &#x27;vcn1.oraclevcn.com&#x27;, &#x27;default_security_list_id&#x27;: &#x27;ocid1.defaultsecuritylist.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;cidr_block&#x27;: &#x27;172.16.0.0/16&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;default_route_table_id&#x27;: &#x27;ocid1.defaultroutetable.oc1..xxxxxxEXAMPLExxxxxx&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;time_updated&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;description&#x27;: &#x27;description_example&#x27;, &#x27;recipients&#x27;: &#x27;recipients_example&#x27;, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;threshold_type&#x27;: &#x27;PERCENTAGE&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;time_created&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;version&#x27;: 56, &#x27;budget_id&#x27;: &#x27;ocid1.budget.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;threshold&#x27;: 10, &#x27;message&#x27;: &#x27;message_example&#x27;, &#x27;type&#x27;: &#x27;ACTUAL&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>cidr_block</b>
+                    <b>budget_id</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The CIDR IP address block of the VCN.</div>
-                                                    <div>Example: `172.16.0.0/16`</div>
+                                                                        <div>The OCID of the budget</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">172.16.0.0/16</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>compartment_id</b>
-                    <div style="font-size: small; color: purple">string</div>
-                                    </td>
-                <td>on success</td>
-                <td>
-                                                                        <div>The OCID of the compartment containing the VCN.</div>
-                                                                <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>default_dhcp_options_id</b>
-                    <div style="font-size: small; color: purple">string</div>
-                                    </td>
-                <td>on success</td>
-                <td>
-                                                                        <div>The OCID for the VCN&#x27;s default set of DHCP options.</div>
-                                                                <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaultdhcpoptions.oc1..xxxxxxEXAMPLExxxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>default_route_table_id</b>
-                    <div style="font-size: small; color: purple">string</div>
-                                    </td>
-                <td>on success</td>
-                <td>
-                                                                        <div>The OCID for the VCN&#x27;s default route table.</div>
-                                                                <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaultroutetable.oc1..xxxxxxEXAMPLExxxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>default_security_list_id</b>
-                    <div style="font-size: small; color: purple">string</div>
-                                    </td>
-                <td>on success</td>
-                <td>
-                                                                        <div>The OCID for the VCN&#x27;s default security list.</div>
-                                                                <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaultsecuritylist.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.budget.oc1..xxxxxxEXAMPLExxxxxx</div>
                                     </td>
             </tr>
                                 <tr>
@@ -516,32 +514,29 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>display_name</b>
+                    <b>description</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>A user-friendly name. Does not have to be unique, and it&#x27;s changeable. Avoid entering confidential information.</div>
+                                                                        <div>The description of the alert rule.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">display_name_example</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">description_example</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>dns_label</b>
+                    <b>display_name</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>A DNS label for the VCN, used in conjunction with the VNIC&#x27;s hostname and subnet&#x27;s DNS label to form a fully qualified domain name (FQDN) for each VNIC within this subnet (for example, `bminstance-1.subnet123.vcn1.oraclevcn.com`). Must be an alphanumeric string that begins with a letter. The value cannot be changed.</div>
-                                                    <div>The absence of this parameter means the Internet and VCN Resolver will not work for this VCN.</div>
-                                                    <div>For more information, see <a href='https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm'>DNS in Your Virtual Cloud Network</a>.</div>
-                                                    <div>Example: `vcn1`</div>
+                                                                        <div>The name of the alert rule.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">vcn1</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">display_name_example</div>
                                     </td>
             </tr>
                                 <tr>
@@ -567,7 +562,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The VCN&#x27;s Oracle ID (OCID).</div>
+                                                                        <div>The OCID of the alert rule</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx</div>
@@ -581,10 +576,66 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The VCN&#x27;s current state.</div>
+                                                                        <div>The current state of the alert rule.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">PROVISIONING</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ACTIVE</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>message</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Custom message sent when alert is triggered</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">message_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>recipients</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Delimited list of email addresses to receive the alert when it triggers. Delimiter character can be comma, space, TAB, or semicolon.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">recipients_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>threshold</b>
+                    <div style="font-size: small; color: purple">float</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The threshold for triggering the alert. If thresholdType is PERCENTAGE, the maximum value is 10000.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">10</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>threshold_type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The type of threshold.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">PERCENTAGE</div>
                                     </td>
             </tr>
                                 <tr>
@@ -595,27 +646,52 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The date and time the VCN was created, in the format defined by RFC3339.</div>
-                                                    <div>Example: `2016-08-25T21:10:29.600Z`</div>
+                                                                        <div>Time budget was created</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>vcn_domain_name</b>
+                    <b>time_updated</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The VCN&#x27;s domain name, which consists of the VCN&#x27;s DNS label, and the `oraclevcn.com` domain.</div>
-                                                    <div>For more information, see <a href='https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm'>DNS in Your Virtual Cloud Network</a>.</div>
-                                                    <div>Example: `vcn1.oraclevcn.com`</div>
+                                                                        <div>Time budget was updated</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">vcn1.oraclevcn.com</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The type of alert. Valid values are ACTUAL (the alert will trigger based on actual usage) or FORECAST (the alert will trigger based on predicted usage).</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ACTUAL</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>version</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Version of the alert rule. Starts from 1 and increments by 1.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
                                     </td>
             </tr>
                     
@@ -647,4 +723,4 @@ Authors
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_vcn.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_budget_alert_rule.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

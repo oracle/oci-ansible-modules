@@ -365,7 +365,7 @@ class AutoScalingConfigurationPolicyHelperGen(OCIResourceHelperBase):
     def list_resources(self):
         required_list_method_params = ["auto_scaling_configuration_id"]
 
-        optional_list_method_params = []
+        optional_list_method_params = ["display_name"]
 
         required_kwargs = dict(
             (param, self.module.params[param]) for param in required_list_method_params

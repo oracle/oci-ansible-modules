@@ -18,23 +18,26 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = """
 ---
-module: oci_vcn_facts
-short_description: Fetches details about one or multiple Vcn resources in Oracle Cloud Infrastructure
+module: oci_network_security_group_facts
+short_description: Fetches details about one or multiple NetworkSecurityGroup resources in Oracle Cloud Infrastructure
 description:
-    - Fetches details about one or multiple Vcn resources in Oracle Cloud Infrastructure
-    - Lists the virtual cloud networks (VCNs) in the specified compartment.
-    - If I(vcn_id) is specified, the details of a single Vcn will be returned.
+    - Fetches details about one or multiple NetworkSecurityGroup resources in Oracle Cloud Infrastructure
+    - Lists the network security groups in the specified compartment.
+    - If I(network_security_group_id) is specified, the details of a single NetworkSecurityGroup will be returned.
 version_added: "2.5"
 options:
-    vcn_id:
+    network_security_group_id:
         description:
-            - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the VCN.
-            - Required to get a specific vcn.
+            - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the network security group.
+            - Required to get a specific network_security_group.
         aliases: ["id"]
     compartment_id:
         description:
             - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the compartment.
-            - Required to list multiple vcns.
+            - Required to list multiple network_security_groups.
+    vcn_id:
+        description:
+            - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the VCN.
     display_name:
         description:
             - A filter to return only resources that match the given display name exactly.
@@ -60,7 +63,7 @@ options:
             - "DESC"
     lifecycle_state:
         description:
-            - A filter to only return resources that match the given lifecycle state.  The state value is case-insensitive.
+            - A filter to return only resources that match the specified lifecycle state. The value is case insensitive.
         choices:
             - "PROVISIONING"
             - "AVAILABLE"
@@ -74,54 +77,29 @@ extends_documentation_fragment: [ oracle ]
 """
 
 EXAMPLES = """
-- name: List vcns
-  oci_vcn_facts:
+- name: List network_security_groups
+  oci_network_security_group_facts:
     compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
 
-- name: Get a specific vcn
-  oci_vcn_facts:
-    vcn_id: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
+- name: Get a specific network_security_group
+  oci_network_security_group_facts:
+    network_security_group_id: ocid1.networksecuritygroup.oc1..xxxxxxEXAMPLExxxxxx
 
 """
 
 RETURN = """
-vcns:
+network_security_groups:
     description:
-        - List of Vcn resources
+        - List of NetworkSecurityGroup resources
     returned: on success
     type: complex
     contains:
-        cidr_block:
-            description:
-                - The CIDR IP address block of the VCN.
-                - "Example: `172.16.0.0/16`"
-            returned: on success
-            type: string
-            sample: 172.16.0.0/16
         compartment_id:
             description:
-                - The OCID of the compartment containing the VCN.
+                - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the compartment the network security group is in.
             returned: on success
             type: string
             sample: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
-        default_dhcp_options_id:
-            description:
-                - The OCID for the VCN's default set of DHCP options.
-            returned: on success
-            type: string
-            sample: ocid1.defaultdhcpoptions.oc1..xxxxxxEXAMPLExxxxxx
-        default_route_table_id:
-            description:
-                - The OCID for the VCN's default route table.
-            returned: on success
-            type: string
-            sample: ocid1.defaultroutetable.oc1..xxxxxxEXAMPLExxxxxx
-        default_security_list_id:
-            description:
-                - The OCID for the VCN's default security list.
-            returned: on success
-            type: string
-            sample: ocid1.defaultsecuritylist.oc1..xxxxxxEXAMPLExxxxxx
         defined_tags:
             description:
                 - Defined tags for this resource. Each key is predefined and scoped to a
@@ -132,26 +110,11 @@ vcns:
             sample: {'Operations': {'CostCenter': 'US'}}
         display_name:
             description:
-                - A user-friendly name. Does not have to be unique, and it's changeable.
+                - A user-friendly name. Does not have to be unique.
                   Avoid entering confidential information.
             returned: on success
             type: string
             sample: display_name_example
-        dns_label:
-            description:
-                - A DNS label for the VCN, used in conjunction with the VNIC's hostname and
-                  subnet's DNS label to form a fully qualified domain name (FQDN) for each VNIC
-                  within this subnet (for example, `bminstance-1.subnet123.vcn1.oraclevcn.com`).
-                  Must be an alphanumeric string that begins with a letter.
-                  The value cannot be changed.
-                - The absence of this parameter means the Internet and VCN Resolver will
-                  not work for this VCN.
-                - For more information, see
-                  L(DNS in Your Virtual Cloud Network,https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm).
-                - "Example: `vcn1`"
-            returned: on success
-            type: string
-            sample: vcn1
         freeform_tags:
             description:
                 - Free-form tags for this resource. Each tag is a simple key-value pair with no
@@ -163,47 +126,38 @@ vcns:
             sample: {'Department': 'Finance'}
         id:
             description:
-                - The VCN's Oracle ID (OCID).
+                - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the network security group.
             returned: on success
             type: string
             sample: ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx
         lifecycle_state:
             description:
-                - The VCN's current state.
+                - The network security group's current state.
             returned: on success
             type: string
             sample: PROVISIONING
         time_created:
             description:
-                - The date and time the VCN was created, in the format defined by RFC3339.
+                - The date and time the network security group was created, in the format defined by RFC3339.
                 - "Example: `2016-08-25T21:10:29.600Z`"
             returned: on success
             type: string
             sample: 2016-08-25T21:10:29.600Z
-        vcn_domain_name:
+        vcn_id:
             description:
-                - The VCN's domain name, which consists of the VCN's DNS label, and the
-                  `oraclevcn.com` domain.
-                - For more information, see
-                  L(DNS in Your Virtual Cloud Network,https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm).
-                - "Example: `vcn1.oraclevcn.com`"
+                - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the network security group's VCN.
             returned: on success
             type: string
-            sample: vcn1.oraclevcn.com
+            sample: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
     sample: [{
-        "cidr_block": "172.16.0.0/16",
         "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
-        "default_dhcp_options_id": "ocid1.defaultdhcpoptions.oc1..xxxxxxEXAMPLExxxxxx",
-        "default_route_table_id": "ocid1.defaultroutetable.oc1..xxxxxxEXAMPLExxxxxx",
-        "default_security_list_id": "ocid1.defaultsecuritylist.oc1..xxxxxxEXAMPLExxxxxx",
         "defined_tags": {'Operations': {'CostCenter': 'US'}},
         "display_name": "display_name_example",
-        "dns_label": "vcn1",
         "freeform_tags": {'Department': 'Finance'},
         "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
         "lifecycle_state": "PROVISIONING",
         "time_created": "2016-08-25T21:10:29.600Z",
-        "vcn_domain_name": "vcn1.oraclevcn.com"
+        "vcn_id": "ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx"
     }]
 """
 
@@ -222,22 +176,26 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-class VcnFactsHelperGen(OCIResourceFactsHelperBase):
+class NetworkSecurityGroupFactsHelperGen(OCIResourceFactsHelperBase):
     """Supported operations: get, list"""
 
     def get_required_params_for_get(self):
-        return ["vcn_id"]
+        return ["network_security_group_id"]
 
     def get_required_params_for_list(self):
         return ["compartment_id"]
 
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
-            self.client.get_vcn, vcn_id=self.module.params.get("vcn_id")
+            self.client.get_network_security_group,
+            network_security_group_id=self.module.params.get(
+                "network_security_group_id"
+            ),
         )
 
     def list_resources(self):
         optional_list_method_params = [
+            "vcn_id",
             "display_name",
             "sort_by",
             "sort_order",
@@ -249,16 +207,20 @@ class VcnFactsHelperGen(OCIResourceFactsHelperBase):
             if self.module.params.get(param) is not None
         )
         return oci_common_utils.list_all_resources(
-            self.client.list_vcns,
+            self.client.list_network_security_groups,
             compartment_id=self.module.params.get("compartment_id"),
             **optional_kwargs
         )
 
 
-VcnFactsHelperCustom = get_custom_class("VcnFactsHelperCustom")
+NetworkSecurityGroupFactsHelperCustom = get_custom_class(
+    "NetworkSecurityGroupFactsHelperCustom"
+)
 
 
-class ResourceFactsHelper(VcnFactsHelperCustom, VcnFactsHelperGen):
+class ResourceFactsHelper(
+    NetworkSecurityGroupFactsHelperCustom, NetworkSecurityGroupFactsHelperGen
+):
     pass
 
 
@@ -266,8 +228,9 @@ def main():
     module_args = oci_common_utils.get_common_arg_spec()
     module_args.update(
         dict(
-            vcn_id=dict(aliases=["id"], type="str"),
+            network_security_group_id=dict(aliases=["id"], type="str"),
             compartment_id=dict(type="str"),
+            vcn_id=dict(type="str"),
             display_name=dict(aliases=["name"], type="str"),
             sort_by=dict(type="str", choices=["TIMECREATED", "DISPLAYNAME"]),
             sort_order=dict(type="str", choices=["ASC", "DESC"]),
@@ -284,7 +247,9 @@ def main():
         module.fail_json(msg="oci python sdk required for this module.")
 
     resource_facts_helper = ResourceFactsHelper(
-        module=module, resource_type="vcn", service_client_class=VirtualNetworkClient
+        module=module,
+        resource_type="network_security_group",
+        service_client_class=VirtualNetworkClient,
     )
 
     result = []
@@ -296,7 +261,7 @@ def main():
     else:
         resource_facts_helper.fail()
 
-    module.exit_json(vcns=result)
+    module.exit_json(network_security_groups=result)
 
 
 if __name__ == "__main__":

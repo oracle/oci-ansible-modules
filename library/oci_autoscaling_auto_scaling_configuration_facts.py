@@ -95,7 +95,7 @@ auto_scaling_configurations:
                 - "Example: `{\\"Operations\\": {\\"CostCenter\\": \\"42\\"}}`"
             returned: on success
             type: dict
-            sample: {Operations: {CostCenter: US}}
+            sample: {'Operations': {'CostCenter': 'US'}}
         display_name:
             description:
                 - A user-friendly name. Does not have to be unique, and it's changeable. Avoid entering confidential information.
@@ -110,7 +110,7 @@ auto_scaling_configurations:
                 - "Example: `{\\"Department\\": \\"Finance\\"}`"
             returned: on success
             type: dict
-            sample: {Department: Finance}
+            sample: {'Department': 'Finance'}
         id:
             description:
                 - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the autoscaling configuration.
@@ -285,9 +285,9 @@ auto_scaling_configurations:
             sample: 2016-08-25T21:10:29.600Z
     sample: [{
         "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
-        "defined_tags": {Operations: {CostCenter: US}},
+        "defined_tags": {'Operations': {'CostCenter': 'US'}},
         "display_name": "display_name_example",
-        "freeform_tags": {Department: Finance},
+        "freeform_tags": {'Department': 'Finance'},
         "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
         "cool_down_in_seconds": 56,
         "is_enabled": true,

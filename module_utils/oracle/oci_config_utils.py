@@ -23,8 +23,8 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "v1.11.0"
 agent_name = "Oracle-Ansible/"
+inventory_agent_name = "Oracle-Ansible-Inv/"
 
 
 def get_oci_config(module, service_client_class=None):
@@ -66,7 +66,7 @@ def get_oci_config(module, service_client_class=None):
             # When auth_type is not instance_principal, config file is required
             module.fail_json(msg=str(ex))
 
-    config["additional_user_agent"] = agent_name + __version__
+    config["additional_user_agent"] = agent_name + oci_common_utils.__version__
     # Merge any overrides through other IAM options
     _merge_auth_option(
         config,

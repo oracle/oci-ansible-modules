@@ -4,10 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.11.0] - 2019-09-16
+## [1.12.0] - 2019-10-16
 
 ### Added
 - Added OCI Inventory Plugin
+- Added modules to manage [Network Security Groups](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/networksecuritygroups.htm)
+  - oci_network_security_group
+  - oci_network_security_group_facts
+- Added modules to manage [Budgets](https://docs.cloud.oracle.com/iaas/Content/Billing/Concepts/budgetsoverview.htm)
+  - oci_budget
+  - oci_budget_facts
+  - oci_budget_alert_rule
+  - oci_budget_alert_rule_facts
+- Added the following action modules
+  - oci_volume_backup_actions
+  - oci_object_storage_bucket_actions
+  - oci_image_actions
+  - oci_identity_identity_provider_actions
+
+## [1.11.0] - 2019-09-16
+
+### Added
 - Added modules to manage [Exadata DB Systems](https://docs.cloud.oracle.com/iaas/Content/Database/Concepts/exaoverview.htm)
   - oci_autonomous_exadata_infrastructure
   - oci_autonomous_exadata_infrastructure_facts

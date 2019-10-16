@@ -1,12 +1,12 @@
-:source: cloud/oracle/oci_vcn.py
+:source: cloud/oracle/oci_network_security_group_facts.py
 
 :orphan:
 
-.. _oci_vcn_module:
+.. _oci_network_security_group_facts_module:
 
 
-oci_vcn -- Manage a Vcn resource in Oracle Cloud Infrastructure
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_network_security_group_facts -- Fetches details about one or multiple NetworkSecurityGroup resources in Oracle Cloud Infrastructure
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,14 +17,9 @@ oci_vcn -- Manage a Vcn resource in Oracle Cloud Infrastructure
 
 Synopsis
 --------
-- This module allows the user to create, update and delete a Vcn resource in Oracle Cloud Infrastructure
-- For *state=present*, creates a new virtual cloud network (VCN). For more information, see `VCNs and Subnets <https://docs.cloud.oracle.com/Content/Network/Tasks/managingVCNs.htm>`_.
-- For the VCN you must specify a single, contiguous IPv4 CIDR block. Oracle recommends using one of the private IP address ranges specified in `RFC 1918 <https://tools.ietf.org/html/rfc1918>`_ (10.0.0.0/8, 172.16/12, and 192.168/16). Example: 172.16.0.0/16. The CIDR block can range from /16 to /30, and it must not overlap with your on-premises network. You can't change the size of the VCN after creation.
-- For the purposes of access control, you must provide the OCID of the compartment where you want the VCN to reside. Consult an Oracle Cloud Infrastructure administrator in your organization if you're not sure which compartment to use. Notice that the VCN doesn't have to be in the same compartment as the subnets or other Networking Service components. For more information about compartments and access control, see `Overview of the IAM Service <https://docs.cloud.oracle.com/Content/Identity/Concepts/overview.htm>`_. For information about OCIDs, see `Resource Identifiers <https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm>`_.
-- You may optionally specify a *display name* for the VCN, otherwise a default is provided. It does not have to be unique, and you can change it. Avoid entering confidential information.
-- You can also add a DNS label for the VCN, which is required if you want the instances to use the Interent and VCN Resolver option for DNS in the VCN. For more information, see `DNS in Your Virtual Cloud Network <https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm>`_.
-- The VCN automatically comes with a default route table, default security list, and default set of DHCP options. The OCID for each is returned in the response. You can't delete these default objects, but you can change their contents (that is, change the route rules, security list rules, and so on).
-- The VCN and subnets you create are not accessible until you attach an internet gateway or set up an IPSec VPN or FastConnect. For more information, see `Overview of the Networking Service <https://docs.cloud.oracle.com/Content/Network/Concepts/overview.htm>`_.
+- Fetches details about one or multiple NetworkSecurityGroup resources in Oracle Cloud Infrastructure
+- Lists the network security groups in the specified compartment.
+- If *network_security_group_id* is specified, the details of a single NetworkSecurityGroup will be returned.
 
 
 
@@ -118,21 +113,6 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>cidr_block</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>The CIDR IP address block of the VCN.</div>
-                                                    <div>Example: `172.16.0.0/16`</div>
-                                                    <div>Required for create using <em>state=present</em>.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
                     <b>compartment_id</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
@@ -141,8 +121,8 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the compartment to contain the VCN.</div>
-                                                    <div>Required for create using <em>state=present</em>.</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the compartment.</div>
+                                                    <div>Required to list multiple network_security_groups.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -173,20 +153,6 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>defined_tags</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">dictionary</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>.</div>
-                                                    <div>Example: `{&quot;Operations&quot;: {&quot;CostCenter&quot;: &quot;42&quot;}}`</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
                     <b>display_name</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
@@ -195,13 +161,32 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>A user-friendly name. Does not have to be unique, and it&#x27;s changeable. Avoid entering confidential information.</div>
+                                                                        <div>A filter to return only resources that match the given display name exactly.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: name</div>
                                     </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>dns_label</b>
+                    <b>lifecycle_state</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>PROVISIONING</li>
+                                                                                                                                                                                                <li>AVAILABLE</li>
+                                                                                                                                                                                                <li>TERMINATING</li>
+                                                                                                                                                                                                <li>TERMINATED</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>A filter to return only resources that match the specified lifecycle state. The value is case insensitive.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>network_security_group_id</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
@@ -209,55 +194,10 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>A DNS label for the VCN, used in conjunction with the VNIC&#x27;s hostname and subnet&#x27;s DNS label to form a fully qualified domain name (FQDN) for each VNIC within this subnet (for example, `bminstance-1.subnet123.vcn1.oraclevcn.com`). Not required to be unique, but it&#x27;s a best practice to set unique DNS labels for VCNs in your tenancy. Must be an alphanumeric string that begins with a letter. The value cannot be changed.</div>
-                                                    <div>You must set this value if you want instances to be able to use hostnames to resolve other instances in the VCN. Otherwise the Internet and VCN Resolver will not work.</div>
-                                                    <div>For more information, see <a href='https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm'>DNS in Your Virtual Cloud Network</a>.</div>
-                                                    <div>Example: `vcn1`</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>force_create</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                            </div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the network security group.</div>
+                                                    <div>Required to get a specific network_security_group.</div>
+                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
-                                <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn&#x27;t create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>freeform_tags</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">dictionary</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>.</div>
-                                                    <div>Example: `{&quot;Department&quot;: &quot;Finance&quot;}`</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>key_by</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">list</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>The list of comma-separated attributes of this resource which should be used to uniquely identify an instance of the resource. By default, all the attributes of a resource except <em>freeform_tags</em> are used to uniquely identify a resource.</div>
-                                                                                </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
@@ -274,21 +214,37 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
-                    <b>state</b>
+                    <b>sort_by</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>absent</li>
+                                                                                                                                                                <li>TIMECREATED</li>
+                                                                                                                                                                                                <li>DISPLAYNAME</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The state of the Vcn.</div>
-                                                    <div>Use <em>state=present</em> to create or update a Vcn.</div>
-                                                    <div>Use <em>state=absent</em> to delete a Vcn.</div>
+                                                                        <div>The field to sort by. You can provide one sort order (`sortOrder`). Default order for TIMECREATED is descending. Default order for DISPLAYNAME is ascending. The DISPLAYNAME sort order is case sensitive.</div>
+                                                    <div>**Note:** In general, some &quot;List&quot; operations (for example, `ListInstances`) let you optionally filter by availability domain if the scope of the resource type is within a single availability domain. If you call one of these &quot;List&quot; operations without specifying an availability domain, the resources are grouped by availability domain, then sorted.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>sort_order</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>ASC</li>
+                                                                                                                                                                                                <li>DESC</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The sort order to use, either ascending (`ASC`) or descending (`DESC`). The DISPLAYNAME sort order is case sensitive.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -315,52 +271,6 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the VCN.</div>
-                                                    <div>Required for update using <em>state=present</em>, <em>state=absent</em>.</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>wait</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>no</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>Whether to wait for create or delete operation to complete.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>wait_timeout</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">integer</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <b>wait_until</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">string</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>The lifecycle state to wait for the resource to transition into when <em>wait=yes</em>. By default, when <em>wait=yes</em>, we wait for the resource to get into ACTIVE/ATTACHED/AVAILABLE/PROVISIONED/ RUNNING applicable lifecycle state during create operation &amp; to get into DELETED/DETACHED/ TERMINATED lifecycle state during delete operation.</div>
                                                                                 </td>
             </tr>
                         </table>
@@ -381,22 +291,13 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Create vcn
-      oci_vcn:
-        cidr_block: 10.0.0.0/16
-        compartment_id: ocid1.compartment.oc1..aaaaaaaayzfqeibduyox6iib3olcmdar3ugly4fmameq4h7lcdlihrvur7xq
-        display_name: MyVcn
+    - name: List network_security_groups
+      oci_network_security_group_facts:
+        compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
 
-    - name: Update vcn
-      oci_vcn:
-        defined_tags: {'Operations': {'CostCenter': 'US'}}
-        display_name: MyVcn
-        vcn_id: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
-
-    - name: Delete vcn
-      oci_vcn:
-        vcn_id: ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx
-        state: absent
+    - name: Get a specific network_security_group
+      oci_network_security_group_facts:
+        network_security_group_id: ocid1.networksecuritygroup.oc1..xxxxxxEXAMPLExxxxxx
 
 
 
@@ -416,33 +317,18 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
         </tr>
                     <tr>
                                 <td colspan="2">
-                    <b>vcn</b>
+                    <b>network_security_groups</b>
                     <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>Details of the Vcn resource acted upon by the current operation</div>
+                                                                        <div>List of NetworkSecurityGroup resources</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;PROVISIONING&#x27;, &#x27;dns_label&#x27;: &#x27;vcn1&#x27;, &#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;default_dhcp_options_id&#x27;: &#x27;ocid1.defaultdhcpoptions.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;vcn_domain_name&#x27;: &#x27;vcn1.oraclevcn.com&#x27;, &#x27;default_security_list_id&#x27;: &#x27;ocid1.defaultsecuritylist.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;cidr_block&#x27;: &#x27;172.16.0.0/16&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;default_route_table_id&#x27;: &#x27;ocid1.defaultroutetable.oc1..xxxxxxEXAMPLExxxxxx&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;PROVISIONING&#x27;, &#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;vcn_id&#x27;: &#x27;ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>cidr_block</b>
-                    <div style="font-size: small; color: purple">string</div>
-                                    </td>
-                <td>on success</td>
-                <td>
-                                                                        <div>The CIDR IP address block of the VCN.</div>
-                                                    <div>Example: `172.16.0.0/16`</div>
-                                                                <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">172.16.0.0/16</div>
-                                    </td>
-            </tr>
-                                <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>compartment_id</b>
@@ -450,52 +336,10 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The OCID of the compartment containing the VCN.</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the compartment the network security group is in.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>default_dhcp_options_id</b>
-                    <div style="font-size: small; color: purple">string</div>
-                                    </td>
-                <td>on success</td>
-                <td>
-                                                                        <div>The OCID for the VCN&#x27;s default set of DHCP options.</div>
-                                                                <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaultdhcpoptions.oc1..xxxxxxEXAMPLExxxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>default_route_table_id</b>
-                    <div style="font-size: small; color: purple">string</div>
-                                    </td>
-                <td>on success</td>
-                <td>
-                                                                        <div>The OCID for the VCN&#x27;s default route table.</div>
-                                                                <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaultroutetable.oc1..xxxxxxEXAMPLExxxxxx</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>default_security_list_id</b>
-                    <div style="font-size: small; color: purple">string</div>
-                                    </td>
-                <td>on success</td>
-                <td>
-                                                                        <div>The OCID for the VCN&#x27;s default security list.</div>
-                                                                <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaultsecuritylist.oc1..xxxxxxEXAMPLExxxxxx</div>
                                     </td>
             </tr>
                                 <tr>
@@ -521,27 +365,10 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>A user-friendly name. Does not have to be unique, and it&#x27;s changeable. Avoid entering confidential information.</div>
+                                                                        <div>A user-friendly name. Does not have to be unique. Avoid entering confidential information.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">display_name_example</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                    <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
-                    <b>dns_label</b>
-                    <div style="font-size: small; color: purple">string</div>
-                                    </td>
-                <td>on success</td>
-                <td>
-                                                                        <div>A DNS label for the VCN, used in conjunction with the VNIC&#x27;s hostname and subnet&#x27;s DNS label to form a fully qualified domain name (FQDN) for each VNIC within this subnet (for example, `bminstance-1.subnet123.vcn1.oraclevcn.com`). Must be an alphanumeric string that begins with a letter. The value cannot be changed.</div>
-                                                    <div>The absence of this parameter means the Internet and VCN Resolver will not work for this VCN.</div>
-                                                    <div>For more information, see <a href='https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm'>DNS in Your Virtual Cloud Network</a>.</div>
-                                                    <div>Example: `vcn1`</div>
-                                                                <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">vcn1</div>
                                     </td>
             </tr>
                                 <tr>
@@ -567,7 +394,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The VCN&#x27;s Oracle ID (OCID).</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the network security group.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx</div>
@@ -581,7 +408,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The VCN&#x27;s current state.</div>
+                                                                        <div>The network security group&#x27;s current state.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">PROVISIONING</div>
@@ -595,7 +422,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The date and time the VCN was created, in the format defined by RFC3339.</div>
+                                                                        <div>The date and time the network security group was created, in the format defined by RFC3339.</div>
                                                     <div>Example: `2016-08-25T21:10:29.600Z`</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
@@ -605,17 +432,15 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
-                    <b>vcn_domain_name</b>
+                    <b>vcn_id</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The VCN&#x27;s domain name, which consists of the VCN&#x27;s DNS label, and the `oraclevcn.com` domain.</div>
-                                                    <div>For more information, see <a href='https://docs.cloud.oracle.com/Content/Network/Concepts/dns.htm'>DNS in Your Virtual Cloud Network</a>.</div>
-                                                    <div>Example: `vcn1.oraclevcn.com`</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the network security group&#x27;s VCN.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">vcn1.oraclevcn.com</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.vcn.oc1..xxxxxxEXAMPLExxxxxx</div>
                                     </td>
             </tr>
                     
@@ -647,4 +472,4 @@ Authors
 
 
 .. hint::
-    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_vcn.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.
+    If you notice any issues in this documentation you can `edit this document <https://github.com/ansible/ansible/edit/devel/lib/ansible/modules/cloud/oracle/oci_network_security_group_facts.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr>`_ to improve it.

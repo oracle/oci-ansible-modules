@@ -3,3 +3,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+
+from ansible.module_utils.oracle.actionhelpers import (
+    oci_object_storage_bucket_actions_helper,
+)
