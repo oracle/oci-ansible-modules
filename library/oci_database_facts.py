@@ -210,6 +210,9 @@ def list_databases(db_client, module):
                 compartment_id=compartment_id,
                 db_home_id=db_home_id,
             )
+        else:
+            get_logger().error("Invalid parameter combination; need either database_id, or compartment_id and db_home_id")
+
     except ServiceError as ex:
         get_logger().error("Unable to list Databases due to %s", ex.message)
         module.fail_json(msg=ex.message)
