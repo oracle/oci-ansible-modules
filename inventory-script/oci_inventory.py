@@ -326,7 +326,7 @@ class OCIInventory:
             "regions": None,
             "exclude_regions": None,
             "strict_hostname_checking": "no",
-            "primacy_vnic_only": "no".
+            "primary_vnic_only": "no",
         }
         boolean_options = [
             "sanitize_names",
