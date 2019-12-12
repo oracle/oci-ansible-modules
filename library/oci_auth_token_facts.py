@@ -1,9 +1,11 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
+
 
 from __future__ import absolute_import, division, print_function
 
@@ -18,108 +20,169 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: oci_auth_token_facts
-short_description: Retrieve facts of auth tokens in OCI Identity and Access Management Service
+short_description: Fetches details about one or multiple AuthToken resources in Oracle Cloud Infrastructure
 description:
-    - This module retrieves information of all the auth tokens for a specified user.
+    - Fetches details about one or multiple AuthToken resources in Oracle Cloud Infrastructure
+    - Lists the auth tokens for the specified user. The returned object contains the token's OCID, but not
+      the token itself. The actual token is returned only upon creation.
 version_added: "2.5"
 options:
     user_id:
-        description: The OCID of the user.
+        description:
+            - The OCID of the user.
         required: true
-author: "Sivakumar Thyagarajan (@sivakumart)"
+author:
+    - Manoj Meda (@manojmeda)
+    - Mike Ross (@mross22)
+    - Nabeel Al-Saber (@nalsaber)
 extends_documentation_fragment: [ oracle ]
 """
 
 EXAMPLES = """
-- name: Get information of all the auth tokens for a specific user
+- name: List auth_tokens
   oci_auth_token_facts:
-    user_id: ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq
+    user_id: ocid1.user.oc1..xxxxxxEXAMPLExxxxxx
+
 """
 
 RETURN = """
-auth_groups:
-    description: List of auth token information
-    returned: On success
+auth_tokens:
+    description:
+        - List of AuthToken resources
+    returned: on success
     type: complex
     contains:
         token:
-            description: The Auth token. The value is available only in the response for CreateAuthToken, and not for
-                         ListAuthTokens or UpdateAuthToken. So the value returned by this fact module would always be
-                         null.
-            returned: always
+            description:
+                - The auth token. The value is available only in the response for `CreateAuthToken`, and not
+                  for `ListAuthTokens` or `UpdateAuthToken`.
+            returned: on success
             type: string
+            sample: token_example
         id:
-            description: The OCID of the auth token.
-            returned: always
+            description:
+                - The OCID of the auth token.
+            returned: on success
             type: string
-            sample: ocid1.credential.oc1..xxxxxEXAMPLExxxxx...l5aq
+            sample: ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx
         user_id:
-            description: The OCID of the user the auth token belongs to.
-            returned: always
+            description:
+                - The OCID of the user the auth token belongs to.
+            returned: on success
             type: string
-            sample: ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq
+            sample: ocid1.user.oc1..xxxxxxEXAMPLExxxxxx
         description:
-            description: The description you assign to the auth token. Does not have to be unique, and it's changeable.
-            returned: always
+            description:
+                - The description you assign to the auth token. Does not have to be unique, and it's changeable.
+            returned: on success
             type: string
-            sample: "My test auth token"
+            sample: description_example
         time_created:
-            description: Date and time the AuthToken object was created, in the format defined by RFC3339.
-            returned: always
+            description:
+                - Date and time the `AuthToken` object was created, in the format defined by RFC3339.
+                - "Example: `2016-08-25T21:10:29.600Z`"
+            returned: on success
             type: string
-            sample: "2018-11-08T02:40:25.118000+00:00"
+            sample: 2016-08-25T21:10:29.600Z
         time_expires:
-            description: Date and time when this auth token will expire, in the format defined by RFC3339. Null if it
-                         never expires.
-            returned: always
+            description:
+                - Date and time when this auth token will expire, in the format defined by RFC3339.
+                  Null if it never expires.
+                - "Example: `2016-08-25T21:10:29.600Z`"
+            returned: on success
             type: string
-            sample: null
+            sample: 2016-08-25T21:10:29.600Z
+        lifecycle_state:
+            description:
+                - The token's current state. After creating an auth token, make sure its `lifecycleState` changes from
+                  CREATING to ACTIVE before using it.
+            returned: on success
+            type: string
+            sample: CREATING
+        inactive_status:
+            description:
+                - The detailed status of INACTIVE lifecycleState.
+            returned: on success
+            type: int
+            sample: 56
     sample: [{
-            "description": "test auth token 1",
-            "id": "ocid1.credential.oc1..xxxxxEXAMPLExxxxx...l5aq",
-            "inactive-status": null,
-            "lifecycle-state": "ACTIVE",
-            "time-created": "2018-11-08T02:40:25.118000+00:00",
-            "time-expires": null,
-            "token": null,
-            "user-id": "ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq"
-        }]
+        "token": "token_example",
+        "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
+        "user_id": "ocid1.user.oc1..xxxxxxEXAMPLExxxxxx",
+        "description": "description_example",
+        "time_created": "2016-08-25T21:10:29.600Z",
+        "time_expires": "2016-08-25T21:10:29.600Z",
+        "lifecycle_state": "CREATING",
+        "inactive_status": 56
+    }]
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    OCIResourceFactsHelperBase,
+    get_custom_class,
+)
 
 try:
-    from oci.identity.identity_client import IdentityClient
-    from oci.util import to_dict
-    from oci.exceptions import ServiceError
+    from oci.identity import IdentityClient
 
     HAS_OCI_PY_SDK = True
-
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-def main():
-    module_args = oci_utils.get_common_arg_spec()
-    module_args.update(dict(user_id=dict(type="str", required=False)))
+class AuthTokenFactsHelperGen(OCIResourceFactsHelperBase):
+    """Supported operations: list"""
 
-    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+    def get_required_params_for_list(self):
+        return ["user_id"]
+
+    def list_resources(self):
+        optional_list_method_params = []
+        optional_kwargs = dict(
+            (param, self.module.params[param])
+            for param in optional_list_method_params
+            if self.module.params.get(param) is not None
+        )
+        return oci_common_utils.list_all_resources(
+            self.client.list_auth_tokens,
+            user_id=self.module.params.get("user_id"),
+            **optional_kwargs
+        )
+
+
+AuthTokenFactsHelperCustom = get_custom_class("AuthTokenFactsHelperCustom")
+
+
+class ResourceFactsHelper(AuthTokenFactsHelperCustom, AuthTokenFactsHelperGen):
+    pass
+
+
+def main():
+    module_args = oci_common_utils.get_common_arg_spec()
+    module_args.update(dict(user_id=dict(type="str", required=True)))
+
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module.")
 
-    identity_client = oci_utils.create_service_client(module, IdentityClient)
+    resource_facts_helper = ResourceFactsHelper(
+        module=module,
+        resource_type="auth_token",
+        service_client_class=IdentityClient,
+        namespace="identity",
+    )
 
-    try:
-        result = to_dict(
-            oci_utils.list_all_resources(
-                identity_client.list_auth_tokens, user_id=module.params["user_id"]
-            )
-        )
+    result = []
 
-    except ServiceError as ex:
-        module.fail_json(msg=ex.message)
+    if resource_facts_helper.is_get():
+        result = [resource_facts_helper.get()]
+    elif resource_facts_helper.is_list():
+        result = resource_facts_helper.list()
+    else:
+        resource_facts_helper.fail()
 
     module.exit_json(auth_tokens=result)
 

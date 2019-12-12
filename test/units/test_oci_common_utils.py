@@ -42,19 +42,31 @@ def test_is_dict_subset_when_source_and_target_are_empty():
 def test_is_dict_subset_when_source_has_more_keys():
     s = {"key1": "val1"}
     t = {}
-    assert oci_common_utils.is_dict_subset(s, t) is True
+    assert oci_common_utils.is_dict_subset(s, t) is False
+    assert (
+        oci_common_utils.is_dict_subset(s, t, ignore_attr_if_not_in_target=True) is True
+    )
 
     s = {"key1": "val1", "key2": "val2"}
     t = {"key1": "val1"}
-    assert oci_common_utils.is_dict_subset(s, t) is True
+    assert oci_common_utils.is_dict_subset(s, t) is False
+    assert (
+        oci_common_utils.is_dict_subset(s, t, ignore_attr_if_not_in_target=True) is True
+    )
 
     s = {"key1": "val1", "key2": {"subkey1": "subval1", "subkey2": "subval2"}}
     t = {"key1": "val1", "key2": {"subkey1": "subval1"}}
-    assert oci_common_utils.is_dict_subset(s, t) is True
+    assert oci_common_utils.is_dict_subset(s, t) is False
+    assert (
+        oci_common_utils.is_dict_subset(s, t, ignore_attr_if_not_in_target=True) is True
+    )
 
     s = {"key1": "val1", "key2": {"subkey1": "subval1", "subkey3": "subval3"}}
     t = {"key1": "val1", "key2": {"subkey1": "subval1", "subkey2": "subval2"}}
-    assert oci_common_utils.is_dict_subset(s, t) is True
+    assert oci_common_utils.is_dict_subset(s, t) is False
+    assert (
+        oci_common_utils.is_dict_subset(s, t, ignore_attr_if_not_in_target=True) is True
+    )
 
 
 def test_is_dict_subset_when_source_has_less_keys():
@@ -229,7 +241,10 @@ def test_is_dict_subset_when_dicts_have_dict_values():
         "key1": "val1",
         "key2": {"subkey1": {"subkey2": "subval2"}, "subkey3": {"subkey4": "subval4"}},
     }
-    assert oci_common_utils.is_dict_subset(s, t) is True
+    assert oci_common_utils.is_dict_subset(s, t) is False
+    assert (
+        oci_common_utils.is_dict_subset(s, t, ignore_attr_if_not_in_target=True) is True
+    )
 
 
 def test_is_dict_subset_returns_False_when_dicts_are_different():
@@ -275,11 +290,17 @@ def test_are_dicts_equal_when_source_and_target_are_empty():
 def test_are_dicts_equal_when_source_has_more_keys():
     s = {"key1": "val1"}
     t = {}
-    assert oci_common_utils.are_dicts_equal(s, t) is True
+    assert oci_common_utils.are_dicts_equal(s, t) is False
+    assert (
+        oci_common_utils.is_dict_subset(s, t, ignore_attr_if_not_in_target=True) is True
+    )
 
     s = {"key1": "val1", "key2": "val2"}
     t = {"key1": "val1"}
-    assert oci_common_utils.are_dicts_equal(s, t) is True
+    assert oci_common_utils.are_dicts_equal(s, t) is False
+    assert (
+        oci_common_utils.is_dict_subset(s, t, ignore_attr_if_not_in_target=True) is True
+    )
 
     s = {"key1": "val1", "key2": {"subkey1": "subval1", "subkey2": "subval2"}}
     t = {"key1": "val1", "key2": {"subkey1": "subval1"}}

@@ -5,8 +5,8 @@
 .. _oci_volume_backup_policy_facts_module:
 
 
-oci_volume_backup_policy_facts -- Retrieve information of volume backup policies in OCI Block Volume service
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_volume_backup_policy_facts -- Fetches details about one or multiple VolumeBackupPolicy resources in Oracle Cloud Infrastructure
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,7 +17,9 @@ oci_volume_backup_policy_facts -- Retrieve information of volume backup policies
 
 Synopsis
 --------
-- This module retrieves information of the specified volume backup policy or all volume backup policies available to the caller.
+- Fetches details about one or multiple VolumeBackupPolicy resources in Oracle Cloud Infrastructure
+- Lists all volume backup policies available to the caller.
+- If *policy_id* is specified, the details of a single VolumeBackupPolicy will be returned.
 
 
 
@@ -159,6 +161,7 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>The OCID of the volume backup policy.</div>
+                                                    <div>Required to get a specific volume_backup_policy.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
             </tr>
@@ -206,12 +209,13 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Get information of a volume backup policy
+    - name: List volume_backup_policies
       oci_volume_backup_policy_facts:
-        id: ocid1.volumebackuppolicy.oc1..xxxxxEXAMPLExxxxx
 
-    - name: Get information of all available volume backup policies
-      oci_volume_backup_policy_assignment_facts:
+    - name: Get a specific volume_backup_policy
+      oci_volume_backup_policy_facts:
+        policy_id: ocid1.policy.oc1..xxxxxxEXAMPLExxxxxx
+
 
 
 
@@ -224,77 +228,136 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
 
     <table border=0 cellpadding=0 class="documentation-table">
         <tr>
-            <th colspan="2">Key</th>
+            <th colspan="3">Key</th>
             <th>Returned</th>
             <th width="100%">Description</th>
         </tr>
                     <tr>
-                                <td colspan="2">
-                    <b>volume_backup_polices</b>
+                                <td colspan="3">
+                    <b>volume_backup_policies</b>
                     <div style="font-size: small; color: purple">complex</div>
                                     </td>
                 <td>on success</td>
                 <td>
-                                            <div>List of volume backup policies</div>
-                                        <br/>
+                                                                        <div>List of VolumeBackupPolicy resources</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;display_name&#x27;: &#x27;silver&#x27;, &#x27;id&#x27;: &#x27;ocid1.volumebackuppolicy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2017-10-01T00:00:00+00:00&#x27;, &#x27;schedules&#x27;: [{&#x27;backup_type&#x27;: &#x27;INCREMENTAL&#x27;, &#x27;period&#x27;: &#x27;ONE_WEEK&#x27;, &#x27;retention_seconds&#x27;: 2419200, &#x27;offset_seconds&#x27;: 0}, {&#x27;backup_type&#x27;: &#x27;INCREMENTAL&#x27;, &#x27;period&#x27;: &#x27;ONE_MONTH&#x27;, &#x27;retention_seconds&#x27;: 31560000, &#x27;offset_seconds&#x27;: 0}, {&#x27;backup_type&#x27;: &#x27;FULL&#x27;, &#x27;period&#x27;: &#x27;ONE_YEAR&#x27;, &#x27;retention_seconds&#x27;: 157680000, &#x27;offset_seconds&#x27;: 0}]}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;schedules&#x27;: [{&#x27;backup_type&#x27;: &#x27;FULL&#x27;, &#x27;period&#x27;: &#x27;ONE_HOUR&#x27;, &#x27;retention_seconds&#x27;: 56, &#x27;offset_seconds&#x27;: 56}]}]</div>
                                     </td>
             </tr>
                                                             <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
+                                <td colspan="2">
                     <b>display_name</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>A user-friendly name for the volume backup policy. Does not have to be unique and it&#x27;s changeable. Avoid entering confidential information.</div>
-                                        <br/>
+                                                                        <div>A user-friendly name for the volume backup policy. Does not have to be unique and it&#x27;s changeable. Avoid entering confidential information.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">gold</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">display_name_example</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
+                                <td colspan="2">
                     <b>id</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The OCID of the volume backup policy.</div>
-                                        <br/>
+                                                                        <div>The OCID of the volume backup policy.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.volumebackuppolicy.oc1..xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
-                                <td colspan="1">
+                                <td colspan="2">
                     <b>schedules</b>
-                    <div style="font-size: small; color: purple">list</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The collection of schedules that this policy will apply.</div>
-                                        <br/>
+                                                                        <div>The collection of schedules that this policy will apply.</div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>backup_type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The type of backup to create.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;backup-type&#x27;: &#x27;INCREMENTAL&#x27;, &#x27;offset-seconds&#x27;: 0, &#x27;period&#x27;: &#x27;ONE_DAY&#x27;, &#x27;retention-seconds&#x27;: 604800}, {&#x27;backup-type&#x27;: &#x27;INCREMENTAL&#x27;, &#x27;offset-seconds&#x27;: 0, &#x27;period&#x27;: &#x27;ONE_WEEK&#x27;, &#x27;retention-seconds&#x27;: 2419200}, {&#x27;backup-type&#x27;: &#x27;INCREMENTAL&#x27;, &#x27;offset-seconds&#x27;: 0, &#x27;period&#x27;: &#x27;ONE_MONTH&#x27;, &#x27;retention-seconds&#x27;: 31560000}, {&#x27;backup-type&#x27;: &#x27;FULL&#x27;, &#x27;offset-seconds&#x27;: 0, &#x27;period&#x27;: &#x27;ONE_YEAR&#x27;, &#x27;retention-seconds&#x27;: 157680000}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">FULL</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
+                    <b>offset_seconds</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The number of seconds that the backup time should be shifted from the default interval boundaries specified by the period. Backup time = Frequency start time + Offset.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>period</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>How often the backup should occur.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ONE_HOUR</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>retention_seconds</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>How long, in seconds, backups created by this schedule should be kept until being automatically deleted.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
                     <b>time_created</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The date and time the volume backup policy was created. Format defined by RFC3339.</div>
-                                        <br/>
+                                                                        <div>The date and time the volume backup policy was created. Format defined by RFC3339.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:53.219000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
                                     </td>
             </tr>
                     
@@ -320,7 +383,9 @@ Status
 Authors
 ~~~~~~~
 
-- Rohit Chaware (@rohitChaware)
+- Manoj Meda (@manojmeda)
+- Mike Ross (@mross22)
+- Nabeel Al-Saber (@nalsaber)
 
 
 .. hint::

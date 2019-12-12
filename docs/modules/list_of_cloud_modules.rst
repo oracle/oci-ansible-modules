@@ -207,6 +207,8 @@ Oracle
   * :ref:`oci_search_resources_facts_module` 
   * :ref:`oci_security_list_module` 
   * :ref:`oci_security_list_facts_module` 
+  * :ref:`oci_security_rule_actions_module` 
+  * :ref:`oci_security_rule_facts_module` 
   * :ref:`oci_sender_module` 
   * :ref:`oci_sender_facts_module` 
   * :ref:`oci_service_facts_module` 

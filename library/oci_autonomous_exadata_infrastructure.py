@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -130,23 +131,23 @@ extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait
 EXAMPLES = """
 - name: Create autonomous_exadata_infrastructure
   oci_autonomous_exadata_infrastructure:
-      compartment_id: ocid1.tenancy.oc1.<var>&lt;unique_ID&gt;</var>
-      display_name: tst3dbsys
-      availability_domain: Uocm:PHX-AD-1
-      subnet_id: ocid1.subnet.oc1.<var>&lt;unique_ID&gt;</var>
-      shape: Exadata.Half1.168
-      hostname: athena
-      domain: my.company.com
+    availability_domain: Uocm:PHX-AD-1
+    compartment_id: ocid1.tenancy.oc1.unique_ID
+    display_name: tst3dbsys
+    domain: my.company.com
+    hostname: athena
+    shape: Exadata.Half1.168
+    subnet_id: ocid1.subnet.oc1.unique_ID
 
 - name: Update autonomous_exadata_infrastructure
   oci_autonomous_exadata_infrastructure:
-      display_name: new displayname
-      autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
+    display_name: new displayname
+    autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
 
 - name: Delete autonomous_exadata_infrastructure
   oci_autonomous_exadata_infrastructure:
-      autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
-      state: absent
+    autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
+    state: absent
 
 """
 
@@ -429,7 +430,7 @@ autonomous_exadata_infrastructure:
                 - "Example: `{\\"Department\\": \\"Finance\\"}`"
             returned: on success
             type: dict
-            sample: {Department: Finance}
+            sample: {'Department': 'Finance'}
         defined_tags:
             description:
                 - Defined tags for this resource. Each key is predefined and scoped to a namespace.
@@ -437,7 +438,7 @@ autonomous_exadata_infrastructure:
                 - "Example: `{\\"Operations\\": {\\"CostCenter\\": \\"42\\"}}`"
             returned: on success
             type: dict
-            sample: {Operations: {CostCenter: US}}
+            sample: {'Operations': {'CostCenter': 'US'}}
     sample: {
         "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
         "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
@@ -485,13 +486,13 @@ autonomous_exadata_infrastructure:
             "maintenance_type": "PLANNED",
             "maintenance_subtype": "QUARTERLY"
         },
-        "freeform_tags": {Department: Finance},
-        "defined_tags": {Operations: {CostCenter: US}}
+        "freeform_tags": {'Department': 'Finance'},
+        "defined_tags": {'Operations': {'CostCenter': 'US'}}
     }
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
     OCIResourceHelperBase,
     get_custom_class,
@@ -517,6 +518,9 @@ class AutonomousExadataInfrastructureHelperGen(OCIResourceHelperBase):
     def get_module_resource_id(self):
         return self.module.params.get("autonomous_exadata_infrastructure_id")
 
+    def get_get_fn(self):
+        return self.client.get_autonomous_exadata_infrastructure
+
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
             self.client.get_autonomous_exadata_infrastructure,
@@ -526,17 +530,25 @@ class AutonomousExadataInfrastructureHelperGen(OCIResourceHelperBase):
         )
 
     def list_resources(self):
-        list_method_params = ["compartment_id"]
+        required_list_method_params = ["compartment_id"]
 
-        kwargs = dict(
+        optional_list_method_params = ["availability_domain", "display_name"]
+
+        required_kwargs = dict(
+            (param, self.module.params[param]) for param in required_list_method_params
+        )
+
+        optional_kwargs = dict(
             (param, self.module.params[param])
-            for param in list_method_params
+            for param in optional_list_method_params
             if self.module.params.get(param) is not None
             and (
                 not self.module.params.get("key_by")
                 or param in self.module.params.get("key_by")
             )
         )
+
+        kwargs = oci_common_utils.merge_dicts(required_kwargs, optional_kwargs)
 
         return oci_common_utils.list_all_resources(
             self.client.list_autonomous_exadata_infrastructures, **kwargs
@@ -547,9 +559,18 @@ class AutonomousExadataInfrastructureHelperGen(OCIResourceHelperBase):
 
     def create_resource(self):
         create_details = self.get_create_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.launch_autonomous_exadata_infrastructure,
-            launch_autonomous_exadata_infrastructure_details=create_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.launch_autonomous_exadata_infrastructure,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                launch_autonomous_exadata_infrastructure_details=create_details
+            ),
+            waiter_type=oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY,
+            operation=oci_common_utils.CREATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def get_update_model_class(self):
@@ -557,20 +578,38 @@ class AutonomousExadataInfrastructureHelperGen(OCIResourceHelperBase):
 
     def update_resource(self):
         update_details = self.get_update_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.update_autonomous_exadata_infrastructure,
-            autonomous_exadata_infrastructure_id=self.module.params.get(
-                "autonomous_exadata_infrastructure_id"
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.update_autonomous_exadata_infrastructure,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                autonomous_exadata_infrastructure_id=self.module.params.get(
+                    "autonomous_exadata_infrastructure_id"
+                ),
+                update_autonomous_exadata_infrastructures_details=update_details,
             ),
-            update_autonomous_exadata_infrastructures_details=update_details,
+            waiter_type=oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY,
+            operation=oci_common_utils.UPDATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def delete_resource(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.terminate_autonomous_exadata_infrastructure,
-            autonomous_exadata_infrastructure_id=self.module.params.get(
-                "autonomous_exadata_infrastructure_id"
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.terminate_autonomous_exadata_infrastructure,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                autonomous_exadata_infrastructure_id=self.module.params.get(
+                    "autonomous_exadata_infrastructure_id"
+                )
             ),
+            waiter_type=oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY,
+            operation=oci_common_utils.DELETE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_terminated_states(),
         )
 
 
@@ -638,6 +677,7 @@ def main():
         module=module,
         resource_type="autonomous_exadata_infrastructure",
         service_client_class=DatabaseClient,
+        namespace="database",
     )
 
     result = dict(changed=False)

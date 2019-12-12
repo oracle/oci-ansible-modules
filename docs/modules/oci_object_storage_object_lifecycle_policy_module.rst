@@ -212,7 +212,7 @@ Parameters
                                                 <td colspan="2">
                     <b>object_name_filter</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">dictionary</span>
                                             </div>
                                     </td>
                                 <td>
@@ -227,7 +227,7 @@ Parameters
                                                 <td colspan="1">
                     <b>exclusion_patterns</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">list</span>
                                             </div>
                                     </td>
                                 <td>
@@ -244,7 +244,7 @@ Parameters
                                                 <td colspan="1">
                     <b>inclusion_patterns</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">list</span>
                                             </div>
                                     </td>
                                 <td>
@@ -261,7 +261,7 @@ Parameters
                                                 <td colspan="1">
                     <b>inclusion_prefixes</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">list</span>
                                             </div>
                                     </td>
                                 <td>
@@ -276,7 +276,7 @@ Parameters
                                                 <td colspan="2">
                     <b>time_amount</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">integer</span>
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
@@ -380,7 +380,7 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Update object_lifecycle_policy from x-example
+    - name: Update object_lifecycle_policy
       oci_object_storage_object_lifecycle_policy:
           namespace_name: namespace_name_example
           bucket_name: my-new-bucket1

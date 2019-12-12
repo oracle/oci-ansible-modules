@@ -100,12 +100,13 @@ def main():
         module=module,
         resource_type="namespace",
         service_client_class=ObjectStorageClient,
+        namespace="object_storage",
     )
 
     result = []
 
     if resource_facts_helper.is_get():
-        result = resource_facts_helper.get()
+        result = [resource_facts_helper.get()]
     elif resource_facts_helper.is_list():
         result = resource_facts_helper.list()
     else:

@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -196,7 +197,7 @@ extends_documentation_fragment: [ oracle, oracle_creatable_resource ]
 EXAMPLES = """
 - name: Create auto_scaling_configuration
   oci_autoscaling_auto_scaling_configuration:
-    compartment_id: ocid1.compartment.oc1..<var>&lt;unique_ID&gt;</var>
+    compartment_id: ocid1.compartment.oc1..unique_ID
     display_name: example_autoscaling_configuration
     cool_down_in_seconds: 300
     is_enabled: true
@@ -228,7 +229,7 @@ EXAMPLES = """
             value: 25
     resource:
       type: instancePool
-      id: ocid1.instancepool.oc1..<var>&lt;unique_ID&gt;</var>
+      id: ocid1.instancepool.oc1..unique_ID
 
 - name: Update auto_scaling_configuration
   oci_autoscaling_auto_scaling_configuration:
@@ -496,7 +497,7 @@ auto_scaling_configuration:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
     OCIResourceHelperBase,
     get_custom_class,
@@ -521,6 +522,9 @@ class AutoScalingConfigurationHelperGen(OCIResourceHelperBase):
 
     def get_module_resource_id(self):
         return self.module.params.get("auto_scaling_configuration_id")
+
+    def get_get_fn(self):
+        return self.client.get_auto_scaling_configuration
 
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
@@ -560,9 +564,18 @@ class AutoScalingConfigurationHelperGen(OCIResourceHelperBase):
 
     def create_resource(self):
         create_details = self.get_create_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.create_auto_scaling_configuration,
-            create_auto_scaling_configuration_details=create_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.create_auto_scaling_configuration,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                create_auto_scaling_configuration_details=create_details
+            ),
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation=oci_common_utils.CREATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def get_update_model_class(self):
@@ -570,20 +583,38 @@ class AutoScalingConfigurationHelperGen(OCIResourceHelperBase):
 
     def update_resource(self):
         update_details = self.get_update_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.update_auto_scaling_configuration,
-            auto_scaling_configuration_id=self.module.params.get(
-                "auto_scaling_configuration_id"
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.update_auto_scaling_configuration,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                auto_scaling_configuration_id=self.module.params.get(
+                    "auto_scaling_configuration_id"
+                ),
+                update_auto_scaling_configuration_details=update_details,
             ),
-            update_auto_scaling_configuration_details=update_details,
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation=oci_common_utils.UPDATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def delete_resource(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.delete_auto_scaling_configuration,
-            auto_scaling_configuration_id=self.module.params.get(
-                "auto_scaling_configuration_id"
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.delete_auto_scaling_configuration,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                auto_scaling_configuration_id=self.module.params.get(
+                    "auto_scaling_configuration_id"
+                )
             ),
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation=oci_common_utils.DELETE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_terminated_states(),
         )
 
 
@@ -694,6 +725,7 @@ def main():
         module=module,
         resource_type="auto_scaling_configuration",
         service_client_class=AutoScalingClient,
+        namespace="autoscaling",
     )
 
     result = dict(changed=False)

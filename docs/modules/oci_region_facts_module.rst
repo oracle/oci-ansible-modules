@@ -5,8 +5,8 @@
 .. _oci_region_facts_module:
 
 
-oci_region_facts -- Retrieve details about all Regions offered by Oracle Cloud Infrastructure
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_region_facts -- Fetches details about one or multiple Region resources in Oracle Cloud Infrastructure
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,7 +17,8 @@ oci_region_facts -- Retrieve details about all Regions offered by Oracle Cloud I
 
 Synopsis
 --------
-- This module retrieves details about all Regions offered by Oracle Cloud Infrastructure.
+- Fetches details about one or multiple Region resources in Oracle Cloud Infrastructure
+- Lists all the regions offered by Oracle Cloud Infrastructure.
 
 
 
@@ -192,8 +193,9 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Get details of all regions offered by OCI
+    - name: List regions
       oci_region_facts:
+
 
 
 
@@ -217,10 +219,10 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                            <div>Information about regions offered by OCI</div>
-                                        <br/>
+                                                                        <div>List of Region resources</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;name&#x27;: &#x27;eu-frankfurt-1&#x27;, &#x27;key&#x27;: &#x27;FRA&#x27;}, {&#x27;name&#x27;: &#x27;us-ashburn-1&#x27;, &#x27;key&#x27;: &#x27;IAD&#x27;}, {&#x27;name&#x27;: &#x27;us-phoenix-1&#x27;, &#x27;key&#x27;: &#x27;PHX&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;key&#x27;: &#x27;key_example&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -229,12 +231,13 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>key</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The key of the region.</div>
-                                        <br/>
+                                                                        <div>The key of the region.</div>
+                                                    <div>Allowed values are: - `PHX` - `IAD` - `FRA` - `LHR`</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">PHX</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">key_example</div>
                                     </td>
             </tr>
                                 <tr>
@@ -243,12 +246,13 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>name</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The name of the region.</div>
-                                        <br/>
+                                                                        <div>The name of the region.</div>
+                                                    <div>Allowed values are: - `us-phoenix-1` - `us-ashburn-1` - `eu-frankfurt-1` - `uk-london-1`</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">us-phoenix-1</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
                                     </td>
             </tr>
                     
@@ -274,7 +278,9 @@ Status
 Authors
 ~~~~~~~
 
-- Sivakumar Thyagarajan (@sivakumart)
+- Manoj Meda (@manojmeda)
+- Mike Ross (@mross22)
+- Nabeel Al-Saber (@nalsaber)
 
 
 .. hint::

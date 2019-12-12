@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -132,8 +133,8 @@ drg_attachment:
             sample: ATTACHING
         route_table_id:
             description:
-                - "The OCID of the route table the DRG attachment is using. For information about why you
-                  would associate a route table with a DRG attachment, see
+                - The OCID of the route table the DRG attachment is using.
+                - "For information about why you would associate a route table with a DRG attachment, see
                   L(Advanced Scenario: Transit Routing,https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm)."
             returned: on success
             type: string
@@ -164,7 +165,7 @@ drg_attachment:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
     OCIResourceHelperBase,
     get_custom_class,
@@ -190,6 +191,9 @@ class DrgAttachmentHelperGen(OCIResourceHelperBase):
     def get_module_resource_id(self):
         return self.module.params.get("drg_attachment_id")
 
+    def get_get_fn(self):
+        return self.client.get_drg_attachment
+
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
             self.client.get_drg_attachment,
@@ -200,9 +204,10 @@ class DrgAttachmentHelperGen(OCIResourceHelperBase):
         required_list_method_params = ["compartment_id"]
 
         optional_list_method_params = ["vcn_id", "drg_id"]
-        self.module.params["compartment_id"] = self.get_compartment_id(
-            "vcn_id", self.client.get_vcn
-        )
+        if self.module.params.get("compartment_id") is None:
+            self.module.params["compartment_id"] = self.get_compartment_id(
+                "vcn_id", self.client.get_vcn
+            )
 
         required_kwargs = dict(
             (param, self.module.params[param]) for param in required_list_method_params
@@ -229,9 +234,16 @@ class DrgAttachmentHelperGen(OCIResourceHelperBase):
 
     def create_resource(self):
         create_details = self.get_create_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.create_drg_attachment,
-            create_drg_attachment_details=create_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.create_drg_attachment,
+            call_fn_args=(),
+            call_fn_kwargs=dict(create_drg_attachment_details=create_details),
+            waiter_type=oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY,
+            operation=oci_common_utils.CREATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def get_update_model_class(self):
@@ -239,16 +251,34 @@ class DrgAttachmentHelperGen(OCIResourceHelperBase):
 
     def update_resource(self):
         update_details = self.get_update_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.update_drg_attachment,
-            drg_attachment_id=self.module.params.get("drg_attachment_id"),
-            update_drg_attachment_details=update_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.update_drg_attachment,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                drg_attachment_id=self.module.params.get("drg_attachment_id"),
+                update_drg_attachment_details=update_details,
+            ),
+            waiter_type=oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY,
+            operation=oci_common_utils.UPDATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def delete_resource(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.delete_drg_attachment,
-            drg_attachment_id=self.module.params.get("drg_attachment_id"),
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.delete_drg_attachment,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                drg_attachment_id=self.module.params.get("drg_attachment_id")
+            ),
+            waiter_type=oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY,
+            operation=oci_common_utils.DELETE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_terminated_states(),
         )
 
 
@@ -283,6 +313,7 @@ def main():
         module=module,
         resource_type="drg_attachment",
         service_client_class=VirtualNetworkClient,
+        namespace="core",
     )
 
     result = dict(changed=False)

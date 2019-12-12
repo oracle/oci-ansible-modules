@@ -326,7 +326,7 @@ Examples
 
     - name: Update cpe
       oci_cpe:
-        defined_tags: {Operations: {CostCenter: US}}
+        defined_tags: {'Operations': {'CostCenter': 'US'}}
         display_name: MyCpe
         cpe_id: ocid1.cpe.oc1..xxxxxxEXAMPLExxxxxx
 

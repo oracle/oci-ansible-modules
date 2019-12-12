@@ -295,11 +295,11 @@ Examples
     
     - name: List autonomous_exadata_infrastructures
       oci_autonomous_exadata_infrastructure_facts:
-          compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
+        compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
 
     - name: Get a specific autonomous_exadata_infrastructure
       oci_autonomous_exadata_infrastructure_facts:
-          autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
+        autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
 
 
 

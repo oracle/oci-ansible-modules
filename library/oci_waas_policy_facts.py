@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -1046,13 +1047,13 @@ waas_policies:
                 - A simple key-value pair without any defined schema.
             returned: on success
             type: dict
-            sample: {Department: Finance}
+            sample: {'Department': 'Finance'}
         defined_tags:
             description:
                 - A key-value pair with a defined schema that restricts the values of tags. These predefined keys are scoped to namespaces.
             returned: on success
             type: dict
-            sample: {Operations: {CostCenter: US}}
+            sample: {'Operations': {'CostCenter': 'US'}}
     sample: [{
         "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
         "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
@@ -1215,8 +1216,8 @@ waas_policies:
                 "addresses": []
             }]
         },
-        "freeform_tags": {Department: Finance},
-        "defined_tags": {Operations: {CostCenter: US}}
+        "freeform_tags": {'Department': 'Finance'},
+        "defined_tags": {'Operations': {'CostCenter': 'US'}}
     }]
 """
 
@@ -1301,13 +1302,16 @@ def main():
         module.fail_json(msg="oci python sdk required for this module.")
 
     resource_facts_helper = ResourceFactsHelper(
-        module=module, resource_type="waas_policy", service_client_class=WaasClient
+        module=module,
+        resource_type="waas_policy",
+        service_client_class=WaasClient,
+        namespace="waas",
     )
 
     result = []
 
     if resource_facts_helper.is_get():
-        result = resource_facts_helper.get()
+        result = [resource_facts_helper.get()]
     elif resource_facts_helper.is_list():
         result = resource_facts_helper.list()
     else:

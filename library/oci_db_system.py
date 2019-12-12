@@ -699,7 +699,10 @@ def update_db_system(db_client, module, db_system_id):
     )
     ssh_public_keys_changed = False
     if input_ssh_public_keys is not None:
-        ssh_public_keys, ssh_public_keys_changed = oci_utils.get_component_list_difference(
+        (
+            ssh_public_keys,
+            ssh_public_keys_changed,
+        ) = oci_utils.get_component_list_difference(
             input_ssh_public_keys,
             existing_ssh_public_keys,
             purge_ssh_public_keys,

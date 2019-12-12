@@ -164,6 +164,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>nsg_ids</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A list of the OCIDs of the network security groups (NSGs) to add the VNIC to. Setting this as an empty array removes the VNIC from all network security groups. For more information about NSGs, see <a href=' https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/NetworkSecurityGroup/'>NetworkSecurityGroup</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>region</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -288,7 +301,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Details of the VNIC attachment</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;my_test_secondary_vnic_name_mod&#x27;, &#x27;hostname_label&#x27;: &#x27;ansible-test-45-1&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...lwbvm62xq&#x27;, &#x27;subnet_id&#x27;: &#x27;ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...smpqpaoa&#x27;, &#x27;is_primary&#x27;: False, &#x27;time_created&#x27;: &#x27;2017-11-26T16:24:39.642000+00:00&#x27;, &#x27;public_ip&#x27;: None, &#x27;skip_source_dest_check&#x27;: False, &#x27;private_ip&#x27;: &#x27;10.0.0.11&#x27;, &#x27;mac_address&#x27;: &#x27;00:00:17:00:BC:6A&#x27;, &#x27;id&#x27;: &#x27;ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...2beqa&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;my_test_secondary_vnic_name_mod&#x27;, &#x27;hostname_label&#x27;: &#x27;ansible-test-45-1&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...lwbvm62xq&#x27;, &#x27;subnet_id&#x27;: &#x27;ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...smpqpaoa&#x27;, &#x27;is_primary&#x27;: False, &#x27;time_created&#x27;: &#x27;2017-11-26T16:24:39.642000+00:00&#x27;, &#x27;nsg_ids&#x27;: [&#x27;ocid1.networksecuritygroup.oc1.iad.aaaaaaaas5tfvdhvt6sfam3wfzarw&#x27;], &#x27;skip_source_dest_check&#x27;: False, &#x27;private_ip&#x27;: &#x27;10.0.0.11&#x27;, &#x27;public_ip&#x27;: None, &#x27;mac_address&#x27;: &#x27;00:00:17:00:BC:6A&#x27;, &#x27;id&#x27;: &#x27;ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...2beqa&#x27;}</div>
                                     </td>
             </tr>
                         </table>

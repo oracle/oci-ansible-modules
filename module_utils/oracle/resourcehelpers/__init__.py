@@ -7,7 +7,6 @@
 from ansible.module_utils.oracle.resourcehelpers import (
     oci_api_key_helper,
     oci_waas_policy_helper,
-    oci_autonomous_data_warehouse_helper,
     oci_object_lifecycle_policy_helper,
     oci_audit_configuration_helper,
     oci_auto_scaling_configuration_helper,

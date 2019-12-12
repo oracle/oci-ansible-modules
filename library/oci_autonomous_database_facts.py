@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -30,6 +30,11 @@ options:
         description: Identifier of the Autonomous Database whose details needs to be fetched.
         required: false
         aliases: ['id']
+    is_free_tier:
+        description: Filter on the value of the resource's 'is_free_tier' property. A value of true returns only
+                     Always Free resources. A value of false excludes Always Free resources from the returned
+                     results. Omitting this parameter returns both Always Free and paid resources.
+        required: false
 author:
     - "Debayan Gupta(@debayan_gupta)"
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
@@ -127,6 +132,13 @@ RETURN = """
                 returned: always
                 type: string
                 sample: AVAILABLE
+            is_free_tier:
+                description: Indicates if this is an Always Free resource. The default value is false. Note that Always Free
+                             Autonomous Databases have 1 CPU and 20GB of memory. For Always Free databases, memory and CPU
+                             cannot be scaled.
+                returned: always
+                type: bool
+                sample: false
 
         sample: [{
                   "compartment_id":"ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
@@ -154,7 +166,8 @@ RETURN = """
                   "service_console_url":"https://example1.oraclecloud.com/console/index.html?
                         tenant_name=OCID1.TENANCY.OC1..xxxxxEXAMPLExxxxx
                         &database_name=ANSIBLEAUTODB&service_type=ATP",
-                  "time_created":"2018-09-22T15:06:55.426000+00:00"
+                  "time_created":"2018-09-22T15:06:55.426000+00:00",
+                  "is_free_tier": false
               },
               {
                   "compartment_id":"ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
@@ -182,7 +195,8 @@ RETURN = """
                   "service_console_url":"https://example1.oraclecloud.com/console/index.html?
                         tenant_name=OCID1.TENANCY.OC1..xxxxxEXAMPLExxxxx
                         &database_name=ANSIBLEAUTODB&service_type=ATP",
-                  "time_created":"2018-09-22T15:06:55.426000+00:00"
+                  "time_created":"2018-09-22T15:06:55.426000+00:00",
+                  "is_free_tier": false
               }]
 """
 
@@ -214,6 +228,7 @@ def list_autonomous_databases(db_client, module):
                 db_client.list_autonomous_databases,
                 compartment_id=compartment_id,
                 display_name=module.params.get("display_name"),
+                is_free_tier=module.params.get("is_free_tier"),
             )
         elif autonomous_database_id:
             get_logger().debug("Listing Autonomous Database %s", autonomous_database_id)
@@ -246,6 +261,7 @@ def main():
         dict(
             compartment_id=dict(type="str", required=False),
             autonomous_database_id=dict(type="str", required=False, aliases=["id"]),
+            is_free_tier=dict(type="bool", required=False),
         )
     )
     module = AnsibleModule(

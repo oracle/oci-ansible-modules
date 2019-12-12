@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -42,8 +43,8 @@ options:
             - Required for create using I(state=present).
     defined_tags:
         description:
-            - Defined tags for this resource. Each key is predefined and scoped to a namespace.
-              For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+            - Defined tags for this resource. Each key is predefined and scoped to a
+              namespace. For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
             - "Example: `{\\"Operations\\": {\\"CostCenter\\": \\"42\\"}}`"
         type: dict
     display_name:
@@ -53,8 +54,8 @@ options:
     freeform_tags:
         description:
             - Free-form tags for this resource. Each tag is a simple key-value pair with no
-              predefined name, type, or namespace. For more information, see
-              L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+              predefined name, type, or namespace. For more information, see L(Resource
+              Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
             - "Example: `{\\"Department\\": \\"Finance\\"}`"
         type: dict
     ip_address:
@@ -91,7 +92,7 @@ EXAMPLES = """
 
 - name: Update cpe
   oci_cpe:
-    defined_tags: {Operations: {CostCenter: US}}
+    defined_tags: {'Operations': {'CostCenter': 'US'}}
     display_name: MyCpe
     cpe_id: ocid1.cpe.oc1..xxxxxxEXAMPLExxxxxx
 
@@ -117,12 +118,12 @@ cpe:
             sample: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
         defined_tags:
             description:
-                - Defined tags for this resource. Each key is predefined and scoped to a namespace.
-                  For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+                - Defined tags for this resource. Each key is predefined and scoped to a
+                  namespace. For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
                 - "Example: `{\\"Operations\\": {\\"CostCenter\\": \\"42\\"}}`"
             returned: on success
             type: dict
-            sample: {Operations: {CostCenter: US}}
+            sample: {'Operations': {'CostCenter': 'US'}}
         display_name:
             description:
                 - A user-friendly name. Does not have to be unique, and it's changeable.
@@ -133,12 +134,12 @@ cpe:
         freeform_tags:
             description:
                 - Free-form tags for this resource. Each tag is a simple key-value pair with no
-                  predefined name, type, or namespace. For more information, see
-                  L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+                  predefined name, type, or namespace. For more information, see L(Resource
+                  Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
                 - "Example: `{\\"Department\\": \\"Finance\\"}`"
             returned: on success
             type: dict
-            sample: {Department: Finance}
+            sample: {'Department': 'Finance'}
         id:
             description:
                 - The CPE's Oracle ID (OCID).
@@ -160,9 +161,9 @@ cpe:
             sample: 2016-08-25T21:10:29.600Z
     sample: {
         "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
-        "defined_tags": {Operations: {CostCenter: US}},
+        "defined_tags": {'Operations': {'CostCenter': 'US'}},
         "display_name": "display_name_example",
-        "freeform_tags": {Department: Finance},
+        "freeform_tags": {'Department': 'Finance'},
         "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
         "ip_address": "ip_address_example",
         "time_created": "2016-08-25T21:10:29.600Z"
@@ -170,7 +171,7 @@ cpe:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
     OCIResourceHelperBase,
     get_custom_class,
@@ -195,6 +196,9 @@ class CpeHelperGen(OCIResourceHelperBase):
 
     def get_module_resource_id(self):
         return self.module.params.get("cpe_id")
+
+    def get_get_fn(self):
+        return self.client.get_cpe
 
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
@@ -229,8 +233,16 @@ class CpeHelperGen(OCIResourceHelperBase):
 
     def create_resource(self):
         create_details = self.get_create_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.create_cpe, create_cpe_details=create_details
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.create_cpe,
+            call_fn_args=(),
+            call_fn_kwargs=dict(create_cpe_details=create_details),
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation=oci_common_utils.CREATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def get_update_model_class(self):
@@ -238,15 +250,32 @@ class CpeHelperGen(OCIResourceHelperBase):
 
     def update_resource(self):
         update_details = self.get_update_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.update_cpe,
-            cpe_id=self.module.params.get("cpe_id"),
-            update_cpe_details=update_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.update_cpe,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                cpe_id=self.module.params.get("cpe_id"),
+                update_cpe_details=update_details,
+            ),
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation=oci_common_utils.UPDATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def delete_resource(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.delete_cpe, cpe_id=self.module.params.get("cpe_id")
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.delete_cpe,
+            call_fn_args=(),
+            call_fn_kwargs=dict(cpe_id=self.module.params.get("cpe_id")),
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation=oci_common_utils.DELETE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_terminated_states(),
         )
 
 
@@ -279,7 +308,10 @@ def main():
         module.fail_json(msg="oci python sdk required for this module.")
 
     resource_helper = ResourceHelper(
-        module=module, resource_type="cpe", service_client_class=VirtualNetworkClient
+        module=module,
+        resource_type="cpe",
+        service_client_class=VirtualNetworkClient,
+        namespace="core",
     )
 
     result = dict(changed=False)

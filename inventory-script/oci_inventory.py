@@ -182,7 +182,7 @@ When run for a specific host using the --host option, this script returns the fo
       "foo": "bar"
     },
     "region": "iad",
-    "shape": "VM.Standard1.1",
+    "shape": "VM.Standard2.1",
     "source_details": {
       "image_id": "ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx",
       "source_type": "image"
@@ -226,7 +226,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.12.0"
+__version__ = "1.13.0"
 inventory_agent_name = "Oracle-Ansible-Inv/"
 
 
