@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2019, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -34,6 +34,11 @@ options:
         description: A user-friendly name for the VNIC. Does not have to be unique, and it is changeable.
         required: false
         aliases: ['display_name']
+  nsg_ids:
+        description: A list of the OCIDs of the network security groups (NSGs) to add the VNIC to.
+                     Setting this as an empty array removes the VNIC from all network security groups.
+                     For more information about NSGs, see
+                     L(NetworkSecurityGroup, https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/NetworkSecurityGroup/).
   skip_source_dest_check:
         description: Determines whether the source/destination check is disabled on the VNIC. Defaults to false, which
                      means the check is performed.
@@ -80,6 +85,7 @@ vnic:
         "is_primary": false,
         "lifecycle_state": "AVAILABLE",
         "mac_address": "00:00:17:00:BC:6A",
+        "nsg_ids": ["ocid1.networksecuritygroup.oc1.iad.aaaaaaaas5tfvdhvt6sfam3wfzarw"],
         "private_ip": "10.0.0.11",
         "public_ip": null,
         "skip_source_dest_check": false,
@@ -125,6 +131,7 @@ def main():
             name=dict(type="str", required=False, aliases=["display_name"]),
             vnic_id=dict(type="str", required=False, aliases=["id"]),
             hostname_label=dict(type="str", required=False),
+            nsg_ids=dict(type="list", required=False),
             skip_source_dest_check=dict(type="bool", required=False, default=False),
             state=dict(
                 type="str", required=False, default="present", choices=["present"]
@@ -160,6 +167,7 @@ def main():
                 uvd.skip_source_dest_check = skip_source_dest_check
                 uvd.hostname_label = hostname_label
                 uvd.display_name = name
+                uvd.nsg_ids = module.params.get("nsg_ids", None)
 
                 oci_utils.call_with_backoff(
                     virtnetwork_client.update_vnic, vnic_id=id, update_vnic_details=uvd

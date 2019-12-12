@@ -5,8 +5,8 @@
 .. _oci_namespace_metadata_facts_module:
 
 
-oci_namespace_metadata_facts -- Gets the metadata for the Object Storage namespace
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_namespace_metadata_facts -- Fetches details about one or multiple NamespaceMetadata resources in Oracle Cloud Infrastructure
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,7 +17,9 @@ oci_namespace_metadata_facts -- Gets the metadata for the Object Storage namespa
 
 Synopsis
 --------
+- Fetches details about one or multiple NamespaceMetadata resources in Oracle Cloud Infrastructure
 - Gets the metadata for the Object Storage namespace, which contains defaultS3CompartmentId and defaultSwiftCompartmentId.
+- Any user with the NAMESPACE_READ permission will be able to see the current metadata. If you are not authorized, talk to an administrator. If you are an administrator who needs to write policies to give users access, see `Getting Started with Policies <https://docs.cloud.oracle.com/Content/Identity/Concepts/policygetstarted.htm>`_.
 
 
 
@@ -145,7 +147,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The Object Storage namespace.</div>
+                                                                        <div>The Object Storage namespace used for the request.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -192,9 +194,10 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Get the object storage namespace metadata
+    - name: Get a specific namespace_metadata
       oci_namespace_metadata_facts:
-        namespace_name: examplenamespace
+        namespace_name: namespace_name_example
+
 
 
 
@@ -218,8 +221,10 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                            <div>The metadata for the Object Storage namespace, which contains defaultS3CompartmentId and defaultSwiftCompartmentId.</div>
-                                        <br/>
+                                                                        <div>List of NamespaceMetadata resources</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;namespace&#x27;: &#x27;namespace_example&#x27;, &#x27;default_s3_compartment_id&#x27;: &#x27;ocid1.defaults3compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;default_swift_compartment_id&#x27;: &#x27;ocid1.defaultswiftcompartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -230,10 +235,10 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                            <div>The default compartment assignment for the Amazon S3 Compatibility API.</div>
-                                        <br/>
+                                                                        <div>If the field is set, specifies the default compartment assignment for the Amazon S3 Compatibility API.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaults3compartment.oc1..xxxxxxEXAMPLExxxxxx</div>
                                     </td>
             </tr>
                                 <tr>
@@ -244,10 +249,10 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                            <div>The default compartment assignment for the Swift API.</div>
-                                        <br/>
+                                                                        <div>If the field is set, specifies the default compartment assignment for the Swift API.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.defaultswiftcompartment.oc1..xxxxxxEXAMPLExxxxxx</div>
                                     </td>
             </tr>
                                 <tr>
@@ -258,10 +263,10 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                            <div>The Object Storage namespace to which the metadata belongs.</div>
-                                        <br/>
+                                                                        <div>The Object Storage namespace to which the metadata belongs.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">examplenamespace</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">namespace_example</div>
                                     </td>
             </tr>
                     
@@ -288,6 +293,8 @@ Authors
 ~~~~~~~
 
 - Manoj Meda (@manojmeda)
+- Mike Ross (@mross22)
+- Nabeel Al-Saber (@nalsaber)
 
 
 .. hint::

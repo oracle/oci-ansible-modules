@@ -18,7 +18,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.12.0"
+__version__ = "1.13.0"
 MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
 DEAD_STATES = [
     "TERMINATING",
@@ -46,8 +46,8 @@ DEFAULT_READY_STATES = [
 
 CANCELLED_STATES = ["CANCELLED"]
 
-WORK_REQUEST_COMPLETED_STATES = ["COMPLETED", "SUCCEEDED", "SUCCESS", "FAILED"]
-WORK_REQUEST_SUCCESS_STATES = ["COMPLETED", "SUCCEEDED", "SUCCESS"]
+WORK_REQUEST_COMPLETED_STATES = ["SUCCEEDED", "SUCCESS", "FAILED", "COMPLETED"]
+WORK_REQUEST_SUCCESS_STATES = ["SUCCEEDED", "SUCCESS"]
 WORK_REQUEST_FAILED_STATES = ["FAILED"]
 
 # If a resource is in one of these states, it would be considered deleted
@@ -63,6 +63,14 @@ ACTION_DESIRED_STATES = {
 }
 
 ALWAYS_PERFORM_ACTIONS = ["RESET", "SOFTRESET", "EXPORT"]
+
+RESOURCE_TYPE_TO_ENTITY_TYPE_MAP = {"waas_policy": "waas"}
+
+CREATE_OPERATION_KEY = "CREATE"
+UPDATE_OPERATION_KEY = "UPDATE"
+DELETE_OPERATION_KEY = "DELETE"
+ACTION_OPERATION_KEY = "ACTION"
+ANY_OPERATION_KEY = "ANY"
 
 
 def _get_retry_strategy():
@@ -160,26 +168,36 @@ def list_all_resources(target_fn, **kwargs):
     return filter_response_data(response.data, filter_params)
 
 
-def is_dict_subset(source_dict, target_dict, attrs=None):
+def is_dict_subset(
+    source_dict, target_dict, attrs=None, ignore_attr_if_not_in_target=False
+):
     if source_dict is None or target_dict is None:
         return False
     if not (isinstance(source_dict, dict) and isinstance(target_dict, dict)):
         return False
     if not attrs:
-        attrs = list(target_dict)
+        attrs = list(source_dict)
     for attr in attrs:
         # compare attributes if it is only in source dict
         if attr not in source_dict or source_dict.get(attr) is None:
             continue
-        # if attr is in source but not in target, ignore this attr
         if attr not in target_dict:
-            continue
+            if ignore_attr_if_not_in_target:
+                # if the ignore parameter is set, ignore this attribute.
+                # This might be useful in cases where some of the attributes used in create
+                # are not exposed in the get model
+                continue
+            return False
         source_val = source_dict.get(attr)
         target_val = target_dict.get(attr)
         if isinstance(source_val, dict):
             if not isinstance(target_val, dict):
                 return False
-            if not is_dict_subset(source_val, target_val):
+            if not is_dict_subset(
+                source_val,
+                target_val,
+                ignore_attr_if_not_in_target=ignore_attr_if_not_in_target,
+            ):
                 return False
         elif isinstance(source_val, list):
             if not isinstance(target_val, list):
@@ -214,13 +232,15 @@ def is_in_list(l, element):
     return False
 
 
-def are_dicts_equal(source_dict, target_dict, attrs=None):
+def are_dicts_equal(
+    source_dict, target_dict, attrs=None, ignore_attr_if_not_in_target=False
+):
     if source_dict is None or target_dict is None:
         return False
     if not (isinstance(source_dict, dict) and isinstance(target_dict, dict)):
         return False
     if not attrs:
-        attrs = list(target_dict)
+        attrs = list(source_dict)
     # handle the case when source dict is empty but target dict has values
     if not source_dict and target_dict:
         return False
@@ -228,9 +248,13 @@ def are_dicts_equal(source_dict, target_dict, attrs=None):
         # compare attributes if it is only in source dict
         if attr not in source_dict or source_dict.get(attr) is None:
             continue
-        # if attr is in source but not in target, ignore this attr
         if attr not in target_dict:
-            continue
+            if ignore_attr_if_not_in_target:
+                # if the ignore parameter is set, ignore this attribute.
+                # This might be useful in cases where some of the attributes used in update
+                # are not exposed in the get model
+                continue
+            return False
         source_val = source_dict.get(attr)
         target_val = target_dict.get(attr)
         if isinstance(source_val, list):
@@ -475,3 +499,38 @@ def merge_dicts(*dictionaries):
             continue
         merged_dict.update(dictionary)
     return merged_dict
+
+
+def get_default_response_from_resource(resource):
+    return oci.Response(status=200, headers=None, data=resource, request=None)
+
+
+def is_work_request_success(work_request_response):
+    return (
+        getattr(work_request_response.data, "status", None)
+        in WORK_REQUEST_SUCCESS_STATES
+    )
+
+
+def get_entity_type(resource_type):
+    if not resource_type:
+        return resource_type
+    if resource_type in RESOURCE_TYPE_TO_ENTITY_TYPE_MAP:
+        return RESOURCE_TYPE_TO_ENTITY_TYPE_MAP[resource_type]
+    return resource_type.strip().replace("_", "")
+
+
+def get_resource_active_states():
+    return DEFAULT_READY_STATES
+
+
+def get_resource_terminated_states():
+    return DEFAULT_TERMINATED_STATES
+
+
+def get_work_request_completed_states():
+    return WORK_REQUEST_COMPLETED_STATES
+
+
+def get_work_request_success_states():
+    return WORK_REQUEST_SUCCESS_STATES

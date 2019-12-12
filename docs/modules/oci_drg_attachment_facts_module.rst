@@ -121,7 +121,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the compartment.</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the compartment.</div>
                                                     <div>Required to list multiple drg_attachments.</div>
                                                                                 </td>
             </tr>
@@ -149,6 +149,19 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>The profile to load from the config file referenced by <code>config_file_location</code>. If not set, then the value of the OCI_CONFIG_PROFILE environment variable, if any, is used. Otherwise, defaults to the &quot;DEFAULT&quot; profile in <code>config_file_location</code>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>display_name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Use <em>display_name</em> along with the other options to return only resources that match the given display name exactly.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -215,7 +228,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the VCN.</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the VCN.</div>
                                                                                 </td>
             </tr>
                         </table>
@@ -351,7 +364,8 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The OCID of the route table the DRG attachment is using. For information about why you would associate a route table with a DRG attachment, see <a href='https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm'>Advanced Scenario: Transit Routing</a>.</div>
+                                                                        <div>The OCID of the route table the DRG attachment is using.</div>
+                                                    <div>For information about why you would associate a route table with a DRG attachment, see <a href='https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm'>Advanced Scenario: Transit Routing</a>.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.routetable.oc1..xxxxxxEXAMPLExxxxxx</div>

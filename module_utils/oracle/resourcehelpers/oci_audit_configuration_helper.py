@@ -27,9 +27,10 @@ class ConfigurationHelperCustom:
     def is_update(self):
         return True
 
-    def update_wait(self, update_response):
+    def update_resource(self):
         ## The update operation currently returns a work request id but the AuditClient currently does not support
         ## waiting for the work request. So wait until the configuration is updated by checking the value.
+        super(ConfigurationHelperCustom, self).update_resource()
         get_response = self.get_resource()
         waiter_response = oci.wait_until(
             self.client,

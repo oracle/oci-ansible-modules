@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2019-12-12
+
+### Added
+- Support for [Free Tier](https://www.oracle.com/cloud/free/) resources
+  - Compute [sample](https://github.com/oracle/oci-ansible-modules/tree/master/samples/compute/always_free_launch_compute_instance)
+  - Autonomous Database [sample](https://github.com/oracle/oci-ansible-modules/tree/master/samples/database/always_free_autonomous_database)
+- Support for associating [Network Security Groups](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/networksecuritygroups.htm) with vnics
+  - `oci_instance`
+  - `oci_vnic`
+  - `oci_vnic_attachment`
+- Support for associating [Security Rules](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/securityrules.htm) with [Network Security Groups](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/networksecuritygroups.htm)
+  - `oci_security_rule_actions`
+  - `oci_security_rule_facts`
+- Support for specifying device path for volume attachments
+  - `oci_volume_attachment`
+
+### Changed
+   - Minimum supported OCI Python SDK to 2.5.0
+
 ## [1.12.0] - 2019-10-16
 
 ### Added

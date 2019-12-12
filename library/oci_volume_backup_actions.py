@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -77,12 +78,12 @@ volume_backup:
             sample: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
         defined_tags:
             description:
-                - Defined tags for this resource. Each key is predefined and scoped to a namespace.
-                  For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+                - Defined tags for this resource. Each key is predefined and scoped to a
+                  namespace. For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
                 - "Example: `{\\"Operations\\": {\\"CostCenter\\": \\"42\\"}}`"
             returned: on success
             type: dict
-            sample: {Operations: {CostCenter: US}}
+            sample: {'Operations': {'CostCenter': 'US'}}
         display_name:
             description:
                 - A user-friendly name for the volume backup. Does not have to be unique and it's changeable.
@@ -103,12 +104,12 @@ volume_backup:
         freeform_tags:
             description:
                 - Free-form tags for this resource. Each tag is a simple key-value pair with no
-                  predefined name, type, or namespace. For more information, see
-                  L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+                  predefined name, type, or namespace. For more information, see L(Resource
+                  Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
                 - "Example: `{\\"Department\\": \\"Finance\\"}`"
             returned: on success
             type: dict
-            sample: {Department: Finance}
+            sample: {'Department': 'Finance'}
         id:
             description:
                 - The OCID of the volume backup.
@@ -188,10 +189,10 @@ volume_backup:
             sample: ocid1.volume.oc1..xxxxxxEXAMPLExxxxxx
     sample: {
         "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
-        "defined_tags": {Operations: {CostCenter: US}},
+        "defined_tags": {'Operations': {'CostCenter': 'US'}},
         "display_name": "display_name_example",
         "expiration_time": "2013-10-20T19:20:30+01:00",
-        "freeform_tags": {Department: Finance},
+        "freeform_tags": {'Department': 'Finance'},
         "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
         "lifecycle_state": "CREATING",
         "size_in_gbs": 56,
@@ -208,9 +209,9 @@ volume_backup:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
-    OCIResourceHelperBase,
+    OCIActionsHelperBase,
     get_custom_class,
     convert_input_data_to_model_class,
 )
@@ -224,8 +225,11 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-class VolumeBackupActionsHelperGen(OCIResourceHelperBase):
-    """Supported actions: copy"""
+class VolumeBackupActionsHelperGen(OCIActionsHelperBase):
+    """
+    Supported actions:
+        copy
+    """
 
     @staticmethod
     def get_module_resource_id_param():
@@ -233,6 +237,9 @@ class VolumeBackupActionsHelperGen(OCIResourceHelperBase):
 
     def get_module_resource_id(self):
         return self.module.params.get("volume_backup_id")
+
+    def get_get_fn(self):
+        return self.client.get_volume_backup
 
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
@@ -244,10 +251,22 @@ class VolumeBackupActionsHelperGen(OCIResourceHelperBase):
         action_details = convert_input_data_to_model_class(
             self.module.params, CopyVolumeBackupDetails
         )
-        return oci_common_utils.call_with_backoff(
-            self.client.copy_volume_backup,
-            volume_backup_id=self.module.params.get("volume_backup_id"),
-            copy_volume_backup_details=action_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.copy_volume_backup,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                volume_backup_id=self.module.params.get("volume_backup_id"),
+                copy_volume_backup_details=action_details,
+            ),
+            waiter_type=oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY,
+            operation="{0}_{1}".format(
+                self.module.params.get("action").upper(),
+                oci_common_utils.ACTION_OPERATION_KEY,
+            ),
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or self.get_action_desired_states(self.module.params.get("action")),
         )
 
 
@@ -280,6 +299,7 @@ def main():
         module=module,
         resource_type="volume_backup",
         service_client_class=BlockstorageClient,
+        namespace="core",
     )
 
     result = resource_helper.perform_action(module.params.get("action"))

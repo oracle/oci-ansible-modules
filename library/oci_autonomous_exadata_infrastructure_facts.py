@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -76,11 +77,11 @@ extends_documentation_fragment: [ oracle ]
 EXAMPLES = """
 - name: List autonomous_exadata_infrastructures
   oci_autonomous_exadata_infrastructure_facts:
-      compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
+    compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
 
 - name: Get a specific autonomous_exadata_infrastructure
   oci_autonomous_exadata_infrastructure_facts:
-      autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
+    autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
 
 """
 
@@ -363,7 +364,7 @@ autonomous_exadata_infrastructures:
                 - "Example: `{\\"Department\\": \\"Finance\\"}`"
             returned: on success
             type: dict
-            sample: {Department: Finance}
+            sample: {'Department': 'Finance'}
         defined_tags:
             description:
                 - Defined tags for this resource. Each key is predefined and scoped to a namespace.
@@ -371,7 +372,7 @@ autonomous_exadata_infrastructures:
                 - "Example: `{\\"Operations\\": {\\"CostCenter\\": \\"42\\"}}`"
             returned: on success
             type: dict
-            sample: {Operations: {CostCenter: US}}
+            sample: {'Operations': {'CostCenter': 'US'}}
     sample: [{
         "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
         "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
@@ -419,8 +420,8 @@ autonomous_exadata_infrastructures:
             "maintenance_type": "PLANNED",
             "maintenance_subtype": "QUARTERLY"
         },
-        "freeform_tags": {Department: Finance},
-        "defined_tags": {Operations: {CostCenter: US}}
+        "freeform_tags": {'Department': 'Finance'},
+        "defined_tags": {'Operations': {'CostCenter': 'US'}}
     }]
 """
 
@@ -521,12 +522,13 @@ def main():
         module=module,
         resource_type="autonomous_exadata_infrastructure",
         service_client_class=DatabaseClient,
+        namespace="database",
     )
 
     result = []
 
     if resource_facts_helper.is_get():
-        result = resource_facts_helper.get()
+        result = [resource_facts_helper.get()]
     elif resource_facts_helper.is_list():
         result = resource_facts_helper.list()
     else:

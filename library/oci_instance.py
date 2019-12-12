@@ -139,7 +139,8 @@ options:
                 description: The OCID of the volume to be attached to or detached from the instance I(instance_id).
     vnic:
         description: Details for the primary VNIC that is automatically created and attached when the instance is
-                     launched. Required when creating a compute instance with I(state=present).
+                     launched. Required when creating a compute instance with I(state=present).  Updating any of these
+                     child properties is not supported through this module.
         aliases: ['create_vnic_details']
         suboptions:
             assign_public_ip:
@@ -150,25 +151,43 @@ options:
                              I(prohibitPublicIpOnVnic = false), then a public IP address is
                              assigned. If set to true and I(prohibitPublicIpOnVnic = true),
                              an error is returned.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
             hostname_label:
                 description: The hostname for the VNIC's primary private IP. Used for DNS. The value
                              is the hostname portion of the primary private IP's fully qualified
                              domain name (FQDN) (for example, bminstance-1 in FQDN
                              bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all
                              VNICs in the subnet and comply with RFC 952 and RFC 1123.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
             name:
                 description: A user-friendly name for the VNIC. Does not have to be unique.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
+            nsg_ids:
+                description: A list of the OCIDs of the network security groups (NSGs) to add the VNIC to.
+                             For more information about NSGs, see NetworkSecurityGroup L(NetworkSecurityGroup,
+                             https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/NetworkSecurityGroup/).
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
             private_ip:
                 description: The private IP to assign to the VNIC. Must be an available IP address
                              within the subnet's CIDR. If you don't specify a value, Oracle
                              automatically assigns a private IP address from the subnet. This is
                              the VNIC's primary private IP address.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
             skip_source_dest_check:
                 description: Determines whether the source/destination check is disabled on the VNIC.
                              Defaults to false, which means the check is performed.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
                 default: false
             subnet_id:
                 description: The OCID of the subnet to create the VNIC in.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
                 required: true
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
@@ -778,6 +797,7 @@ def get_vnic_details(module):
     cvd.private_ip = vnic_details.get("private_ip", None)
     cvd.skip_source_dest_check = vnic_details.get("skip_source_dest_check", None)
     cvd.subnet_id = vnic_details["subnet_id"]
+    cvd.nsg_ids = vnic_details.get("nsg_ids", None)
     return cvd
 
 

@@ -517,7 +517,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Details for the primary VNIC that is automatically created and attached when the instance is launched. Required when creating a compute instance with <em>state=present</em>.</div>
+                                                                        <div>Details for the primary VNIC that is automatically created and attached when the instance is launched. Required when creating a compute instance with <em>state=present</em>.  Updating any of these child properties is not supported through this module.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: create_vnic_details</div>
                                     </td>
             </tr>
@@ -532,7 +532,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>Determines whether the VNIC should be assigned a public IP address.  If not set and the VNIC is being created in a private subnet (that is, where <em>prohibitPublicIpOnVnic = true</em> in the Subnet), then no public IP address is assigned. If not set and the subnet is public <em>prohibitPublicIpOnVnic = false</em>, then a public IP address is assigned. If set to true and <em>prohibitPublicIpOnVnic = true</em>, an error is returned.</div>
+                                            <div>Determines whether the VNIC should be assigned a public IP address.  If not set and the VNIC is being created in a private subnet (that is, where <em>prohibitPublicIpOnVnic = true</em> in the Subnet), then no public IP address is assigned. If not set and the subnet is public <em>prohibitPublicIpOnVnic = false</em>, then a public IP address is assigned. If set to true and <em>prohibitPublicIpOnVnic = true</em>, an error is returned. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -546,7 +546,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The hostname for the VNIC&#x27;s primary private IP. Used for DNS. The value is the hostname portion of the primary private IP&#x27;s fully qualified domain name (FQDN) (for example, bminstance-1 in FQDN bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all VNICs in the subnet and comply with RFC 952 and RFC 1123.</div>
+                                            <div>The hostname for the VNIC&#x27;s primary private IP. Used for DNS. The value is the hostname portion of the primary private IP&#x27;s fully qualified domain name (FQDN) (for example, bminstance-1 in FQDN bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all VNICs in the subnet and comply with RFC 952 and RFC 1123. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -560,7 +560,21 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>A user-friendly name for the VNIC. Does not have to be unique.</div>
+                                            <div>A user-friendly name for the VNIC. Does not have to be unique. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>nsg_ids</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>A list of the OCIDs of the network security groups (NSGs) to add the VNIC to. For more information about NSGs, see NetworkSecurityGroup <a href=' https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/NetworkSecurityGroup/'>NetworkSecurityGroup</a>. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -574,7 +588,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The private IP to assign to the VNIC. Must be an available IP address within the subnet&#x27;s CIDR. If you don&#x27;t specify a value, Oracle automatically assigns a private IP address from the subnet. This is the VNIC&#x27;s primary private IP address.</div>
+                                            <div>The private IP to assign to the VNIC. Must be an available IP address within the subnet&#x27;s CIDR. If you don&#x27;t specify a value, Oracle automatically assigns a private IP address from the subnet. This is the VNIC&#x27;s primary private IP address. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -589,7 +603,7 @@ Parameters
                                                                                                                                                                                                                 <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
-                                            <div>Determines whether the source/destination check is disabled on the VNIC. Defaults to false, which means the check is performed.</div>
+                                            <div>Determines whether the source/destination check is disabled on the VNIC. Defaults to false, which means the check is performed. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -603,7 +617,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The OCID of the subnet to create the VNIC in.</div>
+                                            <div>The OCID of the subnet to create the VNIC in. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                     

@@ -122,7 +122,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the compartment.</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm'>OCID</a> of the compartment.</div>
                                                     <div>Required to list multiple images.</div>
                                                                                 </td>
             </tr>
@@ -176,7 +176,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the image.</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm'>OCID</a> of the image.</div>
                                                     <div>Required to get a specific image.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
@@ -423,7 +423,8 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>Whether instances launched with this image can be used to create new images. For example, you cannot create an image of an Oracle Database instance. Example: `true`</div>
+                                                                        <div>Whether instances launched with this image can be used to create new images. For example, you cannot create an image of an Oracle Database instance.</div>
+                                                    <div>Example: `true`</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
@@ -452,7 +453,8 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>A user-friendly name for the image. It does not have to be unique, and it&#x27;s changeable. Avoid entering confidential information. You cannot use an Oracle-provided image name as a custom image name.</div>
+                                                                        <div>A user-friendly name for the image. It does not have to be unique, and it&#x27;s changeable. Avoid entering confidential information.</div>
+                                                    <div>You cannot use an Oracle-provided image name as a custom image name.</div>
                                                     <div>Example: `My custom Oracle Linux image`</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
@@ -583,7 +585,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>Emulation type for NIC. * `E1000` - Emulated Gigabit ethernet controller.  Compatible with Linux e1000 network driver. * `VFIO` - Direct attached Virtual Function network controller.  Default for Oracle provided images. * `PARAVIRTUALIZED` - VM instances launch with paravirtualized devices using virtio drivers.</div>
+                                                                        <div>Emulation type for the physical network interface card (NIC). * `E1000` - Emulated Gigabit ethernet controller.  Compatible with Linux e1000 network driver. * `VFIO` - Direct attached Virtual Function network controller. This is the networking type when you launch an instance using hardware-assisted (SR-IOV) networking. * `PARAVIRTUALIZED` - VM instances launch with paravirtualized devices using virtio drivers.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">E1000</div>
@@ -657,7 +659,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>Image size (1 MB = 1048576 bytes)</div>
+                                                                        <div>The boot volume size for an instance launched from this image, (1 MB = 1048576 bytes). Note this is not the same as the size of the image when it was exported or the actual size of the image.</div>
                                                     <div>Example: `47694`</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>

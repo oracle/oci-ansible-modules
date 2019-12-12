@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -33,12 +34,12 @@ version_added: "2.5"
 options:
     image_id:
         description:
-            - The OCID of the image.
+            - The L(OCID,https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the image.
             - Required to get a specific image.
         aliases: ["id"]
     compartment_id:
         description:
-            - The OCID of the compartment.
+            - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the compartment.
             - Required to list multiple images.
     display_name:
         description:
@@ -123,25 +124,25 @@ images:
             sample: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
         create_image_allowed:
             description:
-                - "Whether instances launched with this image can be used to create new images.
+                - Whether instances launched with this image can be used to create new images.
                   For example, you cannot create an image of an Oracle Database instance.
-                  Example: `true`"
+                - "Example: `true`"
             returned: on success
             type: bool
             sample: true
         defined_tags:
             description:
-                - Defined tags for this resource. Each key is predefined and scoped to a namespace.
-                  For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+                - Defined tags for this resource. Each key is predefined and scoped to a
+                  namespace. For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
                 - "Example: `{\\"Operations\\": {\\"CostCenter\\": \\"42\\"}}`"
             returned: on success
             type: dict
-            sample: {Operations: {CostCenter: US}}
+            sample: {'Operations': {'CostCenter': 'US'}}
         display_name:
             description:
                 - A user-friendly name for the image. It does not have to be unique, and it's changeable.
                   Avoid entering confidential information.
-                  You cannot use an Oracle-provided image name as a custom image name.
+                - You cannot use an Oracle-provided image name as a custom image name.
                 - "Example: `My custom Oracle Linux image`"
             returned: on success
             type: string
@@ -149,12 +150,12 @@ images:
         freeform_tags:
             description:
                 - Free-form tags for this resource. Each tag is a simple key-value pair with no
-                  predefined name, type, or namespace. For more information, see
-                  L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+                  predefined name, type, or namespace. For more information, see L(Resource
+                  Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
                 - "Example: `{\\"Department\\": \\"Finance\\"}`"
             returned: on success
             type: dict
-            sample: {Department: Finance}
+            sample: {'Department': 'Finance'}
         id:
             description:
                 - The OCID of the image.
@@ -202,9 +203,10 @@ images:
                     sample: BIOS
                 network_type:
                     description:
-                        - "Emulation type for NIC.
+                        - "Emulation type for the physical network interface card (NIC).
                           * `E1000` - Emulated Gigabit ethernet controller.  Compatible with Linux e1000 network driver.
-                          * `VFIO` - Direct attached Virtual Function network controller.  Default for Oracle provided images.
+                          * `VFIO` - Direct attached Virtual Function network controller. This is the networking type
+                          when you launch an instance using hardware-assisted (SR-IOV) networking.
                           * `PARAVIRTUALIZED` - VM instances launch with paravirtualized devices using virtio drivers."
                     returned: on success
                     type: string
@@ -268,7 +270,8 @@ images:
                     sample: true
         size_in_mbs:
             description:
-                - Image size (1 MB = 1048576 bytes)
+                - The boot volume size for an instance launched from this image, (1 MB = 1048576 bytes).
+                  Note this is not the same as the size of the image when it was exported or the actual size of the image.
                 - "Example: `47694`"
             returned: on success
             type: int
@@ -284,9 +287,9 @@ images:
         "base_image_id": "ocid1.baseimage.oc1..xxxxxxEXAMPLExxxxxx",
         "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
         "create_image_allowed": true,
-        "defined_tags": {Operations: {CostCenter: US}},
+        "defined_tags": {'Operations': {'CostCenter': 'US'}},
         "display_name": "My custom Oracle Linux image",
-        "freeform_tags": {Department: Finance},
+        "freeform_tags": {'Department': 'Finance'},
         "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
         "launch_mode": "NATIVE",
         "launch_options": {
@@ -398,13 +401,16 @@ def main():
         module.fail_json(msg="oci python sdk required for this module.")
 
     resource_facts_helper = ResourceFactsHelper(
-        module=module, resource_type="image", service_client_class=ComputeClient
+        module=module,
+        resource_type="image",
+        service_client_class=ComputeClient,
+        namespace="core",
     )
 
     result = []
 
     if resource_facts_helper.is_get():
-        result = resource_facts_helper.get()
+        result = [resource_facts_helper.get()]
     elif resource_facts_helper.is_list():
         result = resource_facts_helper.list()
     else:

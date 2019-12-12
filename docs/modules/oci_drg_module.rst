@@ -353,7 +353,7 @@ Examples
 
     - name: Update drg
       oci_drg:
-        defined_tags: {Operations: {CostCenter: US}}
+        defined_tags: {'Operations': {'CostCenter': 'US'}}
         display_name: MyDrg
         drg_id: ocid1.drg.oc1..xxxxxxEXAMPLExxxxxx
 

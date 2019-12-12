@@ -488,23 +488,23 @@ Examples
     
     - name: Create autonomous_exadata_infrastructure
       oci_autonomous_exadata_infrastructure:
-          compartment_id: ocid1.tenancy.oc1.<var>&lt;unique_ID&gt;</var>
-          display_name: tst3dbsys
-          availability_domain: Uocm:PHX-AD-1
-          subnet_id: ocid1.subnet.oc1.<var>&lt;unique_ID&gt;</var>
-          shape: Exadata.Half1.168
-          hostname: athena
-          domain: my.company.com
+        availability_domain: Uocm:PHX-AD-1
+        compartment_id: ocid1.tenancy.oc1.unique_ID
+        display_name: tst3dbsys
+        domain: my.company.com
+        hostname: athena
+        shape: Exadata.Half1.168
+        subnet_id: ocid1.subnet.oc1.unique_ID
 
     - name: Update autonomous_exadata_infrastructure
       oci_autonomous_exadata_infrastructure:
-          display_name: new displayname
-          autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
+        display_name: new displayname
+        autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
 
     - name: Delete autonomous_exadata_infrastructure
       oci_autonomous_exadata_infrastructure:
-          autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
-          state: absent
+        autonomous_exadata_infrastructure_id: ocid1.autonomousexadatainfrastructure.oc1..xxxxxxEXAMPLExxxxxx
+        state: absent
 
 
 

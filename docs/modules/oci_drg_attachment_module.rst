@@ -470,7 +470,8 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>The OCID of the route table the DRG attachment is using. For information about why you would associate a route table with a DRG attachment, see <a href='https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm'>Advanced Scenario: Transit Routing</a>.</div>
+                                                                        <div>The OCID of the route table the DRG attachment is using.</div>
+                                                    <div>For information about why you would associate a route table with a DRG attachment, see <a href='https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm'>Advanced Scenario: Transit Routing</a>.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.routetable.oc1..xxxxxxEXAMPLExxxxxx</div>

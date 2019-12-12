@@ -164,6 +164,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Use <em>name</em> along with the other options to return only resources that match the given name exactly.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>region</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -208,8 +221,8 @@ Examples
     
     - name: List autonomous_exadata_infrastructure_shapes
       oci_autonomous_exadata_infrastructure_shape_facts:
-          availability_domain: Uocm:PHX-AD-1
-          compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
+        availability_domain: Uocm:PHX-AD-1
+        compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
 
 
 

@@ -457,7 +457,10 @@ def update_backend_set(lb_client, module, lb_id, backend_set, name):
     get_logger().info("Updating backend set %s in the load balancer %s", name, lb_id)
     backends_changed = False
     if input_backends is not None:
-        backends, backends_changed = oci_utils.check_and_return_component_list_difference(
+        (
+            backends,
+            backends_changed,
+        ) = oci_utils.check_and_return_component_list_difference(
             input_backends, existing_backends, purge_backends, delete_backends
         )
     if backends_changed:

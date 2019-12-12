@@ -5,8 +5,8 @@
 .. _oci_auth_token_facts_module:
 
 
-oci_auth_token_facts -- Retrieve facts of auth tokens in OCI Identity and Access Management Service
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_auth_token_facts -- Fetches details about one or multiple AuthToken resources in Oracle Cloud Infrastructure
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,7 +17,8 @@ oci_auth_token_facts -- Retrieve facts of auth tokens in OCI Identity and Access
 
 Synopsis
 --------
-- This module retrieves information of all the auth tokens for a specified user.
+- Fetches details about one or multiple AuthToken resources in Oracle Cloud Infrastructure
+- Lists the auth tokens for the specified user. The returned object contains the token's OCID, but not the token itself. The actual token is returned only upon creation.
 
 
 
@@ -192,9 +193,10 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Get information of all the auth tokens for a specific user
+    - name: List auth_tokens
       oci_auth_token_facts:
-        user_id: ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq
+        user_id: ocid1.user.oc1..xxxxxxEXAMPLExxxxxx
+
 
 
 
@@ -213,15 +215,15 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
         </tr>
                     <tr>
                                 <td colspan="2">
-                    <b>auth_groups</b>
+                    <b>auth_tokens</b>
                     <div style="font-size: small; color: purple">complex</div>
                                     </td>
-                <td>On success</td>
+                <td>on success</td>
                 <td>
-                                            <div>List of auth token information</div>
-                                        <br/>
+                                                                        <div>List of AuthToken resources</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;time-created&#x27;: &#x27;2018-11-08T02:40:25.118000+00:00&#x27;, &#x27;lifecycle-state&#x27;: &#x27;ACTIVE&#x27;, &#x27;time-expires&#x27;: None, &#x27;description&#x27;: &#x27;test auth token 1&#x27;, &#x27;token&#x27;: None, &#x27;inactive-status&#x27;: None, &#x27;user-id&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq&#x27;, &#x27;id&#x27;: &#x27;ocid1.credential.oc1..xxxxxEXAMPLExxxxx...l5aq&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;CREATING&#x27;, &#x27;inactive_status&#x27;: 56, &#x27;user_id&#x27;: &#x27;ocid1.user.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;description&#x27;: &#x27;description_example&#x27;, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;token&#x27;: &#x27;token_example&#x27;, &#x27;time_expires&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -230,12 +232,12 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>description</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The description you assign to the auth token. Does not have to be unique, and it&#x27;s changeable.</div>
-                                        <br/>
+                                                                        <div>The description you assign to the auth token. Does not have to be unique, and it&#x27;s changeable.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">My test auth token</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">description_example</div>
                                     </td>
             </tr>
                                 <tr>
@@ -244,12 +246,40 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>id</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The OCID of the auth token.</div>
-                                        <br/>
+                                                                        <div>The OCID of the auth token.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.credential.oc1..xxxxxEXAMPLExxxxx...l5aq</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>inactive_status</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The detailed status of INACTIVE lifecycleState.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>lifecycle_state</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The token&#x27;s current state. After creating an auth token, make sure its `lifecycleState` changes from CREATING to ACTIVE before using it.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">CREATING</div>
                                     </td>
             </tr>
                                 <tr>
@@ -258,12 +288,13 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>time_created</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>Date and time the AuthToken object was created, in the format defined by RFC3339.</div>
-                                        <br/>
+                                                                        <div>Date and time the `AuthToken` object was created, in the format defined by RFC3339.</div>
+                                                    <div>Example: `2016-08-25T21:10:29.600Z`</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-11-08T02:40:25.118000+00:00</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
                                     </td>
             </tr>
                                 <tr>
@@ -272,10 +303,13 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>time_expires</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>Date and time when this auth token will expire, in the format defined by RFC3339. Null if it never expires.</div>
-                                        <br/>
+                                                                        <div>Date and time when this auth token will expire, in the format defined by RFC3339. Null if it never expires.</div>
+                                                    <div>Example: `2016-08-25T21:10:29.600Z`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
                                     </td>
             </tr>
                                 <tr>
@@ -284,10 +318,12 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>token</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The Auth token. The value is available only in the response for CreateAuthToken, and not for ListAuthTokens or UpdateAuthToken. So the value returned by this fact module would always be null.</div>
-                                        <br/>
+                                                                        <div>The auth token. The value is available only in the response for `CreateAuthToken`, and not for `ListAuthTokens` or `UpdateAuthToken`.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">token_example</div>
                                     </td>
             </tr>
                                 <tr>
@@ -296,12 +332,12 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>user_id</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The OCID of the user the auth token belongs to.</div>
-                                        <br/>
+                                                                        <div>The OCID of the user the auth token belongs to.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.user.oc1..xxxxxxEXAMPLExxxxxx</div>
                                     </td>
             </tr>
                     
@@ -327,7 +363,9 @@ Status
 Authors
 ~~~~~~~
 
-- Sivakumar Thyagarajan (@sivakumart)
+- Manoj Meda (@manojmeda)
+- Mike Ross (@mross22)
+- Nabeel Al-Saber (@nalsaber)
 
 
 .. hint::

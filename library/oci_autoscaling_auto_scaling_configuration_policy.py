@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -328,7 +329,7 @@ auto_scaling_configuration_policy:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
     OCIResourceHelperBase,
     get_custom_class,
@@ -352,6 +353,9 @@ class AutoScalingConfigurationPolicyHelperGen(OCIResourceHelperBase):
 
     def get_module_resource_id(self):
         return self.module.params.get("auto_scaling_policy_id")
+
+    def get_get_fn(self):
+        return self.client.get_auto_scaling_policy
 
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
@@ -392,13 +396,22 @@ class AutoScalingConfigurationPolicyHelperGen(OCIResourceHelperBase):
 
     def update_resource(self):
         update_details = self.get_update_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.update_auto_scaling_policy,
-            auto_scaling_configuration_id=self.module.params.get(
-                "auto_scaling_configuration_id"
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.update_auto_scaling_policy,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                auto_scaling_configuration_id=self.module.params.get(
+                    "auto_scaling_configuration_id"
+                ),
+                auto_scaling_policy_id=self.module.params.get("auto_scaling_policy_id"),
+                update_auto_scaling_policy_details=update_details,
             ),
-            auto_scaling_policy_id=self.module.params.get("auto_scaling_policy_id"),
-            update_auto_scaling_policy_details=update_details,
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation=oci_common_utils.UPDATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
 
@@ -484,6 +497,7 @@ def main():
         module=module,
         resource_type="auto_scaling_configuration_policy",
         service_client_class=AutoScalingClient,
+        namespace="autoscaling",
     )
 
     result = dict(changed=False)

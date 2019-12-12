@@ -237,7 +237,7 @@ The script would then return the following variables for the specified host:
       "foo": "bar"
     },
     "region": "iad",
-    "shape": "VM.Standard1.1",
+    "shape": "VM.Standard2.1",
     "source_details": {
       "image_id": "ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx",
       "source_type": "image"
