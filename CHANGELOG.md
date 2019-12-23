@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2019-12-23
+
+### Added
+- db_workload parameter to oci_autonomous_database module
+  - Allows specifying whether to create an Autonomous Transaction Processing database or an Autonomous Data Warehouse
+
+### Fixed:
+- oci_db_home module patch apply error [issue](https://github.com/oracle/oci-ansible-modules/issues/89)
+- oci_db_system module update and patch apply error [issue](https://github.com/oracle/oci-ansible-modules/issues/86)
+
 ## [1.13.0] - 2019-12-12
 
 ### Added

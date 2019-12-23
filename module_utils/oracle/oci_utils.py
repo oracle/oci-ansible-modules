@@ -277,6 +277,19 @@ def check_and_update_attributes(
     return changed
 
 
+def check_and_update_attributes_if_changed(
+    target_instance, attr_name, input_value, existing_value, changed
+):
+    """
+    This function checks the difference between two resource attributes of literal types and sets the attribute
+    value in the target instance type holding the attribute if the value changed.
+    """
+    if input_value is not None and not eq(input_value, existing_value):
+        changed = True
+        target_instance.__setattr__(attr_name, input_value)
+    return changed
+
+
 def check_and_update_resource(
     resource_type,
     get_fn,

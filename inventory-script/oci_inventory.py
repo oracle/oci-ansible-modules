@@ -226,7 +226,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.13.0"
+__version__ = "1.14.0"
 inventory_agent_name = "Oracle-Ansible-Inv/"
 
 

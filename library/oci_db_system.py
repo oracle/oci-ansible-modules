@@ -673,20 +673,21 @@ def update_db_system(db_client, module, db_system_id):
         raise ClientError(
             Exception("No DB System with id " + db_system_id + " is found for update")
         )
-    primitive_attributes = [
-        "cpu_core_count",
-        "data_storage_size_in_gbs",
-        "freeform_tags",
-        "defined_tags",
-    ]
+
     existing_ssh_public_keys = db_system.ssh_public_keys
     last_patch_history_entry_id = db_system.last_patch_history_entry_id
     purge_ssh_public_keys = module.params.get("purge_ssh_public_keys")
     delete_ssh_public_keys = module.params.get("delete_ssh_public_keys")
     update_db_system_details = UpdateDbSystemDetails()
 
+    primitive_attributes = [
+        "cpu_core_count",
+        "data_storage_size_in_gbs",
+        "freeform_tags",
+        "defined_tags",
+    ]
     for attribute in primitive_attributes:
-        changed = oci_utils.check_and_update_attributes(
+        changed = oci_utils.check_and_update_attributes_if_changed(
             update_db_system_details,
             attribute,
             module.params.get(attribute, None),

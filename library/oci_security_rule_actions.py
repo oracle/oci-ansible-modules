@@ -250,8 +250,8 @@ EXAMPLES = """
       direction: INGRESS
       protocol: all
     - description: Example egress security rule
-      source_type: CIDR_BLOCK
-      source: 10.0.0.0/16
+      destination_type: CIDR_BLOCK
+      destination: 10.0.0.0/16
       direction: EGRESS
       protocol: all
     action: add_network_security_group_security_rules
@@ -275,10 +275,10 @@ EXAMPLES = """
       direction: INGRESS
       protocol: all
     - description: Example egress security rule - updated
-      id: 880233
-      source_type: CIDR_BLOCK
-      source: 10.0.0.0/24
+      destination_type: CIDR_BLOCK
+      destination: 10.0.0.0/24
       direction: EGRESS
+      id: 880233
       protocol: all
     action: update_network_security_group_security_rules
 
