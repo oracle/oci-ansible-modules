@@ -221,6 +221,23 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>db_workload</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>OLTP</li>
+                                                                                                                                                                                                <li>DW</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The Autonomous Database workload type. OLTP indicates an Autonomous Transaction Processing database and DW indicates an Autonomous Data Warehouse. The default is OLTP.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>defined_tags</b>
                     <div style="font-size: small">
                         <span style="color: purple">dictionary</span>
@@ -570,7 +587,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the launched/updated Autonomous Database. For delete, deleted Autonomous Database description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;display_name&#x27;: &#x27;ansible-autonomous-database-955&#x27;, &#x27;cpu_core_count&#x27;: 1, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;defined_tags&#x27;: {&#x27;ansible_tag_namespace_integration_test_1&#x27;: {&#x27;ansible_tag_1&#x27;: &#x27;initial&#x27;}}, &#x27;is_free_tier&#x27;: False, &#x27;freeform_tags&#x27;: {&#x27;system_license&#x27;: &#x27;trial&#x27;}, &#x27;time_created&#x27;: &#x27;2018-09-22T15:06:55.426000+00:00&#x27;, &#x27;db_name&#x27;: &#x27;autodbbackup&#x27;, &#x27;license_model&#x27;: &#x27;LICENSE_INCLUDED&#x27;, &#x27;connection_strings&#x27;: {&#x27;high&#x27;: &#x27;adwc.EXAMPLE1.oraclecloud.com:1522/EXAMPLE1_autodb_high.atp.oraclecloud.com&#x27;, &#x27;medium&#x27;: &#x27;adwc.EXAMPLE3.oraclecloud.com:1522/EXAMPLE3_autodb_medium.atp.oraclecloud.com&#x27;, &#x27;low&#x27;: &#x27;adwc.EXAMPLE2.oraclecloud.com:1522/EXAMPLE2_autodb_low.atp.oraclecloud.com&#x27;}, &#x27;lifecycle_details&#x27;: None, &#x27;data_storage_size_in_tbs&#x27;: 1, &#x27;id&#x27;: &#x27;ocid1.autonomousdatabase.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;service_console_url&#x27;: &#x27;https://example1.oraclecloud.com/console/index.html? tenant_name=OCID1.TENANCY.OC1..xxxxxEXAMPLExxxxx &amp;database_name=ANSIBLEAUTODB&amp;service_type=ATP&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;is_free_tier&#x27;: False, &#x27;time_created&#x27;: &#x27;2018-09-22T15:06:55.426000+00:00&#x27;, &#x27;db_workload&#x27;: &#x27;DW&#x27;, &#x27;db_name&#x27;: &#x27;autodbbackup&#x27;, &#x27;license_model&#x27;: &#x27;LICENSE_INCLUDED&#x27;, &#x27;data_storage_size_in_tbs&#x27;: 1, &#x27;id&#x27;: &#x27;ocid1.autonomousdatabase.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;service_console_url&#x27;: &#x27;https://example1.oraclecloud.com/console/index.html? tenant_name=OCID1.TENANCY.OC1..xxxxxEXAMPLExxxxx &amp;database_name=ANSIBLEAUTODB&amp;service_type=ATP&#x27;, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;display_name&#x27;: &#x27;ansible-autonomous-database-955&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;defined_tags&#x27;: {&#x27;ansible_tag_namespace_integration_test_1&#x27;: {&#x27;ansible_tag_1&#x27;: &#x27;initial&#x27;}}, &#x27;freeform_tags&#x27;: {&#x27;system_license&#x27;: &#x27;trial&#x27;}, &#x27;cpu_core_count&#x27;: 1, &#x27;connection_strings&#x27;: {&#x27;high&#x27;: &#x27;adwc.EXAMPLE1.oraclecloud.com:1522/EXAMPLE1_autodb_high.atp.oraclecloud.com&#x27;, &#x27;medium&#x27;: &#x27;adwc.EXAMPLE3.oraclecloud.com:1522/EXAMPLE3_autodb_medium.atp.oraclecloud.com&#x27;, &#x27;low&#x27;: &#x27;adwc.EXAMPLE2.oraclecloud.com:1522/EXAMPLE2_autodb_low.atp.oraclecloud.com&#x27;}, &#x27;lifecycle_details&#x27;: None}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -641,6 +658,20 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ansibleautodb</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>db_workload</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The Autonomous Database workload type.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">OLTP</div>
                                     </td>
             </tr>
                                 <tr>

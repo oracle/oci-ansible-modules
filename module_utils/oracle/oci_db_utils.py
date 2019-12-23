@@ -48,17 +48,19 @@ def is_version_changed(
         patch_details = get_patch_details_from_version(input_version_dict)
         return True, patch_details
     else:
-        input_action = input_version_dict.get("action")
-        if (
-            not (
-                last_patch_history.action == "APPLY"
-                and last_patch_history.lifecycle_state == "SUCCEEDED"
-            )
-            and last_patch_history.action != input_action
-            or last_patch_history.lifecycle_state != "SUCCEEDED"
-        ):
-            patch_details = get_patch_details_from_version(input_version_dict)
-            return True, patch_details
+        # Don't check history, depend on server error
+        # This will cause errors if running the precheck after success
+        # input_action = input_version_dict.get("action")
+        # if (
+        #     not (
+        #         last_patch_history.action == "APPLY"
+        #         and last_patch_history.lifecycle_state == "SUCCEEDED"
+        #     )
+        #     and last_patch_history.action != input_action
+        #     or last_patch_history.lifecycle_state != "SUCCEEDED"
+        # ):
+        patch_details = get_patch_details_from_version(input_version_dict)
+        return True, patch_details
 
     return version_changed, patch_details
 
