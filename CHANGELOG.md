@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] - 2020-1-24
+
+### Added
+- Support for `is_pv_encryption_in_transit` parameter on `oci_instance`
+- Support for `node_config_details` parameter on `oci_node_pool`
+
+### Changed
+   - Minimum supported OCI Python SDK to 2.6.0
+
 ## [1.14.0] - 2019-12-23
 
 ### Added

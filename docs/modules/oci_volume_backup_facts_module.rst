@@ -286,7 +286,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of volume backup information</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;size_in_gbs&#x27;: 50, &#x27;display_name&#x27;: &#x27;ansible_backup&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;size_in_mbs&#x27;: 51200, &#x27;time_created&#x27;: &#x27;2017-12-22T15:40:53.219000+00:00&#x27;, &#x27;unique_size_in_gbs&#x27;: 0, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;unique_size_in_mbs&#x27;: 1, &#x27;time_request_received&#x27;: &#x27;2017-12-22T15:40:48.111000+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.volumebackup.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;time_request_received&#x27;: &#x27;2017-12-22T15:40:48.111000+00:00&#x27;, &#x27;unique_size_in_mbs&#x27;: 1, &#x27;id&#x27;: &#x27;ocid1.volumebackup.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2017-12-22T15:40:53.219000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;size_in_gbs&#x27;: 50, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;display_name&#x27;: &#x27;ansible_backup&#x27;, &#x27;size_in_mbs&#x27;: 51200, &#x27;unique_size_in_gbs&#x27;: 0}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -384,7 +384,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the volume backup was created. This is the time the actual point-in-time image of the volume data was taken. Format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:53.219000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:53.219000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -398,7 +398,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the request to create the volume backup was received. Format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:48.111000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:48.111000+00:00</div>
                                     </td>
             </tr>
                                 <tr>

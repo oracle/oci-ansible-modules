@@ -240,7 +240,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the DB Home Patch.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;PRECHECK&#x27;, &#x27;description&#x27;: &#x27;Oct 2017 12.2 Database patch&#x27;, &#x27;last_action&#x27;: &#x27;PRECHECK&#x27;, &#x27;id&#x27;: &#x27;ocid1.dbpatch.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;version&#x27;: &#x27;12.2.0.1.171017&#x27;, &#x27;time_released&#x27;: &#x27;2018-01-29T01:00:00+00:00&#x27;, &#x27;available_actions&#x27;: [&#x27;APPLY&#x27;, &#x27;PRECHECK&#x27;], &#x27;lifecycle_details&#x27;: &#x27;Operation was successful&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;PRECHECK&#x27;, &#x27;last_action&#x27;: &#x27;PRECHECK&#x27;, &#x27;available_actions&#x27;: [&#x27;APPLY&#x27;, &#x27;PRECHECK&#x27;], &#x27;id&#x27;: &#x27;ocid1.dbpatch.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;description&#x27;: &#x27;Oct 2017 12.2 Database patch&#x27;, &#x27;lifecycle_details&#x27;: &#x27;Operation was successful&#x27;, &#x27;time_released&#x27;: &#x27;2018-01-29T01:00:00+00:00&#x27;, &#x27;version&#x27;: &#x27;12.2.0.1.171017&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -338,7 +338,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time that the patch was released.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-01-29 01:00:00</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-01-29 01:00:00+00:00</div>
                                     </td>
             </tr>
                                 <tr>

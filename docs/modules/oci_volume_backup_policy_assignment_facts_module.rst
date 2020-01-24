@@ -239,7 +239,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of volume backup policy assignment</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;asset_id&#x27;: &#x27;ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.volumebackuppolicyassign.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2017-12-22T15:40:53.219000+00:00&#x27;, &#x27;policy_id&#x27;: &#x27;ocid1.volumebackuppolicy.oc1..xxxxxEXAMPLExxxxx&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;id&#x27;: &#x27;ocid1.volumebackuppolicyassign.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2017-12-22T15:40:53.219000+00:00&#x27;, &#x27;policy_id&#x27;: &#x27;ocid1.volumebackuppolicy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;asset_id&#x27;: &#x27;ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -295,7 +295,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the volume backup policy assignment was created. Format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:53.219000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:53.219000+00:00</div>
                                     </td>
             </tr>
                     

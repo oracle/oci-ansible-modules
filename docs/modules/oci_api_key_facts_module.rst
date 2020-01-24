@@ -240,7 +240,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about one or more api signing keys of the specified user</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;api_keys&#x27;: [{&#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;key_value&#x27;: &#x27;-----BEGIN PUBLIC KEY-----...urt/fN8jNz2nZwIDAQAB-----END PUBLIC KEY-----&#x27;, &#x27;inactive_status&#x27;: None, &#x27;user_id&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;fingerprint&#x27;: &#x27;08:07:a6:7d:06:b4:73:91:e9:2c:da:42:c8:cb:df:02&#x27;, &#x27;key_id&#x27;: &#x27;ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx/ocid1.user.oc1..xxxxxEXAMPLExxxxx/08:07:a6:7d:06:b4:73:91:e9:2c:da&#x27;, &#x27;time_created&#x27;: &#x27;2018-01-08T09:33:59.705000+00:00&#x27;}]}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;api_keys&#x27;: [{&#x27;key_value&#x27;: &#x27;-----BEGIN PUBLIC KEY-----...urt/fN8jNz2nZwIDAQAB-----END PUBLIC KEY-----&#x27;, &#x27;inactive_status&#x27;: None, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;key_id&#x27;: &#x27;ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx/ocid1.user.oc1..xxxxxEXAMPLExxxxx/08:07:a6:7d:06:b4:73:91:e9:2c:da&#x27;, &#x27;fingerprint&#x27;: &#x27;08:07:a6:7d:06:b4:73:91:e9:2c:da:42:c8:cb:df:02&#x27;, &#x27;time_created&#x27;: &#x27;2018-01-08T09:33:59.705000+00:00&#x27;, &#x27;user_id&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx&#x27;}]}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -322,7 +322,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Date and time the ApiKey object was created, in the format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
                                     </td>
             </tr>
                     

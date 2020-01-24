@@ -332,6 +332,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>is_pv_encryption_in_transit_enabled</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Whether to enable in-transit encryption for the boot volume&#x27;s paravirtualized attachment. The default value is false.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>key_by</b>
                     <div style="font-size: small">
                         <span style="color: purple">list</span>
@@ -886,7 +899,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Details of the OCI compute instance launched, updated or terminated as a result of the current operation</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;RUNNING&#x27;, &#x27;fault_domain&#x27;: &#x27;FAULT-DOMAIN-1&#x27;, &#x27;extended_metadata&#x27;: {}, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq&#x27;, &#x27;region&#x27;: &#x27;phx&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-14T16:09:07.557000+00:00&#x27;, &#x27;display_name&#x27;: &#x27;ansible-test-968&#x27;, &#x27;image_id&#x27;: &#x27;ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....7klnoa&#x27;, &#x27;shape&#x27;: &#x27;BM.Standard1.36&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;volume_attachments&#x27;: [{&#x27;lifecycle_state&#x27;: &#x27;ATTACHED&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;ansible_volume_attachment&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;chap_username&#x27;: None, &#x27;time_created&#x27;: &#x27;2017-11-23T11:17:50.139000+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;iqn&#x27;: &#x27;iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3&#x27;, &#x27;ipv4&#x27;: &#x27;169.254.2.2&#x27;, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;attachment_type&#x27;: &#x27;iscsi&#x27;, &#x27;port&#x27;: 3260, &#x27;chap_secret&#x27;: None}], &#x27;ipxe_script&#x27;: None, &#x27;boot_volume_attachment&#x27;: {&#x27;boot_volume_id&#x27;: &#x27;ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;availability_domain&#x27;: &#x27;IwGV:US-ASHBURN-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;Remote boot attachment for instance&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;ATTACHED&#x27;, &#x27;time_created&#x27;: &#x27;2018-01-15T07:23:10.838000+00:00&#x27;, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}, &#x27;id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx....lxiggdq&#x27;, &#x27;metadata&#x27;: {&#x27;foo&#x27;: &#x27;bar&#x27;, &#x27;baz&#x27;: &#x27;quux&#x27;}}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;image_id&#x27;: &#x27;ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....7klnoa&#x27;, &#x27;lifecycle_state&#x27;: &#x27;RUNNING&#x27;, &#x27;region&#x27;: &#x27;phx&#x27;, &#x27;id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx....lxiggdq&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-14T16:09:07.557000+00:00&#x27;, &#x27;shape&#x27;: &#x27;BM.Standard1.36&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq&#x27;, &#x27;volume_attachments&#x27;: [{&#x27;lifecycle_state&#x27;: &#x27;ATTACHED&#x27;, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;chap_secret&#x27;: None, &#x27;id&#x27;: &#x27;ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-23T11:17:50.139000+00:00&#x27;, &#x27;port&#x27;: 3260, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;iqn&#x27;: &#x27;iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3&#x27;, &#x27;ipv4&#x27;: &#x27;169.254.2.2&#x27;, &#x27;chap_username&#x27;: None, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;display_name&#x27;: &#x27;ansible_volume_attachment&#x27;, &#x27;attachment_type&#x27;: &#x27;iscsi&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;}], &#x27;boot_volume_attachment&#x27;: {&#x27;lifecycle_state&#x27;: &#x27;ATTACHED&#x27;, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;boot_volume_id&#x27;: &#x27;ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2018-01-15T07:23:10.838000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;display_name&#x27;: &#x27;Remote boot attachment for instance&#x27;, &#x27;availability_domain&#x27;: &#x27;IwGV:US-ASHBURN-AD-1&#x27;}, &#x27;fault_domain&#x27;: &#x27;FAULT-DOMAIN-1&#x27;, &#x27;ipxe_script&#x27;: None, &#x27;extended_metadata&#x27;: {}, &#x27;metadata&#x27;: {&#x27;baz&#x27;: &#x27;quux&#x27;, &#x27;foo&#x27;: &#x27;bar&#x27;}, &#x27;display_name&#x27;: &#x27;ansible-test-968&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -1032,7 +1045,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the boot volume was created, in the format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
                                     </td>
             </tr>
                     
@@ -1135,6 +1148,109 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="2">
+                    <b>launch_options</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div></div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>boot_volume_type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Emulation type for volume. * `ISCSI` - ISCSI attached block storage device. This is the default for Boot Volumes and Remote Block Storage volumes on Oracle provided images. * `SCSI` - Emulated SCSI disk. * `IDE` - Emulated IDE disk. * `VFIO` - Direct attached Virtual Function storage.  This is the default option for Local data volumes on Oracle provided images. * `PARAVIRTUALIZED` - Paravirtualized disk.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ISCSI</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>firmware</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Firmware used to boot VM.  Select the option that matches your operating system. * `BIOS` - Boot VM using BIOS style firmware.  This is compatible with both 32 bit and 64 bit operating systems that boot using MBR style bootloaders. * `UEFI_64` - Boot VM using UEFI style firmware compatible with 64 bit operating systems.  This is the default for Oracle provided images.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">BIOS</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>is_consistent_volume_naming_enabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Whether to enable consistent volume naming feature. Defaults to false.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>is_pv_encryption_in_transit_enabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Whether to enable in-transit encryption for the boot volume&#x27;s paravirtualized attachment. The default value is false.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>network_type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Emulation type for the physical network interface card (NIC). * `E1000` - Emulated Gigabit ethernet controller.  Compatible with Linux e1000 network driver. * `VFIO` - Direct attached Virtual Function network controller. This is the networking type when you launch an instance using hardware-assisted (SR-IOV) networking. * `PARAVIRTUALIZED` - VM instances launch with paravirtualized devices using virtio drivers.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">E1000</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>remote_data_volume_type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Emulation type for volume. * `ISCSI` - ISCSI attached block storage device. This is the default for Boot Volumes and Remote Block Storage volumes on Oracle provided images. * `SCSI` - Emulated SCSI disk. * `IDE` - Emulated IDE disk. * `VFIO` - Direct attached Virtual Function storage.  This is the default option for Local data volumes on Oracle provided images. * `PARAVIRTUALIZED` - Paravirtualized disk.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ISCSI</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
                     <b>lifecycle_state</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
@@ -1199,7 +1315,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the instance was created, in the format defined by RFC3339</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-20 04:52:54.541000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-20 04:52:54.541000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -1406,7 +1522,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the volume was created, in the format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
                                     </td>
             </tr>
                                 <tr>

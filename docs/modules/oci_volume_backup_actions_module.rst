@@ -314,7 +314,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>Details of the VolumeBackup resource acted upon by the current operation</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;size_in_gbs&#x27;: 56, &#x27;time_created&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;source_type&#x27;: &#x27;MANUAL&#x27;, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;unique_size_in_mbs&#x27;: 56, &#x27;time_request_received&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;lifecycle_state&#x27;: &#x27;CREATING&#x27;, &#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;source_volume_backup_id&#x27;: &#x27;ocid1.sourcevolumebackup.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;unique_size_in_gbs&#x27;: 56, &#x27;size_in_mbs&#x27;: 56, &#x27;expiration_time&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;type&#x27;: &#x27;FULL&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;CREATING&#x27;, &#x27;time_request_received&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;size_in_gbs&#x27;: 56, &#x27;time_created&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;source_volume_backup_id&#x27;: &#x27;ocid1.sourcevolumebackup.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;size_in_mbs&#x27;: 56, &#x27;type&#x27;: &#x27;FULL&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;unique_size_in_gbs&#x27;: 56, &#x27;unique_size_in_mbs&#x27;: 56, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;expiration_time&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;source_type&#x27;: &#x27;MANUAL&#x27;, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1..xxxxxxEXAMPLExxxxxx&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -371,7 +371,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>The date and time the volume backup will expire and be automatically deleted. Format defined by RFC3339. This parameter will always be present for backups that were created automatically by a scheduled-backup policy. For manually created backups, it will be absent, signifying that there is no expiration time and the backup will last forever until manually deleted.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 19:20:30+01:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -484,7 +484,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>The date and time the volume backup was created. This is the time the actual point-in-time image of the volume data was taken. Format defined by RFC3339.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 19:20:30+01:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -498,7 +498,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>The date and time the request to create the volume backup was received. Format defined by RFC3339.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 19:20:30+01:00</div>
                                     </td>
             </tr>
                                 <tr>
