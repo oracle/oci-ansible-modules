@@ -277,7 +277,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Fetched Preauthenticated Request.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;object_name&#x27;: &#x27;ansible_object&#x27;, &#x27;name&#x27;: &#x27;ansible_bucket_par&#x27;, &#x27;access_type&#x27;: &#x27;AnyObjectWrite&#x27;, &#x27;time_expires&#x27;: &#x27;2018-12-23T17:31:35+00:00&#x27;, &#x27;id&#x27;: &#x27;EbFqu0/thO3/MRVb/XmZ0iaT6IA=&#x27;, &#x27;time_created&#x27;: &#x27;2018-12-22T12:04:02.229000+00:00&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;time_expires&#x27;: &#x27;2018-12-23T17:31:35+00:00&#x27;, &#x27;id&#x27;: &#x27;EbFqu0/thO3/MRVb/XmZ0iaT6IA=&#x27;, &#x27;time_created&#x27;: &#x27;2018-12-22T12:04:02.229000+00:00&#x27;, &#x27;name&#x27;: &#x27;ansible_bucket_par&#x27;, &#x27;access_type&#x27;: &#x27;AnyObjectWrite&#x27;, &#x27;object_name&#x27;: &#x27;ansible_object&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -347,7 +347,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date when the pre-authenticated request was created as per specification RFC 3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-12-22 12:04:02.229000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-12-22 12:04:02.229000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -361,7 +361,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The expiration date for the pre-authenticated request as per RFC 3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-12-22 00:00:00</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-12-22 00:00:00+00:00</div>
                                     </td>
             </tr>
                     

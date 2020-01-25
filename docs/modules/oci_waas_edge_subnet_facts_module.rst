@@ -247,7 +247,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of the tenant&#x27;s edge node subnets.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;cidr&#x27;: &#x27;52.28.32.104&#x27;, &#x27;region&#x27;: &#x27;Europe&#x27;, &#x27;time_modified&#x27;: &#x27;2017-01-30T13:27:08+00:00&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;region&#x27;: &#x27;Europe&#x27;, &#x27;cidr&#x27;: &#x27;52.28.32.104&#x27;, &#x27;time_modified&#x27;: &#x27;2017-01-30T13:27:08+00:00&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -289,7 +289,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the last change was made to the indicated edge node subnet, expressed in RFC 3339 timestamp format.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-01-30 13:27:08</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-01-30 13:27:08+00:00</div>
                                     </td>
             </tr>
                     

@@ -1,14 +1,18 @@
-# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2020, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
 from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    convert_input_data_to_model_class,
+)
 
 try:
     import oci
     from oci.container_engine.models import KeyValue
+    from oci.container_engine.models import UpdateNodePoolNodeConfigDetails
     from oci.util import to_dict
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
 
@@ -230,8 +234,9 @@ def update_and_wait(
                 primitive_params_update,
             )
             if resource_type == "node_pool":
-                # UpdateNodePoolDetails has a non-primitive type 'initial_node_labels'.
+                # UpdateNodePoolDetails has non-primitive types 'initial_node_labels' and 'node_config_details'.
                 set_node_pool_kwargs_update(kwargs_update, module)
+
             resource = call_and_wait(
                 client,
                 result,
@@ -244,6 +249,7 @@ def update_and_wait(
                 get_fn,
                 kwargs_get,
             )
+
             # Wait for specified number of nodes to be ACTIVE after update operation.
             if resource_type == "node_pool":
                 resource = wait_for_nodes(
@@ -268,6 +274,15 @@ def set_node_pool_kwargs_update(kwargs_update, module):
         kwargs_update[
             "update_node_pool_details"
         ].initial_node_labels = initial_node_labels
+
+    node_config_details = module.params["node_config_details"]
+    if node_config_details:
+        kwargs_update[
+            "update_node_pool_details"
+        ].node_config_details = convert_input_data_to_model_class(
+            node_config_details, UpdateNodePoolNodeConfigDetails
+        )
+
     return kwargs_update
 
 

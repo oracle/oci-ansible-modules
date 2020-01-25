@@ -251,7 +251,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>List of AuditEvent resources</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;event_type&#x27;: &#x27;event_type_example&#x27;, &#x27;response_headers&#x27;: {}, &#x27;event_name&#x27;: &#x27;LaunchInstance&#x27;, &#x27;compartment_name&#x27;: &#x27;compartment_name_example&#x27;, &#x27;request_id&#x27;: &#x27;ocid1.request.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;credential_id&#x27;: &#x27;ocid1.credential.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;principal_id&#x27;: &#x27;ocid1.principal.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;request_resource&#x27;: &#x27;request_resource_example&#x27;, &#x27;request_parameters&#x27;: {}, &#x27;response_time&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;event_source&#x27;: &#x27;event_source_example&#x27;, &#x27;request_action&#x27;: &#x27;request_action_example&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;event_id&#x27;: &#x27;ocid1.event.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;response_status&#x27;: &#x27;response_status_example&#x27;, &#x27;response_payload&#x27;: {}, &#x27;event_time&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;request_headers&#x27;: {}, &#x27;request_agent&#x27;: &#x27;request_agent_example&#x27;, &#x27;tenant_id&#x27;: &#x27;ocid1.tenant.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;user_name&#x27;: &#x27;user_name_example&#x27;, &#x27;request_origin&#x27;: &#x27;request_origin_example&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;request_action&#x27;: &#x27;request_action_example&#x27;, &#x27;tenant_id&#x27;: &#x27;ocid1.tenant.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;request_origin&#x27;: &#x27;request_origin_example&#x27;, &#x27;event_type&#x27;: &#x27;event_type_example&#x27;, &#x27;user_name&#x27;: &#x27;user_name_example&#x27;, &#x27;response_headers&#x27;: {}, &#x27;request_agent&#x27;: &#x27;request_agent_example&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;event_time&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;event_id&#x27;: &#x27;ocid1.event.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;credential_id&#x27;: &#x27;ocid1.credential.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;principal_id&#x27;: &#x27;ocid1.principal.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;compartment_name&#x27;: &#x27;compartment_name_example&#x27;, &#x27;event_name&#x27;: &#x27;LaunchInstance&#x27;, &#x27;request_resource&#x27;: &#x27;request_resource_example&#x27;, &#x27;response_status&#x27;: &#x27;response_status_example&#x27;, &#x27;event_source&#x27;: &#x27;event_source_example&#x27;, &#x27;request_id&#x27;: &#x27;ocid1.request.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;response_time&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;response_payload&#x27;: {}, &#x27;request_parameters&#x27;: {}, &#x27;request_headers&#x27;: {}}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -349,7 +349,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>The time the event occurred, expressed in <a href='https://tools.ietf.org/html/rfc3339'>RFC 3339</a> timestamp format.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 19:20:30+01:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -523,7 +523,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>The time of the response to the audited request, expressed in <a href='https://tools.ietf.org/html/rfc3339'>RFC 3339</a> timestamp format.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 19:20:30+01:00</div>
                                     </td>
             </tr>
                                 <tr>

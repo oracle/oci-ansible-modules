@@ -224,7 +224,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Letter of Authority.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;facility_location&#x27;: &#x27;Equinox&#x27;, &#x27;port_name&#x27;: &#x27;Example Port Name&#x27;, &#x27;cross_connect_id&#x27;: &#x27;ocid1.crossconnect.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;circuit_type&#x27;: &#x27;Single_mode_LC&#x27;, &#x27;authorized_entity_name&#x27;: &#x27;Example Authorized Entity Name&#x27;, &#x27;time_expires&#x27;: &#x27;2018-03-03T06:55:49.463000+00:00&#x27;, &#x27;time_issued&#x27;: &#x27;2018-02-03T06:55:49.463000+00:00&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;port_name&#x27;: &#x27;Example Port Name&#x27;, &#x27;authorized_entity_name&#x27;: &#x27;Example Authorized Entity Name&#x27;, &#x27;circuit_type&#x27;: &#x27;Single_mode_LC&#x27;, &#x27;facility_location&#x27;: &#x27;Equinox&#x27;, &#x27;time_issued&#x27;: &#x27;2018-02-03T06:55:49.463000+00:00&#x27;, &#x27;time_expires&#x27;: &#x27;2018-03-03T06:55:49.463000+00:00&#x27;, &#x27;cross_connect_id&#x27;: &#x27;ocid1.crossconnect.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -308,7 +308,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time when the Letter of Authority expires, in the format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-03-03 06:55:49.463000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-03-03 06:55:49.463000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -322,7 +322,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the Letter of Authority was created, in the format defined by RFC3339..</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-03-03 06:55:49.463000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-03-03 06:55:49.463000+00:00</div>
                                     </td>
             </tr>
                     

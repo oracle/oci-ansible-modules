@@ -222,7 +222,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>List of Region resources</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;key&#x27;: &#x27;key_example&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;key&#x27;: &#x27;key_example&#x27;, &#x27;name&#x27;: &#x27;name_example&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

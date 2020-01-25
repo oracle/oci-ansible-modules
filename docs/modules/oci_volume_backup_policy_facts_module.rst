@@ -242,7 +242,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>List of VolumeBackupPolicy resources</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;schedules&#x27;: [{&#x27;backup_type&#x27;: &#x27;FULL&#x27;, &#x27;period&#x27;: &#x27;ONE_HOUR&#x27;, &#x27;retention_seconds&#x27;: 56, &#x27;offset_seconds&#x27;: 56}]}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;display_name&#x27;: &#x27;display_name_example&#x27;, &#x27;time_created&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;schedules&#x27;: [{&#x27;backup_type&#x27;: &#x27;FULL&#x27;, &#x27;offset_seconds&#x27;: 56, &#x27;period&#x27;: &#x27;ONE_HOUR&#x27;, &#x27;retention_seconds&#x27;: 56}]}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -357,7 +357,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>The date and time the volume backup policy was created. Format defined by RFC3339.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 19:20:30+01:00</div>
                                     </td>
             </tr>
                     
