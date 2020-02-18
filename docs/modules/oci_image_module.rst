@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -438,7 +439,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2000</div>
                                     </td>
                                                                 <td>
                                                                         <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
@@ -539,7 +540,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Details of the image</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;operating_system&#x27;: &#x27;Canonical Ubuntu&#x27;, &#x27;id&#x27;: &#x27;ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx.....dgb3pmci2q&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-24T13:18:31.579000+00:00&#x27;, &#x27;launch_options&#x27;: {&#x27;firmware&#x27;: &#x27;UEFI_64&#x27;, &#x27;is_pv_encryption_in_transit_enabled&#x27;: None, &#x27;network_type&#x27;: &#x27;VFIO&#x27;, &#x27;boot_volume_type&#x27;: &#x27;ISCSI&#x27;, &#x27;remote_data_volume_type&#x27;: &#x27;PARAVIRTUALIZED&#x27;, &#x27;is_consistent_volume_naming_enabled&#x27;: None}, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx....lwbvm62xq&#x27;, &#x27;launch_mode&#x27;: &#x27;NATIVE&#x27;, &#x27;create_image_allowed&#x27;: True, &#x27;display_name&#x27;: &#x27;my-image-1&#x27;, &#x27;operating_system_version&#x27;: &#x27;16.04&#x27;, &#x27;base_image_id&#x27;: &#x27;ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....qcsa7klnoa&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;launch_mode&#x27;: &#x27;NATIVE&#x27;, &#x27;operating_system_version&#x27;: &#x27;16.04&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-24T13:18:31.579000+00:00&#x27;, &#x27;operating_system&#x27;: &#x27;Canonical Ubuntu&#x27;, &#x27;launch_options&#x27;: {&#x27;is_consistent_volume_naming_enabled&#x27;: None, &#x27;boot_volume_type&#x27;: &#x27;ISCSI&#x27;, &#x27;network_type&#x27;: &#x27;VFIO&#x27;, &#x27;firmware&#x27;: &#x27;UEFI_64&#x27;, &#x27;is_pv_encryption_in_transit_enabled&#x27;: None, &#x27;remote_data_volume_type&#x27;: &#x27;PARAVIRTUALIZED&#x27;}, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx....lwbvm62xq&#x27;, &#x27;create_image_allowed&#x27;: True, &#x27;id&#x27;: &#x27;ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx.....dgb3pmci2q&#x27;, &#x27;display_name&#x27;: &#x27;my-image-1&#x27;, &#x27;base_image_id&#x27;: &#x27;ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....qcsa7klnoa&#x27;}</div>
                                     </td>
             </tr>
                         </table>

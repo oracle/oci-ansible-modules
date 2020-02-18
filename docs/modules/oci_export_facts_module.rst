@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -303,7 +304,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the fetched Export.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;export_set_id&#x27;: &#x27;ocid1.exportset.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;export_options&#x27;: [{&#x27;require_privileged_source_port&#x27;: False, &#x27;access&#x27;: &#x27;READ_WRITE&#x27;, &#x27;anonymous_gid&#x27;: 65534, &#x27;source&#x27;: &#x27;10.0.0.10&#x27;, &#x27;identity_squash&#x27;: &#x27;NONE&#x27;, &#x27;anonymous_uid&#x27;: 65534}, {&#x27;require_privileged_source_port&#x27;: True, &#x27;access&#x27;: &#x27;READ_ONLY&#x27;, &#x27;anonymous_gid&#x27;: 65534, &#x27;source&#x27;: &#x27;10.0.2.0/24&#x27;, &#x27;identity_squash&#x27;: &#x27;ROOT&#x27;, &#x27;anonymous_uid&#x27;: 65534}], &#x27;file_system_id&#x27;: &#x27;ocid1.filesystem.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;path&#x27;: &#x27;/ansibletestpath&#x27;, &#x27;id&#x27;: &#x27;ocid1.export.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2018-10-18T11:40:52.483000+00:00&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;id&#x27;: &#x27;ocid1.export.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;export_options&#x27;: [{&#x27;source&#x27;: &#x27;10.0.0.10&#x27;, &#x27;anonymous_uid&#x27;: 65534, &#x27;require_privileged_source_port&#x27;: False, &#x27;identity_squash&#x27;: &#x27;NONE&#x27;, &#x27;anonymous_gid&#x27;: 65534, &#x27;access&#x27;: &#x27;READ_WRITE&#x27;}, {&#x27;source&#x27;: &#x27;10.0.2.0/24&#x27;, &#x27;anonymous_uid&#x27;: 65534, &#x27;require_privileged_source_port&#x27;: True, &#x27;identity_squash&#x27;: &#x27;ROOT&#x27;, &#x27;anonymous_gid&#x27;: 65534, &#x27;access&#x27;: &#x27;READ_ONLY&#x27;}], &#x27;file_system_id&#x27;: &#x27;ocid1.filesystem.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2018-10-18T11:40:52.483000+00:00&#x27;, &#x27;path&#x27;: &#x27;/ansibletestpath&#x27;, &#x27;export_set_id&#x27;: &#x27;ocid1.exportset.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -317,7 +318,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Policies that apply to NFS requests made through this export.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;require_privileged_source_port&#x27;: False, &#x27;access&#x27;: &#x27;READ_WRITE&#x27;, &#x27;anonymous_gid&#x27;: 65534, &#x27;source&#x27;: &#x27;0.0.0.0/0&#x27;, &#x27;identity_squash&#x27;: &#x27;NONE&#x27;, &#x27;anonymous_uid&#x27;: 65534}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;source&#x27;: &#x27;0.0.0.0/0&#x27;, &#x27;anonymous_uid&#x27;: 65534, &#x27;require_privileged_source_port&#x27;: False, &#x27;identity_squash&#x27;: &#x27;NONE&#x27;, &#x27;anonymous_gid&#x27;: 65534, &#x27;access&#x27;: &#x27;READ_WRITE&#x27;}]</div>
                                     </td>
             </tr>
                                 <tr>
