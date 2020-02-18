@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2019 Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -775,12 +775,25 @@ EXAMPLES = """
   oci_waas_policy:
     compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
     domain: domain_example
+    display_name: test_waas_policy
+    origins:
+      primary:
+        http_port: 80
+        https_port: 443
+        uri: 1.2.3.4
 
 - name: Update waas_policy
   oci_waas_policy:
-    display_name: display_name_example
+    display_name: test_waas_policy
     origins:
-      uri: uri_example
+      primary:
+        http_port: 80
+        https_port: 443
+        uri: 1.2.3.4
+      secondary:
+        http_port: 80
+        https_port: 443
+        uri: 2.3.4.5
     waas_policy_id: ocid1.waaspolicy.oc1..xxxxxxEXAMPLExxxxxx
 
 - name: Delete waas_policy

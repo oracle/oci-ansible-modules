@@ -96,7 +96,7 @@ You can find information on any known issues with OCI [here](https://docs.us-pho
 
 ## License
 
-Copyright (c) 2018, 2019, Oracle and/or its affiliates.
+Copyright (c) 2018, 2020, Oracle and/or its affiliates.
 
 This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 

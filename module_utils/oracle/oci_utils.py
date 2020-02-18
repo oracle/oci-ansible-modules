@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, 2019, 2020 Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -40,7 +40,7 @@ from ansible.module_utils.oracle.oci_config_utils import (
     create_service_client,
 )
 
-MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
+MAX_WAIT_TIMEOUT_IN_SECONDS = 2000
 
 # If a resource is in one of these states it would be considered inactive
 DEAD_STATES = [
@@ -96,7 +96,9 @@ def get_common_arg_spec(supports_create=False, supports_wait=False):
         api_user_key_file=dict(type="str"),
         api_user_key_pass_phrase=dict(type="str", no_log=True),
         auth_type=dict(
-            type="str", choices=["api_key", "instance_principal"], default="api_key"
+            type="str",
+            choices=["api_key", "instance_principal", "instance_obo_user"],
+            default="api_key",
         ),
         tenancy=dict(type="str"),
         region=dict(type="str"),
@@ -1029,11 +1031,15 @@ def check_if_user_value_matches_resources_attr(
             else:
                 if exclude_attributes.get(key) is None:
                     if default_attribute_values.get(key) is not None:
-                        user_provided_value_for_attr = default_attribute_values.get(key)
+                        # This is the reason for some crazy idempotence bugs. It is not at all a good idea to change
+                        # this variable while we are still in the loop and especially when it might be used in the next
+                        # iterations as well. Also there is no reason to change the global value when we can
+                        # just pass the default value to the function.
+                        # user_provided_value_for_attr = default_attribute_values.get(key)
                         check_if_user_value_matches_resources_attr(
                             key,
                             resources_value_for_attr.get(key),
-                            user_provided_value_for_attr,
+                            default_attribute_values.get(key),
                             exclude_attributes,
                             default_attribute_values,
                             res,

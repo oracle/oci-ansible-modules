@@ -14,7 +14,7 @@ class ModuleDocFragment(object):
             type: bool
         wait_timeout:
             description: Time, in seconds, to wait when I(wait=yes).
-            default: 1200
+            default: 2000
             type: int
         wait_until:
             description: The lifecycle state to wait for the resource to transition into when I(wait=yes). By default,

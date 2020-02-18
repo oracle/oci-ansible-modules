@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -69,6 +69,13 @@ options:
     device:
         description:
             - The device name.
+    is_shareable:
+        description:
+            - Whether the attachment should be created in shareable mode. If an attachment is created
+                     in shareable mode, then other instances can attach the same volume, provided that
+                     they also create their attachments in shareable mode. Only certain volume types
+                     can be attached in shareable mode. Defaults to false if not specified.
+        required: false
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_wait_options ]
 """
@@ -314,6 +321,7 @@ def main():
             volume_attachment_id=dict(type="str", required=False, aliases=["id"]),
             display_name=dict(type="str", required=False),
             device=dict(type="str"),
+            is_shareable=dict(type="bool", required=False),
         )
     )
 

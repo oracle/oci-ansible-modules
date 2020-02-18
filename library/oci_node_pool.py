@@ -125,7 +125,7 @@ options:
     wait_timeout:
         description: Time, in seconds, to wait when I(wait=yes).
         required: false
-        default: 1200
+        default: 2000
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource ]
 """

@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -399,7 +400,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2000</div>
                                     </td>
                                                                 <td>
                                                                         <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
@@ -476,7 +477,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Details of the VNIC attachment</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;DETACHED&#x27;, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx...qkwr6q&#x27;, &#x27;vlan_tag&#x27;: 41, &#x27;id&#x27;: &#x27;ocid1.vnicattachment.oc1.phx.xxxxxEXAMPLExxxxx...3momq&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-26T16:24:35.487000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...m62xq&#x27;, &#x27;subnet_id&#x27;: &#x27;ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...mpqpaoa&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;sec_vnic_1_for_my_instance&#x27;, &#x27;vnic_id&#x27;: &#x27;ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...mv2beqa&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;DETACHED&#x27;, &#x27;vnic_id&#x27;: &#x27;ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...mv2beqa&#x27;, &#x27;vlan_tag&#x27;: 41, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx...qkwr6q&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-26T16:24:35.487000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...m62xq&#x27;, &#x27;id&#x27;: &#x27;ocid1.vnicattachment.oc1.phx.xxxxxEXAMPLExxxxx...3momq&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;sec_vnic_1_for_my_instance&#x27;, &#x27;subnet_id&#x27;: &#x27;ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...mpqpaoa&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>
