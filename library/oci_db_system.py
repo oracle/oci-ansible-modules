@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2020, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -711,8 +711,6 @@ def update_db_system(db_client, module, db_system_id):
         )
     if ssh_public_keys_changed:
         update_db_system_details.ssh_public_keys = ssh_public_keys
-    else:
-        update_db_system_details.ssh_public_keys = existing_ssh_public_keys
 
     input_version_dict = module.params.get("version", None)
     version_changed, patch_details = oci_db_utils.is_version_changed(

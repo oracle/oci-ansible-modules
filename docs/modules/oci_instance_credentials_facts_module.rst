@@ -223,7 +223,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Initial credential information for a windows instance</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;password&#x27;: &#x27;etR)wpP4m;,vv6m&#x27;, &#x27;username&#x27;: &#x27;opc&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;username&#x27;: &#x27;opc&#x27;, &#x27;password&#x27;: &#x27;etR)wpP4m;,vv6m&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>

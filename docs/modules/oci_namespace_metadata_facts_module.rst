@@ -225,7 +225,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>List of NamespaceMetadata resources</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;default_s3_compartment_id&#x27;: &#x27;ocid1.defaults3compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;default_swift_compartment_id&#x27;: &#x27;ocid1.defaultswiftcompartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;namespace&#x27;: &#x27;namespace_example&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;default_s3_compartment_id&#x27;: &#x27;ocid1.defaults3compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;namespace&#x27;: &#x27;namespace_example&#x27;, &#x27;default_swift_compartment_id&#x27;: &#x27;ocid1.defaultswiftcompartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

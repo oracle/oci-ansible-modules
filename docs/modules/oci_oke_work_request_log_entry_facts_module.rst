@@ -236,7 +236,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of work request log entries</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;message&#x27;: &#x27;extending job lease time&#x27;, &#x27;timestamp&#x27;: &#x27;2018-08-16T12:20:48Z&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;timestamp&#x27;: &#x27;2018-08-16T12:20:48Z&#x27;, &#x27;message&#x27;: &#x27;extending job lease time&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

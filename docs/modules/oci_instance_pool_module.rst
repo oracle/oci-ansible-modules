@@ -234,6 +234,76 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="3">
+                    <b>load_balancers</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>A list of load balancers and configurations which will attach to the instance pool.</div>
+                                                                                </td>
+            </tr>
+                                                            <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>backend_set_name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The name of the backend set which the instance pool will assign instances to.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>load_balancer_id</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The OCID of the load balancer that you would like to attach to the instance pool.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>port</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The port that the backend set will forward traffic to on the instance</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="2">
+                    <b>vnic_selection</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Indicates which VNIC on each instance in the instance pool should be used to associate with the load balancer. Possible values are &quot;PrimaryVnic&quot; or the displayName of one of the secondary VNICs on the instance configuration that is associated with the instance pool.</div>
+                                                        </td>
+            </tr>
+                    
+                                                <tr>
+                                                                <td colspan="3">
                     <b>name</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
@@ -466,6 +536,11 @@ Examples
               primary_subnet_id: "ocid1.subnet.oci1.phx.xxxxxEXAMPLExxxxx...abcd"
             - availability_domain: "Uocm PHX-AD-2"
               primary_subnet_id: "ocid1.subnet.oci1.phx.xxxxxEXAMPLExxxxx...efgh"
+        load_balancers:
+            - load_balancer_id: ocid1.loadbalancer.oc1.phx.xxxxxEXAMPLExxxxx...rz3fhq
+              backend_set_name: 'lb-20190410-1147-backend-set'
+              port: 80
+              vnic_selection: 'PrimaryVnic'
 
     - name: Stop an instance pool
       oci_instance_pool:
@@ -522,7 +597,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about the Instance Pool</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;PROVISIONING&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...glmkwq&#x27;, &#x27;defined_tags&#x27;: {}, &#x27;id&#x27;: &#x27;ocid1.instancepool.oc1.iad.xxxxxEXAMPLExxxxx...tztpq&#x27;, &#x27;freeform_tags&#x27;: {}, &#x27;placement_configurations&#x27;: [{&#x27;availability-domain&#x27;: &#x27;IwGV:US-ASHBURN-AD-1&#x27;, &#x27;primary-subnet-id&#x27;: &#x27;ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx...dq4a&#x27;, &#x27;secondary-vnic-subnets&#x27;: None}], &#x27;instance_configuration_id&#x27;: &#x27;ocid1.instanceconfiguration.oc1.iad.xxxxxEXAMPLExxxxx...iejka&#x27;, &#x27;time-created&#x27;: &#x27;2018-11-09T16:58:35.270000+00:00&#x27;, &#x27;size&#x27;: 1, &#x27;display_name&#x27;: &#x27;backend-servers-pool&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;defined_tags&#x27;: {}, &#x27;size&#x27;: 1, &#x27;lifecycle_state&#x27;: &#x27;PROVISIONING&#x27;, &#x27;display_name&#x27;: &#x27;backend-servers-pool&#x27;, &#x27;time-created&#x27;: &#x27;2018-11-09T16:58:35.270000+00:00&#x27;, &#x27;instance_configuration_id&#x27;: &#x27;ocid1.instanceconfiguration.oc1.iad.xxxxxEXAMPLExxxxx...iejka&#x27;, &#x27;id&#x27;: &#x27;ocid1.instancepool.oc1.iad.xxxxxEXAMPLExxxxx...tztpq&#x27;, &#x27;freeform_tags&#x27;: {}, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...glmkwq&#x27;, &#x27;placement_configurations&#x27;: [{&#x27;secondary-vnic-subnets&#x27;: None, &#x27;availability-domain&#x27;: &#x27;IwGV:US-ASHBURN-AD-1&#x27;, &#x27;primary-subnet-id&#x27;: &#x27;ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx...dq4a&#x27;}], &#x27;load_balancers&#x27;: [{&#x27;loadBalancerId&#x27;: &#x27;ocid1.loadbalancer.oc1.phx..&lt;unique_ID&gt;&#x27;, &#x27;port&#x27;: 80, &#x27;backendSetName&#x27;: &#x27;lb-20190410-1147-backend-set&#x27;, &#x27;vnicSelection&#x27;: &#x27;PrimaryVnic&#x27;}]}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -621,6 +696,18 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">RUNNING</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>load_balancers</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>A list of load balancers and configurations which will attach to the instance pool.</div>
+                                        <br/>
                                     </td>
             </tr>
                                 <tr>

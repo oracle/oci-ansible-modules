@@ -153,6 +153,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>defined_tags</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>force</b>
                     <div style="font-size: small">
                         <span style="color: purple">boolean</span>
@@ -166,6 +179,19 @@ Parameters
                                                                             </td>
                                                                 <td>
                                                                         <div>If <em>force=&#x27;no&#x27;</em> and the bucket contains objects and pre-authenticared request at the bucket level, bucket will not be deleted. To delete a bucket which has objects and pre-authenticated request at the bucket level, <em>force=&#x27;yes&#x27;</em> should be specified.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>freeform_tags</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -364,7 +390,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created/updated bucket. Applicable only for create and update.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;name&#x27;: &#x27;AnsibleTestBucket&#x27;, &#x27;etag&#x27;: &#x27;cb734ffe-da3a-48f4-....-161fd4604cf1&#x27;, &#x27;metadata&#x27;: {}, &#x27;time_created&#x27;: &#x27;2017-10-01T11:30:33.655000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1....62xq&#x27;, &#x27;public_access_type&#x27;: &#x27;ObjectRead&#x27;, &#x27;namespace&#x27;: &#x27;ansibletestspace&#x27;, &#x27;created_by&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx..qndq&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;42&#x27;}}, &#x27;metadata&#x27;: {}, &#x27;public_access_type&#x27;: &#x27;ObjectRead&#x27;, &#x27;created_by&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx..qndq&#x27;, &#x27;etag&#x27;: &#x27;cb734ffe-da3a-48f4-....-161fd4604cf1&#x27;, &#x27;namespace&#x27;: &#x27;ansibletestspace&#x27;, &#x27;time_created&#x27;: &#x27;2017-10-01T11:30:33.655000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1....62xq&#x27;, &#x27;name&#x27;: &#x27;AnsibleTestBucket&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}}</div>
                                     </td>
             </tr>
                         </table>
