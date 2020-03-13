@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
+# Copyright (c) 2018, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -58,6 +58,24 @@ options:
                     subnet_id:
                         description: The subnet OCID for the secondary vnic
                         required: false
+    load_balancers:
+        description: A list of load balancers and configurations which will attach to the instance pool.
+        required: false
+        suboptions:
+            load_balancer_id:
+                description: The OCID of the load balancer that you would like to attach to the instance pool.
+                required: true
+            backend_set_name:
+                description: The name of the backend set which the instance pool will assign instances to.
+                required: true
+            port:
+                description: The port that the backend set will forward traffic to on the instance
+                required: true
+            vnic_selection:
+                description: Indicates which VNIC on each instance in the instance pool should be used to associate
+                             with the load balancer. Possible values are "PrimaryVnic" or the displayName of one of
+                             the secondary VNICs on the instance configuration that is associated with the instance
+                             pool.
     size:
         description: The number of instances that should be in the instance pool. Required to create an instance pool.
         required: false
@@ -94,6 +112,11 @@ EXAMPLES = """
           primary_subnet_id: "ocid1.subnet.oci1.phx.xxxxxEXAMPLExxxxx...abcd"
         - availability_domain: "Uocm PHX-AD-2"
           primary_subnet_id: "ocid1.subnet.oci1.phx.xxxxxEXAMPLExxxxx...efgh"
+    load_balancers:
+        - load_balancer_id: ocid1.loadbalancer.oc1.phx.xxxxxEXAMPLExxxxx...rz3fhq
+          backend_set_name: 'lb-20190410-1147-backend-set'
+          port: 80
+          vnic_selection: 'PrimaryVnic'
 
 - name: Stop an instance pool
   oci_instance_pool:
@@ -194,6 +217,27 @@ instance_pool:
                             description: The subnet OCID for the secondary vnic
                             returned: always
                             type: string
+        load_balancers:
+            description: A list of load balancers and configurations which will attach to the instance pool.
+            returned: always
+            type: complex
+            suboptions:
+                load_balancer_id:
+                    description: The description of the load balancer resource.
+                    returned: always
+                    type: string
+                port:
+                    description: The port used by the backend servers.
+                    returned: always
+                    type: string
+                backend_set_name:
+                    description: The name of the backend set the instance pool uses.
+                    returned: always
+                    type: string
+                vnic_selection:
+                    description: The selection preference for instance vnic creation.
+                    returned: always
+                    type: string
         size:
             description: The number of instances in the instance pool.
             returned: always
@@ -219,6 +263,14 @@ instance_pool:
                         "secondary-vnic-subnets": null
                     }
                 ],
+                "load_balancers": [
+                    {
+                        "loadBalancerId": "ocid1.loadbalancer.oc1.phx..<unique_ID>",
+                        "backendSetName": "lb-20190410-1147-backend-set",
+                        "port": 80,
+                        "vnicSelection": "PrimaryVnic"
+                    }
+                ],
                 "size": 1,
                 "time-created": "2018-11-09T16:58:35.270000+00:00"
         }
@@ -233,6 +285,7 @@ try:
         CreateInstancePoolDetails,
         CreateInstancePoolPlacementConfigurationDetails,
         UpdateInstancePoolDetails,
+        AttachLoadBalancerDetails,
     )
 
     import oci
@@ -271,7 +324,14 @@ def create_instance_pool(compute_management_client, module):
         _update_model_with_attrs(placement_config, item)
         placement_configurations.append(placement_config)
     create_instance_pool_details.placement_configurations = placement_configurations
-
+    user_load_balancers = module.params["load_balancers"]
+    if user_load_balancers:
+        load_balancers = []
+        for lb in user_load_balancers:
+            load_balancer = AttachLoadBalancerDetails()
+            _update_model_with_attrs(load_balancer, lb)
+            load_balancers.append(load_balancer)
+        create_instance_pool_details.load_balancers = load_balancers
     result = oci_utils.create_and_wait(
         resource_type=RESOURCE_NAME,
         create_fn=compute_management_client.create_instance_pool,
@@ -422,6 +482,7 @@ def main():
             display_name=dict(type="str", required=False, aliases=["name"]),
             instance_configuration_id=dict(type="str", required=False),
             placement_configurations=dict(type="list", required=False),
+            load_balancers=dict(type="list", required=False),
             instance_pool_id=dict(type="str", required=False, aliases=["id"]),
             size=dict(type="int", required=False),
             state=dict(

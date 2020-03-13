@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, 2019 Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -70,7 +70,7 @@ options:
 
 author:
     - "Debayan Gupta(@debayan_gupta)"
-extends_documentation_fragment: oracle
+extends_documentation_fragment: [ oracle, oracle_tags ]
 """
 
 EXAMPLES = """
@@ -106,6 +106,7 @@ bucket:
     sample: {"compartment_id": "ocid1....62xq","created_by":"ocid1.user.oc1..xxxxxEXAMPLExxxxx..qndq",
             "etag": "cb734ffe-da3a-48f4-....-161fd4604cf1","metadata": {},"name":"AnsibleTestBucket",
             "namespace":"ansibletestspace","public_access_type": "ObjectRead",
+            "freeform_tags": {"Department": "Finance"}, "defined_tags": {"Operations": {"CostCenter": "42"}},
             "time_created": "2017-10-01T11:30:33.655000+00:00"}
 
 """
@@ -213,6 +214,8 @@ def bucket_details_factory(bucket_details_type, module):
     bucket_details.public_access_type = module.params["public_access_type"]
     bucket_details.kms_key_id = module.params["kms_key_id"]
     bucket_details.metadata = module.params["metadata"]
+    bucket_details.freeform_tags = module.params["freeform_tags"]
+    bucket_details.defined_tags = module.params["defined_tags"]
 
     return bucket_details
 
@@ -323,7 +326,7 @@ def get_logger():
 def main():
     logger = oci_utils.get_logger("oci_bucket")
     set_logger(logger)
-    module_args = oci_utils.get_common_arg_spec()
+    module_args = oci_utils.get_taggable_arg_spec()
     module_args.update(
         dict(
             namespace_name=dict(type="str", required=True),

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -74,8 +74,6 @@ options:
                 choices: ['QCOW2', 'VMDK']
     launch_mode:
         description: The the launch mode Specifies the configuration mode for launching virtual machine (VM) instances.
-                     The default value for Oracle-provided images is 'NATIVE', it launches with iSCSI boot and VFIO devices.
-        default: "NATIVE"
         choices: ['NATIVE', 'EMULATED', 'PARAVIRTUALIZED', 'CUSTOM']
     state:
         description: The state of the image that must be asserted to. When I(state=present), and the
@@ -307,7 +305,6 @@ def main():
             launch_mode=dict(
                 type="str",
                 required=False,
-                default="NATIVE",
                 choices=["NATIVE", "EMULATED", "PARAVIRTUALIZED", "CUSTOM"],
             ),
         )

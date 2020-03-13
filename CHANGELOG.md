@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+
+## [1.17.0] - 2020-3-10
+
+### Added:
+- In `instance_pool` module, added the feature to attach a `load_balancer` attachment while creation of an `instance_pool`
+- In `oci_vnic_facts` module, added the parameter of `nsg_ids`. [Github issue](https://github.com/oracle/oci-ansible-modules/issues/101)
+- In `oci_load_balancer`, added tagging feature
+- In `oci_bucket`,  added tagging feature
+
+### Fixed:
+- In `oci_db_system` module, the resource tag update process has been fixed
+- In `oci_image` module, the launch-options are consistent with provided image while creation of image with default options. [Github issue](https://github.com/oracle/oci-ansible-modules/issues/98)
+
 ## [1.16.0] - 2020-2-13
 
 ### Added

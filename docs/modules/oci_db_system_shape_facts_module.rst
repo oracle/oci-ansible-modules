@@ -250,7 +250,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the DB System Shape.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;name&#x27;: &#x27;VM.Standard1.4&#x27;, &#x27;shape&#x27;: &#x27;VM.Standard1.4&#x27;, &#x27;available_core_count&#x27;: 4}, {&#x27;name&#x27;: &#x27;Exadata.Quarter1.84&#x27;, &#x27;shape&#x27;: &#x27;Exadata.Quarter1.84&#x27;, &#x27;available_core_count&#x27;: 84}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;name&#x27;: &#x27;VM.Standard1.4&#x27;, &#x27;available_core_count&#x27;: 4, &#x27;shape&#x27;: &#x27;VM.Standard1.4&#x27;}, {&#x27;name&#x27;: &#x27;Exadata.Quarter1.84&#x27;, &#x27;available_core_count&#x27;: 84, &#x27;shape&#x27;: &#x27;Exadata.Quarter1.84&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

@@ -228,7 +228,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about one or more availability domains in your tenancy</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;availability_domains&#x27;: [{&#x27;name&#x27;: &#x27;IwGV:US-ASHBURN-AD-1&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx..6glmkwq&#x27;}, {&#x27;name&#x27;: &#x27;IwGV:US-ASHBURN-AD-2&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx..6glmkwq&#x27;}, {&#x27;name&#x27;: &#x27;IwGV:US-ASHBURN-AD-3&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx..6glmkwq&#x27;}]}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;availability_domains&#x27;: [{&#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx..6glmkwq&#x27;, &#x27;name&#x27;: &#x27;IwGV:US-ASHBURN-AD-1&#x27;}, {&#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx..6glmkwq&#x27;, &#x27;name&#x27;: &#x27;IwGV:US-ASHBURN-AD-2&#x27;}, {&#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx..6glmkwq&#x27;, &#x27;name&#x27;: &#x27;IwGV:US-ASHBURN-AD-3&#x27;}]}</div>
                                     </td>
             </tr>
                                                             <tr>
