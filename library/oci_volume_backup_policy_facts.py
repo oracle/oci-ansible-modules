@@ -1,9 +1,11 @@
 #!/usr/bin/python
-# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
+
 
 from __future__ import absolute_import, division, print_function
 
@@ -18,159 +20,184 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: oci_volume_backup_policy_facts
-short_description: Retrieve information of volume backup policies in OCI Block Volume service
+short_description: Fetches details about one or multiple VolumeBackupPolicy resources in Oracle Cloud Infrastructure
 description:
-    - This module retrieves information of the specified volume backup policy or all volume backup policies available
-      to the caller.
+    - Fetches details about one or multiple VolumeBackupPolicy resources in Oracle Cloud Infrastructure
+    - Lists all volume backup policies available to the caller.
+    - If I(policy_id) is specified, the details of a single VolumeBackupPolicy will be returned.
 version_added: "2.5"
 options:
     policy_id:
-        description: The OCID of the volume backup policy.
-        required: false
-        aliases: ['id']
-author: "Rohit Chaware (@rohitChaware)"
+        description:
+            - The OCID of the volume backup policy.
+            - Required to get a specific volume_backup_policy.
+        aliases: ["id"]
+author:
+    - Manoj Meda (@manojmeda)
+    - Mike Ross (@mross22)
+    - Nabeel Al-Saber (@nalsaber)
 extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 """
 
 EXAMPLES = """
-- name: Get information of a volume backup policy
+- name: List volume_backup_policies
   oci_volume_backup_policy_facts:
-    id: ocid1.volumebackuppolicy.oc1..xxxxxEXAMPLExxxxx
 
-- name: Get information of all available volume backup policies
-  oci_volume_backup_policy_assignment_facts:
+- name: Get a specific volume_backup_policy
+  oci_volume_backup_policy_facts:
+    policy_id: ocid1.policy.oc1..xxxxxxEXAMPLExxxxxx
+
 """
 
 RETURN = """
-volume_backup_polices:
-    description: List of volume backup policies
+volume_backup_policies:
+    description:
+        - List of VolumeBackupPolicy resources
     returned: on success
     type: complex
     contains:
         display_name:
-            description: A user-friendly name for the volume backup policy. Does not have to be unique and it's
-                         changeable. Avoid entering confidential information.
-            returned: always
+            description:
+                - A user-friendly name for the volume backup policy. Does not have to be unique and it's changeable.
+                  Avoid entering confidential information.
+            returned: on success
             type: string
-            sample: gold
+            sample: display_name_example
         id:
-            description: The OCID of the volume backup policy.
-            returned: always
+            description:
+                - The OCID of the volume backup policy.
+            returned: on success
             type: string
-            sample: ocid1.volumebackuppolicy.oc1..xxxxxEXAMPLExxxxx
+            sample: ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx
         schedules:
-            description: The collection of schedules that this policy will apply.
-            returned: always
-            type: list
-            sample: [
-                {
-                  "backup-type": "INCREMENTAL",
-                  "offset-seconds": 0,
-                  "period": "ONE_DAY",
-                  "retention-seconds": 604800
-                },
-                {
-                  "backup-type": "INCREMENTAL",
-                  "offset-seconds": 0,
-                  "period": "ONE_WEEK",
-                  "retention-seconds": 2419200
-                },
-                {
-                  "backup-type": "INCREMENTAL",
-                  "offset-seconds": 0,
-                  "period": "ONE_MONTH",
-                  "retention-seconds": 31560000
-                },
-                {
-                  "backup-type": "FULL",
-                  "offset-seconds": 0,
-                  "period": "ONE_YEAR",
-                  "retention-seconds": 157680000
-                }
-            ]
+            description:
+                - The collection of schedules that this policy will apply.
+            returned: on success
+            type: complex
+            contains:
+                backup_type:
+                    description:
+                        - The type of backup to create.
+                    returned: on success
+                    type: string
+                    sample: FULL
+                offset_seconds:
+                    description:
+                        - The number of seconds that the backup time should be shifted from the default interval boundaries specified by the period. Backup time
+                          = Frequency start time + Offset.
+                    returned: on success
+                    type: int
+                    sample: 56
+                period:
+                    description:
+                        - How often the backup should occur.
+                    returned: on success
+                    type: string
+                    sample: ONE_HOUR
+                retention_seconds:
+                    description:
+                        - How long, in seconds, backups created by this schedule should be kept until being automatically deleted.
+                    returned: on success
+                    type: int
+                    sample: 56
         time_created:
-            description: The date and time the volume backup policy was created. Format defined by RFC3339.
-            returned: always
+            description:
+                - The date and time the volume backup policy was created. Format defined by RFC3339.
+            returned: on success
             type: string
-            sample: 2017-12-22T15:40:53.219000+00:00
+            sample: 2013-10-20T19:20:30+01:00
     sample: [{
-                "display_name": "silver",
-                "id": "ocid1.volumebackuppolicy.oc1..xxxxxEXAMPLExxxxx",
-                "schedules": [
-                    {
-                        "backup_type": "INCREMENTAL",
-                        "offset_seconds": 0,
-                        "period": "ONE_WEEK",
-                        "retention_seconds": 2419200
-                    },
-                    {
-                        "backup_type": "INCREMENTAL",
-                        "offset_seconds": 0,
-                        "period": "ONE_MONTH",
-                        "retention_seconds": 31560000
-                    },
-                    {
-                        "backup_type": "FULL",
-                        "offset_seconds": 0,
-                        "period": "ONE_YEAR",
-                        "retention_seconds": 157680000
-                    }
-                ],
-                "time_created": "2017-10-01T00:00:00+00:00"
+        "display_name": "display_name_example",
+        "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
+        "schedules": [{
+            "backup_type": "FULL",
+            "offset_seconds": 56,
+            "period": "ONE_HOUR",
+            "retention_seconds": 56
+        }],
+        "time_created": "2013-10-20T19:20:30+01:00"
     }]
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    OCIResourceFactsHelperBase,
+    get_custom_class,
+)
 
 try:
-    from oci.core.blockstorage_client import BlockstorageClient
-    from oci.util import to_dict
-    from oci.exceptions import ServiceError
+    from oci.core import BlockstorageClient
 
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-def main():
-    module_args = oci_utils.get_facts_module_arg_spec()
-    module_args.update(dict(policy_id=dict(type="str", required=False, aliases=["id"])))
+class VolumeBackupPolicyFactsHelperGen(OCIResourceFactsHelperBase):
+    """Supported operations: get, list"""
 
-    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+    def get_required_params_for_get(self):
+        return ["policy_id"]
+
+    def get_required_params_for_list(self):
+        return []
+
+    def get_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.get_volume_backup_policy,
+            policy_id=self.module.params.get("policy_id"),
+        )
+
+    def list_resources(self):
+        optional_list_method_params = ["display_name"]
+        optional_kwargs = dict(
+            (param, self.module.params[param])
+            for param in optional_list_method_params
+            if self.module.params.get(param) is not None
+        )
+        return oci_common_utils.list_all_resources(
+            self.client.list_volume_backup_policies, **optional_kwargs
+        )
+
+
+VolumeBackupPolicyFactsHelperCustom = get_custom_class(
+    "VolumeBackupPolicyFactsHelperCustom"
+)
+
+
+class ResourceFactsHelper(
+    VolumeBackupPolicyFactsHelperCustom, VolumeBackupPolicyFactsHelperGen
+):
+    pass
+
+
+def main():
+    module_args = oci_common_utils.get_common_arg_spec()
+    module_args.update(
+        dict(policy_id=dict(aliases=["id"], type="str"), display_name=dict(type="str"))
+    )
+
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module.")
 
-    block_storage_client = oci_utils.create_service_client(module, BlockstorageClient)
+    resource_facts_helper = ResourceFactsHelper(
+        module=module,
+        resource_type="volume_backup_policy",
+        service_client_class=BlockstorageClient,
+        namespace="core",
+    )
 
-    policy_id = module.params["policy_id"]
+    result = []
 
-    try:
-        if policy_id:
-            result = [
-                to_dict(
-                    oci_utils.call_with_backoff(
-                        block_storage_client.get_volume_backup_policy,
-                        policy_id=policy_id,
-                    ).data
-                )
-            ]
-        else:
-            optional_list_method_params = ["display_name"]
-            optional_kwargs = dict(
-                (param, module.params[param])
-                for param in optional_list_method_params
-                if module.params.get(param) is not None
-            )
-            result = to_dict(
-                oci_utils.call_with_backoff(
-                    block_storage_client.list_volume_backup_policies, **optional_kwargs
-                ).data
-            )
-
-    except ServiceError as ex:
-        module.fail_json(msg=ex.message)
+    if resource_facts_helper.is_get():
+        result = [resource_facts_helper.get()]
+    elif resource_facts_helper.is_list():
+        result = resource_facts_helper.list()
+    else:
+        resource_facts_helper.fail()
 
     module.exit_json(volume_backup_policies=result)
 

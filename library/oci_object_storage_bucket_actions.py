@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -291,9 +292,9 @@ bucket:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
-    OCIResourceHelperBase,
+    OCIActionsHelperBase,
     get_custom_class,
     convert_input_data_to_model_class,
 )
@@ -309,8 +310,13 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-class BucketActionsHelperGen(OCIResourceHelperBase):
-    """Supported actions: copy_object, rename_object, restore_objects"""
+class BucketActionsHelperGen(OCIActionsHelperBase):
+    """
+    Supported actions:
+        copy_object
+        rename_object
+        restore_objects
+    """
 
     @staticmethod
     def get_module_resource_id_param():
@@ -318,6 +324,9 @@ class BucketActionsHelperGen(OCIResourceHelperBase):
 
     def get_module_resource_id(self):
         return self.module.params.get("bucket_name")
+
+    def get_get_fn(self):
+        return self.client.get_bucket
 
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
@@ -330,33 +339,69 @@ class BucketActionsHelperGen(OCIResourceHelperBase):
         action_details = convert_input_data_to_model_class(
             self.module.params, CopyObjectDetails
         )
-        return oci_common_utils.call_with_backoff(
-            self.client.copy_object,
-            namespace_name=self.module.params.get("namespace_name"),
-            bucket_name=self.module.params.get("bucket_name"),
-            copy_object_details=action_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.copy_object,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                namespace_name=self.module.params.get("namespace_name"),
+                bucket_name=self.module.params.get("bucket_name"),
+                copy_object_details=action_details,
+            ),
+            waiter_type=oci_wait_utils.WORK_REQUEST_WAITER_KEY,
+            operation="{0}_{1}".format(
+                self.module.params.get("action").upper(),
+                oci_common_utils.ACTION_OPERATION_KEY,
+            ),
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_work_request_completed_states(),
         )
 
     def rename_object(self):
         action_details = convert_input_data_to_model_class(
             self.module.params, RenameObjectDetails
         )
-        return oci_common_utils.call_with_backoff(
-            self.client.rename_object,
-            namespace_name=self.module.params.get("namespace_name"),
-            bucket_name=self.module.params.get("bucket_name"),
-            rename_object_details=action_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.rename_object,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                namespace_name=self.module.params.get("namespace_name"),
+                bucket_name=self.module.params.get("bucket_name"),
+                rename_object_details=action_details,
+            ),
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation="{0}_{1}".format(
+                self.module.params.get("action").upper(),
+                oci_common_utils.ACTION_OPERATION_KEY,
+            ),
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or self.get_action_desired_states(self.module.params.get("action")),
         )
 
     def restore_objects(self):
         action_details = convert_input_data_to_model_class(
             self.module.params, RestoreObjectsDetails
         )
-        return oci_common_utils.call_with_backoff(
-            self.client.restore_objects,
-            namespace_name=self.module.params.get("namespace_name"),
-            bucket_name=self.module.params.get("bucket_name"),
-            restore_objects_details=action_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.restore_objects,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                namespace_name=self.module.params.get("namespace_name"),
+                bucket_name=self.module.params.get("bucket_name"),
+                restore_objects_details=action_details,
+            ),
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation="{0}_{1}".format(
+                self.module.params.get("action").upper(),
+                oci_common_utils.ACTION_OPERATION_KEY,
+            ),
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or self.get_action_desired_states(self.module.params.get("action")),
         )
 
 
@@ -405,7 +450,10 @@ def main():
         module.fail_json(msg="oci python sdk required for this module.")
 
     resource_helper = ResourceHelper(
-        module=module, resource_type="bucket", service_client_class=ObjectStorageClient
+        module=module,
+        resource_type="bucket",
+        service_client_class=ObjectStorageClient,
+        namespace="object_storage",
     )
 
     result = resource_helper.perform_action(module.params.get("action"))

@@ -1,14 +1,15 @@
 # Overview
 
-This sample shows how to crete an Autonomous Transaction Processing Database. To explore more about
+This sample shows how to create an [Autonomous Transaction Processing Database](https://www.oracle.com/database/autonomous-transaction-processing.html). To explore more about
 Oracle Cloud Infrastructure's Autonomous Transaction Processing Cloud Service, please visit
 [here](https://docs.cloud.oracle.com/iaas/Content/Database/Concepts/atpoverview.htm).
 
 The sample
+
 - sets up an Autonomous Transaction Processing Database.
 - List all the Autonomous Transaction Processing Databases available in the compartment filtered by display name.
 - Get facts of a specific database.
-- Stops and starts n Autonomous Transaction Processing Database.
+- Stops and starts an Autonomous Transaction Processing Database.
 - Deletes an Autonomous Transaction Processing Database.
 
 # Instructions
@@ -16,6 +17,7 @@ The sample
 To run the sample, after ensuring that you have the pre-requisites for OCI
 ansible cloud modules, please provide values (that are specific to your tenancy)
 for the following variables in the `vars` section of `sample.yaml`:
+
 - compartment_ocid
 - cpu_core_count
 - display_name

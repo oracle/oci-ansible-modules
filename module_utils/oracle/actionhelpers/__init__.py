@@ -4,6 +4,4 @@
 # Apache License v2.0
 # See LICENSE.TXT for details.
 
-from ansible.module_utils.oracle.actionhelpers import (
-    oci_object_storage_bucket_actions_helper,
-)
+from ansible.module_utils.oracle.actionhelpers import oci_security_rule_actions_helper

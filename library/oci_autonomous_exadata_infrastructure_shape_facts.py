@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -38,14 +39,14 @@ author:
     - Manoj Meda (@manojmeda)
     - Mike Ross (@mross22)
     - Nabeel Al-Saber (@nalsaber)
-extends_documentation_fragment: [ oracle ]
+extends_documentation_fragment: [ oracle, oracle_name_option ]
 """
 
 EXAMPLES = """
 - name: List autonomous_exadata_infrastructure_shapes
   oci_autonomous_exadata_infrastructure_shape_facts:
-      availability_domain: Uocm:PHX-AD-1
-      compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
+    availability_domain: Uocm:PHX-AD-1
+    compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
 
 """
 
@@ -124,7 +125,7 @@ class AutonomousExadataInfrastructureShapeFactsHelperGen(OCIResourceFactsHelperB
         return ["availability_domain", "compartment_id"]
 
     def list_resources(self):
-        optional_list_method_params = []
+        optional_list_method_params = ["name"]
         optional_kwargs = dict(
             (param, self.module.params[param])
             for param in optional_list_method_params
@@ -156,6 +157,7 @@ def main():
         dict(
             availability_domain=dict(type="str", required=True),
             compartment_id=dict(type="str", required=True),
+            name=dict(type="str"),
         )
     )
 
@@ -168,12 +170,13 @@ def main():
         module=module,
         resource_type="autonomous_exadata_infrastructure_shape",
         service_client_class=DatabaseClient,
+        namespace="database",
     )
 
     result = []
 
     if resource_facts_helper.is_get():
-        result = resource_facts_helper.get()
+        result = [resource_facts_helper.get()]
     elif resource_facts_helper.is_list():
         result = resource_facts_helper.list()
     else:

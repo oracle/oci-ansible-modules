@@ -569,7 +569,10 @@ def update_virtual_circuit(virtual_network_client, existing_virtual_circuit, mod
     if existing_virtual_circuit.type == "PUBLIC":
         remove_assigned_bgp_peering_ips(existing_cross_connect_mappings)
     if input_cross_connect_mappings is not None:
-        cross_connect_mappings, cross_connect_mappings_changed = oci_utils.check_and_return_component_list_difference(
+        (
+            cross_connect_mappings,
+            cross_connect_mappings_changed,
+        ) = oci_utils.check_and_return_component_list_difference(
             input_cross_connect_mappings,
             existing_cross_connect_mappings,
             purge_cross_connect_mappings,

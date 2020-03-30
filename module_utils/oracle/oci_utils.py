@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, 2019 Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -40,7 +40,7 @@ from ansible.module_utils.oracle.oci_config_utils import (
     create_service_client,
 )
 
-MAX_WAIT_TIMEOUT_IN_SECONDS = 1200
+MAX_WAIT_TIMEOUT_IN_SECONDS = 2000
 
 # If a resource is in one of these states it would be considered inactive
 DEAD_STATES = [
@@ -96,7 +96,9 @@ def get_common_arg_spec(supports_create=False, supports_wait=False):
         api_user_key_file=dict(type="str"),
         api_user_key_pass_phrase=dict(type="str", no_log=True),
         auth_type=dict(
-            type="str", choices=["api_key", "instance_principal"], default="api_key"
+            type="str",
+            choices=["api_key", "instance_principal", "instance_obo_user"],
+            default="api_key",
         ),
         tenancy=dict(type="str"),
         region=dict(type="str"),
@@ -274,6 +276,19 @@ def check_and_update_attributes(
         target_instance.__setattr__(attr_name, input_value)
     else:
         target_instance.__setattr__(attr_name, existing_value)
+    return changed
+
+
+def check_and_update_attributes_if_changed(
+    target_instance, attr_name, input_value, existing_value, changed
+):
+    """
+    This function checks the difference between two resource attributes of literal types and sets the attribute
+    value in the target instance type holding the attribute if the value changed.
+    """
+    if input_value is not None and not eq(input_value, existing_value):
+        changed = True
+        target_instance.__setattr__(attr_name, input_value)
     return changed
 
 
@@ -804,28 +819,16 @@ def does_existing_resource_match_user_inputs(
                     exclude_attributes.get(attr) is None
                     and resources_value_for_attr is not None
                 ):
-                    if module.argument_spec.get(attr):
-                        attribute_with_default_metadata = module.argument_spec.get(attr)
+                    attribute_with_default_metadata = module.argument_spec.get(
+                        attr, None
+                    )
+                    default_attribute_value = None
+                    if attribute_with_default_metadata:
                         default_attribute_value = attribute_with_default_metadata.get(
                             "default", None
                         )
-                        if default_attribute_value is not None:
-                            if existing_resource[attr] != default_attribute_value:
-                                _debug(
-                                    "Mismatch on attribute '{0}'. User provided value is {1} & existing resource's "
-                                    "value is {2}.".format(
-                                        attr,
-                                        user_provided_value_for_attr,
-                                        resources_value_for_attr,
-                                    )
-                                )
-                                return False
-                        # Check if attr has a value that is not default. For example, a custom `security_list_id`
-                        # is assigned to the subnet's attribute `security_list_ids`. If the attribute is assigned a
-                        # value that is not the default, then it must be considered a mismatch and false returned.
-                        elif not is_attr_assigned_default(
-                            default_attribute_values, attr, existing_resource[attr]
-                        ):
+                    if default_attribute_value is not None:
+                        if existing_resource[attr] != default_attribute_value:
                             _debug(
                                 "Mismatch on attribute '{0}'. User provided value is {1} & existing resource's value "
                                 "is {2}.".format(
@@ -835,6 +838,22 @@ def does_existing_resource_match_user_inputs(
                                 )
                             )
                             return False
+                    # Check if attr has a value that is not default. For example, a custom `security_list_id`
+                    # is assigned to the subnet's attribute `security_list_ids`. If the attribute is assigned a
+                    # value that is not the default, then it must be considered a mismatch and false returned.
+                    elif not is_attr_assigned_default(
+                        default_attribute_values, attr, existing_resource[attr]
+                    ):
+                        _debug(
+                            "Mismatch on attribute '{0}'. User provided value is {1} & existing resource's value "
+                            "is {2}. Default attribute value was: {3}".format(
+                                attr,
+                                user_provided_value_for_attr,
+                                resources_value_for_attr,
+                                default_attribute_values.get(attr, None),
+                            )
+                        )
+                        return False
 
         else:
             _debug(
@@ -1012,11 +1031,15 @@ def check_if_user_value_matches_resources_attr(
             else:
                 if exclude_attributes.get(key) is None:
                     if default_attribute_values.get(key) is not None:
-                        user_provided_value_for_attr = default_attribute_values.get(key)
+                        # This is the reason for some crazy idempotence bugs. It is not at all a good idea to change
+                        # this variable while we are still in the loop and especially when it might be used in the next
+                        # iterations as well. Also there is no reason to change the global value when we can
+                        # just pass the default value to the function.
+                        # user_provided_value_for_attr = default_attribute_values.get(key)
                         check_if_user_value_matches_resources_attr(
                             key,
                             resources_value_for_attr.get(key),
-                            user_provided_value_for_attr,
+                            default_attribute_values.get(key),
                             exclude_attributes,
                             default_attribute_values,
                             res,

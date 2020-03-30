@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -332,6 +333,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>is_pv_encryption_in_transit_enabled</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Whether to enable in-transit encryption for the boot volume&#x27;s paravirtualized attachment. The default value is false.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>key_by</b>
                     <div style="font-size: small">
                         <span style="color: purple">list</span>
@@ -517,7 +531,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Details for the primary VNIC that is automatically created and attached when the instance is launched. Required when creating a compute instance with <em>state=present</em>.</div>
+                                                                        <div>Details for the primary VNIC that is automatically created and attached when the instance is launched. Required when creating a compute instance with <em>state=present</em>.  Updating any of these child properties is not supported through this module.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: create_vnic_details</div>
                                     </td>
             </tr>
@@ -532,7 +546,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>Determines whether the VNIC should be assigned a public IP address.  If not set and the VNIC is being created in a private subnet (that is, where <em>prohibitPublicIpOnVnic = true</em> in the Subnet), then no public IP address is assigned. If not set and the subnet is public <em>prohibitPublicIpOnVnic = false</em>, then a public IP address is assigned. If set to true and <em>prohibitPublicIpOnVnic = true</em>, an error is returned.</div>
+                                            <div>Determines whether the VNIC should be assigned a public IP address.  If not set and the VNIC is being created in a private subnet (that is, where <em>prohibitPublicIpOnVnic = true</em> in the Subnet), then no public IP address is assigned. If not set and the subnet is public <em>prohibitPublicIpOnVnic = false</em>, then a public IP address is assigned. If set to true and <em>prohibitPublicIpOnVnic = true</em>, an error is returned. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -546,7 +560,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The hostname for the VNIC&#x27;s primary private IP. Used for DNS. The value is the hostname portion of the primary private IP&#x27;s fully qualified domain name (FQDN) (for example, bminstance-1 in FQDN bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all VNICs in the subnet and comply with RFC 952 and RFC 1123.</div>
+                                            <div>The hostname for the VNIC&#x27;s primary private IP. Used for DNS. The value is the hostname portion of the primary private IP&#x27;s fully qualified domain name (FQDN) (for example, bminstance-1 in FQDN bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all VNICs in the subnet and comply with RFC 952 and RFC 1123. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -560,7 +574,21 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>A user-friendly name for the VNIC. Does not have to be unique.</div>
+                                            <div>A user-friendly name for the VNIC. Does not have to be unique. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>nsg_ids</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>A list of the OCIDs of the network security groups (NSGs) to add the VNIC to. For more information about NSGs, see NetworkSecurityGroup <a href=' https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/NetworkSecurityGroup/'>NetworkSecurityGroup</a>. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -574,7 +602,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The private IP to assign to the VNIC. Must be an available IP address within the subnet&#x27;s CIDR. If you don&#x27;t specify a value, Oracle automatically assigns a private IP address from the subnet. This is the VNIC&#x27;s primary private IP address.</div>
+                                            <div>The private IP to assign to the VNIC. Must be an available IP address within the subnet&#x27;s CIDR. If you don&#x27;t specify a value, Oracle automatically assigns a private IP address from the subnet. This is the VNIC&#x27;s primary private IP address. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -589,7 +617,7 @@ Parameters
                                                                                                                                                                                                                 <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
-                                            <div>Determines whether the source/destination check is disabled on the VNIC. Defaults to false, which means the check is performed.</div>
+                                            <div>Determines whether the source/destination check is disabled on the VNIC. Defaults to false, which means the check is performed. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -603,7 +631,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The OCID of the subnet to create the VNIC in.</div>
+                                            <div>The OCID of the subnet to create the VNIC in. Note this field will be used on initial create but will not be considered when determining whether to match an existing resource or create a new one.</div>
                                                         </td>
             </tr>
                     
@@ -709,7 +737,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2000</div>
                                     </td>
                                                                 <td>
                                                                         <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
@@ -872,7 +900,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Details of the OCI compute instance launched, updated or terminated as a result of the current operation</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;RUNNING&#x27;, &#x27;fault_domain&#x27;: &#x27;FAULT-DOMAIN-1&#x27;, &#x27;extended_metadata&#x27;: {}, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq&#x27;, &#x27;region&#x27;: &#x27;phx&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-14T16:09:07.557000+00:00&#x27;, &#x27;display_name&#x27;: &#x27;ansible-test-968&#x27;, &#x27;image_id&#x27;: &#x27;ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....7klnoa&#x27;, &#x27;shape&#x27;: &#x27;BM.Standard1.36&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;volume_attachments&#x27;: [{&#x27;lifecycle_state&#x27;: &#x27;ATTACHED&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;ansible_volume_attachment&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;chap_username&#x27;: None, &#x27;time_created&#x27;: &#x27;2017-11-23T11:17:50.139000+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;iqn&#x27;: &#x27;iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3&#x27;, &#x27;ipv4&#x27;: &#x27;169.254.2.2&#x27;, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;attachment_type&#x27;: &#x27;iscsi&#x27;, &#x27;port&#x27;: 3260, &#x27;chap_secret&#x27;: None}], &#x27;ipxe_script&#x27;: None, &#x27;boot_volume_attachment&#x27;: {&#x27;boot_volume_id&#x27;: &#x27;ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;availability_domain&#x27;: &#x27;IwGV:US-ASHBURN-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;Remote boot attachment for instance&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;ATTACHED&#x27;, &#x27;time_created&#x27;: &#x27;2018-01-15T07:23:10.838000+00:00&#x27;, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}, &#x27;id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx....lxiggdq&#x27;, &#x27;metadata&#x27;: {&#x27;foo&#x27;: &#x27;bar&#x27;, &#x27;baz&#x27;: &#x27;quux&#x27;}}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;image_id&#x27;: &#x27;ocid1.image.oc1.phx.xxxxxEXAMPLExxxxx....7klnoa&#x27;, &#x27;ipxe_script&#x27;: None, &#x27;extended_metadata&#x27;: {}, &#x27;fault_domain&#x27;: &#x27;FAULT-DOMAIN-1&#x27;, &#x27;volume_attachments&#x27;: [{&#x27;attachment_type&#x27;: &#x27;iscsi&#x27;, &#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;ATTACHED&#x27;, &#x27;display_name&#x27;: &#x27;ansible_volume_attachment&#x27;, &#x27;port&#x27;: 3260, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;id&#x27;: &#x27;ocid1.volumeattachment.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;chap_secret&#x27;: None, &#x27;ipv4&#x27;: &#x27;169.254.2.2&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-23T11:17:50.139000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;chap_username&#x27;: None, &#x27;iqn&#x27;: &#x27;iqn.2015-12.com.oracleiaas:472a085d-41a9-4c18-ae7d-dea5b296dad3&#x27;}], &#x27;lifecycle_state&#x27;: &#x27;RUNNING&#x27;, &#x27;display_name&#x27;: &#x27;ansible-test-968&#x27;, &#x27;boot_volume_attachment&#x27;: {&#x27;instance_id&#x27;: &#x27;ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;boot_volume_id&#x27;: &#x27;ocid1.bootvolume.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;ATTACHED&#x27;, &#x27;display_name&#x27;: &#x27;Remote boot attachment for instance&#x27;, &#x27;availability_domain&#x27;: &#x27;IwGV:US-ASHBURN-AD-1&#x27;, &#x27;id&#x27;: &#x27;ocid1.instance.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2018-01-15T07:23:10.838000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;}, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;id&#x27;: &#x27;ocid1.instance.oc1.phx.xxxxxEXAMPLExxxxx....lxiggdq&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-14T16:09:07.557000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...vm62xq&#x27;, &#x27;shape&#x27;: &#x27;BM.Standard1.36&#x27;, &#x27;region&#x27;: &#x27;phx&#x27;, &#x27;metadata&#x27;: {&#x27;foo&#x27;: &#x27;bar&#x27;, &#x27;baz&#x27;: &#x27;quux&#x27;}}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -1018,7 +1046,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the boot volume was created, in the format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
                                     </td>
             </tr>
                     
@@ -1121,6 +1149,109 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="2">
+                    <b>launch_options</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div></div>
+                                                                <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>boot_volume_type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Emulation type for volume. * `ISCSI` - ISCSI attached block storage device. This is the default for Boot Volumes and Remote Block Storage volumes on Oracle provided images. * `SCSI` - Emulated SCSI disk. * `IDE` - Emulated IDE disk. * `VFIO` - Direct attached Virtual Function storage.  This is the default option for Local data volumes on Oracle provided images. * `PARAVIRTUALIZED` - Paravirtualized disk.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ISCSI</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>firmware</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Firmware used to boot VM.  Select the option that matches your operating system. * `BIOS` - Boot VM using BIOS style firmware.  This is compatible with both 32 bit and 64 bit operating systems that boot using MBR style bootloaders. * `UEFI_64` - Boot VM using UEFI style firmware compatible with 64 bit operating systems.  This is the default for Oracle provided images.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">BIOS</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>is_consistent_volume_naming_enabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Whether to enable consistent volume naming feature. Defaults to false.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>is_pv_encryption_in_transit_enabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Whether to enable in-transit encryption for the boot volume&#x27;s paravirtualized attachment. The default value is false.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>network_type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Emulation type for the physical network interface card (NIC). * `E1000` - Emulated Gigabit ethernet controller.  Compatible with Linux e1000 network driver. * `VFIO` - Direct attached Virtual Function network controller. This is the networking type when you launch an instance using hardware-assisted (SR-IOV) networking. * `PARAVIRTUALIZED` - VM instances launch with paravirtualized devices using virtio drivers.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">E1000</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>remote_data_volume_type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Emulation type for volume. * `ISCSI` - ISCSI attached block storage device. This is the default for Boot Volumes and Remote Block Storage volumes on Oracle provided images. * `SCSI` - Emulated SCSI disk. * `IDE` - Emulated IDE disk. * `VFIO` - Direct attached Virtual Function storage.  This is the default option for Local data volumes on Oracle provided images. * `PARAVIRTUALIZED` - Paravirtualized disk.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ISCSI</div>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="2">
                     <b>lifecycle_state</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
@@ -1185,7 +1316,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the instance was created, in the format defined by RFC3339</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-20 04:52:54.541000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-20 04:52:54.541000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -1392,7 +1523,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the volume was created, in the format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
                                     </td>
             </tr>
                                 <tr>

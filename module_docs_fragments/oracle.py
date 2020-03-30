@@ -21,7 +21,7 @@ class ModuleDocFragment(object):
         api_user:
             description:
                 - The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the
-                  value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user
+                  value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user
                   is not specified through a configuration file (See C(config_file_location)). To get the user's OCID,
                   please refer U(https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm).
             type: str
@@ -52,8 +52,8 @@ class ModuleDocFragment(object):
                   authentication is performed and the API key (see I(api_user_key_file)) in your config file will be
                   used. If this 'auth_type' module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE,
                   if any, is used. Use C(auth_type="instance_principal") to use instance principal based authentication
-                  when running ansible playbooks within an OCI compute instance.
-            choices: ['api_key', 'instance_principal']
+                  when running ansible` playbooks within an OCI compute instance.
+            choices: ['api_key', 'instance_principal', 'instance_obo_user']
             default: 'api_key'
             type: str
         tenancy:

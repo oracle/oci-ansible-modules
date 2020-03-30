@@ -525,7 +525,10 @@ def update_security_list(virtual_network_client, existing_security_list, module)
         input_egress_security_rules = get_security_rules(
             "egress_security_rules", input_egress_security_rules
         )
-        egress_security_rules, egress_security_rules_changed = oci_utils.check_and_return_component_list_difference(
+        (
+            egress_security_rules,
+            egress_security_rules_changed,
+        ) = oci_utils.check_and_return_component_list_difference(
             input_egress_security_rules,
             get_hashed_security_rules(
                 "egress_security_rules", existing_egress_security_rule
@@ -538,7 +541,10 @@ def update_security_list(virtual_network_client, existing_security_list, module)
         input_ingress_security_rules = get_security_rules(
             "ingress_security_rules", input_ingress_security_rules
         )
-        ingress_security_rules, ingress_security_rules_changed = oci_utils.check_and_return_component_list_difference(
+        (
+            ingress_security_rules,
+            ingress_security_rules_changed,
+        ) = oci_utils.check_and_return_component_list_difference(
             input_ingress_security_rules,
             get_hashed_security_rules(
                 "ingress_security_rules", existing_ingress_security_rule

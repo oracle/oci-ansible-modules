@@ -4,6 +4,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+
+## [1.17.0] - 2020-3-10
+
+### Added:
+- In `instance_pool` module, added the feature to attach a `load_balancer` attachment while creation of an `instance_pool`
+- In `oci_vnic_facts` module, added the parameter of `nsg_ids`. [Github issue](https://github.com/oracle/oci-ansible-modules/issues/101)
+- In `oci_load_balancer`, added tagging feature
+- In `oci_bucket`,  added tagging feature
+
+### Fixed:
+- In `oci_db_system` module, the resource tag update process has been fixed
+- In `oci_image` module, the launch-options are consistent with provided image while creation of image with default options. [Github issue](https://github.com/oracle/oci-ansible-modules/issues/98)
+
+## [1.16.0] - 2020-2-13
+
+### Added
+- Support for `delegation_token` to enable Ansible access over CloudShell.
+- Support for `is_shareable` parameter on `volume_attachment`
+
+### Fixed
+- The environment variable name used for overriding user ocid in the documentation
+
+### Changed
+- Minimum supported OCI Python SDK to 2.8.0
+
+## [1.15.0] - 2020-1-24
+
+### Added
+- Support for `is_pv_encryption_in_transit` parameter on `oci_instance`
+- Support for `node_config_details` parameter on `oci_node_pool`
+
+### Changed
+   - Minimum supported OCI Python SDK to 2.6.0
+
+## [1.14.0] - 2019-12-23
+
+### Added
+- db_workload parameter to oci_autonomous_database module
+  - Allows specifying whether to create an Autonomous Transaction Processing database or an Autonomous Data Warehouse
+
+### Fixed:
+- oci_db_home module patch apply error [issue](https://github.com/oracle/oci-ansible-modules/issues/89)
+- oci_db_system module update and patch apply error [issue](https://github.com/oracle/oci-ansible-modules/issues/86)
+
+## [1.13.0] - 2019-12-12
+
+### Added
+- Support for [Free Tier](https://www.oracle.com/cloud/free/) resources
+  - Compute [sample](https://github.com/oracle/oci-ansible-modules/tree/master/samples/compute/always_free_launch_compute_instance)
+  - Autonomous Database [sample](https://github.com/oracle/oci-ansible-modules/tree/master/samples/database/always_free_autonomous_database)
+- Support for associating [Network Security Groups](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/networksecuritygroups.htm) with vnics
+  - `oci_instance`
+  - `oci_vnic`
+  - `oci_vnic_attachment`
+- Support for associating [Security Rules](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/securityrules.htm) with [Network Security Groups](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/networksecuritygroups.htm)
+  - `oci_security_rule_actions`
+  - `oci_security_rule_facts`
+- Support for specifying device path for volume attachments
+  - `oci_volume_attachment`
+
+### Changed
+   - Minimum supported OCI Python SDK to 2.5.0
+
 ## [1.12.0] - 2019-10-16
 
 ### Added

@@ -5,8 +5,8 @@
 .. _oci_dynamic_group_module:
 
 
-oci_dynamic_group -- Manage dynamic groups in OCI
-+++++++++++++++++++++++++++++++++++++++++++++++++
+oci_dynamic_group -- Manage a DynamicGroup resource in Oracle Cloud Infrastructure
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,7 +17,12 @@ oci_dynamic_group -- Manage dynamic groups in OCI
 
 Synopsis
 --------
-- This module allows the user to create, delete and update dynamic groups in Oracle Cloud Infrastructure.
+- This module allows the user to create, update and delete a DynamicGroup resource in Oracle Cloud Infrastructure
+- For *state=present*, creates a new dynamic group in your tenancy.
+- You must specify your tenancy's OCID as the compartment ID in the request object (remember that the tenancy is simply the root compartment). Notice that IAM resources (users, groups, compartments, and some policies) reside within the tenancy itself, unlike cloud resources such as compute instances, which typically reside within compartments inside the tenancy. For information about OCIDs, see `Resource Identifiers <https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm>`_.
+- You must also specify a *name* for the dynamic group, which must be unique across all dynamic groups in your tenancy, and cannot be changed. Note that this name has to be also unique accross all groups in your tenancy. You can use this name or the OCID when writing policies that apply to the dynamic group. For more information about policies, see `How Policies Work <https://docs.cloud.oracle.com/Content/Identity/Concepts/policies.htm>`_.
+- You must also specify a *description* for the dynamic group (although it can be an empty string). It does not have to be unique, and you can change it anytime with `UpdateDynamicGroup <https://docs.cloud.oracle.com/#/en/identity/20160918/DynamicGroup/UpdateDynamicGroup>`_.
+- After you send your request, the new object's `lifecycleState` will temporarily be CREATING. Before using the object, first make sure its `lifecycleState` has changed to ACTIVE.
 
 
 
@@ -50,7 +55,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +108,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -119,7 +125,8 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the tenancy containing the group. Required to create a dynamic group.</div>
+                                                                        <div>The OCID of the tenancy containing the group.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -158,7 +165,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>. Example: `{&quot;Operations&quot;: {&quot;CostCenter&quot;: &quot;42&quot;}}`</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -171,7 +178,8 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The description you assign to the group during creation. Does not have to be unique, and it&#x27;s changeable. Required to create a dynamic group.</div>
+                                                                        <div>The description you assign to the group during creation. Does not have to be unique, and it&#x27;s changeable.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -184,9 +192,27 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the dynamic group. Required to delete or update a dynamic group.</div>
+                                                                        <div>The OCID of the dynamic group.</div>
+                                                    <div>Required for update using <em>state=present</em>, <em>state=absent</em>.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>force_create</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn&#x27;t create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
@@ -198,7 +224,20 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>. Example: `{&quot;Department&quot;: &quot;Finance&quot;}`</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>key_by</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The list of comma-separated attributes of this resource which should be used to uniquely identify an instance of the resource. By default, all the attributes of a resource except <em>freeform_tags</em> are used to uniquely identify a resource.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -211,7 +250,8 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The matching rule to dynamically match an instance certificate to this dynamic group. For rule syntax, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/Identity/Tasks/managingdynamicgroups.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/Identity/Tasks/managingdynamicgroups.htm</a>. Required to create a dynamic group.</div>
+                                                                        <div>The matching rule to dynamically match an instance certificate to this dynamic group. For rule syntax, see <a href='https://docs.cloud.oracle.com/Content/Identity/Tasks/managingdynamicgroups.htm'>Managing Dynamic Groups</a>.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -224,7 +264,8 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The name you assign to the group during creation. The name must be unique across all groups in the tenancy and cannot be changed. Required to create a dynamic group.</div>
+                                                                        <div>The name you assign to the group during creation. The name must be unique across all groups in the tenancy and cannot be changed.</div>
+                                                    <div>Required for create using <em>state=present</em>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -254,7 +295,9 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Create or update a dynamic group with <em>state=present</em>. Use <em>state=absent</em> to delete a dynamic group.</div>
+                                                                        <div>The state of the DynamicGroup.</div>
+                                                    <div>Use <em>state=present</em> to create or update a DynamicGroup.</div>
+                                                    <div>Use <em>state=absent</em> to delete a DynamicGroup.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -295,7 +338,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2000</div>
                                     </td>
                                                                 <td>
                                                                         <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
@@ -332,23 +375,24 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Create a dynamic group
+    - name: Create dynamic_group
       oci_dynamic_group:
-        compartment_id: ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx
-        description: Group for all instances that are in a specific compartment
-        matching_rule: "instance.compartment.id = 'ocid1.compartment.oc1..xxxxxEXAMPLExxxxx'"
-        name: Sample dynamic group
+        compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6wkcr4jqae5f44n2b2cmdt2j6rx32uzr4h25vqstifsfdsq
+        description: Instance group for dev compartment
+        name: DevCompartmentDynamicGroup
+        matching_rule: instance.compartment.id=ocid1.compartment.oc1..aaaaaaaayd6inozhadasiiaqmttsgqanpxd6ads5tvo6g27ujaygksvivrnq
 
-    - name: Update matching rule and description of a dynamic group
+    - name: Update dynamic_group
       oci_dynamic_group:
-        id: ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx
-        description: Group for all instances with the tag namespace and tag key operations.department
-        matching_rule: "tag.operations.department.value"
+        matching_rule: instance.compartment.id=ocid1.compartment.oc1..aaaaaaaayd6inozhadasiiaqmttsgqanpxd6ads5tvo6g27ujaygksvivrnq
+        description: Instance group for dev compartment
+        dynamic_group_id: ocid1.dynamicgroup.oc1..xxxxxxEXAMPLExxxxxx
 
-    - name: Delete a dynamic group
+    - name: Delete dynamic_group
       oci_dynamic_group:
-        id: ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx
+        dynamic_group_id: ocid1.dynamicgroup.oc1..xxxxxxEXAMPLExxxxxx
         state: absent
+
 
 
 
@@ -361,24 +405,166 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
 
     <table border=0 cellpadding=0 class="documentation-table">
         <tr>
-            <th colspan="1">Key</th>
+            <th colspan="2">Key</th>
             <th>Returned</th>
             <th width="100%">Description</th>
         </tr>
                     <tr>
-                                <td colspan="1">
+                                <td colspan="2">
                     <b>dynamic_group</b>
-                    <div style="font-size: small; color: purple">dictionary</div>
+                    <div style="font-size: small; color: purple">complex</div>
                                     </td>
-                <td>On successful create, delete &amp; update operation</td>
+                <td>on success</td>
                 <td>
-                                            <div>Information about the dynamic group</div>
-                                        <br/>
+                                                                        <div>Details of the DynamicGroup resource acted upon by the current operation</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;inactive_status&#x27;: None, &#x27;description&#x27;: &#x27;Group for all instances with the tag namespace and tag key operations.department&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;matching_rule&#x27;: &#x27;tag.operations.department.value&#x27;, &#x27;time_created&#x27;: &#x27;2018-07-05T09:38:27.176000+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;name&#x27;: &#x27;Sample dynamic group&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;description&#x27;: &#x27;description_example&#x27;, &#x27;inactive_status&#x27;: 56, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;matching_rule&#x27;: &#x27;matching_rule_example&#x27;, &#x27;lifecycle_state&#x27;: &#x27;CREATING&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;name&#x27;: &#x27;name_example&#x27;}</div>
                                     </td>
             </tr>
-                        </table>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>compartment_id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The OCID of the tenancy containing the group.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>defined_tags</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>. Example: `{&quot;Operations&quot;: {&quot;CostCenter&quot;: &quot;42&quot;}}`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The description you assign to the group. Does not have to be unique, and it&#x27;s changeable.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">description_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>freeform_tags</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>. Example: `{&quot;Department&quot;: &quot;Finance&quot;}`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;Department&#x27;: &#x27;Finance&#x27;}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>id</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The OCID of the group.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>inactive_status</b>
+                    <div style="font-size: small; color: purple">integer</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The detailed status of INACTIVE lifecycleState.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>lifecycle_state</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The group&#x27;s current state. After creating a group, make sure its `lifecycleState` changes from CREATING to ACTIVE before using it.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">CREATING</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>matching_rule</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>A rule string that defines which instance certificates will be matched. For syntax, see <a href='https://docs.cloud.oracle.com/Content/Identity/Tasks/managingdynamicgroups.htm'>Managing Dynamic Groups</a>.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">matching_rule_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The name you assign to the group during creation. The name must be unique across all groups in the tenancy and cannot be changed.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>time_created</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Date and time the group was created, in the format defined by RFC3339.</div>
+                                                    <div>Example: `2016-08-25T21:10:29.600Z`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
+                                    </td>
+            </tr>
+                    
+                                        </table>
     <br/><br/>
 
 
@@ -400,7 +586,9 @@ Status
 Authors
 ~~~~~~~
 
-- Rohit Chaware (@rohitChaware)
+- Manoj Meda (@manojmeda)
+- Mike Ross (@mross22)
+- Nabeel Al-Saber (@nalsaber)
 
 
 .. hint::

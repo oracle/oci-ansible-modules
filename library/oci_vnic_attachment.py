@@ -75,6 +75,10 @@ options:
             display_name:
                 description: A user-friendly name for the VNIC. Does not have to be unique.
                 required: false
+            nsg_ids:
+                description: A list of the OCIDs of the network security groups (NSGs) to add the VNIC to.
+                             For more information about NSGs, see NetworkSecurityGroup L(NetworkSecurityGroup,
+                             https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/NetworkSecurityGroup/).
             private_ip:
                 description: The private IP to assign to the VNIC. Must be an available IP address
                              within the subnet's CIDR. If you don't specify a value, Oracle
@@ -229,6 +233,7 @@ def get_vnic_details(module):
     cvd.subnet_id = vnic_details["subnet_id"]
     cvd.defined_tags = vnic_details.get("defined_tags", None)
     cvd.freeform_tags = vnic_details.get("freeform_tags", None)
+    cvd.nsg_ids = vnic_details.get("nsg_ids", None)
     return cvd
 
 

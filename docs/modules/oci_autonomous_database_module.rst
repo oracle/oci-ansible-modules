@@ -68,7 +68,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -121,10 +121,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -221,6 +222,23 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>db_workload</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>OLTP</li>
+                                                                                                                                                                                                <li>DW</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The Autonomous Database workload type. OLTP indicates an Autonomous Transaction Processing database and DW indicates an Autonomous Data Warehouse. The default is OLTP.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>defined_tags</b>
                     <div style="font-size: small">
                         <span style="color: purple">dictionary</span>
@@ -291,6 +309,19 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                                                         <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>is_free_tier</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Indicates if this is an Always Free resource. The default value is false. Note that Always Free Autonomous Databases have 1 CPU and 20GB of memory. For Always Free databases, memory and CPU cannot be scaled.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -421,7 +452,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2000</div>
                                     </td>
                                                                 <td>
                                                                         <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
@@ -557,7 +588,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the launched/updated Autonomous Database. For delete, deleted Autonomous Database description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;display_name&#x27;: &#x27;ansible-autonomous-database-955&#x27;, &#x27;cpu_core_count&#x27;: 1, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;defined_tags&#x27;: {&#x27;ansible_tag_namespace_integration_test_1&#x27;: {&#x27;ansible_tag_1&#x27;: &#x27;initial&#x27;}}, &#x27;freeform_tags&#x27;: {&#x27;system_license&#x27;: &#x27;trial&#x27;}, &#x27;time_created&#x27;: &#x27;2018-09-22T15:06:55.426000+00:00&#x27;, &#x27;db_name&#x27;: &#x27;autodbbackup&#x27;, &#x27;license_model&#x27;: &#x27;LICENSE_INCLUDED&#x27;, &#x27;connection_strings&#x27;: {&#x27;high&#x27;: &#x27;adwc.EXAMPLE1.oraclecloud.com:1522/EXAMPLE1_autodb_high.atp.oraclecloud.com&#x27;, &#x27;medium&#x27;: &#x27;adwc.EXAMPLE3.oraclecloud.com:1522/EXAMPLE3_autodb_medium.atp.oraclecloud.com&#x27;, &#x27;low&#x27;: &#x27;adwc.EXAMPLE2.oraclecloud.com:1522/EXAMPLE2_autodb_low.atp.oraclecloud.com&#x27;}, &#x27;lifecycle_details&#x27;: None, &#x27;data_storage_size_in_tbs&#x27;: 1, &#x27;id&#x27;: &#x27;ocid1.autonomousdatabase.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;service_console_url&#x27;: &#x27;https://example1.oraclecloud.com/console/index.html? tenant_name=OCID1.TENANCY.OC1..xxxxxEXAMPLExxxxx &amp;database_name=ANSIBLEAUTODB&amp;service_type=ATP&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;db_name&#x27;: &#x27;autodbbackup&#x27;, &#x27;db_workload&#x27;: &#x27;DW&#x27;, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;cpu_core_count&#x27;: 1, &#x27;lifecycle_details&#x27;: None, &#x27;id&#x27;: &#x27;ocid1.autonomousdatabase.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;freeform_tags&#x27;: {&#x27;system_license&#x27;: &#x27;trial&#x27;}, &#x27;defined_tags&#x27;: {&#x27;ansible_tag_namespace_integration_test_1&#x27;: {&#x27;ansible_tag_1&#x27;: &#x27;initial&#x27;}}, &#x27;display_name&#x27;: &#x27;ansible-autonomous-database-955&#x27;, &#x27;service_console_url&#x27;: &#x27;https://example1.oraclecloud.com/console/index.html? tenant_name=OCID1.TENANCY.OC1..xxxxxEXAMPLExxxxx &amp;database_name=ANSIBLEAUTODB&amp;service_type=ATP&#x27;, &#x27;license_model&#x27;: &#x27;LICENSE_INCLUDED&#x27;, &#x27;data_storage_size_in_tbs&#x27;: 1, &#x27;time_created&#x27;: &#x27;2018-09-22T15:06:55.426000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;connection_strings&#x27;: {&#x27;high&#x27;: &#x27;adwc.EXAMPLE1.oraclecloud.com:1522/EXAMPLE1_autodb_high.atp.oraclecloud.com&#x27;, &#x27;low&#x27;: &#x27;adwc.EXAMPLE2.oraclecloud.com:1522/EXAMPLE2_autodb_low.atp.oraclecloud.com&#x27;, &#x27;medium&#x27;: &#x27;adwc.EXAMPLE3.oraclecloud.com:1522/EXAMPLE3_autodb_medium.atp.oraclecloud.com&#x27;}, &#x27;is_free_tier&#x27;: False}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -585,7 +616,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The connection string used to connect to the Autonomous Database. The username for the Service Console is ADMIN. Use the password you entered when creating the Autonomous Database for the password value.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;high&#x27;: &#x27;adwc.EXAMPLE1.oraclecloud.com:1522/EXAMPLE1_autodb_high.atp.oraclecloud.com&#x27;, &#x27;medium&#x27;: &#x27;adwc.EXAMPLE3.oraclecloud.com:1522/EXAMPLE3_autodb_medium.atp.oraclecloud.com&#x27;, &#x27;low&#x27;: &#x27;adwc.EXAMPLE2.oraclecloud.com:1522/EXAMPLE2_autodb_low.atp.oraclecloud.com&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;high&#x27;: &#x27;adwc.EXAMPLE1.oraclecloud.com:1522/EXAMPLE1_autodb_high.atp.oraclecloud.com&#x27;, &#x27;low&#x27;: &#x27;adwc.EXAMPLE2.oraclecloud.com:1522/EXAMPLE2_autodb_low.atp.oraclecloud.com&#x27;, &#x27;medium&#x27;: &#x27;adwc.EXAMPLE3.oraclecloud.com:1522/EXAMPLE3_autodb_medium.atp.oraclecloud.com&#x27;}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -633,6 +664,20 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
+                    <b>db_workload</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>The Autonomous Database workload type.</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">OLTP</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
                     <b>display_name</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
@@ -656,6 +701,18 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.autonomousdatabase.oc1.xzvf.xxxxxEXAMPLExxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>is_free_tier</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>Indicates if this is an Always Free resource. The default value is false. Note that Always Free Autonomous Databases have 1 CPU and 20GB of memory. For Always Free databases, memory and CPU cannot be scaled.</div>
+                                        <br/>
                                     </td>
             </tr>
                                 <tr>
@@ -725,7 +782,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Date and time when the Autonomous Database was created, in the format defined by RFC3339</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
                                     </td>
             </tr>
                     

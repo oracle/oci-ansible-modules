@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -286,7 +287,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of volume backup information</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;size_in_gbs&#x27;: 50, &#x27;display_name&#x27;: &#x27;ansible_backup&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;size_in_mbs&#x27;: 51200, &#x27;time_created&#x27;: &#x27;2017-12-22T15:40:53.219000+00:00&#x27;, &#x27;unique_size_in_gbs&#x27;: 0, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;unique_size_in_mbs&#x27;: 1, &#x27;time_request_received&#x27;: &#x27;2017-12-22T15:40:48.111000+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.volumebackup.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;time_request_received&#x27;: &#x27;2017-12-22T15:40:48.111000+00:00&#x27;, &#x27;unique_size_in_gbs&#x27;: 0, &#x27;unique_size_in_mbs&#x27;: 1, &#x27;volume_id&#x27;: &#x27;ocid1.volume.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;display_name&#x27;: &#x27;ansible_backup&#x27;, &#x27;id&#x27;: &#x27;ocid1.volumebackup.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;size_in_mbs&#x27;: 51200, &#x27;time_created&#x27;: &#x27;2017-12-22T15:40:53.219000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;size_in_gbs&#x27;: 50}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -384,7 +385,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the volume backup was created. This is the time the actual point-in-time image of the volume data was taken. Format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:53.219000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:53.219000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -398,7 +399,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the request to create the volume backup was received. Format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:48.111000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-12-22 15:40:48.111000+00:00</div>
                                     </td>
             </tr>
                                 <tr>

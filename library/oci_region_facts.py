@@ -1,9 +1,11 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
+
 
 from __future__ import absolute_import, division, print_function
 
@@ -18,88 +20,125 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: oci_region_facts
-short_description: Retrieve details about all Regions offered by Oracle Cloud Infrastructure
+short_description: Fetches details about one or multiple Region resources in Oracle Cloud Infrastructure
 description:
-    - This module retrieves details about all Regions offered by Oracle Cloud Infrastructure.
+    - Fetches details about one or multiple Region resources in Oracle Cloud Infrastructure
+    - Lists all the regions offered by Oracle Cloud Infrastructure.
 version_added: "2.5"
-author: "Sivakumar Thyagarajan (@sivakumart)"
+options: {}
+author:
+    - Manoj Meda (@manojmeda)
+    - Mike Ross (@mross22)
+    - Nabeel Al-Saber (@nalsaber)
 extends_documentation_fragment: [ oracle, oracle_name_option ]
 """
 
 EXAMPLES = """
-- name: Get details of all regions offered by OCI
+- name: List regions
   oci_region_facts:
+
 """
 
 RETURN = """
 regions:
-    description: Information about regions offered by OCI
+    description:
+        - List of Region resources
     returned: on success
     type: complex
     contains:
         key:
-            description: The key of the region.
-            returned: always
+            description:
+                - The key of the region.
+                - "Allowed values are:
+                  - `PHX`
+                  - `IAD`
+                  - `FRA`
+                  - `LHR`"
+            returned: on success
             type: string
-            sample: PHX
+            sample: key_example
         name:
-            description: The name of the region.
-            returned: always
+            description:
+                - The name of the region.
+                - "Allowed values are:
+                  - `us-phoenix-1`
+                  - `us-ashburn-1`
+                  - `eu-frankfurt-1`
+                  - `uk-london-1`"
+            returned: on success
             type: string
-            sample: us-phoenix-1
-
-    sample: [
-                {
-                  "key": "FRA",
-                  "name": "eu-frankfurt-1"
-                },
-                {
-                  "key": "IAD",
-                  "name": "us-ashburn-1"
-                },
-                {
-                  "key": "PHX",
-                  "name": "us-phoenix-1"
-                }
-        ]
-
+            sample: name_example
+    sample: [{
+        "key": "key_example",
+        "name": "name_example"
+    }]
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
+from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    OCIResourceFactsHelperBase,
+    get_custom_class,
+)
 
 try:
-    from oci.identity.identity_client import IdentityClient
-    from oci.util import to_dict
-    from oci.exceptions import ServiceError
+    from oci.identity import IdentityClient
 
     HAS_OCI_PY_SDK = True
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-def list_regions(identity_client, module):
-    try:
-        regions = oci_utils.list_all_resources(
-            identity_client.list_regions, name=module.params["name"]
-        )
-    except ServiceError as ex:
-        module.fail_json(msg=ex.message)
+class RegionFactsHelperGen(OCIResourceFactsHelperBase):
+    """Supported operations: list"""
 
-    return to_dict(regions)
+    def get_required_params_for_list(self):
+        return []
+
+    def list_resources(self):
+        optional_list_method_params = ["name"]
+        optional_kwargs = dict(
+            (param, self.module.params[param])
+            for param in optional_list_method_params
+            if self.module.params.get(param) is not None
+        )
+        return oci_common_utils.list_all_resources(
+            self.client.list_regions, **optional_kwargs
+        )
+
+
+RegionFactsHelperCustom = get_custom_class("RegionFactsHelperCustom")
+
+
+class ResourceFactsHelper(RegionFactsHelperCustom, RegionFactsHelperGen):
+    pass
 
 
 def main():
-    module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
+    module_args = oci_common_utils.get_common_arg_spec()
+    module_args.update(dict(name=dict(type="str")))
 
-    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module.")
 
-    identity_client = oci_utils.create_service_client(module, IdentityClient)
+    resource_facts_helper = ResourceFactsHelper(
+        module=module,
+        resource_type="region",
+        service_client_class=IdentityClient,
+        namespace="identity",
+    )
 
-    result = list_regions(identity_client, module)
+    result = []
+
+    if resource_facts_helper.is_get():
+        result = [resource_facts_helper.get()]
+    elif resource_facts_helper.is_list():
+        result = resource_facts_helper.list()
+    else:
+        resource_facts_helper.fail()
+
     module.exit_json(regions=result)
 
 

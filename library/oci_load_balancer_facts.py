@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -144,6 +144,15 @@ RETURN = """
                 returned: always
                 type: list
                 sample: ["ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx", "ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx"]
+            defined_tags:
+                description: Defined tags for this resource. Each key is predefined and scoped to a namespace.
+                returned: always
+                type: dict
+            freeform_tags:
+                description: Free-form tags for this resource. Each tag is a simple key-value pair with no predefined \
+                             name, type, or namespace.
+                returned: always
+                type: dict
         sample: [{
    "backend_sets":{
       "backend1":{
@@ -224,7 +233,9 @@ RETURN = """
       "ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx",
       "ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx"
    ],
-   "time_created":"2018-01-06T18:22:17.198000+00:00"
+   "time_created":"2018-01-06T18:22:17.198000+00:00",
+   "defined_tags": {"Operations": {"CostCenter": "42"}},
+   "freeform_tags": {"Department": "Finance"}
 }]
 """
 

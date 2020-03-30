@@ -52,7 +52,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -105,10 +105,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -320,6 +321,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>defined_tags</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>display_name</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
@@ -347,6 +361,19 @@ Parameters
                                                                             </td>
                                                                 <td>
                                                                         <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn&#x27;t create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>freeform_tags</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/General/Concepts/resourcetags.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -669,7 +696,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2000</div>
                                     </td>
                                                                 <td>
                                                                         <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
@@ -793,7 +820,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created/updated Load Balancer. For delete, deleted Load Balancer description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;display_name&#x27;: &#x27;ansible_lb955&#x27;, &#x27;shape_name&#x27;: &#x27;100Mbps&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;ip_addresses&#x27;: [{&#x27;is_public&#x27;: True, &#x27;ip_address&#x27;: &#x27;129.213.72.32&#x27;}], &#x27;time_created&#x27;: &#x27;2018-01-06T18:22:17.198000+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;listeners&#x27;: {&#x27;listerner1&#x27;: {&#x27;ssl_configuration&#x27;: None, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;name&#x27;: &#x27;listerner1&#x27;, &#x27;default_backend_set_name&#x27;: &#x27;backend1&#x27;, &#x27;connection_configuration&#x27;: {&#x27;idle_timeout&#x27;: 1200}, &#x27;port&#x27;: 80}}, &#x27;hostnames&#x27;: {&#x27;ansible_hostname&#x27;: {&#x27;hostname&#x27;: &#x27;app.example.com&#x27;, &#x27;name&#x27;: &#x27;ansible_hostname&#x27;}}, &#x27;certificates&#x27;: {&#x27;certs1&#x27;: {&#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;public_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIFKTCCBBGgAwIBAgISBIs5aiZ1fWapuAl2P9POFMXjMA0GCSqGSIb3DQEBCwUA\n- ----END CERTIFICATE-----&#x27;, &#x27;ca_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIFKTCCBBGgAwIBAgISBIs5aiZ1fWapuAl2P9POFMXjMA0GCSqGSIb3DQEBCwUA\n-----END CERTIFICATE -----\n-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----&#x27;}}, &#x27;subnet_ids&#x27;: [&#x27;ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx&#x27;], &#x27;backend_sets&#x27;: {&#x27;backend1&#x27;: {&#x27;ssl_configuration&#x27;: None, &#x27;backends&#x27;: [{&#x27;drain&#x27;: False, &#x27;name&#x27;: &#x27;10.159.34.21:8080&#x27;, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;offline&#x27;: False, &#x27;backup&#x27;: False, &#x27;port&#x27;: 8080}], &#x27;health_checker&#x27;: {&#x27;retries&#x27;: 3, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;response_body_regex&#x27;: &#x27;^(500|40[1348])$&#x27;, &#x27;return_code&#x27;: 200, &#x27;timeout_in_millis&#x27;: 6000, &#x27;interval_in_millis&#x27;: 30000, &#x27;url_path&#x27;: &#x27;/healthcheck&#x27;, &#x27;port&#x27;: 8080}, &#x27;name&#x27;: &#x27;backend1&#x27;, &#x27;policy&#x27;: &#x27;LEAST_CONNECTIONS&#x27;, &#x27;session_persistence_configuration&#x27;: None}}, &#x27;path_route_sets&#x27;: {&#x27;ansible_path_route_set&#x27;: {&#x27;path_routes&#x27;: [{&#x27;path&#x27;: &#x27;/example/user&#x27;, &#x27;backend_set_name&#x27;: &#x27;ansible_backend_set&#x27;, &#x27;path_match_type&#x27;: {&#x27;match_type&#x27;: &#x27;EXACT_MATCH&#x27;}}]}}, &#x27;is_private&#x27;: False}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;ip_addresses&#x27;: [{&#x27;ip_address&#x27;: &#x27;129.213.72.32&#x27;, &#x27;is_public&#x27;: True}], &#x27;subnet_ids&#x27;: [&#x27;ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;ocid1.subnet.oc1.iad.xxxxxEXAMPLExxxxx&#x27;], &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;backend_sets&#x27;: {&#x27;backend1&#x27;: {&#x27;session_persistence_configuration&#x27;: None, &#x27;backends&#x27;: [{&#x27;port&#x27;: 8080, &#x27;backup&#x27;: False, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;name&#x27;: &#x27;10.159.34.21:8080&#x27;, &#x27;drain&#x27;: False, &#x27;offline&#x27;: False}], &#x27;ssl_configuration&#x27;: None, &#x27;policy&#x27;: &#x27;LEAST_CONNECTIONS&#x27;, &#x27;name&#x27;: &#x27;backend1&#x27;, &#x27;health_checker&#x27;: {&#x27;url_path&#x27;: &#x27;/healthcheck&#x27;, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;interval_in_millis&#x27;: 30000, &#x27;timeout_in_millis&#x27;: 6000, &#x27;port&#x27;: 8080, &#x27;retries&#x27;: 3, &#x27;response_body_regex&#x27;: &#x27;^(500|40[1348])$&#x27;, &#x27;return_code&#x27;: 200}}}, &#x27;id&#x27;: &#x27;ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;path_route_sets&#x27;: {&#x27;ansible_path_route_set&#x27;: {&#x27;path_routes&#x27;: [{&#x27;backend_set_name&#x27;: &#x27;ansible_backend_set&#x27;, &#x27;path&#x27;: &#x27;/example/user&#x27;, &#x27;path_match_type&#x27;: {&#x27;match_type&#x27;: &#x27;EXACT_MATCH&#x27;}}]}}, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;42&#x27;}}, &#x27;shape_name&#x27;: &#x27;100Mbps&#x27;, &#x27;certificates&#x27;: {&#x27;certs1&#x27;: {&#x27;ca_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIFKTCCBBGgAwIBAgISBIs5aiZ1fWapuAl2P9POFMXjMA0GCSqGSIb3DQEBCwUA\n-----END CERTIFICATE -----\n-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----&#x27;, &#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;public_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIFKTCCBBGgAwIBAgISBIs5aiZ1fWapuAl2P9POFMXjMA0GCSqGSIb3DQEBCwUA\n- ----END CERTIFICATE-----&#x27;}}, &#x27;listeners&#x27;: {&#x27;listerner1&#x27;: {&#x27;port&#x27;: 80, &#x27;ssl_configuration&#x27;: None, &#x27;connection_configuration&#x27;: {&#x27;idle_timeout&#x27;: 1200}, &#x27;default_backend_set_name&#x27;: &#x27;backend1&#x27;, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;name&#x27;: &#x27;listerner1&#x27;}}, &#x27;display_name&#x27;: &#x27;ansible_lb955&#x27;, &#x27;hostnames&#x27;: {&#x27;ansible_hostname&#x27;: {&#x27;name&#x27;: &#x27;ansible_hostname&#x27;, &#x27;hostname&#x27;: &#x27;app.example.com&#x27;}}, &#x27;is_private&#x27;: False, &#x27;time_created&#x27;: &#x27;2018-01-06T18:22:17.198000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -807,7 +834,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The configuration details for a load balancer backend set</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;backend1&#x27;: {&#x27;backends&#x27;: [{&#x27;drain&#x27;: False, &#x27;name&#x27;: &#x27;10.159.34.21:8080&#x27;, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;offline&#x27;: False, &#x27;backup&#x27;: False, &#x27;port&#x27;: 8080}], &#x27;health_checker&#x27;: {&#x27;retries&#x27;: 3, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;name&#x27;: &#x27;backend1&#x27;, &#x27;response_body_regex&#x27;: &#x27;^(500|40[1348])$&#x27;, &#x27;return_code&#x27;: 200, &#x27;ssl_configuration&#x27;: None, &#x27;timeout_in_millis&#x27;: 6000, &#x27;policy&#x27;: &#x27;LEAST_CONNECTIONS&#x27;, &#x27;interval_in_millis&#x27;: 30000, &#x27;url_path&#x27;: &#x27;/healthcheck&#x27;, &#x27;port&#x27;: 8080, &#x27;session_persistence_configuration&#x27;: None}}}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;backend1&#x27;: {&#x27;backends&#x27;: [{&#x27;port&#x27;: 8080, &#x27;backup&#x27;: False, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;name&#x27;: &#x27;10.159.34.21:8080&#x27;, &#x27;drain&#x27;: False, &#x27;offline&#x27;: False}], &#x27;health_checker&#x27;: {&#x27;session_persistence_configuration&#x27;: None, &#x27;response_body_regex&#x27;: &#x27;^(500|40[1348])$&#x27;, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;interval_in_millis&#x27;: 30000, &#x27;timeout_in_millis&#x27;: 6000, &#x27;url_path&#x27;: &#x27;/healthcheck&#x27;, &#x27;ssl_configuration&#x27;: None, &#x27;return_code&#x27;: 200, &#x27;retries&#x27;: 3, &#x27;policy&#x27;: &#x27;LEAST_CONNECTIONS&#x27;, &#x27;name&#x27;: &#x27;backend1&#x27;, &#x27;port&#x27;: 8080}}}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -821,7 +848,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The configuration details for a listener certificate bundle.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;certs1&#x27;: {&#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;public_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIFKTCCBBGgAwIBAgISBIs5aiZ1fWapuAl2P9POFMXjMA0GCSqGSIb3DQEBCwUA\n -----END CERTIFICATE-----&#x27;, &#x27;ca_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIFKTCCBBGgAwIBAgISBIs5aiZ1fWapuAl2P9POFMXjMA0GCSqGSIb3DQEBCwUA\n -----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----&#x27;}}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;certs1&#x27;: {&#x27;ca_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIFKTCCBBGgAwIBAgISBIs5aiZ1fWapuAl2P9POFMXjMA0GCSqGSIb3DQEBCwUA\n -----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----&#x27;, &#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;public_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIFKTCCBBGgAwIBAgISBIs5aiZ1fWapuAl2P9POFMXjMA0GCSqGSIb3DQEBCwUA\n -----END CERTIFICATE-----&#x27;}}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -863,7 +890,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The details of a hostname resource associated with a load balancer.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;ansible_hostname&#x27;: {&#x27;hostname&#x27;: &#x27;app.example.com&#x27;, &#x27;name&#x27;: &#x27;ansible_hostname&#x27;}}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;ansible_hostname&#x27;: {&#x27;name&#x27;: &#x27;ansible_hostname&#x27;, &#x27;hostname&#x27;: &#x27;app.example.com&#x27;}}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -905,7 +932,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The listener configuration details.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;listerner1&#x27;: {&#x27;ssl_configuration&#x27;: None, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;name&#x27;: &#x27;listerner1&#x27;, &#x27;default_backend_set_name&#x27;: &#x27;backend1&#x27;, &#x27;connection_configuration&#x27;: {&#x27;idle_timeout&#x27;: 1200}, &#x27;port&#x27;: 80}}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;listerner1&#x27;: {&#x27;port&#x27;: 80, &#x27;ssl_configuration&#x27;: None, &#x27;connection_configuration&#x27;: {&#x27;idle_timeout&#x27;: 1200}, &#x27;default_backend_set_name&#x27;: &#x27;backend1&#x27;, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;name&#x27;: &#x27;listerner1&#x27;}}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -970,7 +997,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Date and time when the Load Balancer was created, in the format defined by RFC3339</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
                                     </td>
             </tr>
                     

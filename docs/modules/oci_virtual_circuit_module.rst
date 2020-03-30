@@ -52,7 +52,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -105,10 +105,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -561,7 +562,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2000</div>
                                     </td>
                                                                 <td>
                                                                         <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
@@ -709,7 +710,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Virtual Circuit.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;PROVISIONED&#x27;, &#x27;customer_bgp_asn&#x27;: 5, &#x27;time_created&#x27;: &#x27;2018-12-15T12:09:34.999000+00:00&#x27;, &#x27;bgp_management&#x27;: &#x27;CUSTOMER_MANAGED&#x27;, &#x27;region&#x27;: None, &#x27;id&#x27;: &#x27;ocid1.virtualcircuit.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;gateway_id&#x27;: None, &#x27;cross_connect_mappings&#x27;: [{&#x27;cross_connect_or_cross_connect_group_id&#x27;: &#x27;ocid1.crossconnectgroup.xxxxxEXAMPLExxxxx&#x27;, &#x27;bgp_md5_auth_key&#x27;: None, &#x27;vlan&#x27;: 105, &#x27;customer_bgp_peering_ip&#x27;: &#x27;169.254.203.202/30&#x27;, &#x27;oracle_bgp_peering_ip&#x27;: &#x27;169.254.203.201/30&#x27;}], &#x27;display_name&#x27;: &#x27;sample-virtual-circuit&#x27;, &#x27;oracle_bgp_asn&#x27;: 31898, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;reference_comment&#x27;: None, &#x27;provider_service_id&#x27;: None, &#x27;bandwidth_shape_name&#x27;: &#x27;10 Gbps&#x27;, &#x27;provider_service_name&#x27;: None, &#x27;bgp_session_state&#x27;: &#x27;DOWN&#x27;, &#x27;provider_state&#x27;: None, &#x27;service_type&#x27;: &#x27;COLOCATED&#x27;, &#x27;provider_name&#x27;: None, &#x27;type&#x27;: &#x27;PUBLIC&#x27;, &#x27;public_prefixes&#x27;: None}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;bgp_session_state&#x27;: &#x27;DOWN&#x27;, &#x27;provider_state&#x27;: None, &#x27;type&#x27;: &#x27;PUBLIC&#x27;, &#x27;provider_service_name&#x27;: None, &#x27;provider_service_id&#x27;: None, &#x27;lifecycle_state&#x27;: &#x27;PROVISIONED&#x27;, &#x27;cross_connect_mappings&#x27;: [{&#x27;bgp_md5_auth_key&#x27;: None, &#x27;vlan&#x27;: 105, &#x27;oracle_bgp_peering_ip&#x27;: &#x27;169.254.203.201/30&#x27;, &#x27;cross_connect_or_cross_connect_group_id&#x27;: &#x27;ocid1.crossconnectgroup.xxxxxEXAMPLExxxxx&#x27;, &#x27;customer_bgp_peering_ip&#x27;: &#x27;169.254.203.202/30&#x27;}], &#x27;oracle_bgp_asn&#x27;: 31898, &#x27;id&#x27;: &#x27;ocid1.virtualcircuit.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;bandwidth_shape_name&#x27;: &#x27;10 Gbps&#x27;, &#x27;bgp_management&#x27;: &#x27;CUSTOMER_MANAGED&#x27;, &#x27;region&#x27;: None, &#x27;customer_bgp_asn&#x27;: 5, &#x27;service_type&#x27;: &#x27;COLOCATED&#x27;, &#x27;display_name&#x27;: &#x27;sample-virtual-circuit&#x27;, &#x27;gateway_id&#x27;: None, &#x27;provider_name&#x27;: None, &#x27;public_prefixes&#x27;: None, &#x27;time_created&#x27;: &#x27;2018-12-15T12:09:34.999000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;reference_comment&#x27;: None}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -765,7 +766,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>An array of mappings, each containing properties for a cross-connect or cross-connect group that is associated with this virtual circuit.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;cross_connect_or_cross_connect_group_id&#x27;: None, &#x27;bgp_md5_auth_key&#x27;: None, &#x27;vlan&#x27;: None, &#x27;customer_bgp_peering_ip&#x27;: &#x27;10.0.0.18/31&#x27;, &#x27;oracle_bgp_peering_ip&#x27;: &#x27;10.0.0.19/31&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;bgp_md5_auth_key&#x27;: None, &#x27;vlan&#x27;: None, &#x27;oracle_bgp_peering_ip&#x27;: &#x27;10.0.0.19/31&#x27;, &#x27;cross_connect_or_cross_connect_group_id&#x27;: None, &#x27;customer_bgp_peering_ip&#x27;: &#x27;10.0.0.18/31&#x27;}]</div>
                                     </td>
             </tr>
                                 <tr>
@@ -989,7 +990,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Date and time when the Virtual Circuit was created, in the format defined by RFC3339</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
                                     </td>
             </tr>
                                 <tr>

@@ -210,7 +210,7 @@ def test_create_instance_source_via_image_when_boot_volume_size_in_gbs_is_passed
 
 
 def test_get_source_details_from_module_ignores_image_id_top_level_module_parameter_when_source_details_exists(
-    create_instance_source_via_image_patch
+    create_instance_source_via_image_patch,
 ):
     module = get_module(set_top_level_image_id=True)
     create_instance_source_via_image_patch.return_value = InstanceSourceViaImageDetails(
@@ -224,7 +224,7 @@ def test_get_source_details_from_module_ignores_image_id_top_level_module_parame
 
 
 def test_get_source_details_from_module_use_image_id_top_level_module_parameter_when_source_details_does_not_exist(
-    create_instance_source_via_image_patch
+    create_instance_source_via_image_patch,
 ):
     module = get_module(set_top_level_image_id=True)
     del module.params["source_details"]
@@ -239,7 +239,7 @@ def test_get_source_details_from_module_use_image_id_top_level_module_parameter_
 
 
 def test_get_source_details_from_module_when_image_id_is_passed_as_source_details(
-    create_instance_source_via_image_patch
+    create_instance_source_via_image_patch,
 ):
     module = get_module()
     create_instance_source_via_image_patch.return_value = InstanceSourceViaImageDetails(
@@ -253,7 +253,7 @@ def test_get_source_details_from_module_when_image_id_is_passed_as_source_detail
 
 
 def test_get_source_details_from_module_when_image_id_is_passed_as_source_details_with_boot_volume_size(
-    create_instance_source_via_image_patch
+    create_instance_source_via_image_patch,
 ):
     custom_boot_volume_size_in_gbs = 100
     module = get_module(custom_boot_volume_size_in_gbs=custom_boot_volume_size_in_gbs)
@@ -275,7 +275,7 @@ def test_get_source_details_from_module_when_image_id_is_passed_as_source_detail
 
 
 def test_get_source_details_from_module_fails_for_unknown_source_type(
-    create_instance_source_via_image_patch
+    create_instance_source_via_image_patch,
 ):
     module = get_module(source_type="unknownSourceType")
     create_instance_source_via_image_patch.return_value = None
@@ -285,7 +285,7 @@ def test_get_source_details_from_module_fails_for_unknown_source_type(
 
 
 def test_get_launch_instance_details_calls_get_source_details_from_module(
-    get_source_details_from_module_patch
+    get_source_details_from_module_patch,
 ):
     custom_boot_volume_size_in_gbs = 100
     module = get_module(custom_boot_volume_size_in_gbs=custom_boot_volume_size_in_gbs)

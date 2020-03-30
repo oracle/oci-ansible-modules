@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -114,6 +114,27 @@ instance_pools:
                             description: The subnet OCID for the secondary vnic
                             returned: always
                             type: string
+        load_balancers:
+            description: A list of load balancers and configurations which will attach to the instance pool.
+            returned: always
+            type: complex
+            suboptions:
+                load_balancer_id:
+                    description: The description of the load balancer resource.
+                    returned: always
+                    type: string
+                port:
+                    description: The port used by the backend servers.
+                    returned: always
+                    type: string
+                bacnkend_set_name:
+                    description: The name of the backend set the instance pool uses.
+                    returned: always
+                    type: string
+                vnic_selection:
+                    description: The selection preference for instance vnic creation.
+                    returned: always
+                    type: string
         size:
             description: The number of instances in the instance pool.
             returned: always

@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -34,11 +35,11 @@ options:
         aliases: ["id"]
     compartment_id:
         description:
-            - The OCID of the compartment.
+            - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the compartment.
             - Required to list multiple drg_attachments.
     vcn_id:
         description:
-            - The OCID of the VCN.
+            - The L(OCID,https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the VCN.
     drg_id:
         description:
             - The OCID of the DRG.
@@ -46,7 +47,7 @@ author:
     - Manoj Meda (@manojmeda)
     - Mike Ross (@mross22)
     - Nabeel Al-Saber (@nalsaber)
-extends_documentation_fragment: [ oracle ]
+extends_documentation_fragment: [ oracle, oracle_display_name_option ]
 """
 
 EXAMPLES = """
@@ -100,8 +101,8 @@ drg_attachments:
             sample: ATTACHING
         route_table_id:
             description:
-                - "The OCID of the route table the DRG attachment is using. For information about why you
-                  would associate a route table with a DRG attachment, see
+                - The OCID of the route table the DRG attachment is using.
+                - "For information about why you would associate a route table with a DRG attachment, see
                   L(Advanced Scenario: Transit Routing,https://docs.cloud.oracle.com/Content/Network/Tasks/transitrouting.htm)."
             returned: on success
             type: string
@@ -162,7 +163,7 @@ class DrgAttachmentFactsHelperGen(OCIResourceFactsHelperBase):
         )
 
     def list_resources(self):
-        optional_list_method_params = ["vcn_id", "drg_id"]
+        optional_list_method_params = ["vcn_id", "drg_id", "display_name"]
         optional_kwargs = dict(
             (param, self.module.params[param])
             for param in optional_list_method_params
@@ -190,6 +191,7 @@ def main():
             compartment_id=dict(type="str"),
             vcn_id=dict(type="str"),
             drg_id=dict(type="str"),
+            display_name=dict(type="str"),
         )
     )
 
@@ -202,12 +204,13 @@ def main():
         module=module,
         resource_type="drg_attachment",
         service_client_class=VirtualNetworkClient,
+        namespace="core",
     )
 
     result = []
 
     if resource_facts_helper.is_get():
-        result = resource_facts_helper.get()
+        result = [resource_facts_helper.get()]
     elif resource_facts_helper.is_list():
         result = resource_facts_helper.list()
     else:

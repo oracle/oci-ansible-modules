@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -290,7 +291,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The specified bucket or a list of all available buckets in the specified namespace and compartment.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;etag&#x27;: &#x27;7d48fea5-ghfc&#x27;, &#x27;name&#x27;: &#x27;Bucket1&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;created_by&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;namespace&#x27;: &#x27;mynamespace&#x27;, &#x27;time_created&#x27;: &#x27;2017-10-07T16:20:33.933000+00:00&#x27;}, {&#x27;etag&#x27;: &#x27;3f0158f2-68ea&#x27;, &#x27;name&#x27;: &#x27;Bucket2&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;created_by&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;namespace&#x27;: &#x27;mynamespace&#x27;, &#x27;time_created&#x27;: &#x27;2017-10-06T13:47:38.544000+00:00&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;etag&#x27;: &#x27;7d48fea5-ghfc&#x27;, &#x27;namespace&#x27;: &#x27;mynamespace&#x27;, &#x27;time_created&#x27;: &#x27;2017-10-07T16:20:33.933000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;created_by&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;name&#x27;: &#x27;Bucket1&#x27;}, {&#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;42&#x27;}}, &#x27;created_by&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;etag&#x27;: &#x27;3f0158f2-68ea&#x27;, &#x27;namespace&#x27;: &#x27;mynamespace&#x27;, &#x27;time_created&#x27;: &#x27;2017-10-06T13:47:38.544000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;name&#x27;: &#x27;Bucket2&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -348,6 +349,18 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
+                    <b>defined_tags</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>only when &#x27;tags&#x27; is specified in the &#x27;fields&#x27; input option</td>
+                <td>
+                                            <div>Defined tags for this resource. Each key is predefined and scoped to a namespace.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
                     <b>etag</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
@@ -357,6 +370,18 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">7d48fea5-ghfc</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>freeform_tags</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>only when &#x27;tags&#x27; is specified in the &#x27;fields&#x27; input option</td>
+                <td>
+                                            <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined                         name, type, or namespace.</div>
+                                        <br/>
                                     </td>
             </tr>
                                 <tr>
@@ -426,7 +451,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the bucket was created, as described in RFC 2616, section 14.29</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-10-07 16:20:33.933000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-10-07 16:20:33.933000+00:00</div>
                                     </td>
             </tr>
                     

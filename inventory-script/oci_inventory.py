@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -182,7 +182,7 @@ When run for a specific host using the --host option, this script returns the fo
       "foo": "bar"
     },
     "region": "iad",
-    "shape": "VM.Standard1.1",
+    "shape": "VM.Standard2.1",
     "source_details": {
       "image_id": "ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx",
       "source_type": "image"
@@ -226,7 +226,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.12.0"
+__version__ = "1.17.0"
 inventory_agent_name = "Oracle-Ansible-Inv/"
 
 
