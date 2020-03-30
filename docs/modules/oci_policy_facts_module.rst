@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -252,7 +253,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information of one or more policies</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;inactive_status&#x27;: None, &#x27;statements&#x27;: [&#x27;Allow group GroupAdmins to manage users in compartment Project-A&#x27;], &#x27;name&#x27;: &#x27;mypolicy&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-01T14:59:51.728000+00:00&#x27;, &#x27;version_date&#x27;: &#x27;2017-11-01T00:00:00+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.policy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;description&#x27;: &#x27;GroupAdmins can add/remove users in Project-A compartment&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;description&#x27;: &#x27;GroupAdmins can add/remove users in Project-A compartment&#x27;, &#x27;inactive_status&#x27;: None, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;version_date&#x27;: &#x27;2017-11-01T00:00:00+00:00&#x27;, &#x27;statements&#x27;: [&#x27;Allow group GroupAdmins to manage users in compartment Project-A&#x27;], &#x27;id&#x27;: &#x27;ocid1.policy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-01T14:59:51.728000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;name&#x27;: &#x27;mypolicy&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -364,7 +365,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Date and time the policy was created, in the format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-01 14:59:51.728000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-01 14:59:51.728000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -378,7 +379,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The version of the policy. If null or set to an empty string, when a request comes in for                         authorization, the policy will be evaluated according to the current behavior of the services                         at that moment. If set to a particular date (YYYY-MM-DD), the policy will be evaluated                         according to the behavior of the services on that date.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-01 00:00:00</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-01 00:00:00+00:00</div>
                                     </td>
             </tr>
                     

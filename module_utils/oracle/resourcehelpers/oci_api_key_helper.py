@@ -27,31 +27,19 @@ class ApiKeyHelperCustom:
         api_keys = self.list_resources()
         for api_key in api_keys:
             if api_key.key_id == self.module.params.get("api_key_id"):
-                return self.get_default_response_from_resource(api_key)
+                return oci_common_utils.get_default_response_from_resource(api_key)
         return None
 
-    def delete_resource(self):
-        api_key = self.get_resource().data
-        return oci_common_utils.call_with_backoff(
-            self.client.delete_api_key,
+    def create_resource(self):
+        create_api_key_details = self.get_create_model()
+        create_response = oci_common_utils.call_with_backoff(
+            self.client.upload_api_key,
             user_id=self.module.params.get("user_id"),
-            fingerprint=api_key.fingerprint,
+            create_api_key_details=create_api_key_details,
         )
-
-    def delete(self, *args, **kwargs):
-        super_result = super(ApiKeyHelperCustom, self).delete(wait_applicable=False)
-        return oci_common_utils.get_result(
-            changed=super_result.get("changed"),
-            resource_type=self.resource_type,
-            resource=oci_common_utils.get_resource_with_state(
-                super_result.get(self.resource_type), "DELETED"
-            ),
-        )
-
-    def create_wait(self, create_response):
         api_key_id = create_response.data.key_id
 
-        # API keys don't have a get<resource> and so we can't use oci_utils.create_and_wait
+        # wait until the api key is active.
         # The following logic manually checks if the API key in `list_api_keys` has reached the desired ACTIVE state
         response = self.client.list_api_keys(self.module.params.get("user_id"))
 
@@ -73,6 +61,25 @@ class ApiKeyHelperCustom:
                 created_api_key = api_key
 
         return created_api_key
+
+    def delete_resource(self):
+        api_key = self.get_resource().data
+        operation_response = oci_common_utils.call_with_backoff(
+            self.client.delete_api_key,
+            user_id=self.module.params.get("user_id"),
+            fingerprint=api_key.fingerprint,
+        )
+        return operation_response.data
+
+    def delete(self):
+        super_result = super(ApiKeyHelperCustom, self).delete()
+        return oci_common_utils.get_result(
+            changed=super_result.get("changed"),
+            resource_type=self.resource_type,
+            resource=oci_common_utils.get_resource_with_state(
+                super_result.get(self.resource_type), "DELETED"
+            ),
+        )
 
     def get_matching_resource(self):
         create_model = self.get_create_model()

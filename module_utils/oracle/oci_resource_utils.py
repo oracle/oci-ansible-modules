@@ -8,7 +8,11 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible.module_utils.oracle import oci_config_utils, oci_common_utils
+from ansible.module_utils.oracle import (
+    oci_config_utils,
+    oci_common_utils,
+    oci_wait_utils,
+)
 from ansible.module_utils import six
 import sys
 import re
@@ -17,7 +21,6 @@ import pkgutil
 import inspect
 
 try:
-    import oci
     from oci.exceptions import ServiceError, MaximumWaitTimeExceeded
     from oci.util import to_dict
 
@@ -27,13 +30,14 @@ except ImportError:
 
 
 class OCIResourceFactsHelperBase:
-    def __init__(self, module, resource_type, service_client_class):
+    def __init__(self, module, resource_type, service_client_class, namespace):
         self.module = module
         self.resource_type = resource_type
         self.service_client_class = service_client_class
         self.client = oci_config_utils.create_service_client(
             self.module, self.service_client_class
         )
+        self.namespace = namespace
 
     def get_required_params_for_get(self):
         """Expected to be generated inside the module."""
@@ -90,27 +94,116 @@ class OCIResourceFactsHelperBase:
 
     def get(self):
         resource = self.get_resource().data
-        return [to_dict(resource)]
+        return to_dict(resource)
 
     def list(self):
         resources = self.list_resources()
         return to_dict(resources)
 
 
-class OCIResourceHelperBase:
-    def __init__(self, module, resource_type, service_client_class):
+class OCIActionsHelperBase:
+    def __init__(self, module, resource_type, service_client_class, namespace):
         self.module = module
         self.resource_type = resource_type
         self.service_client_class = service_client_class
         self.client = oci_config_utils.create_service_client(
             self.module, self.service_client_class
         )
+        self.namespace = namespace
         self.check_mode = self.module.check_mode
 
-    # static methods
-    @staticmethod
-    def get_default_response_from_resource(resource):
-        return oci.Response(status=200, headers=None, data=resource, request=None)
+    def get_module_resource_id_param(self):
+        """Expected to be generated inside the module."""
+        pass
+
+    def get_module_resource_id(self):
+        """Expected to be generated inside the module."""
+        pass
+
+    def get_get_fn(self):
+        """Expected to be generated inside the module."""
+        raise NotImplementedError("get not supported by {0}".format(self.resource_type))
+
+    def get_resource(self):
+        """Expected to be generated inside the module."""
+        raise NotImplementedError("get not supported by {0}".format(self.resource_type))
+
+    def get_action_fn(self, action):
+        action_fn = getattr(self, action, None)
+        if not (action_fn and callable(action_fn)):
+            return None
+        return action_fn
+
+    def is_action_necessary(self, action):
+        if action.upper() in oci_common_utils.ALWAYS_PERFORM_ACTIONS:
+            return True
+        resource = self.get_resource().data
+        if hasattr(
+            resource, "lifecycle_state"
+        ) and resource.lifecycle_state in self.get_action_idempotent_states(action):
+            return False
+        return True
+
+    def get_action_idempotent_states(self, action):
+        return oci_common_utils.ACTION_IDEMPOTENT_STATES.get(action.upper(), [])
+
+    def get_action_desired_states(self, action):
+        return oci_common_utils.ACTION_DESIRED_STATES.get(
+            action.upper(), oci_common_utils.DEFAULT_READY_STATES
+        )
+
+    def perform_action(self, action):
+
+        action_fn = self.get_action_fn(action)
+        if not action_fn:
+            self.module.fail_json(msg="{0} not supported by the module.".format(action))
+
+        try:
+            get_response = self.get_resource()
+        except ServiceError as se:
+            self.module.fail_json(
+                msg="Getting resource failed with exception: {0}".format(se.message)
+            )
+        else:
+            resource = to_dict(get_response.data)
+
+        is_action_necessary = self.is_action_necessary(action)
+        if not is_action_necessary:
+            return oci_common_utils.get_result(
+                changed=False, resource_type=self.resource_type, resource=resource
+            )
+
+        if self.check_mode:
+            return oci_common_utils.get_result(
+                changed=True, resource_type=self.resource_type, resource=resource
+            )
+
+        try:
+            actioned_resource = action_fn()
+        except MaximumWaitTimeExceeded as mwtex:
+            self.module.fail_json(msg=str(mwtex))
+        except ServiceError as se:
+            self.module.fail_json(
+                msg="Performing action failed with exception: {0}".format(se.message)
+            )
+        else:
+            return oci_common_utils.get_result(
+                changed=True,
+                resource_type=self.resource_type,
+                resource=to_dict(actioned_resource),
+            )
+
+
+class OCIResourceHelperBase:
+    def __init__(self, module, resource_type, service_client_class, namespace):
+        self.module = module
+        self.resource_type = resource_type
+        self.service_client_class = service_client_class
+        self.client = oci_config_utils.create_service_client(
+            self.module, self.service_client_class
+        )
+        self.namespace = namespace
+        self.check_mode = self.module.check_mode
 
     def get_module_resource_id_param(self):
         """Expected to be generated inside the module."""
@@ -123,6 +216,10 @@ class OCIResourceHelperBase:
         raise NotImplementedError(
             "{0} does not have a resource id.".format(self.resource_type)
         )
+
+    def get_get_fn(self):
+        """Expected to be generated inside the module."""
+        raise NotImplementedError("get not supported by {0}".format(self.resource_type))
 
     def get_resource(self):
         """Expected to be generated inside the module."""
@@ -176,13 +273,6 @@ class OCIResourceHelperBase:
         if not self.module.params.get("state") == "present":
             return False
         if self.get_module_resource_id():
-            return False
-        return True
-
-    def is_action(self):
-        if not self.get_module_resource_id():
-            return False
-        if self.module.params.get("state") in ["present", "absent"]:
             return False
         return True
 
@@ -243,15 +333,14 @@ class OCIResourceHelperBase:
                 return None
         return compartment_id
 
-    def create(self, check_applicable=True, wait_applicable=True):
+    def create(self):
 
         if self.module.params.get("force_create"):
             if self.check_mode:
                 return oci_common_utils.get_result(
                     changed=True, resource_type=self.resource_type, resource=dict()
                 )
-
-        elif check_applicable:
+        else:
             resource_matched = self.get_matching_resource()
             if resource_matched:
                 return oci_common_utils.get_result(
@@ -265,16 +354,9 @@ class OCIResourceHelperBase:
                 changed=True, resource_type=self.resource_type, resource=dict()
             )
 
-        create_response = self.create_resource()
-        if not (wait_applicable and self.module.params.get("wait", None)):
-            return oci_common_utils.get_result(
-                changed=True,
-                resource_type=self.resource_type,
-                resource=to_dict(create_response.data),
-            )
-
         try:
-            created_resource = self.create_wait(create_response)
+            created_resource = self.create_resource()
+
         except MaximumWaitTimeExceeded as ex:
             self.module.fail_json(msg=str(ex))
         except ServiceError as se:
@@ -286,7 +368,10 @@ class OCIResourceHelperBase:
                 resource=to_dict(created_resource),
             )
 
-    def update(self, check_applicable=True, wait_applicable=True):
+    def get_waiter_type(self, operation):
+        return oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY
+
+    def update(self):
 
         try:
             get_response = self.get_resource()
@@ -297,31 +382,21 @@ class OCIResourceHelperBase:
         else:
             resource = to_dict(get_response.data)
 
-        if check_applicable:
-            is_update_necessary = self.is_update_necessary()
-            if not is_update_necessary:
-                return oci_common_utils.get_result(
-                    changed=False, resource_type=self.resource_type, resource=resource
-                )
+        is_update_necessary = self.is_update_necessary()
+        if not is_update_necessary:
+            return oci_common_utils.get_result(
+                changed=False, resource_type=self.resource_type, resource=resource
+            )
 
         if self.check_mode:
             return oci_common_utils.get_result(
                 changed=True, resource_type=self.resource_type, resource=resource
             )
 
-        update_response = self.update_resource()
-
-        if not (wait_applicable and self.module.params.get("wait")):
-            updated_resource_response = self.get_resource()
-            updated_resource = to_dict(updated_resource_response.data)
-            return oci_common_utils.get_result(
-                changed=True,
-                resource_type=self.resource_type,
-                resource=updated_resource,
-            )
-
         try:
-            updated_resource = self.update_wait(update_response)
+            updated_resource = self.update_resource()
+        except MaximumWaitTimeExceeded as mwtex:
+            self.module.fail_json(msg=str(mwtex))
         except ServiceError as se:
             self.module.fail_json(
                 msg="Updating resource failed with exception: {0}".format(se.message)
@@ -333,7 +408,7 @@ class OCIResourceHelperBase:
                 resource=to_dict(updated_resource),
             )
 
-    def delete(self, wait_applicable=True):
+    def delete(self):
 
         try:
 
@@ -381,13 +456,10 @@ class OCIResourceHelperBase:
                 resource=oci_common_utils.get_resource_with_state(resource, "DELETED"),
             )
 
-        delete_response = self.delete_resource()
-        if not (wait_applicable and self.module.params.get("wait", None)):
-            return oci_common_utils.get_result(
-                changed=True, resource_type=self.resource_type, resource=resource
-            )
         try:
-            deleted_resource = self.delete_wait(delete_response)
+            deleted_resource = self.delete_resource()
+        except MaximumWaitTimeExceeded as mwtex:
+            self.module.fail_json(msg=str(mwtex))
         except ServiceError as se:
             if se.status == 404:
                 return oci_common_utils.get_result(
@@ -401,130 +473,11 @@ class OCIResourceHelperBase:
                 msg="Deleting resource failed with exception: {0}".format(se.message)
             )
         else:
-            return oci_common_utils.get_result(
-                changed=True,
-                resource_type=self.resource_type,
-                resource=to_dict(deleted_resource),
-            )
-
-    def perform_action(self, action, check_applicable=True, wait_applicable=True):
-
-        action_fn = self.get_action_fn(action)
-        if not action_fn:
-            self.module.fail_json(msg="{0} not supported by the module.".format(action))
-
-        try:
-            get_response = self.get_resource()
-        except ServiceError as se:
-            self.module.fail_json(
-                msg="Getting resource failed with exception: {0}".format(se.message)
-            )
-        else:
-            resource = to_dict(get_response.data)
-
-        if check_applicable:
-            is_action_necessary = self.is_action_necessary(action)
-            if not is_action_necessary:
-                return oci_common_utils.get_result(
-                    changed=False, resource_type=self.resource_type, resource=resource
-                )
-
-        if self.check_mode:
+            if deleted_resource:
+                resource = to_dict(deleted_resource)
             return oci_common_utils.get_result(
                 changed=True, resource_type=self.resource_type, resource=resource
             )
-
-        action_response = action_fn()
-
-        if not (wait_applicable and self.module.params.get("wait")):
-            if action_response.data:
-                return oci_common_utils.get_result(
-                    changed=True,
-                    resource_type=self.resource_type,
-                    resource=to_dict(action_response.data),
-                )
-            return oci_common_utils.get_result(
-                changed=True, resource_type=self.resource_type, resource=resource
-            )
-
-        try:
-            updated_resource = self.action_wait(action, action_response)
-        except ServiceError as se:
-            self.module.fail_json(
-                msg="Performing action failed with exception: {0}".format(se.message)
-            )
-        else:
-            return oci_common_utils.get_result(
-                changed=True,
-                resource_type=self.resource_type,
-                resource=to_dict(updated_resource),
-            )
-
-    def get_action_fn(self, action):
-        action_fn = getattr(self, action, None)
-        if not (action_fn and callable(action_fn)):
-            return None
-        return action_fn
-
-    def is_action_necessary(self, action):
-        if action.upper() in oci_common_utils.ALWAYS_PERFORM_ACTIONS:
-            return True
-        resource = self.get_resource().data
-        if hasattr(
-            resource, "lifecycle_state"
-        ) and resource.lifecycle_state in self.get_action_idempotent_states(action):
-            return False
-        return True
-
-    def get_action_idempotent_states(self, action):
-        return oci_common_utils.ACTION_IDEMPOTENT_STATES.get(action.upper(), [])
-
-    def get_action_desired_states(self, action):
-        return oci_common_utils.ACTION_DESIRED_STATES.get(
-            action.upper(), oci_common_utils.DEFAULT_READY_STATES
-        )
-
-    def action_wait(self, action, action_response):
-        get_response = self.get_resource()
-        wait_response = self.wait_for_resource_lifecycle_state(
-            get_response, states=self.get_action_desired_states(action)
-        )
-        return wait_response.data
-
-    def create_wait(self, create_response):
-        response = self.get_resource_from_create_reponse(create_response)
-        wait_response = self.wait_for_resource_lifecycle_state(
-            response, states=self.get_active_states()
-        )
-        return wait_response.data
-
-    def update_wait(self, update_response):
-        get_response = self.get_resource()
-        wait_response = self.wait_for_resource_lifecycle_state(
-            get_response, states=self.get_active_states()
-        )
-        return wait_response.data
-
-    def delete_wait(self, delete_response):
-        get_response = self.get_resource()
-        wait_response = self.wait_for_resource_lifecycle_state(
-            get_response, states=self.get_terminated_states()
-        )
-        return wait_response.data
-
-    def get_active_states(self):
-        return oci_common_utils.DEFAULT_READY_STATES
-
-    def get_terminated_states(self):
-        return oci_common_utils.DEFAULT_TERMINATED_STATES
-
-    def get_resource_from_create_reponse(self, create_response):
-        self.module.params[
-            self.get_module_resource_id_param()
-        ] = create_response.data.id
-        get_response = self.get_resource()
-        del self.module.params[self.get_module_resource_id_param()]
-        return get_response
 
     def is_update_necessary(self):
         current_resource_dict = to_dict(self.get_resource().data)
@@ -534,56 +487,12 @@ class OCIResourceHelperBase:
             update_model_dict, current_resource_dict, update_model.attribute_map
         )
 
-    def wait_for_resource_lifecycle_state(self, response, states):
-        return oci.wait_until(
-            self.client,
-            response,
-            evaluate_response=lambda r: oci_common_utils.get_resource_state(r.data)
-            in states,
-            max_wait_seconds=self.module.params.get(
-                "wait_timeout", oci_common_utils.MAX_WAIT_TIMEOUT_IN_SECONDS
-            ),
-        )
-
-    def get_work_request_id(self, response):
-        return response.headers.get("opc-work-request-id")
-
-    def get_work_request(self, work_request_id):
-        return oci_common_utils.call_with_backoff(
-            self.client.get_work_request, work_request_id=work_request_id
-        )
-
-    def is_work_request_success(self, work_request_response):
-        return (
-            getattr(work_request_response.data, "status", None)
-            in oci_common_utils.WORK_REQUEST_SUCCESS_STATES
-        )
-
-    def get_work_request_errors(self, work_request_response):
-        return getattr(work_request_response, "errors", None)
-
-    def wait_for_work_request(self, response, states):
-        work_request_id = self.get_work_request_id(response)
-        if not work_request_id:
-            self.module.fail_json(
-                msg="Unable to get the work request for the operation."
+    def get_resource_from_work_request_response(self, work_request_response):
+        self.module.fail_json(
+            msg="Could not get the resource from work request response {0}".format(
+                work_request_response
             )
-        work_request_response = self.get_work_request(work_request_id)
-        work_request_response = oci.wait_until(
-            self.client,
-            work_request_response,
-            evaluate_response=lambda response: response.data.status in states,
-            max_wait_seconds=self.module.params.get(
-                "wait_timeout", oci_common_utils.MAX_WAIT_TIMEOUT_IN_SECONDS
-            ),
         )
-        if not self.is_work_request_success(work_request_response):
-            error_msg = "Work request {0} failed.".format(work_request_id)
-            errors = self.get_work_request_errors(work_request_response)
-            if errors:
-                error_msg += " Errors: {0}".format(errors)
-            self.module.fail_json(msg=error_msg)
-        return work_request_response
 
 
 custom_helper_mapping = {}

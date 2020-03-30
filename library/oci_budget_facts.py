@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -280,13 +281,16 @@ def main():
         module.fail_json(msg="oci python sdk required for this module.")
 
     resource_facts_helper = ResourceFactsHelper(
-        module=module, resource_type="budget", service_client_class=BudgetClient
+        module=module,
+        resource_type="budget",
+        service_client_class=BudgetClient,
+        namespace="budget",
     )
 
     result = []
 
     if resource_facts_helper.is_get():
-        result = resource_facts_helper.get()
+        result = [resource_facts_helper.get()]
     elif resource_facts_helper.is_list():
         result = resource_facts_helper.list()
     else:

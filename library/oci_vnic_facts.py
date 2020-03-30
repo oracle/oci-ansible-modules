@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, 2019 Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -87,6 +87,11 @@ vnic:
             returned: always
             type: string
             sample: 00:00:17:B6:4D:DD
+        nsg_ids:
+            description: A list of the OCIDs of the network security groups that the VNIC belongs to.
+            returned: always
+            type: list
+            sample: ["ocid1.networksecuritygroup.oc1.iad.aaaaaaaas5tfvdhvt6sfam3wfzarw"]
         private_ip:
             description: The private IP address of the primary privateIp object on the VNIC. The address is within the
                          CIDR of the VNIC's subnet.
@@ -122,6 +127,7 @@ vnic:
               "is_primary": true,
               "lifecycle_state": "AVAILABLE",
               "mac_address": "00:00:17:00:6C:A2",
+              "nsg_ids": ["ocid1.networksecuritygroup.oc1.iad.aaaaaaaas5tfvdhvt6sfam3wfzarw"],
               "private_ip": "10.0.0.10",
               "public_ip": null,
               "skip_source_dest_check": false,

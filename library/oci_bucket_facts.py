@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -138,6 +138,15 @@ buckets:
                          and the actual object count.
             returned: only when 'approximateCount' is specified in the 'fields' input option
             type: int
+        freeform_tags:
+            description: Free-form tags for this resource. Each tag is a simple key-value pair with no predefined \
+                        name, type, or namespace.
+            returned: only when 'tags' is specified in the 'fields' input option
+            type: dict
+        defined_tags:
+            description: Defined tags for this resource. Each key is predefined and scoped to a namespace.
+            returned: only when 'tags' is specified in the 'fields' input option
+            type: dict
     sample: [{"compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
               "created_by": "ocid1.user.oc1..xxxxxEXAMPLExxxxx",
               "etag": "7d48fea5-ghfc",
@@ -150,7 +159,9 @@ buckets:
               "etag": "3f0158f2-68ea",
               "name": "Bucket2",
               "namespace": "mynamespace",
-              "time_created": "2017-10-06T13:47:38.544000+00:00"
+              "time_created": "2017-10-06T13:47:38.544000+00:00",
+              "freeform_tags": {"Department": "Finance"},
+              "defined_tags": {"Operations": {"CostCenter": "42"}}
              }]
 """
 

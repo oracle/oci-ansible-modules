@@ -262,14 +262,14 @@ RETURN = """
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
-from ansible.module_utils.oracle import oci_common_utils
-from ansible.module_utils.oracle.oci_resource_utils import (
-    OCIResourceHelperBase,
-    get_custom_class,
-)
+from ansible.module_utils.oracle import oci_db_utils
+from ansible.module_utils._text import to_bytes
+import os
 
 try:
     from oci.database.database_client import DatabaseClient
+    from oci.exceptions import ServiceError, ClientError
+    from oci.util import to_dict
     from oci.database.models import (
         CreateAutonomousDataWarehouseDetails,
         UpdateAutonomousDataWarehouseDetails,
@@ -282,128 +282,239 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-class AutonomousDataWarehouseHelperGen(OCIResourceHelperBase):
-    @staticmethod
-    def get_module_resource_id_param():
-        return "autonomous_data_warehouse_id"
-
-    def get_module_resource_id(self):
-        return self.module.params.get("autonomous_data_warehouse_id")
-
-    def get_resource(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.get_autonomous_data_warehouse,
-            autonomous_data_warehouse_id=self.module.params.get(
-                "autonomous_data_warehouse_id"
-            ),
-        )
-
-    def get_create_model_class(self):
-        return CreateAutonomousDataWarehouseDetails
-
-    def get_update_model_class(self):
-        return UpdateAutonomousDataWarehouseDetails
-
-    def list_resources(self):
-        return oci_common_utils.list_all_resources(
-            self.client.list_autonomous_data_warehouses,
-            compartment_id=self.module.params.get("compartment_id"),
-        )
-
-    def create_resource(self):
-        create_autonomous_data_warehouse_details = self.get_create_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.create_autonomous_data_warehouse,
-            create_autonomous_data_warehouse_details=create_autonomous_data_warehouse_details,
-        )
-
-    def update_resource(self):
-        update_autonomous_data_warehouse_details = self.get_update_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.update_autonomous_data_warehouse,
-            autonomous_data_warehouse_id=self.module.params.get(
-                "autonomous_data_warehouse_id"
-            ),
-            update_autonomous_data_warehouse_details=update_autonomous_data_warehouse_details,
-        )
-
-    def delete_resource(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.delete_autonomous_data_warehouse,
-            autonomous_data_warehouse_id=self.module.params.get(
-                "autonomous_data_warehouse_id"
-            ),
-        )
-
-    def start(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.start_autonomous_data_warehouse,
-            autonomous_data_warehouse_id=self.module.params.get(
-                "autonomous_data_warehouse_id"
-            ),
-        )
-
-    def stop(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.stop_autonomous_data_warehouse,
-            autonomous_data_warehouse_id=self.module.params.get(
-                "autonomous_data_warehouse_id"
-            ),
-        )
-
-    def generate_wallet(self):
-        generate_autonomous_data_warehouse_wallet_details = (
-            GenerateAutonomousDataWarehouseWalletDetails()
-        )
-        for attr in generate_autonomous_data_warehouse_wallet_details.attribute_map:
-            if self.module.params.get(attr) is None:
-                continue
-            setattr(
-                generate_autonomous_data_warehouse_wallet_details,
-                attr,
-                self.module.params.get(attr),
+def create_or_update_autonomous_data_warehouse(db_client, module):
+    result = dict(changed=False, autonomous_data_warehouse="")
+    autonomous_data_warehouse_id = module.params.get("autonomous_data_warehouse_id")
+    try:
+        if autonomous_data_warehouse_id:
+            result = update_autonomous_data_warehouse(db_client, module)
+        else:
+            result = oci_utils.check_and_create_resource(
+                resource_type="autonomous_data_warehouse",
+                create_fn=create_autonomous_data_warehouse,
+                kwargs_create={"db_client": db_client, "module": module},
+                list_fn=db_client.list_autonomous_data_warehouses,
+                kwargs_list={"compartment_id": module.params.get("compartment_id")},
+                module=module,
+                model=CreateAutonomousDataWarehouseDetails(),
             )
-        return oci_common_utils.call_with_backoff(
-            self.client.generate_autonomous_data_warehouse_wallet,
-            autonomous_data_warehouse_id=self.module.params.get(
-                "autonomous_data_warehouse_id"
-            ),
-            generate_autonomous_data_warehouse_wallet_details=generate_autonomous_data_warehouse_wallet_details,
+    except ServiceError as ex:
+        get_logger().error(
+            "Unable to create/update autonomous data warehouse due to: %s", ex.message
+        )
+        module.fail_json(msg=ex.message)
+    except ClientError as ex:
+        get_logger().error(
+            "Unable to create/update autonomous data warehouse due to: %s", str(ex)
+        )
+        module.fail_json(msg=str(ex))
+
+    return result
+
+
+def create_autonomous_data_warehouse(db_client, module):
+    create_autonomous_data_warehouse_details = CreateAutonomousDataWarehouseDetails()
+    for attribute in create_autonomous_data_warehouse_details.attribute_map:
+        create_autonomous_data_warehouse_details.__setattr__(
+            attribute, module.params.get(attribute)
         )
 
-    def restore(self):
-        restore_autonomous_data_warehouse_details = (
-            RestoreAutonomousDataWarehouseDetails()
+    result = oci_utils.create_and_wait(
+        resource_type="autonomous_data_warehouse",
+        create_fn=db_client.create_autonomous_data_warehouse,
+        kwargs_create={
+            "create_autonomous_data_warehouse_details": create_autonomous_data_warehouse_details
+        },
+        client=db_client,
+        get_fn=db_client.get_autonomous_data_warehouse,
+        get_param="autonomous_data_warehouse_id",
+        module=module,
+    )
+    return result
+
+
+def update_autonomous_data_warehouse(db_client, module):
+    result = oci_utils.check_and_update_resource(
+        resource_type="autonomous_data_warehouse",
+        get_fn=db_client.get_autonomous_data_warehouse,
+        kwargs_get={
+            "autonomous_data_warehouse_id": module.params[
+                "autonomous_data_warehouse_id"
+            ]
+        },
+        update_fn=db_client.update_autonomous_data_warehouse,
+        primitive_params_update=["autonomous_data_warehouse_id"],
+        kwargs_non_primitive_update={
+            UpdateAutonomousDataWarehouseDetails: "update_autonomous_data_warehouse_details"
+        },
+        client=db_client,
+        module=module,
+        update_attributes=UpdateAutonomousDataWarehouseDetails().attribute_map,
+    )
+    return result
+
+
+def delete_autonomous_data_warehouse(db_client, module):
+    result = oci_utils.delete_and_wait(
+        resource_type="autonomous_data_warehouse",
+        client=db_client,
+        get_fn=db_client.get_autonomous_data_warehouse,
+        kwargs_get={
+            "autonomous_data_warehouse_id": module.params[
+                "autonomous_data_warehouse_id"
+            ]
+        },
+        delete_fn=db_client.delete_autonomous_data_warehouse,
+        kwargs_delete={
+            "autonomous_data_warehouse_id": module.params[
+                "autonomous_data_warehouse_id"
+            ]
+        },
+        module=module,
+    )
+
+    return result
+
+
+def restore_autonomous_data_warehouse(db_client, module):
+    result = dict(changed=True, autonomous_data_warehouse="")
+
+    autonomous_data_warehouse_id = module.params.get("autonomous_data_warehouse_id")
+    restore_autonomous_data_warehouse_details = RestoreAutonomousDataWarehouseDetails()
+    for attribute in restore_autonomous_data_warehouse_details.attribute_map:
+        restore_autonomous_data_warehouse_details.__setattr__(
+            attribute, module.params.get(attribute)
         )
-        for attr in restore_autonomous_data_warehouse_details.attribute_map:
-            if self.module.params.get(attr) is None:
-                continue
-            setattr(
-                restore_autonomous_data_warehouse_details,
-                attr,
-                self.module.params.get(attr),
+
+    result = oci_db_utils.execute_function_and_wait(
+        resource_type="autonomous_data_warehouse",
+        function=db_client.restore_autonomous_data_warehouse,
+        kwargs_function={
+            "autonomous_data_warehouse_id": autonomous_data_warehouse_id,
+            "restore_autonomous_data_warehouse_details": restore_autonomous_data_warehouse_details,
+        },
+        client=db_client,
+        get_fn=db_client.get_autonomous_data_warehouse,
+        get_param="autonomous_data_warehouse_id",
+        module=module,
+        states=["AVAILABLE", "FAILED"],
+    )
+    return result
+
+
+def start_or_stop_autonomous_data_warehouse(db_client, module):
+    autonomous_data_warehouse_id = module.params.get("autonomous_data_warehouse_id")
+    autonomous_data_warehouse = oci_utils.get_existing_resource(
+        db_client.get_autonomous_data_warehouse,
+        module,
+        autonomous_data_warehouse_id=autonomous_data_warehouse_id,
+    )
+
+    if autonomous_data_warehouse is None:
+        raise ClientError(
+            Exception(
+                "No Autonomous Data Warehouse with id "
+                + autonomous_data_warehouse_id
+                + " is found for update"
             )
-        return oci_common_utils.call_with_backoff(
-            self.client.generate_autonomous_data_warehouse_wallet,
-            autonomous_data_warehouse_id=self.module.params.get(
-                "autonomous_data_warehouse_id"
-            ),
-            restore_autonomous_data_warehouse_details=restore_autonomous_data_warehouse_details,
         )
 
+    return perform_start_or_stop(
+        db_client, autonomous_data_warehouse, autonomous_data_warehouse_id, module
+    )
 
-AutonomousDataWarehouseHelperCustom = get_custom_class(
-    "AutonomousDataWarehouseHelperCustom"
-)
 
-
-class ResourceHelper(
-    AutonomousDataWarehouseHelperCustom, AutonomousDataWarehouseHelperGen
+def perform_start_or_stop(
+    db_client, autonomous_data_warehouse, autonomous_data_warehouse_id, module
 ):
-    pass
+    result = dict()
+    idempotent_lifecycle_state = []
+    target_state = []
+
+    lifecycle_func = None
+    state = module.params.get("state")
+    if state == "start":
+        idempotent_lifecycle_state = ["AVAILABLE", "STARTING"]
+        target_state = ["AVAILABLE"]
+        lifecycle_func = db_client.start_autonomous_data_warehouse
+    elif state == "stop":
+        idempotent_lifecycle_state = ["STOPPED", "STOPPING"]
+        target_state = ["STOPPED"]
+        lifecycle_func = db_client.stop_autonomous_data_warehouse
+
+    if autonomous_data_warehouse.lifecycle_state not in idempotent_lifecycle_state:
+        result = oci_db_utils.execute_function_and_wait(
+            resource_type="autonomous_data_warehouse",
+            function=lifecycle_func,
+            kwargs_function={
+                "autonomous_data_warehouse_id": autonomous_data_warehouse_id
+            },
+            client=db_client,
+            get_fn=db_client.get_autonomous_data_warehouse,
+            get_param="autonomous_data_warehouse_id",
+            module=module,
+            states=target_state,
+        )
+    else:
+        result["autonomous_data_warehouse"] = to_dict(autonomous_data_warehouse)
+        result["changed"] = False
+    return result
+
+
+def generate_wallet(db_client, module):
+    result = dict(changed=False)
+    autonomous_data_warehouse_id = module.params.get("autonomous_data_warehouse_id")
+    generate_autonomous_data_warehouse_wallet_details = (
+        GenerateAutonomousDataWarehouseWalletDetails()
+    )
+    generate_autonomous_data_warehouse_wallet_details.password = module.params.get(
+        "password"
+    )
+    wallet_file = module.params.get("wallet_file")
+    try:
+        if wallet_file is None or len(wallet_file.strip()) == 0:
+            raise ClientError(Exception("Wallet file must be declared"))
+        if module.params.get("force") or not os.path.isfile(to_bytes(wallet_file)):
+            response = oci_utils.call_with_backoff(
+                db_client.generate_autonomous_data_warehouse_wallet,
+                autonomous_data_warehouse_id=autonomous_data_warehouse_id,
+                generate_autonomous_data_warehouse_wallet_details=generate_autonomous_data_warehouse_wallet_details,
+            )
+            result["changed"] = oci_db_utils.write_stream_to_file(
+                response.data, wallet_file
+            )
+        else:
+            result["msg"] = (
+                "Wallet file  %s already exists. Use force option to overwrite."
+                % wallet_file
+            )
+    except ServiceError as ex:
+        get_logger().error(
+            "Unable to get autonomous data warehouse wallet due to: %s", ex.message
+        )
+        module.fail_json(msg=ex.message)
+    except ClientError as ex:
+        get_logger().error(
+            "Unable to get autonomous data warehouse wallet due to: %s", str(ex)
+        )
+        module.fail_json(msg=str(ex))
+
+    return result
+
+
+def set_logger(input_logger):
+    global logger
+    logger = input_logger
+
+
+def get_logger():
+    return logger
 
 
 def main():
+    logger = oci_utils.get_logger("oci_autonomous_data_warehouse")
+    set_logger(logger)
+
     module_args = oci_utils.get_taggable_arg_spec(
         supports_create=True, supports_wait=True
     )
@@ -448,28 +559,28 @@ def main():
     module = AnsibleModule(
         argument_spec=module_args,
         required_if=[("state", "generate_wallet", ["password", "wallet_file"])],
-        supports_check_mode=True,
     )
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module")
 
-    resource_helper = ResourceHelper(
-        module=module,
-        resource_type="autonomous_data_warehouse",
-        service_client_class=DatabaseClient,
-    )
+    db_client = oci_utils.create_service_client(module, DatabaseClient)
+    if os.environ.get("OCI_DB_MOCK") is not None:
+        db_client.base_client.session.headers.update(
+            {"opc-host-serial": "FakeHostSerial"}
+        )
+    state = module.params["state"]
 
-    result = dict(changed=False)
-
-    if resource_helper.is_delete():
-        result = resource_helper.delete()
-    elif resource_helper.is_update():
-        result = resource_helper.update()
-    elif resource_helper.is_create():
-        result = resource_helper.create()
-    elif resource_helper.is_action():
-        result = resource_helper.perform_action(module.params.get("state"))
+    if state == "present":
+        result = create_or_update_autonomous_data_warehouse(db_client, module)
+    elif state == "absent":
+        result = delete_autonomous_data_warehouse(db_client, module)
+    elif state == "restore":
+        result = restore_autonomous_data_warehouse(db_client, module)
+    elif state == "generate_wallet":
+        result = generate_wallet(db_client, module)
+    else:
+        result = start_or_stop_autonomous_data_warehouse(db_client, module)
 
     module.exit_json(**result)
 

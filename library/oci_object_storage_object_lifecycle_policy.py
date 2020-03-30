@@ -53,6 +53,7 @@ options:
                 description:
                     - Specifies the age of objects to apply the rule to. The timeAmount is interpreted in units defined by the
                       timeUnit parameter, and is calculated in relation to each object's Last-Modified time.
+                type: int
                 required: true
             time_unit:
                 description:
@@ -70,10 +71,12 @@ options:
             object_name_filter:
                 description:
                     - A filter limiting object names that the rule will apply to.
+                type: dict
                 suboptions:
                     inclusion_prefixes:
                         description:
                             - An array of object name prefixes that the rule will apply to. An empty array means to include all objects.
+                        type: list
                     inclusion_patterns:
                         description:
                             - An array of glob patterns to match the object names to include. An empty array includes all objects in the
@@ -94,6 +97,7 @@ options:
                                                           [a-mn-z] is not valid
                                                       Character ranges can not start with ^ or :
                                                       To include a '-' in the range, make it the first or last character."
+                        type: list
                     exclusion_patterns:
                         description:
                             - An array of glob patterns to match the object names to exclude. An empty array is ignored. Exclusion
@@ -114,6 +118,7 @@ options:
                                                           [a-mn-z] is not valid
                                                       Character ranges can not start with ^ or :
                                                       To include a '-' in the range, make it the first or last character."
+                        type: list
     state:
         description:
             - The state of the ObjectLifecyclePolicy.
@@ -130,7 +135,7 @@ extends_documentation_fragment: [ oracle ]
 """
 
 EXAMPLES = """
-- name: Update object_lifecycle_policy from x-example
+- name: Update object_lifecycle_policy
   oci_object_storage_object_lifecycle_policy:
       namespace_name: namespace_name_example
       bucket_name: my-new-bucket1
@@ -287,7 +292,7 @@ object_lifecycle_policy:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
     OCIResourceHelperBase,
     get_custom_class,
@@ -312,6 +317,9 @@ class ObjectLifecyclePolicyHelperGen(OCIResourceHelperBase):
     def get_module_resource_id(self):
         return self.module.params.get("bucket_name")
 
+    def get_get_fn(self):
+        return self.client.get_object_lifecycle_policy
+
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
             self.client.get_object_lifecycle_policy,
@@ -324,18 +332,36 @@ class ObjectLifecyclePolicyHelperGen(OCIResourceHelperBase):
 
     def update_resource(self):
         update_details = self.get_update_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.put_object_lifecycle_policy,
-            namespace_name=self.module.params.get("namespace_name"),
-            bucket_name=self.module.params.get("bucket_name"),
-            put_object_lifecycle_policy_details=update_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.put_object_lifecycle_policy,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                namespace_name=self.module.params.get("namespace_name"),
+                bucket_name=self.module.params.get("bucket_name"),
+                put_object_lifecycle_policy_details=update_details,
+            ),
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation=oci_common_utils.UPDATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def delete_resource(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.delete_object_lifecycle_policy,
-            namespace_name=self.module.params.get("namespace_name"),
-            bucket_name=self.module.params.get("bucket_name"),
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.delete_object_lifecycle_policy,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                namespace_name=self.module.params.get("namespace_name"),
+                bucket_name=self.module.params.get("bucket_name"),
+            ),
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation=oci_common_utils.DELETE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_terminated_states(),
         )
 
 
@@ -390,6 +416,7 @@ def main():
         module=module,
         resource_type="object_lifecycle_policy",
         service_client_class=ObjectStorageClient,
+        namespace="object_storage",
     )
 
     result = dict(changed=False)

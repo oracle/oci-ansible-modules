@@ -1,9 +1,10 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2019 Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -39,7 +40,6 @@ description:
       Identifiers,https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
     - "**Note:** After sending the POST request, the new object's state will temporarily be `CREATING`. Ensure that the resource's state has changed to `ACTIVE`
       before use."
-    - "This resource has the following action operations in the M(oci_waas_policy_actions) module: accept_recommendations."
 version_added: "2.5"
 options:
     compartment_id:
@@ -775,12 +775,25 @@ EXAMPLES = """
   oci_waas_policy:
     compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
     domain: domain_example
+    display_name: test_waas_policy
+    origins:
+      primary:
+        http_port: 80
+        https_port: 443
+        uri: 1.2.3.4
 
 - name: Update waas_policy
   oci_waas_policy:
-    display_name: display_name_example
+    display_name: test_waas_policy
     origins:
-      uri: uri_example
+      primary:
+        http_port: 80
+        https_port: 443
+        uri: 1.2.3.4
+      secondary:
+        http_port: 80
+        https_port: 443
+        uri: 2.3.4.5
     waas_policy_id: ocid1.waaspolicy.oc1..xxxxxxEXAMPLExxxxxx
 
 - name: Delete waas_policy
@@ -1750,13 +1763,13 @@ waas_policy:
                 - A simple key-value pair without any defined schema.
             returned: on success
             type: dict
-            sample: {Department: Finance}
+            sample: {'Department': 'Finance'}
         defined_tags:
             description:
                 - A key-value pair with a defined schema that restricts the values of tags. These predefined keys are scoped to namespaces.
             returned: on success
             type: dict
-            sample: {Operations: {CostCenter: US}}
+            sample: {'Operations': {'CostCenter': 'US'}}
     sample: {
         "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
         "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
@@ -1919,13 +1932,13 @@ waas_policy:
                 "addresses": []
             }]
         },
-        "freeform_tags": {Department: Finance},
-        "defined_tags": {Operations: {CostCenter: US}}
+        "freeform_tags": {'Department': 'Finance'},
+        "defined_tags": {'Operations': {'CostCenter': 'US'}}
     }
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
     OCIResourceHelperBase,
     get_custom_class,
@@ -1950,6 +1963,9 @@ class WaasPolicyHelperGen(OCIResourceHelperBase):
 
     def get_module_resource_id(self):
         return self.module.params.get("waas_policy_id")
+
+    def get_get_fn(self):
+        return self.client.get_waas_policy
 
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
@@ -1987,8 +2003,16 @@ class WaasPolicyHelperGen(OCIResourceHelperBase):
 
     def create_resource(self):
         create_details = self.get_create_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.create_waas_policy, create_waas_policy_details=create_details
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.create_waas_policy,
+            call_fn_args=(),
+            call_fn_kwargs=dict(create_waas_policy_details=create_details),
+            waiter_type=oci_wait_utils.WORK_REQUEST_WAITER_KEY,
+            operation=oci_common_utils.CREATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_work_request_completed_states(),
         )
 
     def get_update_model_class(self):
@@ -1996,16 +2020,34 @@ class WaasPolicyHelperGen(OCIResourceHelperBase):
 
     def update_resource(self):
         update_details = self.get_update_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.update_waas_policy,
-            waas_policy_id=self.module.params.get("waas_policy_id"),
-            update_waas_policy_details=update_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.update_waas_policy,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                waas_policy_id=self.module.params.get("waas_policy_id"),
+                update_waas_policy_details=update_details,
+            ),
+            waiter_type=oci_wait_utils.WORK_REQUEST_WAITER_KEY,
+            operation=oci_common_utils.UPDATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_work_request_completed_states(),
         )
 
     def delete_resource(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.delete_waas_policy,
-            waas_policy_id=self.module.params.get("waas_policy_id"),
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.delete_waas_policy,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                waas_policy_id=self.module.params.get("waas_policy_id")
+            ),
+            waiter_type=oci_wait_utils.WORK_REQUEST_WAITER_KEY,
+            operation=oci_common_utils.DELETE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_work_request_completed_states(),
         )
 
 
@@ -2326,7 +2368,10 @@ def main():
         module.fail_json(msg="oci python sdk required for this module.")
 
     resource_helper = ResourceHelper(
-        module=module, resource_type="waas_policy", service_client_class=WaasClient
+        module=module,
+        resource_type="waas_policy",
+        service_client_class=WaasClient,
+        namespace="waas",
     )
 
     result = dict(changed=False)

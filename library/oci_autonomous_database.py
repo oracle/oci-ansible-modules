@@ -75,6 +75,18 @@ options:
         description: The destination file path with file name when downloading wallet. The file must have 'zip' extension.
                      I(wallet_file) is required if I(state='generate_wallet').
         required: false
+    is_free_tier:
+        description: Indicates if this is an Always Free resource. The default value is false. Note that Always Free
+                     Autonomous Databases have 1 CPU and 20GB of memory. For Always Free databases, memory and CPU
+                     cannot be scaled.
+        required: false
+    db_workload:
+        description:
+            - The Autonomous Database workload type. OLTP indicates an Autonomous Transaction Processing database and
+              DW indicates an Autonomous Data Warehouse. The default is OLTP.
+        choices:
+            - "OLTP"
+            - "DW"
     force:
         description: Force overwriting existing wallet file when downloading wallet.
         required: false
@@ -230,6 +242,19 @@ RETURN = """
                 returned: always
                 type: string
                 sample: AVAILABLE
+            is_free_tier:
+                description: Indicates if this is an Always Free resource. The default value is false. Note that Always Free
+                             Autonomous Databases have 1 CPU and 20GB of memory. For Always Free databases, memory and CPU
+                             cannot be scaled.
+                returned: always
+                type: bool
+                sample: false
+            db_workload:
+                description:
+                    - The Autonomous Database workload type.
+                returned: on success
+                type: string
+                sample: OLTP
 
         sample: {
                   "compartment_id":"ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
@@ -257,7 +282,9 @@ RETURN = """
                   "service_console_url":"https://example1.oraclecloud.com/console/index.html?
                         tenant_name=OCID1.TENANCY.OC1..xxxxxEXAMPLExxxxx
                         &database_name=ANSIBLEAUTODB&service_type=ATP",
-                  "time_created":"2018-09-22T15:06:55.426000+00:00"
+                  "time_created":"2018-09-22T15:06:55.426000+00:00",
+                  "is_free_tier": false,
+                  "db_workload": "DW"
               }
 """
 
@@ -299,6 +326,7 @@ def create_or_update_autonomous_database(db_client, module):
                 kwargs_list={"compartment_id": module.params.get("compartment_id")},
                 module=module,
                 model=CreateAutonomousDatabaseDetails(),
+                default_attribute_values={"db_workload": "OLTP"},
             )
     except ServiceError as ex:
         get_logger().error(
@@ -522,6 +550,8 @@ def main():
             ),
             timestamp=dict(type="str", required=False),
             wallet_file=dict(type="str", required=False),
+            is_free_tier=dict(type="bool", required=False),
+            db_workload=dict(type="str", choices=["OLTP", "DW"]),
             force=dict(
                 type="bool", required=False, default=True, aliases=["overwrite"]
             ),

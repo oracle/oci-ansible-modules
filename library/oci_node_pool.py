@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, 2019 Oracle and/or its affiliates.
+# Copyright (c) 2018, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -63,9 +63,43 @@ options:
         description: The SSH public key to add to each node in the node pool.
         required: false
     subnet_ids:
-        description: The OCIDs of the subnets in which to place nodes for this node pool. Required to create a node
-                     pool.
+        description:
+            - The OCIDs of the subnets in which to place nodes for this node pool. When used, quantityPerSubnet
+              can be provided. This property is deprecated, use nodeConfigDetails. Exactly one of the
+              subnetIds or nodeConfigDetails properties must be specified.
         required: false
+    node_config_details:
+        description:
+            - The configuration of nodes in the node pool. Exactly one of the
+              subnetIds or nodeConfigDetails properties must be specified.
+            - Note, when performing an update using this field the operation may
+              return after the update has been accepted, but before it has completed.
+              You can use the oci_node_pool facts module to confirm that the relevant
+              configuration has been updated and wait accordingly.
+        type: dict
+        suboptions:
+            size:
+                description:
+                    - The number of nodes that should be in the node pool.
+                type: int
+            placement_configs:
+                description:
+                    - The placement configurations for the node pool. Provide one placement
+                      configuration for each availability domain in which you intend to launch a node.
+                    - To use the node pool with a regional subnet, provide a placement configuration for
+                      each availability domain, and include the regional subnet in each placement
+                      configuration.
+                type: list
+                suboptions:
+                    availability_domain:
+                        description:
+                            - "The availability domain in which to place nodes.
+                              Example: `Uocm:PHX-AD-1`"
+                        required: true
+                    subnet_id:
+                        description:
+                            - The OCID of the subnet in which to place nodes.
+                        required: true
     state:
         description: Create or update a node pool with I(state=present). Use I(state=absent) to delete a node pool.
         required: false
@@ -91,7 +125,7 @@ options:
     wait_timeout:
         description: Time, in seconds, to wait when I(wait=yes).
         required: false
-        default: 1200
+        default: 2000
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource ]
 """
@@ -210,6 +244,41 @@ node_pool:
             description: The OCIDs of the subnets in which to place nodes for this node pool.
             returned: always
             type: list
+        node_config_details:
+            description:
+                - The configuration of nodes in the node pool.
+            returned: on success
+            type: complex
+            contains:
+                size:
+                    description:
+                        - The number of nodes in the node pool.
+                    returned: on success
+                    type: int
+                    sample: 56
+                placement_configs:
+                    description:
+                        - The placement configurations for the node pool. Provide one placement
+                          configuration for each availability domain in which you intend to launch a node.
+                        - To use the node pool with a regional subnet, provide a placement configuration for
+                          each availability domain, and include the regional subnet in each placement
+                          configuration.
+                    returned: on success
+                    type: complex
+                    contains:
+                        availability_domain:
+                            description:
+                                - "The availability domain in which to place nodes.
+                                  Example: `Uocm:PHX-AD-1`"
+                            returned: on success
+                            type: string
+                            sample: Uocm:PHX-AD-1
+                        subnet_id:
+                            description:
+                                - The OCID of the subnet in which to place nodes.
+                            returned: on success
+                            type: string
+                            sample: ocid1.subnet.oc1..xxxxxxEXAMPLExxxxxx
     sample: {
             "cluster_id": "ocid1.cluster.oc1..xxxxxEXAMPLExxxxx",
             "compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
@@ -313,12 +382,16 @@ work_request:
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.oracle import oci_utils
 from ansible.module_utils.oracle import oci_ce_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    convert_input_data_to_model_class,
+)
 
 try:
     from oci.container_engine.container_engine_client import ContainerEngineClient
     from oci.container_engine.models import CreateNodePoolDetails
     from oci.container_engine.models import UpdateNodePoolDetails
     from oci.container_engine.models import KeyValue
+    from oci.container_engine.models import CreateNodePoolNodeConfigDetails
 
     HAS_OCI_PY_SDK = True
 
@@ -359,7 +432,19 @@ def create_node_pool(container_engine_client, module):
     create_node_pool_details = CreateNodePoolDetails()
     for attribute in create_node_pool_details.attribute_map.keys():
         if attribute in module.params:
-            setattr(create_node_pool_details, attribute, module.params[attribute])
+            if (
+                attribute == "node_config_details"
+                and module.params.get(attribute) is not None
+            ):
+                setattr(
+                    create_node_pool_details,
+                    attribute,
+                    convert_input_data_to_model_class(
+                        module.params.get(attribute), CreateNodePoolNodeConfigDetails
+                    ),
+                )
+            else:
+                setattr(create_node_pool_details, attribute, module.params[attribute])
 
     node_labels = module.params["initial_node_labels"]
     if node_labels:
@@ -399,6 +484,21 @@ def main():
             name=dict(type="str", required=False),
             initial_node_labels=dict(type=list, required=False),
             subnet_ids=dict(type=list, required=False),
+            node_config_details=dict(
+                type="dict",
+                options=dict(
+                    size=dict(type="int"),
+                    placement_configs=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            availability_domain=dict(type="str", required=True),
+                            subnet_id=dict(type="str", required=True),
+                        ),
+                    ),
+                ),
+                required=False,
+            ),
             state=dict(
                 type="str",
                 required=False,

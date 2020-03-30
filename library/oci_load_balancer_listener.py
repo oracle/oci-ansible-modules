@@ -441,7 +441,10 @@ def update_listener(lb_client, module, listener, lb_id, name):
     update_listener_details.hostname_names = listener.hostname_names
     hostname_names_changed = False
     if input_hostname_names is not None:
-        changed_hostname_names, hostname_names_changed = oci_utils.check_and_return_component_list_difference(
+        (
+            changed_hostname_names,
+            hostname_names_changed,
+        ) = oci_utils.check_and_return_component_list_difference(
             input_hostname_names,
             listener.hostname_names,
             module.params.get("purge_hostname_names"),

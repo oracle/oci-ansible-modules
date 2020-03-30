@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -222,7 +223,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about a specific VNIC</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;display_name&#x27;: &#x27;my-vnic-1&#x27;, &#x27;hostname_label&#x27;: &#x27;myhostname-1&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...lwbvm62xq&#x27;, &#x27;subnet_id&#x27;: &#x27;ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...dusmpqpaoa&#x27;, &#x27;is_primary&#x27;: True, &#x27;time_created&#x27;: &#x27;2017-11-26T16:23:29.932000+00:00&#x27;, &#x27;public_ip&#x27;: None, &#x27;skip_source_dest_check&#x27;: False, &#x27;private_ip&#x27;: &#x27;10.0.0.10&#x27;, &#x27;mac_address&#x27;: &#x27;00:00:17:00:6C:A2&#x27;, &#x27;id&#x27;: &#x27;ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...u7ybd56p6a&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;availability_domain&#x27;: &#x27;BnQb:PHX-AD-1&#x27;, &#x27;skip_source_dest_check&#x27;: False, &#x27;private_ip&#x27;: &#x27;10.0.0.10&#x27;, &#x27;hostname_label&#x27;: &#x27;myhostname-1&#x27;, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;public_ip&#x27;: None, &#x27;display_name&#x27;: &#x27;my-vnic-1&#x27;, &#x27;mac_address&#x27;: &#x27;00:00:17:00:6C:A2&#x27;, &#x27;is_primary&#x27;: True, &#x27;id&#x27;: &#x27;ocid1.vnic.oc1.phx.xxxxxEXAMPLExxxxx...u7ybd56p6a&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-26T16:23:29.932000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx...lwbvm62xq&#x27;, &#x27;nsg_ids&#x27;: [&#x27;ocid1.networksecuritygroup.oc1.iad.aaaaaaaas5tfvdhvt6sfam3wfzarw&#x27;], &#x27;subnet_id&#x27;: &#x27;ocid1.subnet.oc1.phx.xxxxxEXAMPLExxxxx...dusmpqpaoa&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -340,6 +341,20 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
+                    <b>nsg_ids</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td>always</td>
+                <td>
+                                            <div>A list of the OCIDs of the network security groups that the VNIC belongs to.</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[&#x27;ocid1.networksecuritygroup.oc1.iad.aaaaaaaas5tfvdhvt6sfam3wfzarw&#x27;]</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
                     <b>private_ip</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
@@ -404,7 +419,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the image was created, in the format defined by RFC3339</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-20 04:52:54.541000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2017-11-20 04:52:54.541000+00:00</div>
                                     </td>
             </tr>
                     

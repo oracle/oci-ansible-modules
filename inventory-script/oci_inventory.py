@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -31,7 +31,6 @@ usage: oci_inventory.py [-h] [--list] [--host HOST] [-config CONFIG_FILE]
                         [--exclude-regions EXCLUDE_REGIONS]
                         [--hostname-format {fqdn,private_ip,public_ip}]
                         [--strict-hostname-checking {yes,no}]
-                        [--primary-vnic-only {yes,no}]
 
 Produce an Ansible Inventory file based on OCI
 
@@ -114,11 +113,7 @@ optional arguments:
                         without valid hostnames(determined according to the
                         hostname format). When set to yes, the script fails
                         when any host does not have a valid hostname.
-  --primary-vnic-only {yes,no}
-                        The default behavior of this script is to list all VNIC's
-                        attached to a host as separate inventory items. When set
-                        to yes, the script will only report each instance once.
-                        
+
 The script reads following environment variables:
 OCI_CONFIG_FILE,
 OCI_INI_PATH,
@@ -137,7 +132,6 @@ OCI_INVENTORY_REGIONS
 OCI_INVENTORY_EXCLUDE_REGIONS
 OCI_COMPARTMENT_OCID
 OCI_STRICT_HOSTNAME_CHECKING
-OCI_PRIMARY_VNIC_ONLY
 
 The inventory generated is by default grouped by each of the following:
 region
@@ -188,7 +182,7 @@ When run for a specific host using the --host option, this script returns the fo
       "foo": "bar"
     },
     "region": "iad",
-    "shape": "VM.Standard1.1",
+    "shape": "VM.Standard2.1",
     "source_details": {
       "image_id": "ocid1.image.oc1.iad.xxxxxEXAMPLExxxxx",
       "source_type": "image"
@@ -232,7 +226,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.12.0"
+__version__ = "1.17.0"
 inventory_agent_name = "Oracle-Ansible-Inv/"
 
 
@@ -326,7 +320,6 @@ class OCIInventory:
             "regions": None,
             "exclude_regions": None,
             "strict_hostname_checking": "no",
-            "primary_vnic_only": "no",
         }
         boolean_options = [
             "sanitize_names",
@@ -592,7 +585,6 @@ class OCIInventory:
             OCI_INVENTORY_EXCLUDE_REGIONS="exclude_regions",
             OCI_COMPARTMENT_OCID="compartment_ocid",
             OCI_STRICT_HOSTNAME_CHECKING="strict_hostname_checking",
-            OCI_PRIMARY_VNIC_ONLY="primary_vnic_only",
         )
 
         for env_var in os.environ:
@@ -1074,9 +1066,6 @@ class OCIInventory:
                 )
             ]
 
-            if self.params["primary_vnic_only"] == "yes":
-                vnic_attachments = vnic_attachments[0:1]
-            
             for vnic_attachment in vnic_attachments:
 
                 vnic = call_with_backoff(
@@ -1403,14 +1392,6 @@ class OCIInventory:
             "valid hostname.",
         )
 
-        parser.add_argument(
-            "--primary-vnic-only",
-            action="store",
-            choices=["yes", "no"],
-            help="The default behavior of this script is to list all VNIC's attached to a host as separate inventory "
-            "items. When set to yes, the script will only report each instance once.",
-        )
-        
         self.args = parser.parse_args()
 
     def read_settings_config(self, boolean_options, dict_options):

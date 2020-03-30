@@ -5,8 +5,8 @@
 .. _oci_dynamic_group_facts_module:
 
 
-oci_dynamic_group_facts -- Retrieve facts of dynamic groups
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+oci_dynamic_group_facts -- Fetches details about one or multiple DynamicGroup resources in Oracle Cloud Infrastructure
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.5
 
@@ -17,7 +17,9 @@ oci_dynamic_group_facts -- Retrieve facts of dynamic groups
 
 Synopsis
 --------
-- This module retrieves information of the specified dynamic group or lists all the dynamic groups in a tenancy.
+- Fetches details about one or multiple DynamicGroup resources in Oracle Cloud Infrastructure
+- Lists the dynamic groups in your tenancy. You must specify your tenancy's OCID as the value for the compartment ID (remember that the tenancy is simply the root compartment). See `Where to Get the Tenancy's OCID and User's OCID <https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five>`_.
+- If *dynamic_group_id* is specified, the details of a single DynamicGroup will be returned.
 
 
 
@@ -50,7 +52,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +105,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -119,7 +122,8 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the compartment (remember that the tenancy is simply the root compartment). Required to list all the dynamic groups in a tenancy.</div>
+                                                                        <div>The OCID of the compartment (remember that the tenancy is simply the root compartment).</div>
+                                                    <div>Required to list multiple dynamic_groups.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -158,7 +162,8 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the dynamic group. <em>dynamic_group_id</em> is required to get a specific dynamic group&#x27;s information.</div>
+                                                                        <div>The OCID of the dynamic group.</div>
+                                                    <div>Required to get a specific dynamic_group.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
             </tr>
@@ -219,13 +224,14 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Get all the dynamic groups in a tenancy
+    - name: List dynamic_groups
       oci_dynamic_group_facts:
-        compartment_id: ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx
+        compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
 
-    - name: Get information of a specific dynamic group
+    - name: Get a specific dynamic_group
       oci_dynamic_group_facts:
-        dynamic_group_id: ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx
+        dynamic_group_id: ocid1.dynamicgroup.oc1..xxxxxxEXAMPLExxxxxx
+
 
 
 
@@ -247,12 +253,12 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>dynamic_groups</b>
                     <div style="font-size: small; color: purple">complex</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>List of dynamic group details</div>
-                                        <br/>
+                                                                        <div>List of DynamicGroup resources</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;inactive_status&#x27;: None, &#x27;description&#x27;: &#x27;Group for all instances with the tag namespace and tag key operations.department&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;matching_rule&#x27;: &#x27;tag.operations.department.value&#x27;, &#x27;time_created&#x27;: &#x27;2018-07-05T09:38:27.176000+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;name&#x27;: &#x27;Sample dynamic group&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;description&#x27;: &#x27;description_example&#x27;, &#x27;inactive_status&#x27;: 56, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;matching_rule&#x27;: &#x27;matching_rule_example&#x27;, &#x27;lifecycle_state&#x27;: &#x27;CREATING&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;name&#x27;: &#x27;name_example&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -261,12 +267,26 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>compartment_id</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The OCID of the tenancy containing the group.</div>
-                                        <br/>
+                                                                        <div>The OCID of the tenancy containing the group.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>defined_tags</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href='https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>. Example: `{&quot;Operations&quot;: {&quot;CostCenter&quot;: &quot;42&quot;}}`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -275,12 +295,26 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>description</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The description you assign to the group. Does not have to be unique, and it&#x27;s changeable.</div>
-                                        <br/>
+                                                                        <div>The description you assign to the group. Does not have to be unique, and it&#x27;s changeable.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">Group for all instances with the tag namespace and tag key operations.department</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">description_example</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>freeform_tags</b>
+                    <div style="font-size: small; color: purple">dictionary</div>
+                                    </td>
+                <td>on success</td>
+                <td>
+                                                                        <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href='https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>. Example: `{&quot;Department&quot;: &quot;Finance&quot;}`</div>
+                                                                <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;Department&#x27;: &#x27;Finance&#x27;}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -289,12 +323,12 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>id</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The OCID of the group.</div>
-                                        <br/>
+                                                                        <div>The OCID of the group.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx</div>
                                     </td>
             </tr>
                                 <tr>
@@ -303,12 +337,12 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>inactive_status</b>
                     <div style="font-size: small; color: purple">integer</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The detailed status of INACTIVE lifecycleState.</div>
-                                        <br/>
+                                                                        <div>The detailed status of INACTIVE lifecycleState.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">1</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">56</div>
                                     </td>
             </tr>
                                 <tr>
@@ -317,12 +351,12 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>lifecycle_state</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The group&#x27;s current state. After creating a group, make sure its lifecycleState changes from CREATING to ACTIVE before using it.</div>
-                                        <br/>
+                                                                        <div>The group&#x27;s current state. After creating a group, make sure its `lifecycleState` changes from CREATING to ACTIVE before using it.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">ACTIVE</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">CREATING</div>
                                     </td>
             </tr>
                                 <tr>
@@ -331,12 +365,12 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>matching_rule</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>A rule string that defines which instance certificates will be matched. For syntax, see <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/Identity/Tasks/managingdynamicgroups.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/Identity/Tasks/managingdynamicgroups.htm</a>.</div>
-                                        <br/>
+                                                                        <div>A rule string that defines which instance certificates will be matched. For syntax, see <a href='https://docs.cloud.oracle.com/Content/Identity/Tasks/managingdynamicgroups.htm'>Managing Dynamic Groups</a>.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">tag.operations.department.value</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">matching_rule_example</div>
                                     </td>
             </tr>
                                 <tr>
@@ -345,26 +379,27 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                     <b>name</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>The name you assign to the group during creation. The name must be unique across all groups in the tenancy and cannot be changed.</div>
-                                        <br/>
+                                                                        <div>The name you assign to the group during creation. The name must be unique across all groups in the tenancy and cannot be changed.</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">Sample dynamic group</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">name_example</div>
                                     </td>
             </tr>
                                 <tr>
                                     <td class="elbow-placeholder">&nbsp;</td>
                                 <td colspan="1">
                     <b>time_created</b>
-                    <div style="font-size: small; color: purple">datetime</div>
+                    <div style="font-size: small; color: purple">string</div>
                                     </td>
-                <td>always</td>
+                <td>on success</td>
                 <td>
-                                            <div>Date and time the group was created, in the format defined by RFC3339.</div>
-                                        <br/>
+                                                                        <div>Date and time the group was created, in the format defined by RFC3339.</div>
+                                                    <div>Example: `2016-08-25T21:10:29.600Z`</div>
+                                                                <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-03-28 18:37:56.190000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
                                     </td>
             </tr>
                     
@@ -390,7 +425,9 @@ Status
 Authors
 ~~~~~~~
 
-- Rohit Chaware (@rohitChaware)
+- Manoj Meda (@manojmeda)
+- Mike Ross (@mross22)
+- Nabeel Al-Saber (@nalsaber)
 
 
 .. hint::

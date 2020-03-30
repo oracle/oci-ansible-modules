@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -139,7 +139,8 @@ options:
                 description: The OCID of the volume to be attached to or detached from the instance I(instance_id).
     vnic:
         description: Details for the primary VNIC that is automatically created and attached when the instance is
-                     launched. Required when creating a compute instance with I(state=present).
+                     launched. Required when creating a compute instance with I(state=present).  Updating any of these
+                     child properties is not supported through this module.
         aliases: ['create_vnic_details']
         suboptions:
             assign_public_ip:
@@ -150,26 +151,47 @@ options:
                              I(prohibitPublicIpOnVnic = false), then a public IP address is
                              assigned. If set to true and I(prohibitPublicIpOnVnic = true),
                              an error is returned.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
             hostname_label:
                 description: The hostname for the VNIC's primary private IP. Used for DNS. The value
                              is the hostname portion of the primary private IP's fully qualified
                              domain name (FQDN) (for example, bminstance-1 in FQDN
                              bminstance-1.subnet123.vcn1.oraclevcn.com). Must be unique across all
                              VNICs in the subnet and comply with RFC 952 and RFC 1123.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
             name:
                 description: A user-friendly name for the VNIC. Does not have to be unique.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
+            nsg_ids:
+                description: A list of the OCIDs of the network security groups (NSGs) to add the VNIC to.
+                             For more information about NSGs, see NetworkSecurityGroup L(NetworkSecurityGroup,
+                             https://docs.cloud.oracle.com/iaas/api/#/en/iaas/20160918/NetworkSecurityGroup/).
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
             private_ip:
                 description: The private IP to assign to the VNIC. Must be an available IP address
                              within the subnet's CIDR. If you don't specify a value, Oracle
                              automatically assigns a private IP address from the subnet. This is
                              the VNIC's primary private IP address.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
             skip_source_dest_check:
                 description: Determines whether the source/destination check is disabled on the VNIC.
                              Defaults to false, which means the check is performed.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
                 default: false
             subnet_id:
                 description: The OCID of the subnet to create the VNIC in.
+                             Note this field will be used on initial create but will not be considered when
+                             determining whether to match an existing resource or create a new one.
                 required: true
+    is_pv_encryption_in_transit_enabled:
+        description: Whether to enable in-transit encryption for the boot volume's paravirtualized attachment.
+                     The default value is false.
 
 author: "Sivakumar Thyagarajan (@sivakumart)"
 extends_documentation_fragment: [ oracle, oracle_creatable_resource, oracle_wait_options, oracle_tags ]
@@ -478,6 +500,70 @@ instance:
                     returned: always
                     type: string
                     sample: ocid1.volume.oc1.phx.xxxxxEXAMPLExxxxx
+        launch_options:
+            description:
+                - ""
+            returned: on success
+            type: complex
+            contains:
+                boot_volume_type:
+                    description:
+                        - "Emulation type for volume.
+                          * `ISCSI` - ISCSI attached block storage device. This is the default for Boot Volumes and Remote Block
+                          Storage volumes on Oracle provided images.
+                          * `SCSI` - Emulated SCSI disk.
+                          * `IDE` - Emulated IDE disk.
+                          * `VFIO` - Direct attached Virtual Function storage.  This is the default option for Local data
+                          volumes on Oracle provided images.
+                          * `PARAVIRTUALIZED` - Paravirtualized disk."
+                    returned: on success
+                    type: string
+                    sample: ISCSI
+                firmware:
+                    description:
+                        - "Firmware used to boot VM.  Select the option that matches your operating system.
+                          * `BIOS` - Boot VM using BIOS style firmware.  This is compatible with both 32 bit and 64 bit operating
+                          systems that boot using MBR style bootloaders.
+                          * `UEFI_64` - Boot VM using UEFI style firmware compatible with 64 bit operating systems.  This is the
+                          default for Oracle provided images."
+                    returned: on success
+                    type: string
+                    sample: BIOS
+                network_type:
+                    description:
+                        - "Emulation type for the physical network interface card (NIC).
+                          * `E1000` - Emulated Gigabit ethernet controller.  Compatible with Linux e1000 network driver.
+                          * `VFIO` - Direct attached Virtual Function network controller. This is the networking type
+                          when you launch an instance using hardware-assisted (SR-IOV) networking.
+                          * `PARAVIRTUALIZED` - VM instances launch with paravirtualized devices using virtio drivers."
+                    returned: on success
+                    type: string
+                    sample: E1000
+                remote_data_volume_type:
+                    description:
+                        - "Emulation type for volume.
+                          * `ISCSI` - ISCSI attached block storage device. This is the default for Boot Volumes and Remote Block
+                          Storage volumes on Oracle provided images.
+                          * `SCSI` - Emulated SCSI disk.
+                          * `IDE` - Emulated IDE disk.
+                          * `VFIO` - Direct attached Virtual Function storage.  This is the default option for Local data
+                          volumes on Oracle provided images.
+                          * `PARAVIRTUALIZED` - Paravirtualized disk."
+                    returned: on success
+                    type: string
+                    sample: ISCSI
+                is_pv_encryption_in_transit_enabled:
+                    description:
+                        - Whether to enable in-transit encryption for the boot volume's paravirtualized attachment. The default value is false.
+                    returned: on success
+                    type: bool
+                    sample: true
+                is_consistent_volume_naming_enabled:
+                    description:
+                        - Whether to enable consistent volume naming feature. Defaults to false.
+                    returned: on success
+                    type: bool
+                    sample: true
 
     sample: [{"availability_domain": "BnQb:PHX-AD-1",
               "boot_volume_attachment": {
@@ -778,6 +864,7 @@ def get_vnic_details(module):
     cvd.private_ip = vnic_details.get("private_ip", None)
     cvd.skip_source_dest_check = vnic_details.get("skip_source_dest_check", None)
     cvd.subnet_id = vnic_details["subnet_id"]
+    cvd.nsg_ids = vnic_details.get("nsg_ids", None)
     return cvd
 
 
@@ -837,6 +924,12 @@ def get_launch_instance_details(module):
     lid.shape = module.params["shape"]
     oci_utils.add_tags_to_model_from_module(lid, module)
     lid.source_details = get_source_details_from_module(module)
+
+    if module.params.get("is_pv_encryption_in_transit_enabled") is not None:
+        lid.is_pv_encryption_in_transit_enabled = module.params[
+            "is_pv_encryption_in_transit_enabled"
+        ]
+
     return lid
 
 
@@ -1228,6 +1321,14 @@ def _get_exclude_attributes(module):
 
 
 def create_one_instance(compute_client, module):
+    # is_pv_encryption_in_transit_enabled is a top level param on LaunchInstanceDetails but it gets returned
+    # inside Instance.LaunchOptions so we need to propagate the value so that the existing resource matching
+    # logic works properly
+    default_is_pv_encryption_in_transit_enabled = (
+        module.params.get("is_pv_encryption_in_transit_enabled")
+        if module.params.get("is_pv_encryption_in_transit_enabled") is not None
+        else False
+    )
     result = oci_utils.check_and_create_resource(
         resource_type="instance",
         create_fn=launch_instance,
@@ -1241,6 +1342,9 @@ def create_one_instance(compute_client, module):
             "ipxe_script": None,
             "extended_metadata": {},
             "metadata": {},
+            "launch_options": {
+                "is_pv_encryption_in_transit_enabled": default_is_pv_encryption_in_transit_enabled
+            },
             # during matching, if an existing
             # resource has the same values as the
             # current user request, consider it as
@@ -1306,6 +1410,7 @@ def main():
             volume_details=dict(type="dict", required=False),
             source_details=dict(type="dict", required=False),
             vnic=dict(type="dict", aliases=["create_vnic_details"]),
+            is_pv_encryption_in_transit_enabled=dict(type="bool"),
         )
     )
 

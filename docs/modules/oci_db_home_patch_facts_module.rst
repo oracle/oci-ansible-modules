@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -240,7 +241,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the DB Home Patch.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;PRECHECK&#x27;, &#x27;description&#x27;: &#x27;Oct 2017 12.2 Database patch&#x27;, &#x27;last_action&#x27;: &#x27;PRECHECK&#x27;, &#x27;id&#x27;: &#x27;ocid1.dbpatch.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;version&#x27;: &#x27;12.2.0.1.171017&#x27;, &#x27;time_released&#x27;: &#x27;2018-01-29T01:00:00+00:00&#x27;, &#x27;available_actions&#x27;: [&#x27;APPLY&#x27;, &#x27;PRECHECK&#x27;], &#x27;lifecycle_details&#x27;: &#x27;Operation was successful&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;description&#x27;: &#x27;Oct 2017 12.2 Database patch&#x27;, &#x27;time_released&#x27;: &#x27;2018-01-29T01:00:00+00:00&#x27;, &#x27;lifecycle_state&#x27;: &#x27;PRECHECK&#x27;, &#x27;lifecycle_details&#x27;: &#x27;Operation was successful&#x27;, &#x27;version&#x27;: &#x27;12.2.0.1.171017&#x27;, &#x27;id&#x27;: &#x27;ocid1.dbpatch.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;available_actions&#x27;: [&#x27;APPLY&#x27;, &#x27;PRECHECK&#x27;], &#x27;last_action&#x27;: &#x27;PRECHECK&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -338,7 +339,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time that the patch was released.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-01-29 01:00:00</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-01-29 01:00:00+00:00</div>
                                     </td>
             </tr>
                                 <tr>

@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -371,7 +372,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of waas certificates</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;time_not_valid_before&#x27;: &#x27;2019-04-10T08:09:17+00:00&#x27;, &#x27;subject_name&#x27;: {&#x27;state_province&#x27;: &#x27;KA&#x27;, &#x27;organization&#x27;: &#x27;Ansible&#x27;, &#x27;organizational_unit&#x27;: None, &#x27;locality&#x27;: &#x27;Bangalore&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;country&#x27;: &#x27;IN&#x27;, &#x27;email_address&#x27;: None}, &#x27;time_not_valid_after&#x27;: &#x27;2024-04-08T08:09:17+00:00&#x27;, &#x27;time_created&#x27;: &#x27;2019-04-10T10:05:35.634000+00:00&#x27;, &#x27;issuer_name&#x27;: {&#x27;state_province&#x27;: &#x27;KA&#x27;, &#x27;organization&#x27;: &#x27;Ansible&#x27;, &#x27;organizational_unit&#x27;: None, &#x27;locality&#x27;: &#x27;Bangalore&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;country&#x27;: &#x27;IN&#x27;, &#x27;email_address&#x27;: None}, &#x27;signature_algorithm&#x27;: None, &#x27;id&#x27;: &#x27;ocid1.waascertificate.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;display_name&#x27;: &#x27;test waas certificate&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;defined_tags&#x27;: None, &#x27;issued_by&#x27;: &#x27;Ansible&#x27;, &#x27;freeform_tags&#x27;: None, &#x27;version&#x27;: None, &#x27;extensions&#x27;: None, &#x27;public_key_info&#x27;: {&#x27;key_size&#x27;: 2048, &#x27;exponent&#x27;: 65537, &#x27;algorithm&#x27;: &#x27;RSA&#x27;}, &#x27;serial_number&#x27;: &#x27;9917593779878295042&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;public_key_info&#x27;: {&#x27;algorithm&#x27;: &#x27;RSA&#x27;, &#x27;exponent&#x27;: 65537, &#x27;key_size&#x27;: 2048}, &#x27;issued_by&#x27;: &#x27;Ansible&#x27;, &#x27;extensions&#x27;: None, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;id&#x27;: &#x27;ocid1.waascertificate.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;freeform_tags&#x27;: None, &#x27;defined_tags&#x27;: None, &#x27;issuer_name&#x27;: {&#x27;country&#x27;: &#x27;IN&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;locality&#x27;: &#x27;Bangalore&#x27;, &#x27;organization&#x27;: &#x27;Ansible&#x27;, &#x27;email_address&#x27;: None, &#x27;state_province&#x27;: &#x27;KA&#x27;, &#x27;organizational_unit&#x27;: None}, &#x27;serial_number&#x27;: &#x27;9917593779878295042&#x27;, &#x27;signature_algorithm&#x27;: None, &#x27;subject_name&#x27;: {&#x27;country&#x27;: &#x27;IN&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;locality&#x27;: &#x27;Bangalore&#x27;, &#x27;organization&#x27;: &#x27;Ansible&#x27;, &#x27;email_address&#x27;: None, &#x27;state_province&#x27;: &#x27;KA&#x27;, &#x27;organizational_unit&#x27;: None}, &#x27;time_not_valid_after&#x27;: &#x27;2024-04-08T08:09:17+00:00&#x27;, &#x27;display_name&#x27;: &#x27;test waas certificate&#x27;, &#x27;time_not_valid_before&#x27;: &#x27;2019-04-10T08:09:17+00:00&#x27;, &#x27;version&#x27;: None, &#x27;time_created&#x27;: &#x27;2019-04-10T10:05:35.634000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -427,7 +428,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The extensions of this Certificate.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;is_critical&#x27;: None, &#x27;name&#x27;: &#x27;subjectKeyIdentifier&#x27;, &#x27;value&#x27;: &#x27;A6:B2:56:1X:1X:1X:1X:8C:F6&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;value&#x27;: &#x27;A6:B2:56:1X:1X:1X:1X:8C:F6&#x27;, &#x27;name&#x27;: &#x27;subjectKeyIdentifier&#x27;, &#x27;is_critical&#x27;: None}]</div>
                                     </td>
             </tr>
                                 <tr>
@@ -483,7 +484,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The issuer_name of this Certificate.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;state_province&#x27;: &#x27;teststate&#x27;, &#x27;organization&#x27;: &#x27;testorg&#x27;, &#x27;organizational_unit&#x27;: &#x27;testorgunit&#x27;, &#x27;locality&#x27;: &#x27;testlocality&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;country&#x27;: &#x27;AU&#x27;, &#x27;email_address&#x27;: &#x27;test.email@address.com&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;country&#x27;: &#x27;AU&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;locality&#x27;: &#x27;testlocality&#x27;, &#x27;organization&#x27;: &#x27;testorg&#x27;, &#x27;email_address&#x27;: &#x27;test.email@address.com&#x27;, &#x27;state_province&#x27;: &#x27;teststate&#x27;, &#x27;organizational_unit&#x27;: &#x27;testorgunit&#x27;}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -511,7 +512,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The public_key_info of this Certificate.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;key_size&#x27;: 2048, &#x27;exponent&#x27;: 65537, &#x27;algorithm&#x27;: &#x27;RSA&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;algorithm&#x27;: &#x27;RSA&#x27;, &#x27;exponent&#x27;: 65537, &#x27;key_size&#x27;: 2048}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -553,7 +554,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The subject_name of this Certificate.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;state_province&#x27;: &#x27;teststate&#x27;, &#x27;organization&#x27;: &#x27;testorg&#x27;, &#x27;organizational_unit&#x27;: &#x27;testorgunit&#x27;, &#x27;locality&#x27;: &#x27;testlocality&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;country&#x27;: &#x27;AU&#x27;, &#x27;email_address&#x27;: &#x27;test.email@address.com&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;country&#x27;: &#x27;AU&#x27;, &#x27;common_name&#x27;: &#x27;testcommonname&#x27;, &#x27;locality&#x27;: &#x27;testlocality&#x27;, &#x27;organization&#x27;: &#x27;testorg&#x27;, &#x27;email_address&#x27;: &#x27;test.email@address.com&#x27;, &#x27;state_province&#x27;: &#x27;teststate&#x27;, &#x27;organizational_unit&#x27;: &#x27;testorgunit&#x27;}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -567,7 +568,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the certificate was created, expressed in RFC 3339 timestamp format.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-04-02 17:12:42.454000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-04-02 17:12:42.454000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -581,7 +582,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the certificate will expire, expressed in RFC 3339 timestamp format.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2020-04-01 15:29:38</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2020-04-01 15:29:38+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -595,7 +596,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The time_not_valid_before of this Certificate.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-04-02 15:29:38</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-04-02 15:29:38+00:00</div>
                                     </td>
             </tr>
                                 <tr>

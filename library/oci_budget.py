@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -239,7 +240,7 @@ budget:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
     OCIResourceHelperBase,
     get_custom_class,
@@ -264,6 +265,9 @@ class BudgetHelperGen(OCIResourceHelperBase):
 
     def get_module_resource_id(self):
         return self.module.params.get("budget_id")
+
+    def get_get_fn(self):
+        return self.client.get_budget
 
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
@@ -298,8 +302,16 @@ class BudgetHelperGen(OCIResourceHelperBase):
 
     def create_resource(self):
         create_details = self.get_create_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.create_budget, create_budget_details=create_details
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.create_budget,
+            call_fn_args=(),
+            call_fn_kwargs=dict(create_budget_details=create_details),
+            waiter_type=oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY,
+            operation=oci_common_utils.CREATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def get_update_model_class(self):
@@ -307,15 +319,32 @@ class BudgetHelperGen(OCIResourceHelperBase):
 
     def update_resource(self):
         update_details = self.get_update_model()
-        return oci_common_utils.call_with_backoff(
-            self.client.update_budget,
-            budget_id=self.module.params.get("budget_id"),
-            update_budget_details=update_details,
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.update_budget,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                budget_id=self.module.params.get("budget_id"),
+                update_budget_details=update_details,
+            ),
+            waiter_type=oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY,
+            operation=oci_common_utils.UPDATE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_active_states(),
         )
 
     def delete_resource(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.delete_budget, budget_id=self.module.params.get("budget_id")
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.delete_budget,
+            call_fn_args=(),
+            call_fn_kwargs=dict(budget_id=self.module.params.get("budget_id")),
+            waiter_type=oci_wait_utils.LIFECYCLE_STATE_WAITER_KEY,
+            operation=oci_common_utils.DELETE_OPERATION_KEY,
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or oci_common_utils.get_resource_terminated_states(),
         )
 
 
@@ -351,7 +380,10 @@ def main():
         module.fail_json(msg="oci python sdk required for this module.")
 
     resource_helper = ResourceHelper(
-        module=module, resource_type="budget", service_client_class=BudgetClient
+        module=module,
+        resource_type="budget",
+        service_client_class=BudgetClient,
+        namespace="budget",
     )
 
     result = dict(changed=False)

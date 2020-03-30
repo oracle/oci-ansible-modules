@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -296,7 +297,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of work requests</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;status&#x27;: &#x27;IN_PROGRESS&#x27;, &#x27;time_finished&#x27;: None, &#x27;errors&#x27;: [], &#x27;logs&#x27;: [{&#x27;timestamp&#x27;: &#x27;2019-04-10T18:46:05.663000+00:00&#x27;, &#x27;message&#x27;: &#x27;addWhitelistOp: start&#x27;}, {&#x27;timestamp&#x27;: &#x27;2019-04-10T18:46:05.663000+00:00&#x27;, &#x27;message&#x27;: &#x27;addWhitelistOp: finished (45% of request completed)&#x27;}, {&#x27;timestamp&#x27;: &#x27;2019-04-10T18:46:05.403000+00:00&#x27;, &#x27;message&#x27;: &#x27;updateProtectionSettingsOp: start&#x27;}], &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;operation_type&#x27;: &#x27;CREATE_WAAS_POLICY&#x27;, &#x27;percent_complete&#x27;: 45, &#x27;time_accepted&#x27;: &#x27;2019-04-10T18:45:45.044000+00:00&#x27;, &#x27;id&#x27;: &#x27;ocid1.waasworkrequest.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;resources&#x27;: [{&#x27;entity_uri&#x27;: &#x27;/20181116/waasPolicies/ocid1.waaspolicy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;identifier&#x27;: &#x27;ocid1.waaspolicy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;action_type&#x27;: &#x27;CREATED&#x27;, &#x27;entity_type&#x27;: &#x27;waas&#x27;}], &#x27;time_started&#x27;: &#x27;2019-04-10T18:45:49+00:00&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;operation_type&#x27;: &#x27;CREATE_WAAS_POLICY&#x27;, &#x27;time_started&#x27;: &#x27;2019-04-10T18:45:49+00:00&#x27;, &#x27;errors&#x27;: [], &#x27;percent_complete&#x27;: 45, &#x27;resources&#x27;: [{&#x27;entity_type&#x27;: &#x27;waas&#x27;, &#x27;identifier&#x27;: &#x27;ocid1.waaspolicy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;action_type&#x27;: &#x27;CREATED&#x27;, &#x27;entity_uri&#x27;: &#x27;/20181116/waasPolicies/ocid1.waaspolicy.oc1..xxxxxEXAMPLExxxxx&#x27;}], &#x27;logs&#x27;: [{&#x27;timestamp&#x27;: &#x27;2019-04-10T18:46:05.663000+00:00&#x27;, &#x27;message&#x27;: &#x27;addWhitelistOp: start&#x27;}, {&#x27;timestamp&#x27;: &#x27;2019-04-10T18:46:05.663000+00:00&#x27;, &#x27;message&#x27;: &#x27;addWhitelistOp: finished (45% of request completed)&#x27;}, {&#x27;timestamp&#x27;: &#x27;2019-04-10T18:46:05.403000+00:00&#x27;, &#x27;message&#x27;: &#x27;updateProtectionSettingsOp: start&#x27;}], &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.waasworkrequest.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;time_finished&#x27;: None, &#x27;time_accepted&#x27;: &#x27;2019-04-10T18:45:45.044000+00:00&#x27;, &#x27;status&#x27;: &#x27;IN_PROGRESS&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -392,7 +393,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The resources being used to complete the work request operation.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;entity_uri&#x27;: &#x27;/20181116/waasPolicies/ocid1.waaspolicy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;identifier&#x27;: &#x27;ocid1.waaspolicy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;action_type&#x27;: &#x27;CREATED&#x27;, &#x27;entity_type&#x27;: &#x27;waas&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;entity_type&#x27;: &#x27;waas&#x27;, &#x27;identifier&#x27;: &#x27;ocid1.waaspolicy.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;action_type&#x27;: &#x27;CREATED&#x27;, &#x27;entity_uri&#x27;: &#x27;/20181116/waasPolicies/ocid1.waaspolicy.oc1..xxxxxEXAMPLExxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                 <tr>
@@ -420,7 +421,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the work request was created, in the format defined by RFC3339.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-03-22 13:02:55.563000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-03-22 13:02:55.563000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -434,7 +435,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the work request was fulfilled or terminated, expressed in RFC 3339 timestamp format.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-03-22 13:02:59.563000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-03-22 13:02:59.563000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -448,7 +449,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the work request moved from the ACCEPTED state to the IN_PROGRESS state, expressed in RFC 3339 timestamp format.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-03-22 13:02:56.563000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2019-03-22 13:02:56.563000+00:00</div>
                                     </td>
             </tr>
                     

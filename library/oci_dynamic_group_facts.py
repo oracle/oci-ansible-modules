@@ -1,9 +1,11 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
+
 
 from __future__ import absolute_import, division, print_function
 
@@ -18,148 +20,212 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: oci_dynamic_group_facts
-short_description: Retrieve facts of dynamic groups
+short_description: Fetches details about one or multiple DynamicGroup resources in Oracle Cloud Infrastructure
 description:
-    - This module retrieves information of the specified dynamic group or lists all the dynamic groups in a tenancy.
+    - Fetches details about one or multiple DynamicGroup resources in Oracle Cloud Infrastructure
+    - Lists the dynamic groups in your tenancy. You must specify your tenancy's OCID as the value for
+      the compartment ID (remember that the tenancy is simply the root compartment).
+      See L(Where to Get the Tenancy's OCID and User's OCID,https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+    - If I(dynamic_group_id) is specified, the details of a single DynamicGroup will be returned.
 version_added: "2.5"
 options:
     dynamic_group_id:
-        description: The OCID of the dynamic group. I(dynamic_group_id) is required to get a specific dynamic group's
-                     information.
-        required: false
-        aliases: [ 'id' ]
+        description:
+            - The OCID of the dynamic group.
+            - Required to get a specific dynamic_group.
+        aliases: ["id"]
     compartment_id:
-        description: The OCID of the compartment (remember that the tenancy is simply the root compartment).
-                     Required to list all the dynamic groups in a tenancy.
-        required: false
-author: "Rohit Chaware (@rohitChaware)"
+        description:
+            - The OCID of the compartment (remember that the tenancy is simply the root compartment).
+            - Required to list multiple dynamic_groups.
+author:
+    - Manoj Meda (@manojmeda)
+    - Mike Ross (@mross22)
+    - Nabeel Al-Saber (@nalsaber)
 extends_documentation_fragment: [ oracle, oracle_name_option ]
 """
 
 EXAMPLES = """
-- name: Get all the dynamic groups in a tenancy
+- name: List dynamic_groups
   oci_dynamic_group_facts:
-    compartment_id: ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx
+    compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
 
-- name: Get information of a specific dynamic group
+- name: Get a specific dynamic_group
   oci_dynamic_group_facts:
-    dynamic_group_id: ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx
+    dynamic_group_id: ocid1.dynamicgroup.oc1..xxxxxxEXAMPLExxxxxx
+
 """
 
 RETURN = """
 dynamic_groups:
-    description: List of dynamic group details
-    returned: always
+    description:
+        - List of DynamicGroup resources
+    returned: on success
     type: complex
     contains:
-        compartment_id:
-            description: The OCID of the tenancy containing the group.
-            returned: always
-            type: string
-            sample: ocid1.compartment.oc1..xxxxxEXAMPLExxxxx
-        description:
-            description: The description you assign to the group. Does not have to be unique, and it's changeable.
-            returned: always
-            type: string
-            sample: "Group for all instances with the tag namespace and tag key operations.department"
         id:
-            description: The OCID of the group.
-            returned: always
+            description:
+                - The OCID of the group.
+            returned: on success
             type: string
-            sample: ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx
-        inactive_status:
-            description: The detailed status of INACTIVE lifecycleState.
-            returned: always
-            type: int
-            sample: 1
-        lifecycle_state:
-            description: The group's current state. After creating a group, make sure its lifecycleState changes from
-                         CREATING to ACTIVE before using it.
-            returned: always
+            sample: ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx
+        compartment_id:
+            description:
+                - The OCID of the tenancy containing the group.
+            returned: on success
             type: string
-            sample: ACTIVE
-        matching_rule:
-            description: A rule string that defines which instance certificates will be matched. For syntax, see
-                         U(https://docs.us-phoenix-1.oraclecloud.com/Content/Identity/Tasks/managingdynamicgroups.htm).
-            returned: always
-            type: string
-            sample: tag.operations.department.value
-        time_created:
-            description: Date and time the group was created, in the format defined by RFC3339.
-            returned: always
-            type: datetime
-            sample: 2018-03-28T18:37:56.190000+00:00
+            sample: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
         name:
-            description: The name you assign to the group during creation. The name must be unique across all groups in
-                         the tenancy and cannot be changed.
-            returned: always
+            description:
+                - The name you assign to the group during creation. The name must be unique across all groups in
+                  the tenancy and cannot be changed.
+            returned: on success
             type: string
-            sample: Sample dynamic group
+            sample: name_example
+        description:
+            description:
+                - The description you assign to the group. Does not have to be unique, and it's changeable.
+            returned: on success
+            type: string
+            sample: description_example
+        matching_rule:
+            description:
+                - A rule string that defines which instance certificates will be matched.
+                  For syntax, see L(Managing Dynamic Groups,https://docs.cloud.oracle.com/Content/Identity/Tasks/managingdynamicgroups.htm).
+            returned: on success
+            type: string
+            sample: matching_rule_example
+        time_created:
+            description:
+                - Date and time the group was created, in the format defined by RFC3339.
+                - "Example: `2016-08-25T21:10:29.600Z`"
+            returned: on success
+            type: string
+            sample: 2016-08-25T21:10:29.600Z
+        lifecycle_state:
+            description:
+                - The group's current state. After creating a group, make sure its `lifecycleState` changes from CREATING to
+                  ACTIVE before using it.
+            returned: on success
+            type: string
+            sample: CREATING
+        inactive_status:
+            description:
+                - The detailed status of INACTIVE lifecycleState.
+            returned: on success
+            type: int
+            sample: 56
+        freeform_tags:
+            description:
+                - "Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace.
+                  For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+                  Example: `{\\"Department\\": \\"Finance\\"}`"
+            returned: on success
+            type: dict
+            sample: {'Department': 'Finance'}
+        defined_tags:
+            description:
+                - "Defined tags for this resource. Each key is predefined and scoped to a namespace.
+                  For more information, see L(Resource Tags,https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+                  Example: `{\\"Operations\\": {\\"CostCenter\\": \\"42\\"}}`"
+            returned: on success
+            type: dict
+            sample: {'Operations': {'CostCenter': 'US'}}
     sample: [{
-            "compartment_id": "ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx",
-            "description": "Group for all instances with the tag namespace and tag key operations.department",
-            "id": "ocid1.dynamicgroup.oc1..xxxxxEXAMPLExxxxx",
-            "inactive_status": null,
-            "lifecycle_state": "ACTIVE",
-            "matching_rule": "tag.operations.department.value",
-            "name": "Sample dynamic group",
-            "time_created": "2018-07-05T09:38:27.176000+00:00"
-        }]
+        "id": "ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx",
+        "compartment_id": "ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx",
+        "name": "name_example",
+        "description": "description_example",
+        "matching_rule": "matching_rule_example",
+        "time_created": "2016-08-25T21:10:29.600Z",
+        "lifecycle_state": "CREATING",
+        "inactive_status": 56,
+        "freeform_tags": {'Department': 'Finance'},
+        "defined_tags": {'Operations': {'CostCenter': 'US'}}
+    }]
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_utils
-
+from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle.oci_resource_utils import (
+    OCIResourceFactsHelperBase,
+    get_custom_class,
+)
 
 try:
-    from oci.identity.identity_client import IdentityClient
-    from oci.util import to_dict
-    from oci.exceptions import ServiceError
+    from oci.identity import IdentityClient
 
     HAS_OCI_PY_SDK = True
-
 except ImportError:
     HAS_OCI_PY_SDK = False
 
 
+class DynamicGroupFactsHelperGen(OCIResourceFactsHelperBase):
+    """Supported operations: get, list"""
+
+    def get_required_params_for_get(self):
+        return ["dynamic_group_id"]
+
+    def get_required_params_for_list(self):
+        return ["compartment_id"]
+
+    def get_resource(self):
+        return oci_common_utils.call_with_backoff(
+            self.client.get_dynamic_group,
+            dynamic_group_id=self.module.params.get("dynamic_group_id"),
+        )
+
+    def list_resources(self):
+        optional_list_method_params = ["name"]
+        optional_kwargs = dict(
+            (param, self.module.params[param])
+            for param in optional_list_method_params
+            if self.module.params.get(param) is not None
+        )
+        return oci_common_utils.list_all_resources(
+            self.client.list_dynamic_groups,
+            compartment_id=self.module.params.get("compartment_id"),
+            **optional_kwargs
+        )
+
+
+DynamicGroupFactsHelperCustom = get_custom_class("DynamicGroupFactsHelperCustom")
+
+
+class ResourceFactsHelper(DynamicGroupFactsHelperCustom, DynamicGroupFactsHelperGen):
+    pass
+
+
 def main():
-    module_args = oci_utils.get_facts_module_arg_spec(filter_by_name=True)
+    module_args = oci_common_utils.get_common_arg_spec()
     module_args.update(
         dict(
-            dynamic_group_id=dict(type="str", required=False, aliases=["id"]),
-            compartment_id=dict(type="str", required=False),
+            dynamic_group_id=dict(aliases=["id"], type="str"),
+            compartment_id=dict(type="str"),
+            name=dict(type="str"),
         )
     )
 
-    module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=module_args)
 
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg="oci python sdk required for this module.")
 
-    identity_client = oci_utils.create_service_client(module, IdentityClient)
+    resource_facts_helper = ResourceFactsHelper(
+        module=module,
+        resource_type="dynamic_group",
+        service_client_class=IdentityClient,
+        namespace="identity",
+    )
 
-    dynamic_group_id = module.params["dynamic_group_id"]
+    result = []
 
-    try:
-        if dynamic_group_id is not None:
-            result = [
-                to_dict(
-                    oci_utils.call_with_backoff(
-                        identity_client.get_dynamic_group,
-                        dynamic_group_id=dynamic_group_id,
-                    ).data
-                )
-            ]
-        else:
-            result = to_dict(
-                oci_utils.list_all_resources(
-                    identity_client.list_dynamic_groups,
-                    compartment_id=module.params["compartment_id"],
-                    name=module.params["name"],
-                )
-            )
-    except ServiceError as ex:
-        module.fail_json(msg=ex.message)
+    if resource_facts_helper.is_get():
+        result = [resource_facts_helper.get()]
+    elif resource_facts_helper.is_list():
+        result = resource_facts_helper.list()
+    else:
+        resource_facts_helper.fail()
 
     module.exit_json(dynamic_groups=result)
 

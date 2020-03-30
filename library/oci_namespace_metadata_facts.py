@@ -1,9 +1,10 @@
 #!/usr/bin/python
-# Copyright (c) 2019 Oracle and/or its affiliates.
+# Copyright (c) 2017, 2019 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -19,46 +20,65 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: oci_namespace_metadata_facts
-short_description: Gets the metadata for the Object Storage namespace
-description: Gets the metadata for the Object Storage namespace, which contains defaultS3CompartmentId and
-             defaultSwiftCompartmentId.
+short_description: Fetches details about one or multiple NamespaceMetadata resources in Oracle Cloud Infrastructure
+description:
+    - Fetches details about one or multiple NamespaceMetadata resources in Oracle Cloud Infrastructure
+    - Gets the metadata for the Object Storage namespace, which contains defaultS3CompartmentId and
+      defaultSwiftCompartmentId.
+    - Any user with the NAMESPACE_READ permission will be able to see the current metadata. If you are
+      not authorized, talk to an administrator. If you are an administrator who needs to write policies
+      to give users access, see
+      L(Getting Started with Policies,https://docs.cloud.oracle.com/Content/Identity/Concepts/policygetstarted.htm).
 version_added: "2.5"
 options:
     namespace_name:
-        description: The Object Storage namespace.
+        description:
+            - The Object Storage namespace used for the request.
         required: true
-author: "Manoj Meda (@manojmeda)"
-extends_documentation_fragment: oracle
+author:
+    - Manoj Meda (@manojmeda)
+    - Mike Ross (@mross22)
+    - Nabeel Al-Saber (@nalsaber)
+extends_documentation_fragment: [ oracle ]
 """
 
 EXAMPLES = """
-- name: Get the object storage namespace metadata
+- name: Get a specific namespace_metadata
   oci_namespace_metadata_facts:
-    namespace_name: examplenamespace
+    namespace_name: namespace_name_example
+
 """
 
 RETURN = """
 namespace_metadatas:
-    description: The metadata for the Object Storage namespace, which contains defaultS3CompartmentId and
-                 defaultSwiftCompartmentId.
+    description:
+        - List of NamespaceMetadata resources
     returned: on success
     type: complex
     contains:
         namespace:
-            description: The Object Storage namespace to which the metadata belongs.
+            description:
+                - The Object Storage namespace to which the metadata belongs.
             returned: on success
             type: string
-            sample: examplenamespace
+            sample: namespace_example
         default_s3_compartment_id:
-            description:  The default compartment assignment for the Amazon S3 Compatibility API.
+            description:
+                - If the field is set, specifies the default compartment assignment for the Amazon S3 Compatibility API.
             returned: on success
             type: string
-            sample: ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx
+            sample: ocid1.defaults3compartment.oc1..xxxxxxEXAMPLExxxxxx
         default_swift_compartment_id:
-            description:  The default compartment assignment for the Swift API.
+            description:
+                - If the field is set, specifies the default compartment assignment for the Swift API.
             returned: on success
             type: string
-            sample: ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx
+            sample: ocid1.defaultswiftcompartment.oc1..xxxxxxEXAMPLExxxxxx
+    sample: [{
+        "namespace": "namespace_example",
+        "default_s3_compartment_id": "ocid1.defaults3compartment.oc1..xxxxxxEXAMPLExxxxxx",
+        "default_swift_compartment_id": "ocid1.defaultswiftcompartment.oc1..xxxxxxEXAMPLExxxxxx"
+    }]
 """
 
 from ansible.module_utils.basic import AnsibleModule
@@ -80,7 +100,7 @@ class NamespaceMetadataFactsHelperGen(OCIResourceFactsHelperBase):
     """Supported operations: get"""
 
     def get_required_params_for_get(self):
-        return []
+        return ["namespace_name"]
 
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
@@ -113,12 +133,13 @@ def main():
         module=module,
         resource_type="namespace_metadata",
         service_client_class=ObjectStorageClient,
+        namespace="object_storage",
     )
 
     result = []
 
     if resource_facts_helper.is_get():
-        result = resource_facts_helper.get()
+        result = [resource_facts_helper.get()]
     elif resource_facts_helper.is_list():
         result = resource_facts_helper.list()
     else:

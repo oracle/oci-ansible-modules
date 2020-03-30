@@ -50,7 +50,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -103,10 +103,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -284,7 +285,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Fetched Autonomous Data Warehouse Backup.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;display_name&#x27;: &#x27;dbwarehousebackup&#x27;, &#x27;time_started&#x27;: &#x27;2018-09-22T16:38:30.558000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;autonomous_data_warehouse_id&#x27;: &#x27;ocid1.autonomousdwdatabase.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;is_automatic&#x27;: True, &#x27;time_ended&#x27;: None, &#x27;lifecycle_details&#x27;: None, &#x27;type&#x27;: &#x27;FULL&#x27;, &#x27;id&#x27;: &#x27;ocid1.autonomousdwbackup.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}, {&#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;display_name&#x27;: &#x27;dbwarehousebackupmanual&#x27;, &#x27;time_started&#x27;: &#x27;2018-09-25T16:38:30.558000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;autonomous_data_warehouse_id&#x27;: &#x27;ocid1.autonomousdwdatabase.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;is_automatic&#x27;: False, &#x27;time_ended&#x27;: None, &#x27;lifecycle_details&#x27;: None, &#x27;type&#x27;: &#x27;FULL&#x27;, &#x27;id&#x27;: &#x27;ocid1.autonomousdwbackup.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;type&#x27;: &#x27;FULL&#x27;, &#x27;time_started&#x27;: &#x27;2018-09-22T16:38:30.558000+00:00&#x27;, &#x27;time_ended&#x27;: None, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;display_name&#x27;: &#x27;dbwarehousebackup&#x27;, &#x27;is_automatic&#x27;: True, &#x27;lifecycle_details&#x27;: None, &#x27;id&#x27;: &#x27;ocid1.autonomousdwbackup.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;autonomous_data_warehouse_id&#x27;: &#x27;ocid1.autonomousdwdatabase.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}, {&#x27;type&#x27;: &#x27;FULL&#x27;, &#x27;time_started&#x27;: &#x27;2018-09-25T16:38:30.558000+00:00&#x27;, &#x27;time_ended&#x27;: None, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;display_name&#x27;: &#x27;dbwarehousebackupmanual&#x27;, &#x27;is_automatic&#x27;: False, &#x27;lifecycle_details&#x27;: None, &#x27;id&#x27;: &#x27;ocid1.autonomousdwbackup.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;autonomous_data_warehouse_id&#x27;: &#x27;ocid1.autonomousdwdatabase.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -394,7 +395,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the Autonomous Data Warehouse Backup was completed.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-02-23 13:50:57.211000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-02-23 13:50:57.211000+00:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -408,7 +409,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The date and time the Autonomous Data Warehouse Backup starts.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-02-23 06:37:58.669000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2018-02-23 06:37:58.669000+00:00</div>
                                     </td>
             </tr>
                                 <tr>

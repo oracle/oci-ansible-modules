@@ -335,7 +335,10 @@ def update_export(file_storage_client, module, export):
     )
     export_option_changed = False
     if input_export_options is not None:
-        export_options, export_option_changed = oci_utils.check_and_return_component_list_difference(
+        (
+            export_options,
+            export_option_changed,
+        ) = oci_utils.check_and_return_component_list_difference(
             input_export_options,
             existing_export_options,
             purge_export_options,

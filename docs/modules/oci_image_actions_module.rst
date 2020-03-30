@@ -67,7 +67,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -120,10 +120,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -207,7 +208,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the image.</div>
+                                                                        <div>The <a href='https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm'>OCID</a> of the image.</div>
                                                                                         <div style="font-size: small; color: darkgreen"><br/>aliases: id</div>
                                     </td>
             </tr>
@@ -290,7 +291,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2000</div>
                                     </td>
                                                                 <td>
                                                                         <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
@@ -329,19 +330,19 @@ Examples
     
     - name: Perform action export on image
       oci_image_actions:
-          image_id: ocid1.image.oc1..xxxxxxEXAMPLExxxxxx
-          destination_type: objectStorageTuple
-          bucket_name: MyBucket
-          namespace_name: MyNamespace
-          object_name: exported-image.oci
-          action: export
+        object_name: exported-image.oci
+        bucket_name: MyBucket
+        namespace_name: MyNamespace
+        destination_type: objectStorageTuple
+        image_id: ocid1.image.oc1..xxxxxxEXAMPLExxxxxx
+        action: export
 
     - name: Perform action export on image
       oci_image_actions:
-          image_id: ocid1.image.oc1..xxxxxxEXAMPLExxxxxx
-          destination_type: objectStorageUri
-          destination_uri: https://objectstorage.us-phoenix-1.oraclecloud.com/n/MyNamespace/b/MyBucket/o/exported-image.oci
-          action: export
+        destination_uri: https://objectstorage.us-phoenix-1.oraclecloud.com/n/MyNamespace/b/MyBucket/o/exported-image.oci
+        destination_type: objectStorageUri
+        image_id: ocid1.image.oc1..xxxxxxEXAMPLExxxxxx
+        action: export
 
 
 
@@ -369,7 +370,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>Details of the Image resource acted upon by the current operation</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;lifecycle_state&#x27;: &#x27;PROVISIONING&#x27;, &#x27;operating_system_version&#x27;: &#x27;7.2&#x27;, &#x27;operating_system&#x27;: &#x27;Oracle Linux&#x27;, &#x27;display_name&#x27;: &#x27;My custom Oracle Linux image&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;base_image_id&#x27;: &#x27;ocid1.baseimage.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;launch_options&#x27;: {&#x27;remote_data_volume_type&#x27;: &#x27;ISCSI&#x27;, &#x27;boot_volume_type&#x27;: &#x27;ISCSI&#x27;, &#x27;is_consistent_volume_naming_enabled&#x27;: True, &#x27;firmware&#x27;: &#x27;BIOS&#x27;, &#x27;network_type&#x27;: &#x27;E1000&#x27;, &#x27;is_pv_encryption_in_transit_enabled&#x27;: True}, &#x27;agent_features&#x27;: {&#x27;is_monitoring_supported&#x27;: True}, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;launch_mode&#x27;: &#x27;NATIVE&#x27;, &#x27;size_in_mbs&#x27;: 47694, &#x27;create_image_allowed&#x27;: True, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;operating_system&#x27;: &#x27;Oracle Linux&#x27;, &#x27;create_image_allowed&#x27;: True, &#x27;launch_options&#x27;: {&#x27;remote_data_volume_type&#x27;: &#x27;ISCSI&#x27;, &#x27;firmware&#x27;: &#x27;BIOS&#x27;, &#x27;is_consistent_volume_naming_enabled&#x27;: True, &#x27;boot_volume_type&#x27;: &#x27;ISCSI&#x27;, &#x27;network_type&#x27;: &#x27;E1000&#x27;, &#x27;is_pv_encryption_in_transit_enabled&#x27;: True}, &#x27;base_image_id&#x27;: &#x27;ocid1.baseimage.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;PROVISIONING&#x27;, &#x27;freeform_tags&#x27;: {&#x27;Department&#x27;: &#x27;Finance&#x27;}, &#x27;display_name&#x27;: &#x27;My custom Oracle Linux image&#x27;, &#x27;agent_features&#x27;: {&#x27;is_monitoring_supported&#x27;: True}, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;size_in_mbs&#x27;: 47694, &#x27;launch_mode&#x27;: &#x27;NATIVE&#x27;, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;operating_system_version&#x27;: &#x27;7.2&#x27;, &#x27;defined_tags&#x27;: {&#x27;Operations&#x27;: {&#x27;CostCenter&#x27;: &#x27;US&#x27;}}}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -436,7 +437,8 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>Whether instances launched with this image can be used to create new images. For example, you cannot create an image of an Oracle Database instance. Example: `true`</div>
+                                                                        <div>Whether instances launched with this image can be used to create new images. For example, you cannot create an image of an Oracle Database instance.</div>
+                                                    <div>Example: `true`</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">True</div>
@@ -465,7 +467,8 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>A user-friendly name for the image. It does not have to be unique, and it&#x27;s changeable. Avoid entering confidential information. You cannot use an Oracle-provided image name as a custom image name.</div>
+                                                                        <div>A user-friendly name for the image. It does not have to be unique, and it&#x27;s changeable. Avoid entering confidential information.</div>
+                                                    <div>You cannot use an Oracle-provided image name as a custom image name.</div>
                                                     <div>Example: `My custom Oracle Linux image`</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
@@ -596,7 +599,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>Emulation type for NIC. * `E1000` - Emulated Gigabit ethernet controller.  Compatible with Linux e1000 network driver. * `VFIO` - Direct attached Virtual Function network controller.  Default for Oracle provided images. * `PARAVIRTUALIZED` - VM instances launch with paravirtualized devices using virtio drivers.</div>
+                                                                        <div>Emulation type for the physical network interface card (NIC). * `E1000` - Emulated Gigabit ethernet controller.  Compatible with Linux e1000 network driver. * `VFIO` - Direct attached Virtual Function network controller. This is the networking type when you launch an instance using hardware-assisted (SR-IOV) networking. * `PARAVIRTUALIZED` - VM instances launch with paravirtualized devices using virtio drivers.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
                                                 <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">E1000</div>
@@ -670,7 +673,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                     </td>
                 <td>on success</td>
                 <td>
-                                                                        <div>Image size (1 MB = 1048576 bytes)</div>
+                                                                        <div>The boot volume size for an instance launched from this image, (1 MB = 1048576 bytes). Note this is not the same as the size of the image when it was exported or the actual size of the image.</div>
                                                     <div>Example: `47694`</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
@@ -689,7 +692,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                     <div>Example: `2016-08-25T21:10:29.600Z`</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2016-08-25 21:10:29.600000+00:00</div>
                                     </td>
             </tr>
                     

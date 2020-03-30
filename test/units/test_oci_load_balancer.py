@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -216,6 +216,8 @@ def get_module(additional_properties):
             "ocid1.subnet.oc1.iad.aaaaaaaau",
         ],
         "state": "present",
+        "defined_tags": {"Operations": {"CostCenter": "42"}},
+        "freeform_tags": {"Department": "Finance"},
     }
     params.update(additional_properties)
     module = FakeModule(**params)

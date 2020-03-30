@@ -51,7 +51,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -104,10 +104,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -221,9 +222,9 @@ Examples
     
     - name: List audit_events
       oci_audit_event_facts:
-          compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
-          start_time: 2013-10-20T19:20:30+01:00
-          end_time: 2013-10-20T19:20:30+01:00
+        compartment_id: ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx
+        start_time: 2013-10-20T19:20:30+01:00
+        end_time: 2013-10-20T19:20:30+01:00
 
 
 
@@ -251,7 +252,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>List of AuditEvent resources</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;event_type&#x27;: &#x27;event_type_example&#x27;, &#x27;response_headers&#x27;: {}, &#x27;event_name&#x27;: &#x27;LaunchInstance&#x27;, &#x27;compartment_name&#x27;: &#x27;compartment_name_example&#x27;, &#x27;request_id&#x27;: &#x27;ocid1.request.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;credential_id&#x27;: &#x27;ocid1.credential.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;principal_id&#x27;: &#x27;ocid1.principal.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;request_resource&#x27;: &#x27;request_resource_example&#x27;, &#x27;request_parameters&#x27;: {}, &#x27;response_time&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;event_source&#x27;: &#x27;event_source_example&#x27;, &#x27;request_action&#x27;: &#x27;request_action_example&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;event_id&#x27;: &#x27;ocid1.event.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;response_status&#x27;: &#x27;response_status_example&#x27;, &#x27;response_payload&#x27;: {}, &#x27;event_time&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;request_headers&#x27;: {}, &#x27;request_agent&#x27;: &#x27;request_agent_example&#x27;, &#x27;tenant_id&#x27;: &#x27;ocid1.tenant.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;user_name&#x27;: &#x27;user_name_example&#x27;, &#x27;request_origin&#x27;: &#x27;request_origin_example&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;request_origin&#x27;: &#x27;request_origin_example&#x27;, &#x27;event_type&#x27;: &#x27;event_type_example&#x27;, &#x27;request_agent&#x27;: &#x27;request_agent_example&#x27;, &#x27;response_payload&#x27;: {}, &#x27;user_name&#x27;: &#x27;user_name_example&#x27;, &#x27;principal_id&#x27;: &#x27;ocid1.principal.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;response_headers&#x27;: {}, &#x27;compartment_name&#x27;: &#x27;compartment_name_example&#x27;, &#x27;request_action&#x27;: &#x27;request_action_example&#x27;, &#x27;credential_id&#x27;: &#x27;ocid1.credential.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;request_id&#x27;: &#x27;ocid1.request.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;event_name&#x27;: &#x27;LaunchInstance&#x27;, &#x27;tenant_id&#x27;: &#x27;ocid1.tenant.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;event_source&#x27;: &#x27;event_source_example&#x27;, &#x27;request_headers&#x27;: {}, &#x27;event_id&#x27;: &#x27;ocid1.event.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;request_resource&#x27;: &#x27;request_resource_example&#x27;, &#x27;response_time&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;response_status&#x27;: &#x27;response_status_example&#x27;, &#x27;request_parameters&#x27;: {}, &#x27;event_time&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -349,7 +350,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>The time the event occurred, expressed in <a href='https://tools.ietf.org/html/rfc3339'>RFC 3339</a> timestamp format.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 19:20:30+01:00</div>
                                     </td>
             </tr>
                                 <tr>
@@ -523,7 +524,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>The time of the response to the audited request, expressed in <a href='https://tools.ietf.org/html/rfc3339'>RFC 3339</a> timestamp format.</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 18:20:30</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">2013-10-20 19:20:30+01:00</div>
                                     </td>
             </tr>
                                 <tr>

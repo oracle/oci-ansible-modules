@@ -50,7 +50,5 @@ class ObjectLifecyclePolicyHelperCustom:
 
     # override UPDATE to use CREATE underneath because there may be no existing
     # resource to fetch which is fine for CREATE but causes UPDATE to fail
-    def update(self, check_applicable=True, wait_applicable=True):
-        return self.create(
-            check_applicable=check_applicable, wait_applicable=wait_applicable
-        )
+    def update(self):
+        return self.create()

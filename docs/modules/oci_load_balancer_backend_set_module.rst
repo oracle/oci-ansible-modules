@@ -52,7 +52,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_OCID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
+                                                                        <div>The OCID of the user, on whose behalf, OCI APIs are invoked. If not set, then the value of the OCI_USER_ID environment variable, if any, is used. This option is required if the user is not specified through a configuration file (See <code>config_file_location</code>). To get the user&#x27;s OCID, please refer <a href='https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm'>https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm</a>.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -105,10 +105,11 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>api_key</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>instance_principal</li>
+                                                                                                                                                                                                <li>instance_obo_user</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible playbooks within an OCI compute instance.</div>
+                                                                        <div>The type of authentication to use for making API requests. By default <code>auth_type=&quot;api_key&quot;</code> based authentication is performed and the API key (see <em>api_user_key_file</em>) in your config file will be used. If this &#x27;auth_type&#x27; module option is not specified, the value of the OCI_ANSIBLE_AUTH_TYPE, if any, is used. Use <code>auth_type=&quot;instance_principal&quot;</code> to use instance principal based authentication when running ansible` playbooks within an OCI compute instance.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -616,7 +617,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1200</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2000</div>
                                     </td>
                                                                 <td>
                                                                         <div>Time, in seconds, to wait when <em>wait=yes</em>.</div>
@@ -735,7 +736,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created/updated Load Balancer Backend Set. For delete, deleted Load Balancer Backend Set description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;ssl_configuration&#x27;: {&#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;verify_depth&#x27;: 1, &#x27;verify_peer_certificate&#x27;: True}, &#x27;backends&#x27;: [{&#x27;drain&#x27;: False, &#x27;name&#x27;: &#x27;10.159.34.21:8080&#x27;, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;offline&#x27;: False, &#x27;backup&#x27;: False, &#x27;port&#x27;: 8080}, {&#x27;drain&#x27;: False, &#x27;name&#x27;: &#x27;10.159.34.21:8282&#x27;, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;offline&#x27;: False, &#x27;backup&#x27;: False, &#x27;port&#x27;: 8282}], &#x27;health_checker&#x27;: {&#x27;retries&#x27;: 3, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;response_body_regex&#x27;: &#x27;^(500|40[1348])$&#x27;, &#x27;return_code&#x27;: 500, &#x27;timeout_in_millis&#x27;: 6000, &#x27;interval_in_millis&#x27;: 30000, &#x27;url_path&#x27;: &#x27;/healthcheck&#x27;, &#x27;port&#x27;: 8080}, &#x27;name&#x27;: &#x27;backend_set_1&#x27;, &#x27;policy&#x27;: &#x27;IP_HASH&#x27;, &#x27;session_persistence_configuration&#x27;: {&#x27;cookie_name&#x27;: &#x27;first_backend_set_cookie_updated&#x27;, &#x27;disable_fallback&#x27;: True}}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;session_persistence_configuration&#x27;: {&#x27;disable_fallback&#x27;: True, &#x27;cookie_name&#x27;: &#x27;first_backend_set_cookie_updated&#x27;}, &#x27;backends&#x27;: [{&#x27;port&#x27;: 8080, &#x27;backup&#x27;: False, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;name&#x27;: &#x27;10.159.34.21:8080&#x27;, &#x27;drain&#x27;: False, &#x27;offline&#x27;: False}, {&#x27;port&#x27;: 8282, &#x27;backup&#x27;: False, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;name&#x27;: &#x27;10.159.34.21:8282&#x27;, &#x27;drain&#x27;: False, &#x27;offline&#x27;: False}], &#x27;ssl_configuration&#x27;: {&#x27;verify_peer_certificate&#x27;: True, &#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;verify_depth&#x27;: 1}, &#x27;policy&#x27;: &#x27;IP_HASH&#x27;, &#x27;name&#x27;: &#x27;backend_set_1&#x27;, &#x27;health_checker&#x27;: {&#x27;url_path&#x27;: &#x27;/healthcheck&#x27;, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;interval_in_millis&#x27;: 30000, &#x27;timeout_in_millis&#x27;: 6000, &#x27;port&#x27;: 8080, &#x27;retries&#x27;: 3, &#x27;response_body_regex&#x27;: &#x27;^(500|40[1348])$&#x27;, &#x27;return_code&#x27;: 500}}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -749,7 +750,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>A list of configurations related to Backends that are part of the backend set</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;drain&#x27;: False, &#x27;name&#x27;: &#x27;10.159.34.21:8080&#x27;, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;offline&#x27;: False, &#x27;backup&#x27;: False, &#x27;port&#x27;: 8080}, {&#x27;drain&#x27;: False, &#x27;name&#x27;: &#x27;10.159.34.21:8282&#x27;, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;offline&#x27;: False, &#x27;backup&#x27;: False, &#x27;port&#x27;: 8282}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;port&#x27;: 8080, &#x27;backup&#x27;: False, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;name&#x27;: &#x27;10.159.34.21:8080&#x27;, &#x27;drain&#x27;: False, &#x27;offline&#x27;: False}, {&#x27;port&#x27;: 8282, &#x27;backup&#x27;: False, &#x27;weight&#x27;: 1, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;name&#x27;: &#x27;10.159.34.21:8282&#x27;, &#x27;drain&#x27;: False, &#x27;offline&#x27;: False}]</div>
                                     </td>
             </tr>
                                 <tr>
@@ -763,7 +764,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Health check policy for a backend set.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;retries&#x27;: 3, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;response_body_regex&#x27;: &#x27;^(500|40[1348])$&#x27;, &#x27;return_code&#x27;: 200, &#x27;timeout_in_millis&#x27;: 6000, &#x27;interval_in_millis&#x27;: 30000, &#x27;url_path&#x27;: &#x27;/healthcheck&#x27;, &#x27;port&#x27;: 8080}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;url_path&#x27;: &#x27;/healthcheck&#x27;, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;interval_in_millis&#x27;: 30000, &#x27;timeout_in_millis&#x27;: 6000, &#x27;port&#x27;: 8080, &#x27;retries&#x27;: 3, &#x27;response_body_regex&#x27;: &#x27;^(500|40[1348])$&#x27;, &#x27;return_code&#x27;: 200}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -805,7 +806,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The configuration details for implementing session persistence</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;cookie_name&#x27;: &#x27;first_backend_set_cookie&#x27;, &#x27;disable_fallback&#x27;: True}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;disable_fallback&#x27;: True, &#x27;cookie_name&#x27;: &#x27;first_backend_set_cookie&#x27;}</div>
                                     </td>
             </tr>
                                 <tr>
@@ -819,7 +820,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The load balancer&#x27;s SSL handling configuration details.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;verify_depth&#x27;: 1, &#x27;verify_peer_certificate&#x27;: True}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;verify_peer_certificate&#x27;: True, &#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;verify_depth&#x27;: 1}</div>
                                     </td>
             </tr>
                     

@@ -4,6 +4,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
 # See LICENSE.TXT for details.
+# GENERATED FILE - DO NOT EDIT - MANUAL CHANGES WILL BE OVERWRITTEN
 
 
 from __future__ import absolute_import, division, print_function
@@ -76,9 +77,9 @@ identity_provider:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.oracle import oci_common_utils
+from ansible.module_utils.oracle import oci_common_utils, oci_wait_utils
 from ansible.module_utils.oracle.oci_resource_utils import (
-    OCIResourceHelperBase,
+    OCIActionsHelperBase,
     get_custom_class,
 )
 
@@ -90,8 +91,11 @@ except ImportError:
     HAS_OCI_PY_SDK = False
 
 
-class IdentityProviderActionsHelperGen(OCIResourceHelperBase):
-    """Supported actions: reset_idp_scim_client"""
+class IdentityProviderActionsHelperGen(OCIActionsHelperBase):
+    """
+    Supported actions:
+        reset_idp_scim_client
+    """
 
     @staticmethod
     def get_module_resource_id_param():
@@ -100,6 +104,9 @@ class IdentityProviderActionsHelperGen(OCIResourceHelperBase):
     def get_module_resource_id(self):
         return self.module.params.get("identity_provider_id")
 
+    def get_get_fn(self):
+        return self.client.get_identity_provider
+
     def get_resource(self):
         return oci_common_utils.call_with_backoff(
             self.client.get_identity_provider,
@@ -107,9 +114,21 @@ class IdentityProviderActionsHelperGen(OCIResourceHelperBase):
         )
 
     def reset_idp_scim_client(self):
-        return oci_common_utils.call_with_backoff(
-            self.client.reset_idp_scim_client,
-            identity_provider_id=self.module.params.get("identity_provider_id"),
+        return oci_wait_utils.call_and_wait(
+            call_fn=self.client.reset_idp_scim_client,
+            call_fn_args=(),
+            call_fn_kwargs=dict(
+                identity_provider_id=self.module.params.get("identity_provider_id")
+            ),
+            waiter_type=oci_wait_utils.NONE_WAITER_KEY,
+            operation="{0}_{1}".format(
+                self.module.params.get("action").upper(),
+                oci_common_utils.ACTION_OPERATION_KEY,
+            ),
+            waiter_client=self.client,
+            resource_helper=self,
+            wait_for_states=self.module.params.get("wait_until")
+            or self.get_action_desired_states(self.module.params.get("action")),
         )
 
 
@@ -144,6 +163,7 @@ def main():
         module=module,
         resource_type="identity_provider",
         service_client_class=IdentityClient,
+        namespace="identity",
     )
 
     result = resource_helper.perform_action(module.params.get("action"))
