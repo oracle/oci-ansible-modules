@@ -409,6 +409,10 @@ def main():
         dict(
             database_id=dict(type="str", required=True),
             data_guard_association_id=dict(type="str", required=False, aliases=["id"]),
+            display_name=dict(type="str", required=False),
+            hostname=dict(type="str", required=False),
+            availability_domain=dict(type="str", required=False),
+            subnet_id=dict(type="str", required=False),
             creation_type=dict(
                 type="str",
                 required=False,
@@ -419,6 +423,7 @@ def main():
                 ],
             ),
             database_admin_password=dict(type="str", required=False, no_log=True),
+            shape=dict(type="str", required=False),
             protection_mode=dict(
                 type="str",
                 required=False,
