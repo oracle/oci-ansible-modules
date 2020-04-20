@@ -222,6 +222,7 @@ try:
     from oci.exceptions import ServiceError
     from oci.database.models import (
         CreateDataGuardAssociationToExistingDbSystemDetails,
+        CreateDataGuardAssociationWithNewDbSystemDetails
         SwitchoverDataGuardAssociationDetails,
         FailoverDataGuardAssociationDetails,
         ReinstateDataGuardAssociationDetails,
@@ -282,6 +283,10 @@ def get_creation_type_instance(module):
     if module.params.get("creation_type") == "ExistingDbSystem":
         create_data_guard_association_details = (
             CreateDataGuardAssociationToExistingDbSystemDetails()
+        )
+    if module.params.get("creation_type") == "NewDbSystem":
+        create_data_guard_association_details = (
+            CreateDataGuardAssociationWithNewDbSystemDetails()
         )
     return create_data_guard_association_details
 
@@ -408,7 +413,10 @@ def main():
                 type="str",
                 required=False,
                 default="ExistingDbSystem",
-                choices=["ExistingDbSystem"],
+                choices=[
+                    "ExistingDbSystem",
+                    "NewDbSystem",
+                ],
             ),
             database_admin_password=dict(type="str", required=False, no_log=True),
             protection_mode=dict(
