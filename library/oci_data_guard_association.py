@@ -222,7 +222,7 @@ try:
     from oci.exceptions import ServiceError
     from oci.database.models import (
         CreateDataGuardAssociationToExistingDbSystemDetails,
-        CreateDataGuardAssociationWithNewDbSystemDetails
+        CreateDataGuardAssociationWithNewDbSystemDetails,
         SwitchoverDataGuardAssociationDetails,
         FailoverDataGuardAssociationDetails,
         ReinstateDataGuardAssociationDetails,
