@@ -141,6 +141,7 @@ def list_db_nodes(db_client, module):
     compartment_id = module.params.get("compartment_id")
     db_node_id = module.params.get("db_node_id")
     db_system_id = module.params.get("db_system_id")
+    existing_db_nodes=[]
     try:
         if db_node_id:
             get_logger().debug("Listing Db Node %s", db_node_id)
