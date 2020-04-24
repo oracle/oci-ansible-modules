@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -261,7 +261,8 @@ def update_database(db_client, module):
             "auto_backup_enabled", False
         )
     if (
-        existing_database.db_backup_config.auto_backup_enabled
+        existing_database.db_backup_config is None
+        or existing_database.db_backup_config.auto_backup_enabled
         != input_auto_backup_enabled
     ):
         db_backup_config = DbBackupConfig()

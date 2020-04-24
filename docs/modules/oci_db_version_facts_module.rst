@@ -254,7 +254,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Database Version.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;supports_pdb&#x27;: False, &#x27;version&#x27;: &#x27;11.2.0.4&#x27;}, {&#x27;supports_pdb&#x27;: True, &#x27;version&#x27;: &#x27;12.1.0.2&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;version&#x27;: &#x27;11.2.0.4&#x27;, &#x27;supports_pdb&#x27;: False}, {&#x27;version&#x27;: &#x27;12.1.0.2&#x27;, &#x27;supports_pdb&#x27;: True}]</div>
                                     </td>
             </tr>
                                                             <tr>

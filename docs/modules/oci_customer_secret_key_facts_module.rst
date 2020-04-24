@@ -254,7 +254,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about one or more customer secret keys in the specified user</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;customer_secret_keys&#x27;: [{&#x27;inactive_status&#x27;: &#x27;None&#x27;, &#x27;id&#x27;: &#x27;ocid1.credential.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;time_expires&#x27;: &#x27;None&#x27;, &#x27;time_created&#x27;: &#x27;2018-01-08T04:44:17.784000+00:00&#x27;, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;display_name&#x27;: &#x27;My first customer secret key description&#x27;, &#x27;user_id&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx&#x27;}]}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;customer_secret_keys&#x27;: [{&#x27;time_expires&#x27;: &#x27;None&#x27;, &#x27;time_created&#x27;: &#x27;2018-01-08T04:44:17.784000+00:00&#x27;, &#x27;display_name&#x27;: &#x27;My first customer secret key description&#x27;, &#x27;inactive_status&#x27;: &#x27;None&#x27;, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;user_id&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.credential.oc1..xxxxxEXAMPLExxxxx&#x27;}]}</div>
                                     </td>
             </tr>
                                                             <tr>

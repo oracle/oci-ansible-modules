@@ -292,7 +292,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Db Node.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;backup_vnic_id&#x27;: &#x27;ocid1.vnic.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;hostname&#x27;: &#x27;db-system-one&#x27;, &#x27;software_storage_size_in_gb&#x27;: &#x27;1024&#x27;, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;id&#x27;: &#x27;ocid1.dbnode.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2018-02-17T07:59:04.715000+00:00&#x27;, &#x27;db_system_id&#x27;: &#x27;ocid1.dbsystem.oc1.ia&#x27;, &#x27;vnic_id&#x27;: &#x27;ocid1.vnic.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;id&#x27;: &#x27;ocid1.dbnode.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;hostname&#x27;: &#x27;db-system-one&#x27;, &#x27;db_system_id&#x27;: &#x27;ocid1.dbsystem.oc1.ia&#x27;, &#x27;backup_vnic_id&#x27;: &#x27;ocid1.vnic.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;vnic_id&#x27;: &#x27;ocid1.vnic.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;software_storage_size_in_gb&#x27;: &#x27;1024&#x27;, &#x27;time_created&#x27;: &#x27;2018-02-17T07:59:04.715000+00:00&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>

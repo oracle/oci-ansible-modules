@@ -18,7 +18,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.17.0"
+__version__ = "1.18.0"
 MAX_WAIT_TIMEOUT_IN_SECONDS = 2000
 DEAD_STATES = [
     "TERMINATING",

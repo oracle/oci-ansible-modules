@@ -309,7 +309,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about the Auth token</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;description&#x27;: &#x27;test auth token 1&#x27;, &#x27;time-expires&#x27;: None, &#x27;id&#x27;: &#x27;ocid1.credential.oc1..xxxxxEXAMPLExxxxx...l5aq&#x27;, &#x27;time-created&#x27;: &#x27;2018-11-08T02:40:25.118000+00:00&#x27;, &#x27;token&#x27;: None, &#x27;inactive-status&#x27;: None, &#x27;user-id&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq&#x27;, &#x27;lifecycle-state&#x27;: &#x27;ACTIVE&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;token&#x27;: None, &#x27;lifecycle-state&#x27;: &#x27;ACTIVE&#x27;, &#x27;time-created&#x27;: &#x27;2018-11-08T02:40:25.118000+00:00&#x27;, &#x27;description&#x27;: &#x27;test auth token 1&#x27;, &#x27;time-expires&#x27;: None, &#x27;inactive-status&#x27;: None, &#x27;user-id&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx...h5hq&#x27;, &#x27;id&#x27;: &#x27;ocid1.credential.oc1..xxxxxEXAMPLExxxxx...l5aq&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>

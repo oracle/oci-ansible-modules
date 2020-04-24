@@ -295,7 +295,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>A collection of DNS resource record objects.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;is_protected&#x27;: True, &#x27;rrset_version&#x27;: &#x27;1&#x27;, &#x27;ttl&#x27;: 86400, &#x27;record_hash&#x27;: &#x27;9be3279d81b5e8430fd94c70cfa5f0a8&#x27;, &#x27;domain&#x27;: &#x27;test_zone_1.com&#x27;, &#x27;rtype&#x27;: &#x27;NS&#x27;, &#x27;rdata&#x27;: &#x27;ns2.p68.dns.oraclecloud.net.&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;ttl&#x27;: 86400, &#x27;rrset_version&#x27;: &#x27;1&#x27;, &#x27;rtype&#x27;: &#x27;NS&#x27;, &#x27;domain&#x27;: &#x27;test_zone_1.com&#x27;, &#x27;record_hash&#x27;: &#x27;9be3279d81b5e8430fd94c70cfa5f0a8&#x27;, &#x27;rdata&#x27;: &#x27;ns2.p68.dns.oraclecloud.net.&#x27;, &#x27;is_protected&#x27;: True}</div>
                                     </td>
             </tr>
                                                             <tr>

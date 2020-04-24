@@ -373,7 +373,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created certificate. For delete, deleted certificate description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;ca_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIDlTCCAn2gAw\n-----END CERTIFICATE-----&#x27;, &#x27;certificate_name&#x27;: &#x27;ansible_cert&#x27;, &#x27;public_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIDPjCCAiYCCQC5OEUUNtrC\n-----END CERTIFICATE-----&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;public_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIDPjCCAiYCCQC5OEUUNtrC\n-----END CERTIFICATE-----&#x27;, &#x27;ca_certificate&#x27;: &#x27;-----BEGIN CERTIFICATE-----\nMIIDlTCCAn2gAw\n-----END CERTIFICATE-----&#x27;, &#x27;certificate_name&#x27;: &#x27;ansible_cert&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>

@@ -241,7 +241,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about one or more tag key definitions</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;tags&#x27;: [{&#x27;description&#x27;: &#x27;This tag will show the cost center that will be used for billing of resources.&#x27;, &#x27;defined_tags&#x27;: {}, &#x27;id&#x27;: &#x27;ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;freeform_tags&#x27;: {}, &#x27;time_created&#x27;: &#x27;2018-01-16T04:55:22.600000+00:00&#x27;, &#x27;compartment_id&#x27;: None, &#x27;name&#x27;: &#x27;CostCenter&#x27;, &#x27;is_retired&#x27;: False}]}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;tags&#x27;: [{&#x27;freeform_tags&#x27;: {}, &#x27;compartment_id&#x27;: None, &#x27;id&#x27;: &#x27;ocid1.tagdefinition.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;name&#x27;: &#x27;CostCenter&#x27;, &#x27;description&#x27;: &#x27;This tag will show the cost center that will be used for billing of resources.&#x27;, &#x27;defined_tags&#x27;: {}, &#x27;time_created&#x27;: &#x27;2018-01-16T04:55:22.600000+00:00&#x27;, &#x27;is_retired&#x27;: False}]}</div>
                                     </td>
             </tr>
                                                             <tr>

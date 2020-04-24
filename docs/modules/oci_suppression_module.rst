@@ -351,7 +351,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created Suppression. For delete, deleted Suppression description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;email_address&#x27;: &#x27;ansible-test@oracle.com&#x27;, &#x27;id&#x27;: &#x27;ocid1.emailsuppression.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;reason&#x27;: &#x27;MANUAL&#x27;, &#x27;time_created&#x27;: &#x27;2018-10-31T09:20:52.245000+00:00&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;email_address&#x27;: &#x27;ansible-test@oracle.com&#x27;, &#x27;reason&#x27;: &#x27;MANUAL&#x27;, &#x27;id&#x27;: &#x27;ocid1.emailsuppression.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2018-10-31T09:20:52.245000+00:00&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>

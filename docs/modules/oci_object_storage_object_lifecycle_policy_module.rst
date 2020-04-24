@@ -428,7 +428,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>Details of the ObjectLifecyclePolicy resource acted upon by the current operation</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;items&#x27;: [{&#x27;time_amount&#x27;: 56, &#x27;is_enabled&#x27;: True, &#x27;object_name_filter&#x27;: {&#x27;exclusion_patterns&#x27;: [], &#x27;inclusion_patterns&#x27;: [], &#x27;inclusion_prefixes&#x27;: []}, &#x27;time_unit&#x27;: &#x27;DAYS&#x27;, &#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;action&#x27;: &#x27;action_example&#x27;}], &#x27;time_created&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;items&#x27;: [{&#x27;time_unit&#x27;: &#x27;DAYS&#x27;, &#x27;action&#x27;: &#x27;action_example&#x27;, &#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;object_name_filter&#x27;: {&#x27;exclusion_patterns&#x27;: [], &#x27;inclusion_prefixes&#x27;: [], &#x27;inclusion_patterns&#x27;: []}, &#x27;is_enabled&#x27;: True, &#x27;time_amount&#x27;: 56}], &#x27;time_created&#x27;: &#x27;2013-10-20T19:20:30+01:00&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>

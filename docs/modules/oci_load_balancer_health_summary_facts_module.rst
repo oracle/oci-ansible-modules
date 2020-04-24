@@ -224,7 +224,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of all Load Balancer Health Summary in a List</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;load_balancer_id&#x27;: &#x27;ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;status&#x27;: &#x27;WARNING&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;status&#x27;: &#x27;WARNING&#x27;, &#x27;load_balancer_id&#x27;: &#x27;ocid1.loadbalancer.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

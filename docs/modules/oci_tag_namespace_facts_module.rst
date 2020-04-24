@@ -270,7 +270,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about one or more tag namespaces in the specified user</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;tag_namespaces&#x27;: [{&#x27;description&#x27;: &#x27;This namespace contains tags that will be used in billing.&#x27;, &#x27;defined_tags&#x27;: {}, &#x27;id&#x27;: &#x27;ocid1.tagnamespace.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;freeform_tags&#x27;: {}, &#x27;time_created&#x27;: &#x27;2018-01-15T17:36:10.388000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;name&#x27;: &#x27;BillingTags&#x27;, &#x27;is_retired&#x27;: False}]}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;tag_namespaces&#x27;: [{&#x27;freeform_tags&#x27;: {}, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.tagnamespace.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;is_retired&#x27;: False, &#x27;description&#x27;: &#x27;This namespace contains tags that will be used in billing.&#x27;, &#x27;defined_tags&#x27;: {}, &#x27;time_created&#x27;: &#x27;2018-01-15T17:36:10.388000+00:00&#x27;, &#x27;name&#x27;: &#x27;BillingTags&#x27;}]}</div>
                                     </td>
             </tr>
                                                             <tr>

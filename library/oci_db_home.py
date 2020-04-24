@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2020 Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -43,7 +43,7 @@ options:
         default: 'NONE'
         choices: ['NONE', 'DB_BACKUP']
     database:
-        description: The details of the databse to be created under the db home. Mandatory
+        description: The details of the database to be created under the db home. Mandatory
                      for create operation.
         suboptions:
             admin_password:
@@ -87,6 +87,16 @@ options:
             backup_tde_password:
                description: The password to open the TDE wallet. This parameter only valid for I(source=DB_BACKUP).
                required: true
+            defined_tags:
+               description: Defined tags for this resource. Each key is predefined and scoped to a
+                             namespace. For more information, see L(Resource Tags,
+                             https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+               required: false
+            freeform_tags:
+               description: Free-form tags for this resource. Each tag is a simple key-value pair with no
+                             predefined name, type, or namespace. For more information, see L(Resource
+                             Tags, https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+               required: false
         required: false
     display_name:
         description: The user-provided name of the database home.
@@ -421,7 +431,29 @@ def main():
                 choices=["DB_BACKUP", "NONE"],
                 default="NONE",
             ),
-            database=dict(type=dict, required=False),
+            database=dict(
+                type="dict",
+                required=False,
+                options=dict(
+                    db_name=dict(type="str", required=True),
+                    pdb_name=dict(type="str", required=False),
+                    admin_password=dict(type="str", required=True, no_log=True),
+                    character_set=dict(type="str", required=False),
+                    ncharacter_set=dict(type="str", required=False),
+                    db_workload=dict(
+                        type="str", choices=["OLTP", "DSS"], required=False
+                    ),
+                    db_backup_config=dict(
+                        type="dict",
+                        options=dict(auto_backup_enabled=dict(type="bool")),
+                        required=False,
+                    ),
+                    freeform_tags=dict(type="dict", required=False),
+                    defined_tags=dict(type="dict", required=False),
+                    backup_id=dict(type="str", required=True),
+                    backup_tde_password=dict(type="str", required=True),
+                ),
+            ),
             db_version=dict(type="str", required=False),
             patch_details=dict(type=dict, required=False),
             state=dict(

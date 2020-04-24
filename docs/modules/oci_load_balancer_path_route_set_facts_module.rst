@@ -245,7 +245,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the  Load Balancer Path Route Set.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;name&#x27;: &#x27;ansible_path_route_set&#x27;, &#x27;path_routes&#x27;: [{&#x27;backend_set_name&#x27;: &#x27;ansible_backend_set&#x27;, &#x27;path&#x27;: &#x27;/admin&#x27;, &#x27;path_match_type&#x27;: {&#x27;match_type&#x27;: &#x27;EXACT_MATCH&#x27;}}]}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;path_routes&#x27;: [{&#x27;backend_set_name&#x27;: &#x27;ansible_backend_set&#x27;, &#x27;path&#x27;: &#x27;/admin&#x27;, &#x27;path_match_type&#x27;: {&#x27;match_type&#x27;: &#x27;EXACT_MATCH&#x27;}}], &#x27;name&#x27;: &#x27;ansible_path_route_set&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

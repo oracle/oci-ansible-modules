@@ -117,6 +117,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>compartment_id</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the tenancy containing the group. Required for create using <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>config_file_location</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -378,6 +391,7 @@ Examples
     # Group creation
     - name: Create group
       oci_group:
+                compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pvexampleuniqueID
                 name: 'AnsibleTestGroup'
                 description: 'Group for Testing Ansible Module'
                 users: ['user1','user2']
@@ -398,6 +412,7 @@ Examples
 
     - name: Update group by deleting existing user memberships
       oci_group:
+                compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pvexampleuniqueID
                 id: ocid1.group.oc1..xxxxxEXAMPLExxxxx
                 description: 'Group for Testing Ansible Module'
                 delete_user_memberships: True
@@ -420,6 +435,7 @@ Examples
     # Delete group
     - name :  Forcefully delete a group and any user associations it may have
       oci_group:
+                compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pvexampleuniqueID
                 id: ocid1.group.oc1..xxxxxEXAMPLExxxxx
                 force: 'yes'
                 state: 'absent'
@@ -449,7 +465,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created/updated group. For delete, deleted group description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;description&#x27;: &#x27;Network Admin Group&#x27;, &#x27;inactive_status&#x27;: None, &#x27;defined_tags&#x27;: {&#x27;product&#x27;: {&#x27;type&#x27;: &#x27;server&#x27;}}, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;id&#x27;: &#x27;ocid1.group.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;freeform_tags&#x27;: {&#x27;group_name&#x27;: &#x27;designer&#x27;}, &#x27;time_created&#x27;: &#x27;2017-10-31T16:38:22.289000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx&#x27;, &#x27;name&#x27;: &#x27;network_admin_group&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;freeform_tags&#x27;: {&#x27;group_name&#x27;: &#x27;designer&#x27;}, &#x27;compartment_id&#x27;: &#x27;ocidv1:tenancy:oc1:phx:xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.group.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;name&#x27;: &#x27;network_admin_group&#x27;, &#x27;description&#x27;: &#x27;Network Admin Group&#x27;, &#x27;inactive_status&#x27;: None, &#x27;defined_tags&#x27;: {&#x27;product&#x27;: {&#x27;type&#x27;: &#x27;server&#x27;}}, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;time_created&#x27;: &#x27;2017-10-31T16:38:22.289000+00:00&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

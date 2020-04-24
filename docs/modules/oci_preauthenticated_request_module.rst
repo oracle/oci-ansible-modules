@@ -427,7 +427,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created Preauthenticated Request. For delete, deleted Preauthenticated Request description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;access_uri&#x27;: &#x27;/p/TF0WATak/n/us-example-1/b/ansible_bucket/o/ansible_object&#x27;, &#x27;id&#x27;: &#x27;EbFqu0/thO3/MRVb/XmZ0iaT6IA=&#x27;, &#x27;time_expires&#x27;: &#x27;2018-12-23T17:31:35+00:00&#x27;, &#x27;access_type&#x27;: &#x27;AnyObjectWrite&#x27;, &#x27;object_name&#x27;: &#x27;ansible_object&#x27;, &#x27;name&#x27;: &#x27;ansible_bucket_par&#x27;, &#x27;time_created&#x27;: &#x27;2018-12-22T12:04:02.229000+00:00&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;name&#x27;: &#x27;ansible_bucket_par&#x27;, &#x27;id&#x27;: &#x27;EbFqu0/thO3/MRVb/XmZ0iaT6IA=&#x27;, &#x27;object_name&#x27;: &#x27;ansible_object&#x27;, &#x27;access_type&#x27;: &#x27;AnyObjectWrite&#x27;, &#x27;time_expires&#x27;: &#x27;2018-12-23T17:31:35+00:00&#x27;, &#x27;access_uri&#x27;: &#x27;/p/TF0WATak/n/us-example-1/b/ansible_bucket/o/ansible_object&#x27;, &#x27;time_created&#x27;: &#x27;2018-12-22T12:04:02.229000+00:00&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>

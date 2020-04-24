@@ -114,9 +114,9 @@ optional arguments:
                         without valid hostnames(determined according to the
                         hostname format). When set to yes, the script fails
                         when any host does not have a valid hostname.
-  --primary-vnic-only {yes,no}	
-                        The default behavior of this script is to list all VNIC's	
-                        attached to a host as separate inventory items. When set	
+  --primary-vnic-only {yes,no}
+                        The default behavior of this script is to list all VNIC's
+                        attached to a host as separate inventory items. When set
                         to yes, the script will only report each instance once.
 
 The script reads following environment variables:
@@ -232,7 +232,7 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
-__version__ = "1.17.0"
+__version__ = "1.18.0"
 inventory_agent_name = "Oracle-Ansible-Inv/"
 
 
@@ -1401,14 +1401,14 @@ class OCIInventory:
             "valid hostname.",
         )
 
-        parser.add_argument(	
-            "--primary-vnic-only",	
-            action="store",	
-            choices=["yes", "no"],	
-            help="The default behavior of this script is to list all VNIC's attached to a host as separate inventory "	
-            "items. When set to yes, the script will only report each instance once.",	
-        )	
-
+        parser.add_argument(
+            "--primary-vnic-only",
+            action="store",
+            choices=["yes", "no"],
+            default="no",
+            help="The default behavior of this script is to list all VNIC's attached to a host as separate inventory "
+            "items. When set to yes, the script will only report each instance once.",
+        )
 
         self.args = parser.parse_args()
 

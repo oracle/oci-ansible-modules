@@ -266,7 +266,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Backend Health</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;health_check_results&#x27;: [{&#x27;source_ip_address&#x27;: &#x27;10.1.253.55&#x27;, &#x27;timestamp&#x27;: &#x27;2018-01-27T15:41:19.188000+00:00&#x27;, &#x27;health_check_status&#x27;: &#x27;OK&#x27;, &#x27;subnet_id&#x27;: &#x27;ocid1.subnet.aaaa&#x27;}], &#x27;status&#x27;: &#x27;CRITICAL&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;health_check_results&#x27;: [{&#x27;subnet_id&#x27;: &#x27;ocid1.subnet.aaaa&#x27;, &#x27;health_check_status&#x27;: &#x27;OK&#x27;, &#x27;source_ip_address&#x27;: &#x27;10.1.253.55&#x27;, &#x27;timestamp&#x27;: &#x27;2018-01-27T15:41:19.188000+00:00&#x27;}], &#x27;status&#x27;: &#x27;CRITICAL&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -280,7 +280,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>A list of the most recent health check results returned for the specified backend server. Element of the list represent instance of HealthCheckResult</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;source_ip_address&#x27;: &#x27;10.0.0.64&#x27;, &#x27;timestamp&#x27;: &#x27;2018-01-27T15:41:19.188000+00:00&#x27;, &#x27;health_check_status&#x27;: &#x27;OK&#x27;, &#x27;subnet_id&#x27;: &#x27;oci1.subnet.aaaa&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;subnet_id&#x27;: &#x27;oci1.subnet.aaaa&#x27;, &#x27;health_check_status&#x27;: &#x27;OK&#x27;, &#x27;source_ip_address&#x27;: &#x27;10.0.0.64&#x27;, &#x27;timestamp&#x27;: &#x27;2018-01-27T15:41:19.188000+00:00&#x27;}]</div>
                                     </td>
             </tr>
                                 <tr>

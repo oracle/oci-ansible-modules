@@ -283,7 +283,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information of work request</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;operation_type&#x27;: &#x27;CLUSTER_CREATE&#x27;, &#x27;time_started&#x27;: &#x27;2018-07-26T18:43:26+00:00&#x27;, &#x27;resources&#x27;: [], &#x27;id&#x27;: &#x27;ocid1.clustersworkrequest.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;time_finished&#x27;: &#x27;2018-07-26T18:44:13+00:00&#x27;, &#x27;time_accepted&#x27;: &#x27;2018-07-26T18:42:26+00:00&#x27;, &#x27;status&#x27;: &#x27;CANCELED&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;time_finished&#x27;: &#x27;2018-07-26T18:44:13+00:00&#x27;, &#x27;resources&#x27;: [], &#x27;status&#x27;: &#x27;CANCELED&#x27;, &#x27;time_started&#x27;: &#x27;2018-07-26T18:43:26+00:00&#x27;, &#x27;operation_type&#x27;: &#x27;CLUSTER_CREATE&#x27;, &#x27;time_accepted&#x27;: &#x27;2018-07-26T18:42:26+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.clustersworkrequest.oc1..xxxxxEXAMPLExxxxx&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>
