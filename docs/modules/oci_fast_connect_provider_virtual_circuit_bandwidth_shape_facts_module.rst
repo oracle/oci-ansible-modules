@@ -225,7 +225,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Fast Connect Provider Service.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;name&#x27;: &#x27;1 Gbps&#x27;, &#x27;bandwidth_in_mbps&#x27;: 1000}, {&#x27;name&#x27;: &#x27;2 Gbps&#x27;, &#x27;bandwidth_in_mbps&#x27;: 2000}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;bandwidth_in_mbps&#x27;: 1000, &#x27;name&#x27;: &#x27;1 Gbps&#x27;}, {&#x27;bandwidth_in_mbps&#x27;: 2000, &#x27;name&#x27;: &#x27;2 Gbps&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

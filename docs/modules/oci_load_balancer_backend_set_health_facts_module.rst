@@ -238,7 +238,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Backend Health</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;warning_state_backend_names&#x27;: [], &#x27;critical_state_backend_names&#x27;: [&#x27;10.159.34.21:8080&#x27;, &#x27;10.159.34.21:8181&#x27;], &#x27;status&#x27;: &#x27;CRITICAL&#x27;, &#x27;unknown_state_backend_names&#x27;: [], &#x27;total_backend_count&#x27;: 2}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;critical_state_backend_names&#x27;: [&#x27;10.159.34.21:8080&#x27;, &#x27;10.159.34.21:8181&#x27;], &#x27;status&#x27;: &#x27;CRITICAL&#x27;, &#x27;total_backend_count&#x27;: 2, &#x27;unknown_state_backend_names&#x27;: [], &#x27;warning_state_backend_names&#x27;: []}</div>
                                     </td>
             </tr>
                                                             <tr>

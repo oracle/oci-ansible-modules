@@ -251,7 +251,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>List of AutonomousExadataInfrastructureShape resources</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;available_core_count&#x27;: 56, &#x27;minimum_core_count&#x27;: 56, &#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;minimum_node_count&#x27;: 56, &#x27;maximum_node_count&#x27;: 56, &#x27;core_count_increment&#x27;: 56}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;minimum_core_count&#x27;: 56, &#x27;name&#x27;: &#x27;name_example&#x27;, &#x27;maximum_node_count&#x27;: 56, &#x27;minimum_node_count&#x27;: 56, &#x27;core_count_increment&#x27;: 56, &#x27;available_core_count&#x27;: 56}]</div>
                                     </td>
             </tr>
                                                             <tr>

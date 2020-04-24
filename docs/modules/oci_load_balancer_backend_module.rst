@@ -443,7 +443,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created/updated Load Balancer Backend. For delete, deleted Load Balancer Backend description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;port&#x27;: 8181, &#x27;backup&#x27;: False, &#x27;weight&#x27;: 3, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;name&#x27;: &#x27;10.159.34.21:8181&#x27;, &#x27;drain&#x27;: False, &#x27;offline&#x27;: False}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;weight&#x27;: 3, &#x27;name&#x27;: &#x27;10.159.34.21:8181&#x27;, &#x27;ip_address&#x27;: &#x27;10.159.34.21&#x27;, &#x27;port&#x27;: 8181, &#x27;drain&#x27;: False, &#x27;backup&#x27;: False, &#x27;offline&#x27;: False}</div>
                                     </td>
             </tr>
                                                             <tr>

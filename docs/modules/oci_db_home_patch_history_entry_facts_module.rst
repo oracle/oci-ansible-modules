@@ -241,7 +241,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the DB Home Patch History Entry</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;patch_id&#x27;: &#x27;ocid1.dbpatch.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_details&#x27;: &#x27;Action was successful&#x27;, &#x27;id&#x27;: &#x27;ocid1.dbpatchhistory.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_started&#x27;: &#x27;2018-02-24T18:25:06.151000+00:00&#x27;, &#x27;time_ended&#x27;: &#x27;2018-02-24T18:28:52.198000+00:00&#x27;, &#x27;lifecycle_state&#x27;: &#x27;SUCCEEDED&#x27;, &#x27;action&#x27;: &#x27;PRECHECK&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;patch_id&#x27;: &#x27;ocid1.dbpatch.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_details&#x27;: &#x27;Action was successful&#x27;, &#x27;action&#x27;: &#x27;PRECHECK&#x27;, &#x27;time_ended&#x27;: &#x27;2018-02-24T18:28:52.198000+00:00&#x27;, &#x27;time_started&#x27;: &#x27;2018-02-24T18:25:06.151000+00:00&#x27;, &#x27;lifecycle_state&#x27;: &#x27;SUCCEEDED&#x27;, &#x27;id&#x27;: &#x27;ocid1.dbpatchhistory.oc1.iad.xxxxxEXAMPLExxxxx&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

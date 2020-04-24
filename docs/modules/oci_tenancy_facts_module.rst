@@ -223,7 +223,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about the specified tenancy</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;home_region_key&#x27;: None, &#x27;description&#x27;: &quot;Acme Corp&#x27;s tenancy&quot;, &#x27;name&#x27;: &#x27;acme-corp&#x27;, &#x27;id&#x27;: &#x27;ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx...o244pucq&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;id&#x27;: &#x27;ocid1.tenancy.oc1..xxxxxEXAMPLExxxxx...o244pucq&#x27;, &#x27;name&#x27;: &#x27;acme-corp&#x27;, &#x27;home_region_key&#x27;: None, &#x27;description&#x27;: &quot;Acme Corp&#x27;s tenancy&quot;}</div>
                                     </td>
             </tr>
                                                             <tr>

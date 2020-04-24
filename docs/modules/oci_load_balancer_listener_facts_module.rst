@@ -243,7 +243,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of Listener.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;connection_configuration&#x27;: {&#x27;idle_timeout&#x27;: 1200}, &#x27;default_backend_set_name&#x27;: &#x27;ansible_backend&#x27;, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;hostname_names&#x27;: [&#x27;hostname_001&#x27;], &#x27;path_route_set_name&#x27;: &#x27;path_route_set_001&#x27;, &#x27;port&#x27;: 87, &#x27;ssl_configuration&#x27;: {&#x27;verify_peer_certificate&#x27;: True, &#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;verify_depth&#x27;: 1}, &#x27;name&#x27;: &#x27;ansible_listener&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;name&#x27;: &#x27;ansible_listener&#x27;, &#x27;hostname_names&#x27;: [&#x27;hostname_001&#x27;], &#x27;port&#x27;: 87, &#x27;default_backend_set_name&#x27;: &#x27;ansible_backend&#x27;, &#x27;path_route_set_name&#x27;: &#x27;path_route_set_001&#x27;, &#x27;protocol&#x27;: &#x27;HTTP&#x27;, &#x27;ssl_configuration&#x27;: {&#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;verify_depth&#x27;: 1, &#x27;verify_peer_certificate&#x27;: True}, &#x27;connection_configuration&#x27;: {&#x27;idle_timeout&#x27;: 1200}}]</div>
                                     </td>
             </tr>
                                                             <tr>
@@ -355,7 +355,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>The load balancer SSL handling configuration details</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;verify_peer_certificate&#x27;: True, &#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;verify_depth&#x27;: 1}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;certificate_name&#x27;: &#x27;certs1&#x27;, &#x27;verify_depth&#x27;: 1, &#x27;verify_peer_certificate&#x27;: True}</div>
                                     </td>
             </tr>
                     

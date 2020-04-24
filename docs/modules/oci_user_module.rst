@@ -137,6 +137,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>compartment_id</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The OCID of the tenancy containing the user. Required for create using <em>state=present</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>config_file_location</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -418,6 +431,7 @@ Examples
     # User creation or update
     - name: Create User with ui password and  group memberships
       oci_user:
+          compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6exampleuniqueID
           name: 'ansible_user'
           description: 'Ansible  User'
           user_groups: ['ansible_group_A']
@@ -438,6 +452,7 @@ Examples
 
     - name: Reset ui password of an existing user
       oci_user:
+          compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6exampleuniqueID
           id: 'ocid1.user..abuwd'
           create_or_reset_ui_password: True
           state: 'present'
@@ -451,6 +466,7 @@ Examples
 
     - name: Update user with removing all group memberships
       oci_user:
+          compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6exampleuniqueID
           id: 'ocid1.user..abuwd'
           description: 'Ansible  User'
           user_groups: []
@@ -459,6 +475,7 @@ Examples
     - name: Update user by replacing group memberships, after this
             operation user would become member of ansible_group_B
       oci_user:
+          compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6exampleuniqueID
           user_id: "ocid1.user..abuwd"
           description: 'Ansible User'
           purge_group_memberships: True
@@ -484,6 +501,7 @@ Examples
 
     - name: Delete user with  force
       oci_user:
+          compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6exampleuniqueID
           user_id: 'ocid1.user..abuwd'
           force: 'yes'
           state: 'absent'
@@ -514,7 +532,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created/updated user. For delete, deleted user description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;description&#x27;: &#x27;Ansible User&#x27;, &#x27;inactive_status&#x27;: &#x27;None&#x27;, &#x27;defined_tags&#x27;: {&#x27;department&#x27;: {&#x27;division&#x27;: &#x27;engineering&#x27;}}, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;password&#x27;: &#x27;PJ+p&gt;u1&amp;u&#x27;, &#x27;id&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;freeform_tags&#x27;: {&#x27;user_type&#x27;: &#x27;admin&#x27;}, &#x27;time_created&#x27;: &#x27;2017-11-04T14:45:27.358000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocidv1:tenancy:oc1:arz:1461274726633:aa&#x27;, &#x27;name&#x27;: &#x27;ansible_user&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;freeform_tags&#x27;: {&#x27;user_type&#x27;: &#x27;admin&#x27;}, &#x27;compartment_id&#x27;: &#x27;ocidv1:tenancy:oc1:arz:1461274726633:aa&#x27;, &#x27;id&#x27;: &#x27;ocid1.user.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;name&#x27;: &#x27;ansible_user&#x27;, &#x27;description&#x27;: &#x27;Ansible User&#x27;, &#x27;inactive_status&#x27;: &#x27;None&#x27;, &#x27;defined_tags&#x27;: {&#x27;department&#x27;: {&#x27;division&#x27;: &#x27;engineering&#x27;}}, &#x27;lifecycle_state&#x27;: &#x27;ACTIVE&#x27;, &#x27;password&#x27;: &#x27;PJ+p&gt;u1&amp;u&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-04T14:45:27.358000+00:00&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>

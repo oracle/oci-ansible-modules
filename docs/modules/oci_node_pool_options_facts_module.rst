@@ -227,7 +227,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Options available for node pools</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;shapes&#x27;: [&#x27;VM.Standard2.1&#x27;, &#x27;VM.Standard2.2&#x27;, &#x27;VM.Standard2.4&#x27;, &#x27;VM.Standard2.8&#x27;, &#x27;VM.DenseIO2.8&#x27;], &#x27;kubernetes_versions&#x27;: [&#x27;v1.8.11&#x27;, &#x27;v1.9.7&#x27;, &#x27;v1.10.3&#x27;, &#x27;v1.11.1&#x27;], &#x27;images&#x27;: [&#x27;Oracle-Linux-7.4&#x27;, &#x27;Oracle-Linux-7.5&#x27;]}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;images&#x27;: [&#x27;Oracle-Linux-7.4&#x27;, &#x27;Oracle-Linux-7.5&#x27;], &#x27;kubernetes_versions&#x27;: [&#x27;v1.8.11&#x27;, &#x27;v1.9.7&#x27;, &#x27;v1.10.3&#x27;, &#x27;v1.11.1&#x27;], &#x27;shapes&#x27;: [&#x27;VM.Standard2.1&#x27;, &#x27;VM.Standard2.2&#x27;, &#x27;VM.Standard2.4&#x27;, &#x27;VM.Standard2.8&#x27;, &#x27;VM.DenseIO2.8&#x27;]}</div>
                                     </td>
             </tr>
                                                             <tr>

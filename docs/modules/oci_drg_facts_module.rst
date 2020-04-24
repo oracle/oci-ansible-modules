@@ -253,7 +253,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>List of DRG details</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;id&#x27;: &#x27;ocid1.drg.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;display_name&#x27;: &#x27;ansible_drg&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-13T20:22:40.626000+00:00&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;id&#x27;: &#x27;ocid1.drg.oc1.phx.xxxxxEXAMPLExxxxx&#x27;, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;display_name&#x27;: &#x27;ansible_drg&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2017-11-13T20:22:40.626000+00:00&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

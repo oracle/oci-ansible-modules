@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, 2020, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -29,6 +29,10 @@ description:
     - Delete OCI group, if present.
 version_added: "2.5"
 options:
+    compartment_id:
+        description: The OCID of the tenancy containing the group.
+                     Required for create using I(state=present).
+        required: false
     name:
         description: Name of the group. Must be unique within a tenancy.
         required: true
@@ -85,6 +89,7 @@ EXAMPLES = """
 # Group creation
 - name: Create group
   oci_group:
+            compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pvexampleuniqueID
             name: 'AnsibleTestGroup'
             description: 'Group for Testing Ansible Module'
             users: ['user1','user2']
@@ -105,6 +110,7 @@ EXAMPLES = """
 
 - name: Update group by deleting existing user memberships
   oci_group:
+            compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pvexampleuniqueID
             id: ocid1.group.oc1..xxxxxEXAMPLExxxxx
             description: 'Group for Testing Ansible Module'
             delete_user_memberships: True
@@ -127,6 +133,7 @@ EXAMPLES = """
 # Delete group
 - name :  Forcefully delete a group and any user associations it may have
   oci_group:
+            compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pvexampleuniqueID
             id: ocid1.group.oc1..xxxxxEXAMPLExxxxx
             force: 'yes'
             state: 'absent'
@@ -492,6 +499,7 @@ def main():
     module_args = oci_utils.get_taggable_arg_spec(supports_wait=True)
     module_args.update(
         dict(
+            compartment_id=dict(type="str", required=False),
             name=dict(type="str", required=False),
             group_id=dict(type="str", required=False, aliases=["id"]),
             description=dict(type="str", required=False, default=""),
@@ -518,8 +526,9 @@ def main():
     oci_config = oci_utils.get_oci_config(module)
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
-    compartment_id = oci_config["tenancy"]
-    module.params.update(dict({"compartment_id": compartment_id}))
+    if module.params["compartment_id"] is None:
+        compartment_id = oci_config["tenancy"]
+        module.params.update(dict({"compartment_id": compartment_id}))
     state = module.params["state"]
 
     if state == "present":

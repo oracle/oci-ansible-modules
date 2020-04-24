@@ -116,6 +116,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>availability_domain</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Specifies an availability domain for the standby database.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>config_file_location</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -150,6 +163,7 @@ Parameters
                                 <td>
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>ExistingDbSystem</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>NewDbSystem</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
@@ -198,6 +212,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>display_name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Non-unique display name for the DB system containing the standby database.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>force_create</b>
                     <div style="font-size: small">
                         <span style="color: purple">boolean</span>
@@ -211,6 +238,19 @@ Parameters
                                                                             </td>
                                                                 <td>
                                                                         <div>Whether to attempt non-idempotent creation of a resource. By default, create resource is an idempotent operation, and doesn&#x27;t create the resource if it already exists. Setting this option to true, forcefully creates a copy of the resource, even if it already exists.This option is mutually exclusive with <em>key_by</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>hostname</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Host name for the DB system that contains the standby database. The host name must begin with an alphabetic character, and can contain only alphanumeric characters &amp; hyphens(-).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -272,6 +312,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="1">
+                    <b>shape</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Specifies a shape to use to create the standby DB system.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
                     <b>state</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
@@ -287,6 +340,19 @@ Parameters
                                                                             </td>
                                                                 <td>
                                                                         <div>Create a new dataguard association or perform role transitions within associated databases of a dataguard association. For <em>state=present</em>, it gets created. For <em>state=switchover</em>, <em>state=failover</em>, <em>state=reinstate</em>, switchover, failover and reinstate on databases gets performed respectively.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <b>subnet_id</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The subnet to which the DB system containing the standby database attaches.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -419,6 +485,21 @@ Examples
           database_admin_password: 'pasword#_'
           state: 'reinstate'
 
+    # Create Data Guard Association with New DB System
+    - name: Create Data Guard Association
+      oci_data_guard_association:
+          database_id: 'ocid1.database..abuw'
+          creation_type: 'NewDbSystem'
+          database_admin_password: 'pasword#_'
+          protection_mode: 'MAXIMUM_PERFORMANCE'
+          transport_type: 'ASYNC'
+          display_name: 'db_system_display_name'
+          subnet_id: 'ocid1.subnet.oc1.iad.xxxxEXAMPLExxxx'
+          availability_domain: 'IwGV:US-EXAMPLE-AD'
+          hostname: 'db_system_host_name'
+          wait: False
+          state: 'present'
+
 
 
 
@@ -444,7 +525,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Data Guard Association.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;role&#x27;: &#x27;PRIMARY&#x27;, &#x27;lifecycle_state&#x27;: &#x27;PROVISIONING&#x27;, &#x27;protection_mode&#x27;: &#x27;MAXIMUM_PERFORMANCE&#x27;, &#x27;peer_role&#x27;: &#x27;STANDBY&#x27;, &#x27;peer_db_system_id&#x27;: &#x27;ocid1.dbsystem.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;apply_lag&#x27;: &#x27;7 seconds&#x27;, &#x27;transport_type&#x27;: &#x27;ASYNC&#x27;, &#x27;lifecycle_details&#x27;: None, &#x27;id&#x27;: &#x27;ocid1.dgassociation.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;peer_data_guard_association_id&#x27;: &#x27;ocid1.dgassociation.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;time_created&#x27;: &#x27;2018-03-03T06:55:49.463000+00:00&#x27;, &#x27;peer_db_home_id&#x27;: &#x27;ocid1.dbhome.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;peer_database_id&#x27;: &#x27;ocid1.database.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;database_id&#x27;: &#x27;ocid1.database.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;apply_rate&#x27;: &#x27;15 KByte/s&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;peer_role&#x27;: &#x27;STANDBY&#x27;, &#x27;lifecycle_details&#x27;: None, &#x27;peer_db_system_id&#x27;: &#x27;ocid1.dbsystem.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.dgassociation.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;peer_data_guard_association_id&#x27;: &#x27;ocid1.dgassociation.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;peer_db_home_id&#x27;: &#x27;ocid1.dbhome.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;apply_lag&#x27;: &#x27;7 seconds&#x27;, &#x27;transport_type&#x27;: &#x27;ASYNC&#x27;, &#x27;database_id&#x27;: &#x27;ocid1.database.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;role&#x27;: &#x27;PRIMARY&#x27;, &#x27;protection_mode&#x27;: &#x27;MAXIMUM_PERFORMANCE&#x27;, &#x27;lifecycle_state&#x27;: &#x27;PROVISIONING&#x27;, &#x27;peer_database_id&#x27;: &#x27;ocid1.database.oc1.iad.xxxxxEXAMPLExxxxx&#x27;, &#x27;apply_rate&#x27;: &#x27;15 KByte/s&#x27;, &#x27;time_created&#x27;: &#x27;2018-03-03T06:55:49.463000+00:00&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>

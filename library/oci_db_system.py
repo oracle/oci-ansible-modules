@@ -105,8 +105,8 @@ options:
                             valid for I(source=DB_BACKUP). required - true]
                required: true
             db_version:
-               description: A valid Oracle database version. This parameter only valid for I(source=NONE).
-               required: true
+               description: A valid Oracle database version. This parameter only valid for I(source=NONE). Mandatory for create
+               required: false
             display_name:
                description: The user-provided name of the database home.
                required: false
@@ -806,7 +806,34 @@ def main():
                 default="present",
                 choices=["present", "absent"],
             ),
-            db_home=dict(type=dict, required=False),
+            db_home=dict(
+                type=dict,
+                required=False,
+                options=dict(
+                    database=dict(
+                        type="dict",
+                        required=True,
+                        options=dict(
+                            db_name=dict(type="str"),
+                            pdb_name=dict(type="str"),
+                            admin_password=dict(type="str", required=True, no_log=True),
+                            character_set=dict(type="str"),
+                            ncharacter_set=dict(type="str"),
+                            db_workload=dict(type="str", choices=["OLTP", "DSS"]),
+                            db_backup_config=dict(
+                                type="dict",
+                                options=dict(auto_backup_enabled=dict(type="bool")),
+                            ),
+                            freeform_tags=dict(type="dict"),
+                            defined_tags=dict(type="dict"),
+                            backup_id=dict(type="str"),
+                            backup_tde_password=dict(type="str"),
+                        ),
+                    ),
+                    db_version=dict(type="str", required=False),
+                    display_name=dict(type="str", required=False),
+                ),
+            ),
             disk_redundancy=dict(
                 type="str", required=False, choices=["HIGH", "NORMAL"]
             ),

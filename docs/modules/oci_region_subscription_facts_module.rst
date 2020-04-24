@@ -223,7 +223,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Region subscription information about the specified tenancy</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;region_key&#x27;: &#x27;IAD&#x27;, &#x27;region_name&#x27;: &#x27;us-ashburn-1&#x27;, &#x27;is_home_region&#x27;: True, &#x27;status&#x27;: &#x27;READY&#x27;}, {&#x27;region_key&#x27;: &#x27;PHX&#x27;, &#x27;region_name&#x27;: &#x27;us-phoenix-1&#x27;, &#x27;is_home_region&#x27;: False, &#x27;status&#x27;: &#x27;READY&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;status&#x27;: &#x27;READY&#x27;, &#x27;region_name&#x27;: &#x27;us-ashburn-1&#x27;, &#x27;region_key&#x27;: &#x27;IAD&#x27;, &#x27;is_home_region&#x27;: True}, {&#x27;status&#x27;: &#x27;READY&#x27;, &#x27;region_name&#x27;: &#x27;us-phoenix-1&#x27;, &#x27;region_key&#x27;: &#x27;PHX&#x27;, &#x27;is_home_region&#x27;: False}]</div>
                                     </td>
             </tr>
                                                             <tr>

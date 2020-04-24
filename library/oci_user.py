@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017, 2018, 2019, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2018, 2019, 2020, Oracle and/or its affiliates.
 # This software is made available to you under the terms of the GPL 3.0 license or the Apache 2.0 license.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # Apache License v2.0
@@ -32,6 +32,10 @@ description:
     - Delete OCI user, if present.
 version_added: "2.5"
 options:
+    compartment_id:
+        description: The OCID of the tenancy containing the user.
+                     Required for create using I(state=present).
+        required: false
     name:
         description: Name of the user. Must be unique for a tenancy.
         required: true
@@ -102,6 +106,7 @@ EXAMPLES = """
 # User creation or update
 - name: Create User with ui password and  group memberships
   oci_user:
+      compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6exampleuniqueID
       name: 'ansible_user'
       description: 'Ansible  User'
       user_groups: ['ansible_group_A']
@@ -122,6 +127,7 @@ EXAMPLES = """
 
 - name: Reset ui password of an existing user
   oci_user:
+      compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6exampleuniqueID
       id: 'ocid1.user..abuwd'
       create_or_reset_ui_password: True
       state: 'present'
@@ -135,6 +141,7 @@ EXAMPLES = """
 
 - name: Update user with removing all group memberships
   oci_user:
+      compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6exampleuniqueID
       id: 'ocid1.user..abuwd'
       description: 'Ansible  User'
       user_groups: []
@@ -143,6 +150,7 @@ EXAMPLES = """
 - name: Update user by replacing group memberships, after this
         operation user would become member of ansible_group_B
   oci_user:
+      compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6exampleuniqueID
       user_id: "ocid1.user..abuwd"
       description: 'Ansible User'
       purge_group_memberships: True
@@ -168,6 +176,7 @@ EXAMPLES = """
 
 - name: Delete user with  force
   oci_user:
+      compartment_id: ocid1.tenancy.oc1..aaaaaaaaba3pv6exampleuniqueID
       user_id: 'ocid1.user..abuwd'
       force: 'yes'
       state: 'absent'
@@ -609,6 +618,7 @@ def main():
     module_args = oci_utils.get_taggable_arg_spec(supports_wait=True)
     module_args.update(
         dict(
+            compartment_id=dict(type="str", required=False),
             name=dict(type="str", required=False),
             user_id=dict(type="str", required=False, aliases=["id"]),
             description=dict(type="str", required=False, default=""),
@@ -639,8 +649,9 @@ def main():
     oci_config = oci_utils.get_oci_config(module)
     identity_client = oci_utils.create_service_client(module, IdentityClient)
 
-    compartment_id = oci_config["tenancy"]
-    module.params.update(dict({"compartment_id": compartment_id}))
+    if (module.params["compartment_id"]) is None:
+        compartment_id = oci_config["tenancy"]
+        module.params.update(dict({"compartment_id": compartment_id}))
     state = module.params["state"]
     if state == "present":
         result = create_or_update_user(identity_client, module)

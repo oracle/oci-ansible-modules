@@ -149,7 +149,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The details of the databse to be created under the db home. Mandatory for create operation.</div>
+                                                                        <div>The details of the database to be created under the db home. Mandatory for create operation.</div>
                                                                                 </td>
             </tr>
                                                             <tr>
@@ -248,6 +248,34 @@ Parameters
                                                                                                                                                             </td>
                                                                 <td>
                                             <div>Database workload type with allowed values OLTP and DSS. This parameter only valid for <em>source=NONE</em>.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>defined_tags</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Defined tags for this resource. Each key is predefined and scoped to a namespace. For more information, see <a href=' https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <b>freeform_tags</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace. For more information, see <a href=' https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm'>Resource Tags</a>.</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -611,7 +639,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created/updated DB Home. For delete, deleted DB Home description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;db_version&#x27;: &#x27;12.2.0.1.1&#x27;, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;display_name&#x27;: &#x27;ansible-db&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.aaaa&#x27;, &#x27;id&#x27;: &#x27;ocid1.dbhome.aaaa&#x27;, &#x27;last_patch_history_entry_id&#x27;: &#x27;ocid1.dbpatchhistory.aaaa&#x27;, &#x27;db_system_id&#x27;: &#x27;ocid1.dbsystem.aaaa&#x27;, &#x27;time_created&#x27;: &#x27;2018-02-16T08:44:32.779000+00:00&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;last_patch_history_entry_id&#x27;: &#x27;ocid1.dbpatchhistory.aaaa&#x27;, &#x27;db_version&#x27;: &#x27;12.2.0.1.1&#x27;, &#x27;id&#x27;: &#x27;ocid1.dbhome.aaaa&#x27;, &#x27;db_system_id&#x27;: &#x27;ocid1.dbsystem.aaaa&#x27;, &#x27;display_name&#x27;: &#x27;ansible-db&#x27;, &#x27;lifecycle_state&#x27;: &#x27;AVAILABLE&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.aaaa&#x27;, &#x27;time_created&#x27;: &#x27;2018-02-16T08:44:32.779000+00:00&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>

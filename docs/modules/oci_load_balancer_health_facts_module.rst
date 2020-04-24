@@ -224,7 +224,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the Load Balancer Health</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;total_backend_set_count&#x27;: 3, &#x27;critical_state_backend_set_names&#x27;: [&#x27;test_backend_one&#x27;, &#x27;test_backend_two&#x27;], &#x27;warning_state_backend_set_names&#x27;: [], &#x27;status&#x27;: &#x27;CRITICAL&#x27;, &#x27;unknown_state_backend_set_names&#x27;: []}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;critical_state_backend_set_names&#x27;: [&#x27;test_backend_one&#x27;, &#x27;test_backend_two&#x27;], &#x27;status&#x27;: &#x27;CRITICAL&#x27;, &#x27;warning_state_backend_set_names&#x27;: [], &#x27;total_backend_set_count&#x27;: 3, &#x27;unknown_state_backend_set_names&#x27;: []}</div>
                                     </td>
             </tr>
                                                             <tr>

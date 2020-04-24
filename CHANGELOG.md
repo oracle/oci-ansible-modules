@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.18.0] - 2020-4-23
+
+### Added:
+- Added new parameter `compartment_id` to the `oci_user` and `oci_group` modules.
+- Added an alternative `NewDBSystem` for parameter `creation_type` in `oci_data_guard_association` module to support 
+  creation of standby database for a VM-based DB System [Open source PR](https://github.com/oracle/oci-ansible-modules/pull/109) & [Github issue](https://github.com/oracle/oci-ansible-modules/issues/106)
+- Added a `primary-vnic-only` flag to the `oci_inventory` module to ensure compute instances will be listed only once if this flag is set to `yes` [Open source PR](https://github.com/oracle/oci-ansible-modules/pull/110)
+
+### Fixed:
+- Removed secure mongo DB deployment sample
+- Made `admin_password` parameter as not_loggable in the `oci_db_system` and `oci_db_home` modules
+- Fixed the `db_backup_config` is None error faced while updating a database which is created during a db_system creation from the backup of another database [Github issue](https://github.com/oracle/oci-ansible-modules/issues/104)
 
 ## [1.17.0] - 2020-3-10
 

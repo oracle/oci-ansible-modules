@@ -224,7 +224,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>List of AuthToken resources</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;description&#x27;: &#x27;description_example&#x27;, &#x27;inactive_status&#x27;: 56, &#x27;lifecycle_state&#x27;: &#x27;CREATING&#x27;, &#x27;user_id&#x27;: &#x27;ocid1.user.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;time_expires&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;token&#x27;: &#x27;token_example&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;token&#x27;: &#x27;token_example&#x27;, &#x27;id&#x27;: &#x27;ocid1.resource.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;description&#x27;: &#x27;description_example&#x27;, &#x27;inactive_status&#x27;: 56, &#x27;time_created&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;, &#x27;lifecycle_state&#x27;: &#x27;CREATING&#x27;, &#x27;user_id&#x27;: &#x27;ocid1.user.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;time_expires&#x27;: &#x27;2016-08-25T21:10:29.600Z&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

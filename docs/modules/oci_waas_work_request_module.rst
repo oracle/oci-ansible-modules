@@ -287,7 +287,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Information about the WAAS work request.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;operation_type&#x27;: &#x27;UPDATE_WAAS_POLICY&#x27;, &#x27;time_started&#x27;: None, &#x27;errors&#x27;: [], &#x27;percent_complete&#x27;: 0, &#x27;resources&#x27;: [], &#x27;logs&#x27;: [], &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;time_finished&#x27;: None, &#x27;time_accepted&#x27;: &#x27;2019-03-22T13:02:55.563000+00:00&#x27;, &#x27;status&#x27;: &#x27;CANCELLED&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;time_finished&#x27;: None, &#x27;resources&#x27;: [], &#x27;status&#x27;: &#x27;CANCELLED&#x27;, &#x27;time_started&#x27;: None, &#x27;operation_type&#x27;: &#x27;UPDATE_WAAS_POLICY&#x27;, &#x27;errors&#x27;: [], &#x27;logs&#x27;: [], &#x27;time_accepted&#x27;: &#x27;2019-03-22T13:02:55.563000+00:00&#x27;, &#x27;compartment_id&#x27;: &#x27;ocid1.compartment.oc1..xxxxxEXAMPLExxxxx&#x27;, &#x27;percent_complete&#x27;: 0}</div>
                                     </td>
             </tr>
                                                             <tr>

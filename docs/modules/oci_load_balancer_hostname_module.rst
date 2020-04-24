@@ -331,7 +331,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                             <div>Attributes of the created/updated Load Balancer Hostname. For delete, deleted Load Balancer Hostname description will be returned.</div>
                                         <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;name&#x27;: &#x27;ansible_hostname&#x27;, &#x27;hostname&#x27;: &#x27;app.example.com&#x27;}, {&#x27;name&#x27;: &#x27;ansible_hostname_002&#x27;, &#x27;hostname&#x27;: &#x27;app.production.com&#x27;}]</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;hostname&#x27;: &#x27;app.example.com&#x27;, &#x27;name&#x27;: &#x27;ansible_hostname&#x27;}, {&#x27;hostname&#x27;: &#x27;app.production.com&#x27;, &#x27;name&#x27;: &#x27;ansible_hostname_002&#x27;}]</div>
                                     </td>
             </tr>
                                                             <tr>

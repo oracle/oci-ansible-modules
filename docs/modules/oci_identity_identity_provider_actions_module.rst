@@ -242,7 +242,7 @@ Common return values are documented :ref:`here <common_return_values>`, the foll
                                                                         <div>Details of the IdentityProvider resource acted upon by the current operation</div>
                                                                 <br/>
                                             <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;client_secret&#x27;: &#x27;client_secret_example&#x27;, &#x27;client_id&#x27;: &#x27;ocid1.client.oc1..xxxxxxEXAMPLExxxxxx&#x27;}</div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;client_id&#x27;: &#x27;ocid1.client.oc1..xxxxxxEXAMPLExxxxxx&#x27;, &#x27;client_secret&#x27;: &#x27;client_secret_example&#x27;}</div>
                                     </td>
             </tr>
                                                             <tr>
