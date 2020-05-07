@@ -139,12 +139,30 @@ options:
                                       - **URL_PART_CONTAINS:** Matches if the concatenation of request URL path and query contains the contents of the `value`
                                         field.
                                       - **URL_REGEX:** Matches if the request is described by the regular expression in the `value` field.
+                                      - **URL_DOES_NOT_MATCH_REGEX:** Matches if the concatenation of request URL path and query is not described by the
+                                        regular expression in the `value` field.
+                                      - **URL_DOES_NOT_START_WITH:** Matches if the concatenation of request URL path and query does not start with the
+                                        contents of the `value` field.
+                                      - **URL_PART_DOES_NOT_CONTAIN:** Matches if the concatenation of request URL path and query does not contain the
+                                        contents of the `value` field.
+                                      - **URL_PART_DOES_NOT_END_WITH:** Matches if the concatenation of request URL path and query does not end with the
+                                        contents of the `value` field.
                                       - **IP_IS:** Matches if the request originates from an IP address in the `value` field.
                                       - **IP_IS_NOT:** Matches if the request does not originate from an IP address in the `value` field.
+                                      - **IP_IN_LIST:** Matches if the request originates from one of the IP addresses contained in the referenced address list.
+                                        The `value` in this case is OCID of the address list.
+                                      - **IP_NOT_IN_LIST:** Matches if the request does not originate from any IP address contained in the referenced address list.
+                                        The `value` field in this case is OCID of the address list.
                                       - **HTTP_HEADER_CONTAINS:** Matches if the request includes an HTTP header field whose name and value correspond to data
                                         specified in the `value` field with a separating colon. **Example:** `host:test.example.com` where `host` is the name of
                                         the field and `test.example.com` is the value of the host field. Comparison is independently applied to every header
                                         field whose name is a case insensitive match, and the value is required to be case-sensitive identical.
+                                      - **HTTP_METHOD_IS:** Matches if the request method is identical to one of the values listed in field.
+                                        The `value` in this case is string with one or multiple HTTP methods separated by new line symbol
+                                        The list of available methods: `GET`, `HEAD`, `POST`, `PUT`, `DELETE`, `CONNECT`, `OPTIONS`, `TRACE`, `PATCH`
+                                      - **HTTP_METHOD_IS_NOT:** Matches if the request is not identical to any of the contents of the `value` field.
+                                        The `value` in this case is string with one or multiple HTTP methods separated by new line symbol
+                                        The list of available methods: `GET`, `HEAD`, `POST`, `PUT`, `DELETE`, `CONNECT`, `OPTIONS`, `TRACE`, `PATCH`
                                       - **COUNTRY_IS:** Matches if the request originates from a country in the `value` field. Country codes are in ISO 3166-1
                                         alpha-2 format. For a list of codes, see L(ISO's website,https://www.iso.org/obp/ui/#search/code/).
                                       - **COUNTRY_IS_NOT:** Matches if the request does not originate from a country in the `value` field. Country codes are in
@@ -160,9 +178,17 @@ options:
                                     - "URL_PART_ENDS_WITH"
                                     - "URL_PART_CONTAINS"
                                     - "URL_REGEX"
+                                    - "URL_DOES_NOT_MATCH_REGEX"
+                                    - "URL_DOES_NOT_START_WITH"
+                                    - "URL_PART_DOES_NOT_CONTAIN"
+                                    - "URL_PART_DOES_NOT_END_WITH"
                                     - "IP_IS"
                                     - "IP_IS_NOT"
+                                    - "IP_IN_LIST"
+                                    - "IP_NOT_IN_LIST"
                                     - "HTTP_HEADER_CONTAINS"
+                                    - "HTTP_METHOD_IS"
+                                    - "HTTP_METHOD_IS_NOT"
                                     - "COUNTRY_IS"
                                     - "COUNTRY_IS_NOT"
                                     - "USER_AGENT_IS"
@@ -963,12 +989,30 @@ waas_policy:
                                           - **URL_PART_CONTAINS:** Matches if the concatenation of request URL path and query contains the contents of the
                                             `value` field.
                                           - **URL_REGEX:** Matches if the request is described by the regular expression in the `value` field.
+                                          - **URL_DOES_NOT_MATCH_REGEX:** Matches if the concatenation of request URL path and query is not described by the
+                                            regular expression in the `value` field.
+                                          - **URL_DOES_NOT_START_WITH:** Matches if the concatenation of request URL path and query does not start with the
+                                            contents of the `value` field.
+                                          - **URL_PART_DOES_NOT_CONTAIN:** Matches if the concatenation of request URL path and query does not contain the
+                                            contents of the `value` field.
+                                          - **URL_PART_DOES_NOT_END_WITH:** Matches if the concatenation of request URL path and query does not end with the
+                                            contents of the `value` field.
                                           - **IP_IS:** Matches if the request originates from an IP address in the `value` field.
                                           - **IP_IS_NOT:** Matches if the request does not originate from an IP address in the `value` field.
+                                          - **IP_IN_LIST:** Matches if the request originates from one of the IP addresses contained in the referenced address list.
+                                            The `value` in this case is OCID of the address list.
+                                          - **IP_NOT_IN_LIST:** Matches if the request does not originate from any IP address contained in the referenced address list.
+                                            The `value` field in this case is OCID of the address list.
                                           - **HTTP_HEADER_CONTAINS:** Matches if the request includes an HTTP header field whose name and value correspond to
                                             data specified in the `value` field with a separating colon. **Example:** `host:test.example.com` where `host` is
                                             the name of the field and `test.example.com` is the value of the host field. Comparison is independently applied to
                                             every header field whose name is a case insensitive match, and the value is required to be case-sensitive identical.
+                                          - **HTTP_METHOD_IS:** Matches if the request method is identical to one of the values listed in field.
+                                            The `value` in this case is string with one or multiple HTTP methods separated by new line symbol
+                                            The list of available methods: `GET`, `HEAD`, `POST`, `PUT`, `DELETE`, `CONNECT`, `OPTIONS`, `TRACE`, `PATCH`
+                                          - **HTTP_METHOD_IS_NOT:** Matches if the request is not identical to any of the contents of the `value` field.
+                                            The `value` in this case is string with one or multiple HTTP methods separated by new line symbol
+                                            The list of available methods: `GET`, `HEAD`, `POST`, `PUT`, `DELETE`, `CONNECT`, `OPTIONS`, `TRACE`, `PATCH`
                                           - **COUNTRY_IS:** Matches if the request originates from a country in the `value` field. Country codes are in ISO
                                             3166-1 alpha-2 format. For a list of codes, see L(ISO's website,https://www.iso.org/obp/ui/#search/code/).
                                           - **COUNTRY_IS_NOT:** Matches if the request does not originate from a country in the `value` field. Country codes are
