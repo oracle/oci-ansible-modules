@@ -1087,6 +1087,18 @@ class OCIInventory:
 
                 host_name = self.get_host_name(vnic, region=region)
 
+                if vnic.private_ip:
+                    self.log("{0} has private_ip {1}".format(host_name, vnic.private_ip))
+                    instance_vars['private_ip'] = vnic.private_ip
+                else:
+                    self.log("{0} has no private_ip".format(host_name))
+
+                if vnic.public_ip:
+                    self.log("{0} has public_ip {1}".format(host_name, vnic.public_ip))
+                    instance_vars['public_ip'] = vnic.public_ip
+                else:
+                    self.log("{0} has no public_ip".format(host_name))
+
                 # Skip host which is not addressable using hostname_format
                 if not host_name:
                     if self.params["strict_hostname_checking"] == "yes":
