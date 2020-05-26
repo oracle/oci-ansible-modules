@@ -2,7 +2,9 @@
 
 ## About
 
-Oracle Cloud Infrastructure Ansible Modules provide an easy way to create and provision resources in Oracle Cloud Infrastructure (OCI) through Ansible. These modules allow you to author Ansible playbooks that help you automate the provisioning and configuring of Oracle Cloud Infrastructure services and resources, such as Compute, Load Balancing, Database, and other Oracle Cloud Infrastructure services.
+Oracle Cloud Infrastructure Ansible Modules provides an easy way to provision and manage resources in Oracle Cloud using Ansible.
+
+> **Note: A new version of OCI modules is released under [OCI Ansible collection](https://github.com/oracle/oci-ansible-collection). We recommend using the new version. Refer to the [Migration Guide](https://github.com/oracle/oci-ansible-collections/blob/master/MigrationGuide.md) for best migration practices.**
 
 **Services supported**
 - Block Volume
