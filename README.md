@@ -1,10 +1,15 @@
-# Oracle Cloud Infrastructure Ansible Modules
+# Oracle Cloud Infrastructure Ansible Modules (Legacy)
+
+## Deprecation Notice
+**The new [OCI Ansible collection](https://github.com/oracle/oci-ansible-collection), replaces [legacy OCI Ansible modules](https://github.com/oracle/oci-ansible-modules).**
+- Please migrate to the new OCI Ansible collection for improved features and support. 
+Refer to the [Migration Guide](https://github.com/oracle/oci-ansible-collections/blob/master/MigrationGuide.md) for best migration practices.
+- These legacy modules will be available only in the maintenance mode and only critical bugs will be fixed.
+They will be deprecated in mid-2021.
 
 ## About
 
-Oracle Cloud Infrastructure Ansible Modules provides an easy way to provision and manage resources in Oracle Cloud using Ansible.
-
-> **Note: A new version of OCI modules is released under [OCI Ansible collection](https://github.com/oracle/oci-ansible-collection). We recommend using the new version. Refer to the [Migration Guide](https://github.com/oracle/oci-ansible-collections/blob/master/MigrationGuide.md) for best migration practices.**
+Oracle Cloud Infrastructure Ansible Modules provide an easy way to create and provision resources in Oracle Cloud Infrastructure (OCI) through Ansible. These modules allow you to author Ansible playbooks that help you automate the provisioning and configuring of Oracle Cloud Infrastructure services and resources, such as Compute, Load Balancing, Database, and other Oracle Cloud Infrastructure services.
 
 **Services supported**
 - Block Volume
@@ -26,9 +31,11 @@ The OCI Ansible modules are built using the [Oracle Cloud Infrastructure Python 
 
 There are two methods for installation:
 
-#### 1) Installation Script (Preferred Method)
+#### 1) Installation Script
 
-See the [getting started guide](https://docs.cloud.oracle.com/iaas/Content/API/SDKDocs/ansiblegetstarted.htm) for instructions on using the installer script to install the Oracle Cloud Infrastructure Ansible Modules and its prerequisites in your host/Ansible controller node.
+Clone the modules from Github then use install.py script.
+
+Note: This installation method will not be supported in Ansible 2.10.
 
 ![](docs/quick-install.gif)
 

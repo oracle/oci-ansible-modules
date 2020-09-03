@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.19.0] - 2020-9-01
+
+### Deprecated
+The new [OCI Ansible collection](https://github.com/oracle/oci-ansible-collection), replaces [legacy OCI Ansible modules](https://github.com/oracle/oci-ansible-modules). 
+Please migrate to the new OCI Ansible collection for improved features and support.
+Refer to the [Migration Guide](https://github.com/oracle/oci-ansible-collections/blob/master/MigrationGuide.md) for best migration practices.
+These legacy modules will be available only in the maintenance mode and only critical bugs will be fixed.
+They will be deprecated in mid-2021.
+
+
 ## [1.18.0] - 2020-4-23
 
 ### Added:
