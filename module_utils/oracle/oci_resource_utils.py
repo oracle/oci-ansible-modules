@@ -28,6 +28,11 @@ try:
 except ImportError:
     HAS_OCI_PY_SDK = False
 
+DeprecationWarning = """The new OCI Ansible collection (https://github.com/oracle/oci-ansible-collection),
+replaces these legacy modules. Please migrate to the new OCI Ansible collection for improved features and support.
+The legacy modules will be available only in the maintenance mode and only critical bugs will be fixed.
+They will be deprecated in mid-2021."""
+
 
 class OCIResourceFactsHelperBase:
     def __init__(self, module, resource_type, service_client_class, namespace):
@@ -38,6 +43,7 @@ class OCIResourceFactsHelperBase:
             self.module, self.service_client_class
         )
         self.namespace = namespace
+        self.module.warn(DeprecationWarning)
 
     def get_required_params_for_get(self):
         """Expected to be generated inside the module."""
@@ -111,6 +117,7 @@ class OCIActionsHelperBase:
         )
         self.namespace = namespace
         self.check_mode = self.module.check_mode
+        self.module.warn(DeprecationWarning)
 
     def get_module_resource_id_param(self):
         """Expected to be generated inside the module."""
@@ -204,6 +211,7 @@ class OCIResourceHelperBase:
         )
         self.namespace = namespace
         self.check_mode = self.module.check_mode
+        self.module.warn(DeprecationWarning)
 
     def get_module_resource_id_param(self):
         """Expected to be generated inside the module."""

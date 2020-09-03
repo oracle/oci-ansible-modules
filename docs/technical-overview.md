@@ -1,4 +1,11 @@
 # Oracle Cloud Infrastructure Ansible Modules - Features, Architecture, Technical Details
+
+## Deprecation Notice
+**The new [OCI Ansible collection](https://github.com/oracle/oci-ansible-collection), replaces [legacy OCI Ansible modules](https://github.com/oracle/oci-ansible-modules).**
+- Please migrate to the new OCI Ansible collection for improved features and support. 
+Refer to the [Migration Guide](https://github.com/oracle/oci-ansible-collections/blob/master/MigrationGuide.md) for best migration practices.
+- These legacy modules will be available only in the maintenance mode and only critical bugs will be fixed.
+They will be deprecated in mid-2021.
  
 ## 1. Introduction
 
