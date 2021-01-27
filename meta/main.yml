@@ -18,13 +18,9 @@ galaxy_info:
 
   galaxy_tags:
     - oracle
-    - cloud
-    - system
-    - development
-    - networking
-    - compute
-    - storage
     - oci
+    - legacy_modules
+    - deprecated
 
   platforms:
     - name: GenericLinux
