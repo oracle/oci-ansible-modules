@@ -1,17 +1,20 @@
 # Oracle Cloud Infrastructure Ansible Modules (Legacy)
 
 ## Deprecation Notice
+
 **The new [OCI Ansible collection](https://github.com/oracle/oci-ansible-collection), replaces [legacy OCI Ansible modules](https://github.com/oracle/oci-ansible-modules).**
-- Please migrate to the new OCI Ansible collection for improved features and support. 
-Refer to the [Migration Guide](https://github.com/oracle/oci-ansible-collections/blob/master/MigrationGuide.md) for best migration practices.
+
+- Please migrate to the new OCI Ansible collection for improved features and support.
+  Refer to the [Migration Guide](https://github.com/oracle/oci-ansible-collections/blob/master/MigrationGuide.md) for best migration practices.
 - These legacy modules will be available only in the maintenance mode and only critical bugs will be fixed.
-They will be deprecated in mid-2021.
+  **They will be deprecated on 1st May 2021.**
 
 ## About
 
 Oracle Cloud Infrastructure Ansible Modules provide an easy way to create and provision resources in Oracle Cloud Infrastructure (OCI) through Ansible. These modules allow you to author Ansible playbooks that help you automate the provisioning and configuring of Oracle Cloud Infrastructure services and resources, such as Compute, Load Balancing, Database, and other Oracle Cloud Infrastructure services.
 
 **Services supported**
+
 - Block Volume
 - Compute
 - Container Engine for Kubernetes Service (OKE)
@@ -39,51 +42,16 @@ Note: This installation method will not be supported in Ansible 2.10.
 
 ![](docs/quick-install.gif)
 
-#### 2) Installation from Ansible Galaxy
-
-Oracle Cloud Infrastructure Ansible Modules can also be downloaded from [Ansible Galaxy](https://galaxy.ansible.com/oracle/oci_ansible_modules) and used as roles.
-
-Note: This method does not support the ansible-doc command.
-
-1. [Install Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
-
-2. Install the modules:
-
-  ``` bash
-  $ ansible-galaxy install oracle.oci_ansible_modules
-  ```
-
-3. [Install OCI Python SDK](https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/installation.html#downloading-and-installing-the-sdk):
-
-  ``` bash
-  $ pip install oci
-  ```
-
-**Galaxy Example Playbook using Roles**
-
-
-    - hosts: localhost
-      roles:
-        - { role: oracle.oci_ansible_modules }
-      tasks:
-        - name: Get all the buckets in the namespace
-          oci_bucket_facts:
-            namespace_name: "{{ namespace_name }}"
-            compartment_id: "{{ compartment_id }}"
-
 ## Samples
 
 This project includes a catalog of Oracle Cloud Infrastructure Ansible module samples that illustrate using the modules to carry out common infrastructure provisioning and configuration tasks.
 The samples are organized in groups associated with Oracle Cloud Infrastructure services under [the samples directory on GitHub](https://github.com/oracle/oci-ansible-modules/tree/master/samples).
-
 
 Begin by reviewing the Readme.md file that you will find in each sample's root directory.
 
 ## Documentation
 
 Documentation to get started and details about prerequisites, installation and configuration instructions, can be found [here](https://docs.cloud.oracle.com/iaas/Content/API/SDKDocs/ansible.htm).
-
-FAQs, technical design documents and development HOWTOs, and web documentation for the OCI Ansible modules can be found [here](https://oracle-cloud-infrastructure-ansible-modules.readthedocs.io).
 
 ## Help
 
