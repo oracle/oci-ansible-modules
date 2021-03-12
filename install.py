@@ -160,6 +160,12 @@ def main():
         os.listdir(inventory_plugin_src_path), inventory_plugin_src_path, inventory_plugin_dest_path
     )
 
+    ### Creating base dir if it doesn't exist ###
+    cloud_module_dir_path = os.path.join(ansible_path, "modules", "cloud")
+    if not os.path.exists(cloud_module_dir_path):
+        print("Creating directory {}".format(cloud_module_dir_path))
+        os.mkdir(cloud_module_dir_path)
+    
     ### Modules copy ###
     oracle_module_dir_path = os.path.join(ansible_path, "modules", "cloud", "oracle")
     if not os.path.exists(oracle_module_dir_path):
